@@ -1,4 +1,4 @@
-interface PlatformPolicy {
+export interface PlatformPolicy {
   name: string;
   legalBasis: string[];
   contentPolicies: string[];

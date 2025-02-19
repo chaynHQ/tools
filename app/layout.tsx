@@ -1,19 +1,22 @@
-import './globals.css';
+import { Footer } from '@/components/layout/footer';
+import { Header } from '@/components/layout/header';
+import { GoogleAnalytics } from '@next/third-parties/google';
 import type { Metadata } from 'next';
 import { Merriweather, Open_Sans } from 'next/font/google';
-import { Header } from '@/components/layout/header';
-import { Footer } from '@/components/layout/footer';
+import 'regenerator-runtime/runtime';
+import './globals.css';
 
-const merriweather = Merriweather({ 
+const merriweather = Merriweather({
   weight: ['400'],
   subsets: ['latin'],
-  variable: '--font-merriweather'
+  variable: '--font-merriweather',
+  display: 'swap',
 });
 
-const openSans = Open_Sans({ 
-  weight: ['400'],
+const openSans = Open_Sans({
   subsets: ['latin'],
-  variable: '--font-open-sans'
+  variable: '--font-open-sans',
+  display: 'swap',
 });
 
 export const metadata: Metadata = {
@@ -32,6 +35,7 @@ export default function RootLayout({
         <Header />
         {children}
         <Footer />
+        <GoogleAnalytics gaId="G-XXXXXXXXXX" />
       </body>
     </html>
   );

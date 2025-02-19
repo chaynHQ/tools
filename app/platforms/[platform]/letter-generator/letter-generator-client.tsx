@@ -1,33 +1,28 @@
 "use client";
 
-import { useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { motion } from 'framer-motion';
-import { platforms } from '@/lib/platforms';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft } from 'lucide-react';
-import {
-  ClipboardList,
-  MessageSquareMore,
-  FileText,
-  Copy,
-  Loader2
-} from 'lucide-react';
-import { InitialQuestions } from './initial-questions';
-import { ReportingDetails } from './reporting-details';
+import { useToast } from '@/hooks/use-toast';
+import { analytics, ANALYTICS_EVENTS } from '@/lib/analytics';
+import { platforms } from '@/lib/platforms';
+import { GeneratedLetter } from '@/types/letter';
+import { motion } from 'framer-motion';
+import { AlertCircle, ArrowLeft, ClipboardList, Copy, FileText, Loader2, MessageSquareMore } from 'lucide-react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useState } from 'react';
+import 'regenerator-runtime/runtime';
 import { FollowUpQuestions } from './follow-up-questions';
+import { InitialQuestions } from './initial-questions';
 import { LetterReview } from './letter-review';
 import { ProgressBar } from './progress-bar';
-import { useToast } from '@/hooks/use-toast';
-import { GeneratedLetter } from '@/types/letter';
+import { ReportingDetails } from './reporting-details';
 
 type Step = 'overview' | 'initial-questions' | 'reporting-details' | 'follow-up' | 'generation' | 'review';
 
 const stepTitles: Record<Step, string> = {
   'overview': 'Letter generator overview',
-  'initial-questions': 'Essential information',
-  'reporting-details': 'Previous reporting details',
-  'follow-up': 'Additional information',
+  'initial-questions': 'Content Information',
+  'reporting-details': 'Previous Reporting Details',
+  'follow-up': 'Additional Details',
   'generation': 'Generating your letter',
   'review': 'Review and send'
 };
@@ -54,6 +49,8 @@ export function LetterGeneratorClient({
   const [formData, setFormData] = useState<any>({});
   const [generatedLetter, setGeneratedLetter] = useState<GeneratedLetter | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
   const reportingStatus = searchParams.get('status') as 'standard-completed' | 'escalated-completed' | 'both-completed' | 'none-completed' | null;
   const otherPlatform = searchParams.get('other');
   const { toast } = useToast();
@@ -65,25 +62,25 @@ export function LetterGeneratorClient({
 
   const steps = [
     {
-      title: "Initial questions",
+      title: "Content Information",
       description: "Answer a few key questions about your situation to help us understand the context.",
       icon: ClipboardList,
       color: "#FFBFA3",
     },
     {
-      title: "Follow-up details",
+      title: "Additional Details",
       description: "Provide additional information to make your takedown request more specific and effective.",
       icon: MessageSquareMore,
       color: "#D5E3D2",
     },
     {
-      title: "Letter generation",
+      title: "Letter Generation",
       description: "Our AI generates a professionally-written takedown request letter based on your responses.",
       icon: FileText,
       color: "#B5BFE8",
     },
     {
-      title: "Copy and send",
+      title: "Review and Send",
       description: "Review your letter, make any final adjustments, and copy it to send to the platform.",
       icon: Copy,
       color: "#D7CD97",
@@ -91,6 +88,10 @@ export function LetterGeneratorClient({
   ];
 
   const handleStartProcess = () => {
+    analytics.trackEvent(ANALYTICS_EVENTS.PROCESS_STARTED, {
+      platform: platformId,
+      reporting_status: reportingStatus
+    });
     setCurrentStep('initial-questions');
   };
 
@@ -139,6 +140,7 @@ export function LetterGeneratorClient({
 
   const generateLetter = async () => {
     setIsGenerating(true);
+    setError(null);
     try {
       const response = await fetch('/api/generate-letter', {
         method: 'POST',
@@ -153,9 +155,14 @@ export function LetterGeneratorClient({
       }
 
       const letter = await response.json();
+      analytics.trackLetterGeneration(true, retryCount);
       setGeneratedLetter(letter);
       setCurrentStep('review');
+      setRetryCount(0);
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
+      analytics.trackError('letter_generation', errorMessage, 'LetterGenerator');
+      setError(errorMessage);
       toast({
         title: "Error generating letter",
         description: "There was a problem creating your letter. Please try again.",
@@ -292,16 +299,47 @@ export function LetterGeneratorClient({
                 }}
               />
             ) : currentStep === 'generation' ? (
-              <div className="flex flex-col items-center justify-center py-12">
-                <Loader2 className="w-8 h-8 animate-spin text-primary mb-4" />
-                <p className="text-muted-foreground">
-                  Generating your takedown request letter...
-                </p>
-              </div>
+              error ? (
+                <div className="flex flex-col items-center justify-center py-12">
+                  <div className="bg-accent-light/50 rounded-xl p-6 max-w-xl text-center">
+                    <AlertCircle className="w-8 h-8 mx-auto mb-4 text-primary" />
+                    <h3 className="text-lg font-medium mb-2">Unable to generate letter</h3>
+                    <p className="text-muted-foreground mb-6">
+                      We're having trouble connecting to our AI service. You can try again or return to the previous step.
+                    </p>
+                    <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                      {retryCount < 3 && (
+                        <Button
+                          onClick={() => {
+                            setRetryCount(prev => prev + 1);
+                            generateLetter();
+                          }}
+                          variant="outline"
+                          className="pill"
+                        >
+                          Try again
+                        </Button>
+                      )}
+                      <Button
+                        onClick={() => setCurrentStep(getPreviousStep(currentStep))}
+                        className="pill bg-primary text-white hover:opacity-90"
+                      >
+                        Go back
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center py-12">
+                  <Loader2 className="w-8 h-8 animate-spin text-primary mb-4" />
+                  <p className="text-muted-foreground">
+                    Generating your takedown request letter...
+                  </p>
+                </div>
+              )
             ) : currentStep === 'review' && generatedLetter ? (
               <LetterReview
                 letter={generatedLetter}
-                platformEmail={platform?.email}
                 onRegenerateRequest={() => {
                   generateLetter();
                   setCurrentStep('generation');

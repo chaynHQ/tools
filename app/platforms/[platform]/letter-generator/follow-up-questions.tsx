@@ -1,17 +1,19 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
-import { motion } from 'framer-motion';
-import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
+import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Button } from '@/components/ui/button';
-import { Loader2, AlertCircle } from 'lucide-react';
-import { VoiceInput } from './components/voice-input';
-import { QuestionSection } from './components/question-section';
-import { generateFollowUpQuestions, type FollowUpQuestion } from '@/lib/ai';
 import { useToast } from '@/hooks/use-toast';
+import { generateFollowUpQuestions } from '@/lib/ai';
+import { FollowUpQuestion } from '@/types/questions';
+import { motion } from 'framer-motion';
+import { AlertCircle, Loader2 } from 'lucide-react';
+import { useForm } from 'react-hook-form';
+import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
+import { QuestionSection } from './components/question-section';
+import { VoiceInput } from './components/voice-input';
+import { analytics } from '@/lib/analytics';
 
 interface FollowUpQuestionsForm {
   [key: string]: string;
@@ -23,6 +25,7 @@ interface FollowUpQuestionsProps {
 }
 
 export function FollowUpQuestions({ initialData, onSubmit }: FollowUpQuestionsProps) {
+  const startTime = useState(() => Date.now())[0];
   const [activeField, setActiveField] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [followUpQuestions, setFollowUpQuestions] = useState<FollowUpQuestion[]>([]);
@@ -45,7 +48,6 @@ export function FollowUpQuestions({ initialData, onSubmit }: FollowUpQuestionsPr
 
   const fetchQuestions = async () => {
     let isMounted = true;
-    
     setIsLoading(true);
     setError(null);
     
@@ -57,11 +59,12 @@ export function FollowUpQuestions({ initialData, onSubmit }: FollowUpQuestionsPr
       setRetryCount(0);
     } catch (error) {
       if (!isMounted) return;
-
+      
       const message = error instanceof Error 
         ? error.message 
         : 'We encountered a problem analyzing your responses.';
       
+      analytics.trackError('follow_up_generation', message, 'FollowUpQuestions');
       setError(message);
       toast({
         title: "Unable to generate follow-up questions",
@@ -95,17 +98,10 @@ export function FollowUpQuestions({ initialData, onSubmit }: FollowUpQuestionsPr
     }
   };
 
-  const getReasonIcon = (reason: FollowUpQuestion['reason']) => {
-    switch (reason) {
-      case 'insufficient':
-        return '📝';
-      case 'clarification':
-        return '🔍';
-      case 'support':
-        return '💪';
-      default:
-        return '❓';
-    }
+  const handleFormSubmit = (data: FollowUpQuestionsForm) => {
+    const timeSpent = Math.floor((Date.now() - startTime) / 1000);
+    analytics.trackQuestionsCompleted('follow_up', timeSpent);
+    onSubmit(data);
   };
 
   if (isLoading) {
@@ -156,29 +152,22 @@ export function FollowUpQuestions({ initialData, onSubmit }: FollowUpQuestionsPr
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
-      {followUpQuestions.map((question, index) => (
-        <QuestionSection
-          key={question.id}
-          title={`Additional Information ${index + 1}`}
-        >
+    <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-8">
+      <QuestionSection title="Additional Information">
+        {followUpQuestions.map((question) => (
           <motion.div
+            key={question.id}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="space-y-2"
           >
-            <div className="flex items-start gap-3 mb-2">
-              <span className="text-xl" role="img" aria-label="question type">
-                {getReasonIcon(question.reason)}
-              </span>
-              <div>
-                <Label htmlFor={question.id} className="text-lg font-medium">
-                  {question.question}
-                </Label>
-                <p className="text-sm text-muted-foreground">
-                  {question.context}
-                </p>
-              </div>
+            <div className="space-y-2">
+              <Label htmlFor={question.id} className="text-lg font-medium">
+                {question.question}
+              </Label>
+              <p className="text-sm text-muted-foreground">
+                {question.context}
+              </p>
             </div>
             
             <div className="relative">
@@ -203,8 +192,8 @@ export function FollowUpQuestions({ initialData, onSubmit }: FollowUpQuestionsPr
               </p>
             )}
           </motion.div>
-        </QuestionSection>
-      ))}
+        ))}
+      </QuestionSection>
 
       <div className="flex justify-end">
         <Button 

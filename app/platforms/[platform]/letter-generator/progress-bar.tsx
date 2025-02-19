@@ -9,9 +9,9 @@ interface ProgressBarProps {
 }
 
 const stepNames = [
-  'Initial Information',
+  'Content Information',
   'Reporting Details',
-  'Additional Information',
+  'Additional Details',
   'Letter Generation',
   'Review and Send'
 ];

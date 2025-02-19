@@ -1,16 +1,17 @@
 "use client";
 
-import 'regenerator-runtime/runtime';
-import { useState, useEffect } from 'react';
-import { useForm, Controller } from 'react-hook-form';
-import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { analytics } from '@/lib/analytics';
+import { useEffect, useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
+import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
+import 'regenerator-runtime/runtime';
+import { QuestionSection } from './components/question-section';
 import { SelectableCard } from './components/selectable-card';
 import { VoiceInput } from './components/voice-input';
-import { QuestionSection } from './components/question-section';
 
 interface InitialQuestionsForm {
   imageIdentification: string;
@@ -20,7 +21,6 @@ interface InitialQuestionsForm {
   imageTakenDate: string;
   ownershipEvidence: string;
   impactStatement: string;
-  previousContacts: string;
 }
 
 interface InitialQuestionsProps {
@@ -80,6 +80,7 @@ const contentContexts = [
 ];
 
 export function InitialQuestions({ onSubmit, reportingStatus }: InitialQuestionsProps) {
+  const startTime = useState(() => Date.now())[0];
   const [activeField, setActiveField] = useState<keyof InitialQuestionsForm | null>(null);
   const { control, register, handleSubmit, setValue, watch } = useForm<InitialQuestionsForm>();
 
@@ -108,11 +109,17 @@ export function InitialQuestions({ onSubmit, reportingStatus }: InitialQuestions
     }
   };
 
+  const handleFormSubmit = (data: InitialQuestionsForm) => {
+    const timeSpent = Math.floor((Date.now() - startTime) / 1000);
+    analytics.trackQuestionsCompleted('initial', timeSpent);
+    onSubmit(data);
+  };
+
   const inputClasses = "bg-white focus:ring-accent focus:border-accent";
   const micButtonClasses = "absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 hover:bg-accent-light/50";
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-12">
+    <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-12">
       <QuestionSection title="Content Information">
         <div className="space-y-8">
           <div className="space-y-3">
@@ -123,6 +130,7 @@ export function InitialQuestions({ onSubmit, reportingStatus }: InitialQuestions
               <Controller
                 name="contentType"
                 control={control}
+                defaultValue="personal"
                 render={({ field }) => (
                   <>
                     {contentTypes.map((type) => (
@@ -149,6 +157,7 @@ export function InitialQuestions({ onSubmit, reportingStatus }: InitialQuestions
               <Controller
                 name="contentContext"
                 control={control}
+                defaultValue="unknown"
                 render={({ field }) => (
                   <>
                     {contentContexts.map((context) => (
@@ -275,56 +284,29 @@ export function InitialQuestions({ onSubmit, reportingStatus }: InitialQuestions
         </div>
       </QuestionSection>
 
-      <QuestionSection title="Impact and Previous Actions">
-        <div className="space-y-8">
-          <div className="space-y-2">
-            <Label htmlFor="impactStatement" className="text-lg font-medium">
-              How is this affecting you?
-            </Label>
-            <p className="text-sm text-muted-foreground mb-2">
-              Explaining the impact helps convey the urgency of removal. Share what you're comfortable with.
-            </p>
-            <div className="relative">
-              <Textarea
-                id="impactStatement"
-                {...register('impactStatement')}
-                placeholder="e.g., 'This has affected my personal and professional life by...'"
-                className={`${inputClasses} pr-12`}
-                rows={4}
+      <QuestionSection title="Impact">
+        <div className="space-y-2">
+          <Label htmlFor="impactStatement" className="text-lg font-medium">
+            How is this affecting you?
+          </Label>
+          <p className="text-sm text-muted-foreground mb-2">
+            Explaining the impact helps convey the urgency of removal. Share what you're comfortable with.
+          </p>
+          <div className="relative">
+            <Textarea
+              id="impactStatement"
+              {...register('impactStatement')}
+              placeholder="e.g., 'This has affected my personal and professional life by...'"
+              className={`${inputClasses} pr-12`}
+              rows={4}
+            />
+            {browserSupportsSpeechRecognition && (
+              <VoiceInput
+                isListening={listening && activeField === 'impactStatement'}
+                onToggle={() => handleVoiceInput('impactStatement')}
+                className={micButtonClasses}
               />
-              {browserSupportsSpeechRecognition && (
-                <VoiceInput
-                  isListening={listening && activeField === 'impactStatement'}
-                  onToggle={() => handleVoiceInput('impactStatement')}
-                  className={micButtonClasses}
-                />
-              )}
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="previousContacts" className="text-lg font-medium">
-              Have you tried resolving this directly?
-            </Label>
-            <p className="text-sm text-muted-foreground mb-2">
-              Tell us about any attempts to resolve this with the person who uploaded the content.
-            </p>
-            <div className="relative">
-              <Textarea
-                id="previousContacts"
-                {...register('previousContacts')}
-                placeholder="e.g., 'I contacted them on [date] and...' or 'I haven\'t contacted them because...'"
-                className={`${inputClasses} pr-12`}
-                rows={4}
-              />
-              {browserSupportsSpeechRecognition && (
-                <VoiceInput
-                  isListening={listening && activeField === 'previousContacts'}
-                  onToggle={() => handleVoiceInput('previousContacts')}
-                  className={micButtonClasses}
-                />
-              )}
-            </div>
+            )}
           </div>
         </div>
       </QuestionSection>

@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input';
 import { motion } from 'framer-motion';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
+import { analytics } from '@/lib/analytics';
 
 export default function PlatformSelection() {
   const router = useRouter();
@@ -20,6 +21,11 @@ export default function PlatformSelection() {
 
   const handleContinue = async () => {
     setIsLoading(true);
+    
+    analytics.trackPlatformSelection(
+      selectedPlatform === 'other' ? otherPlatform : selectedPlatform,
+      selectedPlatform === 'other'
+    );
     
     if (selectedPlatform === 'other') {
       toast({
