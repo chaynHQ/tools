@@ -1,6 +1,6 @@
-import { Platform, platforms } from './platforms';
-import { getPlatformPolicy } from './platform-policies';
 import { LetterRequest } from '@/types/letter';
+import { getPlatformPolicy } from './platform-policies';
+import { platforms } from './platforms';
 
 export function generateFollowUpPrompt(request: LetterRequest) {
   const platform = request.platformInfo.isCustom 
@@ -25,13 +25,17 @@ For each question, provide:
 - Context explaining how this specific information strengthens their case
 - A reason category: 'insufficient' (missing key info), 'clarification' (needs more detail), or 'support' (strengthens case)
 
-Your response must be a valid JSON array of questions, each with:
-{
+Ensure the JSON is *perfectly* valid and can be parsed by \`JSON.parse()\` in JavaScript without any errors.  Double-check the syntax, especially quotes, commas, and brackets.  Invalid JSON is not acceptable.
+Output schema:
+\`\`\`
+[{
   "id": "unique_id",
   "question": "the follow-up question",
   "context": "why this information helps",
   "reason": "category"
-}
+}]
+\`\`\`
+
 
 Critical guidelines:
 - Questions MUST be specific to the user's situation - NO generic questions
@@ -67,12 +71,15 @@ Platform-Specific Context for ${platformPolicy.name}:
 - Expected Timeframes: Response within ${platformPolicy.timeframes.response}, removal within ${platformPolicy.timeframes.removal}
 ` : ''}
 
-Your response must be a JSON object with:
+Ensure the JSON is *perfectly* valid and can be parsed by \`JSON.parse()\` in JavaScript without any errors.  Double-check the syntax, especially quotes, commas, and brackets.  Invalid JSON is not acceptable.
+Output schema:
+\`\`\`
 {
   "subject": "Clear, specific subject line",
   "body": "The full letter content",
   "nextSteps": ["Array of recommended next steps"]
 }
+\`\`\`
 
 Letter Structure:
 1. Introduction: Clearly state purpose and identify content

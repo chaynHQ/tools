@@ -1,6 +1,7 @@
-import { NextResponse } from 'next/server';
-import Anthropic from '@anthropic-ai/sdk';
 import { generateFollowUpPrompt } from '@/lib/prompts';
+import { parseAIJson } from '@/lib/utils';
+import Anthropic from '@anthropic-ai/sdk';
+import { NextResponse } from 'next/server';
 
 // Initialize Anthropic with environment variable
 const anthropic = new Anthropic();
@@ -31,7 +32,7 @@ export async function POST(request: Request) {
 
     let questions;
     try {
-      questions = JSON.parse(response.content[0].text);
+    questions = parseAIJson(response.content[0].text)
       if (!Array.isArray(questions)) {
         throw new Error('Response is not an array');
       }

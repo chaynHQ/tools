@@ -1,6 +1,7 @@
-import { NextResponse } from 'next/server';
-import Anthropic from '@anthropic-ai/sdk';
 import { generateLetterPrompt } from '@/lib/prompts';
+import { parseAIJson } from '@/lib/utils';
+import Anthropic from '@anthropic-ai/sdk';
+import { NextResponse } from 'next/server';
 
 // Initialize Anthropic with environment variable
 const anthropic = new Anthropic();
@@ -31,7 +32,7 @@ export async function POST(request: Request) {
 
     let letter;
     try {
-      letter = JSON.parse(response.content[0].text);
+      letter = parseAIJson(response.content[0].text)
       if (!letter.subject || !letter.body || !Array.isArray(letter.nextSteps)) {
         throw new Error('Invalid letter format in response');
       }

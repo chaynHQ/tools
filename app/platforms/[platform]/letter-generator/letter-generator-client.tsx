@@ -8,6 +8,7 @@ import { motion } from 'framer-motion';
 import { ArrowLeft, ClipboardList, Copy, FileText, Loader2, MessageSquareMore } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
+import 'regenerator-runtime/runtime';
 import { FollowUpQuestions } from './follow-up-questions';
 import { InitialQuestions } from './initial-questions';
 import { LetterReview } from './letter-review';
