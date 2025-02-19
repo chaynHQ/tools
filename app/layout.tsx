@@ -1,8 +1,9 @@
-import './globals.css';
+import { Footer } from '@/components/layout/footer';
+import { Header } from '@/components/layout/header';
 import type { Metadata } from 'next';
 import { Merriweather, Open_Sans } from 'next/font/google';
-import { Header } from '@/components/layout/header';
-import { Footer } from '@/components/layout/footer';
+import 'regenerator-runtime/runtime';
+import './globals.css';
 
 const merriweather = Merriweather({ 
   weight: ['400'],

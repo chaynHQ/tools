@@ -1,17 +1,18 @@
 "use client";
 
-import { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
-import { motion } from 'framer-motion';
-import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
+import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Button } from '@/components/ui/button';
-import { Loader2, AlertCircle } from 'lucide-react';
-import { VoiceInput } from './components/voice-input';
-import { QuestionSection } from './components/question-section';
-import { generateFollowUpQuestions, type FollowUpQuestion } from '@/lib/ai';
 import { useToast } from '@/hooks/use-toast';
+import { generateFollowUpQuestions } from '@/lib/ai';
+import { FollowUpQuestion } from '@/types/questions';
+import { motion } from 'framer-motion';
+import { AlertCircle, Loader2 } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
+import { QuestionSection } from './components/question-section';
+import { VoiceInput } from './components/voice-input';
 
 interface FollowUpQuestionsForm {
   [key: string]: string;

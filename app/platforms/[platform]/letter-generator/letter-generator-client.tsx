@@ -1,25 +1,18 @@
 "use client";
 
-import { useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { motion } from 'framer-motion';
-import { platforms } from '@/lib/platforms';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft } from 'lucide-react';
-import {
-  ClipboardList,
-  MessageSquareMore,
-  FileText,
-  Copy,
-  Loader2
-} from 'lucide-react';
-import { InitialQuestions } from './initial-questions';
-import { ReportingDetails } from './reporting-details';
+import { useToast } from '@/hooks/use-toast';
+import { platforms } from '@/lib/platforms';
+import { GeneratedLetter } from '@/types/letter';
+import { motion } from 'framer-motion';
+import { ArrowLeft, ClipboardList, Copy, FileText, Loader2, MessageSquareMore } from 'lucide-react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useState } from 'react';
 import { FollowUpQuestions } from './follow-up-questions';
+import { InitialQuestions } from './initial-questions';
 import { LetterReview } from './letter-review';
 import { ProgressBar } from './progress-bar';
-import { useToast } from '@/hooks/use-toast';
-import { GeneratedLetter } from '@/types/letter';
+import { ReportingDetails } from './reporting-details';
 
 type Step = 'overview' | 'initial-questions' | 'reporting-details' | 'follow-up' | 'generation' | 'review';
 
@@ -301,7 +294,6 @@ export function LetterGeneratorClient({
             ) : currentStep === 'review' && generatedLetter ? (
               <LetterReview
                 letter={generatedLetter}
-                platformEmail={platform?.email}
                 onRegenerateRequest={() => {
                   generateLetter();
                   setCurrentStep('generation');

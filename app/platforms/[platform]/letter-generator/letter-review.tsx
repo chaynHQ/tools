@@ -1,10 +1,5 @@
 "use client";
 
-import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Copy, AlertCircle, RefreshCcw, CheckCircle2, ArrowRight } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { useToast } from '@/hooks/use-toast';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -15,19 +10,22 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Button } from '@/components/ui/button';
+import { useToast } from '@/hooks/use-toast';
 import { GeneratedLetter } from '@/types/letter';
+import { motion } from 'framer-motion';
+import { AlertCircle, ArrowRight, CheckCircle2, Copy, RefreshCcw } from 'lucide-react';
+import { useState } from 'react';
 import { QuestionSection } from './components/question-section';
 
 interface LetterReviewProps {
   letter: GeneratedLetter;
-  platformEmail?: string;
   onRegenerateRequest: () => void;
   onComplete: () => void;
 }
 
 export function LetterReview({
   letter,
-  platformEmail,
   onRegenerateRequest,
   onComplete
 }: LetterReviewProps) {
@@ -90,13 +88,6 @@ export function LetterReview({
               </div>
             </div>
           </div>
-
-          {platformEmail && (
-            <div className="p-4 bg-white rounded-lg border border-border">
-              <h4 className="text-lg font-medium mb-2">Send To</h4>
-              <p className="text-muted-foreground">{platformEmail}</p>
-            </div>
-          )}
         </motion.div>
       </QuestionSection>
 
