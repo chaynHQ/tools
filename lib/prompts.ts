@@ -1,5 +1,5 @@
 import { LetterRequest } from '@/types/letter';
-import { getPlatformPolicy } from './platform-policies';
+import { getPlatformPolicy, PlatformPolicy } from './platform-policies';
 import { platforms } from './platforms';
 
 export function generateFollowUpPrompt(request: LetterRequest) {
@@ -72,7 +72,7 @@ export function generateLetterPrompt(request: LetterRequest) {
   const contentContext = request.initialQuestions.contentContext;
 
   // Determine relevant policies based on user's specific situation
-  const getRelevantPolicies = (policy: any) => {
+  const getRelevantPolicies = (policy: PlatformPolicy) => {
     if (!policy) return null;
 
     const relevantPolicies = {

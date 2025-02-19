@@ -1,12 +1,12 @@
 export interface LetterRequest {
   initialQuestions: {
     imageIdentification: string;
-    nonConsensualReason: string;
+    contentType: 'intimate' | 'personal' | 'private' | 'other';
+    contentContext: 'hacked' | 'impersonation' | 'relationship' | 'unknown' | 'other';
     imageUploadDate: string;
     imageTakenDate: string;
     ownershipEvidence: string;
     impactStatement: string;
-    previousContacts: string;
   };
   reportingDetails?: {
     standardProcessDetails?: string;
