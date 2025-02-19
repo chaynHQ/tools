@@ -130,7 +130,6 @@ export function InitialQuestions({ onSubmit, reportingStatus }: InitialQuestions
               <Controller
                 name="contentType"
                 control={control}
-                defaultValue="personal"
                 render={({ field }) => (
                   <>
                     {contentTypes.map((type) => (
@@ -157,7 +156,6 @@ export function InitialQuestions({ onSubmit, reportingStatus }: InitialQuestions
               <Controller
                 name="contentContext"
                 control={control}
-                defaultValue="unknown"
                 render={({ field }) => (
                   <>
                     {contentContexts.map((context) => (
