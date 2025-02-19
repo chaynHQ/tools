@@ -26,9 +26,25 @@ export function generateFollowUpPrompt(request: LetterRequest) {
   const initialResponses = request.initialQuestions;
   const hasMinimalInfo = Object.values(initialResponses).some(value => !value || value.length < 20);
 
+  // Check what information we already have
+  const hasContentLocation = initialResponses.imageIdentification?.includes('http') || 
+                           initialResponses.imageIdentification?.includes('www') ||
+                           initialResponses.imageIdentification?.includes('URL');
+  const hasTimeline = initialResponses.imageUploadDate && initialResponses.imageTakenDate;
+  const hasOwnershipEvidence = initialResponses.ownershipEvidence?.length > 30;
+  const hasImpactStatement = initialResponses.impactStatement?.length > 30;
+
   return `You are an AI assistant helping to generate follow-up questions for a takedown request letter generator. The user has provided information about ${request.initialQuestions.contentType} content being shared ${platformContext} in a context of ${request.initialQuestions.contentContext}.
 
-Your goal is to analyze their specific situation and generate targeted follow-up questions that will strengthen their takedown request.
+CRITICAL: Review the information already provided before generating questions:
+
+Content Location: ${hasContentLocation ? 'PROVIDED' : 'MISSING'}
+Timeline Details: ${hasTimeline ? 'PROVIDED' : 'MISSING'}
+Ownership Evidence: ${hasOwnershipEvidence ? 'PROVIDED' : 'NEEDS MORE DETAIL'}
+Impact Statement: ${hasImpactStatement ? 'PROVIDED' : 'NEEDS MORE DETAIL'}
+
+Initial Information Provided:
+${Object.entries(initialResponses).map(([key, value]) => `${key}: ${value}`).join('\n')}
 
 ${relevantPolicies ? `
 Platform-Specific Requirements:
@@ -39,37 +55,21 @@ Key removal criteria:
 ${relevantPolicies.removalCriteria.map(criteria => `- ${criteria}`).join('\n')}
 ` : ''}
 
-${hasMinimalInfo ? `
-IMPORTANT: The user has provided minimal information in their initial responses. Focus on gathering essential details first:
-1. Specific content location or identifiers
-2. Basic verification information that matches platform requirements
-3. Timeline details required for reporting
-` : `
-The user has provided detailed initial information. Focus on specific details that would strengthen their case:
-1. Additional verification details required by platform policies
-2. Documentation that matches platform evidence requirements
-3. Specific policy violations they can demonstrate
-`}
+CRITICAL RULES:
+1. DO NOT ask for information that has already been provided
+2. DO NOT repeat questions about URLs if content location is already given
+3. DO NOT ask for timeline details if dates are already provided
+4. Focus ONLY on gaps in the provided information
+5. Questions should build upon existing information, not duplicate it
+6. DO be sensitive to the users experience and ensure questions are not accusatory (avoid "prove") or triggering
+7. DO NOT ask the user to provide identification to prove their identity
 
-Generate 2-3 focused follow-up questions that:
-1. Address specific gaps in their provided information
-2. Focus on details that directly support content removal under platform policies
-3. Avoid repeating information already provided
-4. Keep questions brief and straightforward
+Generate 2-3 focused follow-up questions that ONLY address missing or insufficient information.
 
 For each question, provide:
 - A clear, concise question (no more than 2 sentences)
 - A brief explanation of why this information helps (1 sentence)
 - A category: 'essential' (missing key info), 'verification' (proves ownership), or 'supporting' (strengthens case)
-
-Critical guidelines:
-- Questions MUST be specific to their situation - NO generic questions
-- Be trauma-informed and empathetic
-- Focus only on factual information needed for takedown
-- Avoid questions about personal relationships or emotional details unless directly relevant
-- Keep questions short and clear
-- If URLs weren't provided initially, prioritize getting specific content location
-- For custom platforms, focus on universal content removal requirements
 
 Ensure the JSON is perfectly valid and can be parsed by \`JSON.parse()\` in JavaScript without any errors.
 Output schema:
@@ -94,7 +94,30 @@ export function generateLetterPrompt(request: LetterRequest) {
       )
     : null;
 
+  // Extract and validate existing information
+  const initialInfo = request.initialQuestions;
+  const followUpInfo = request.followUp || {};
+  const reportingInfo = request.reportingDetails || {};
+
+  // Analyze what information we already have
+  const contentLocation = initialInfo.imageIdentification;
+  const hasSpecificUrl = contentLocation?.includes('http') || contentLocation?.includes('www');
+  const hasTimeline = initialInfo.imageUploadDate && initialInfo.imageTakenDate;
+  const hasReportingHistory = reportingInfo.standardProcessDetails || reportingInfo.escalatedProcessDetails;
+  const hasReferenceNumbers = Object.values(followUpInfo).some(value => 
+    value?.includes('case') || value?.includes('reference') || value?.includes('report')
+  );
+
   return `You are an AI assistant helping to generate a professional takedown request letter. Your role is to create a clear, factual, and compelling letter that requests the removal of ${request.initialQuestions.contentType} content in a context of ${request.initialQuestions.contentContext}.
+
+AVAILABLE INFORMATION:
+Content Location: ${contentLocation}
+Upload Date: ${initialInfo.imageUploadDate}
+Creation Date: ${initialInfo.imageTakenDate}
+Ownership Evidence: ${initialInfo.ownershipEvidence}
+Impact Statement: ${initialInfo.impactStatement}
+${hasReportingHistory ? `Previous Reports: ${reportingInfo.standardProcessDetails} ${reportingInfo.escalatedProcessDetails}` : ''}
+${Object.entries(followUpInfo).map(([key, value]) => `${key}: ${value}`).join('\n')}
 
 ${relevantPolicies ? `
 Platform-Specific Context for ${platformPolicy?.name}:
@@ -118,31 +141,25 @@ ${relevantPolicies.evidenceRequirements.map(req => `- ${req}`).join('\n')}
 Timeframes:
 - Initial Response: ${platformPolicy?.timeframes.response}
 - Content Removal: ${platformPolicy?.timeframes.removal}
-
-Appeal Process:
-${platformPolicy?.appealProcess?.map(step => `- ${step}`).join('\n')}
 ` : ''}
 
-CRITICAL PLACEHOLDER REQUIREMENTS:
-Only use these exact placeholders in the letter. DO NOT add any other placeholders or formatting instructions:
-- [Full name] - For the sender's name
-- [Email address] - For contact email
-- [Phone number] - For contact phone
-- [Content URL] - For specific content location
-- [Content location] - For describing where to find the content
-- [Date] - For specific dates
-- [Reference number] - For case or report numbers
+PLACEHOLDER REQUIREMENTS:
+Only use these placeholders for truly missing information:
+- [Full name] - Always required for sender identification
+- [Email address] - Always required for contact
+${!hasSpecificUrl && contentLocation?.length < 30 ? '- [Content URL] - Only if no specific URL was provided\n' : ''}
+${!hasReferenceNumbers && hasReportingHistory ? '- [Reference number] - Only if previous reports were filed but no reference numbers provided\n' : ''}
 
 DO NOT:
+- Include placeholders for information already provided
 - Add any other placeholder formats
-- Include instructions or formatting notes in placeholders
+- Include instructions or formatting notes
 - Use technical or internal placeholders
 - Add placeholder descriptions in the letter
-- Include placeholder lists or formatting guides
 
 Letter Writing Guidelines:
-1. Professional but not legal tone
-2. Focus on facts explicitly provided
+1. Use all provided information directly - do not create placeholders for data we already have
+2. Professional but not legal tone
 3. Reference relevant platform policies
 4. Be respectful and trauma-informed
 5. State clear action requests
@@ -156,19 +173,19 @@ Letter Structure:
    - Basic content identification
 
 2. Content Details
-   - Specific locations/URLs if provided
-   - Basic content description
-   - Timeline of discovery
+   - Use provided locations/URLs
+   - Include timeline information
+   - Reference previous reports if any
 
 3. Evidence
-   - Verification details
-   - Documentation references
-   - Ownership proof
+   - Include provided verification details
+   - Reference documentation
+   - Include ownership evidence
 
 4. Policy Violation
-   - Specific policies
-   - Clear violations
-   - Impact statement
+   - Cite specific policies
+   - Detail violations
+   - Include impact statement
 
 5. Request
    - Clear actions needed
@@ -176,17 +193,15 @@ Letter Structure:
    - Next steps
 
 6. Contact Information
-   - How to reach sender
-   - Preferred contact method
+   - Placeholder for name and email
    - Response expectations
 
 Remember:
+- Use provided information directly
+- Only use placeholders for truly missing information
 - Keep tone professional but not legal
-- Include only provided details
-- Use correct policy references
-- Focus on relevant violations
+- Reference correct policies
 - Provide clear next steps
-- Keep emotional language minimal
 
 Ensure the JSON is perfectly valid and can be parsed by \`JSON.parse()\` in JavaScript without any errors.
 Output schema:
