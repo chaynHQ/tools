@@ -7,14 +7,15 @@ import 'regenerator-runtime/runtime';
 import './globals.css';
 
 const merriweather = Merriweather({
-  weight: ['400'],
   subsets: ['latin'],
+  weight: ['400'],
   variable: '--font-merriweather',
   display: 'swap',
 });
 
 const openSans = Open_Sans({
   subsets: ['latin'],
+  weight: ['400', '500', '600'],
   variable: '--font-open-sans',
   display: 'swap',
 });
@@ -30,8 +31,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body className={`${merriweather.variable} ${openSans.variable} font-sans bg-background min-h-screen flex flex-col`}>
+    <html lang="en" className={`${merriweather.variable} ${openSans.variable}`}>
+      <body className="font-open-sans bg-background min-h-screen flex flex-col">
         <Header />
         {children}
         <Footer />
