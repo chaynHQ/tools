@@ -11,7 +11,11 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
+import { extractPlaceholders } from '@/lib/ai';
+import { analytics } from '@/lib/analytics';
 import { GeneratedLetter } from '@/types/letter';
 import { motion } from 'framer-motion';
 import { AlertCircle, ArrowRight, CheckCircle2, Copy, RefreshCcw } from 'lucide-react';
@@ -32,19 +36,48 @@ export function LetterReview({
   const [showRegenerateDialog, setShowRegenerateDialog] = useState(false);
   const [showCompleteDialog, setShowCompleteDialog] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [placeholders, setPlaceholders] = useState<Record<string, string>>(() => {
+    const extracted = [
+      ...extractPlaceholders(letter.subject),
+      ...extractPlaceholders(letter.body)
+    ];
+    return Object.fromEntries(extracted.map(p => [p, '']));
+  });
   const { toast } = useToast();
 
+  const hasUnfilledPlaceholders = Object.values(placeholders).some(value => !value.trim());
+
+  const replacePlaceholders = (text: string) => {
+    return text.replace(/\[([^\]]+)\]/g, (_, placeholder) => 
+      placeholders[placeholder] || `[${placeholder}]`
+    );
+  };
+
   const handleCopy = async () => {
+    if (hasUnfilledPlaceholders) {
+      toast({
+        title: "Missing information",
+        description: "Please fill in all required fields before copying the letter.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
-      const fullText = `Subject: ${letter.subject}\n\n${letter.body}`;
+      const fullText = `Subject: ${replacePlaceholders(letter.subject)}\n\n${replacePlaceholders(letter.body)}`;
       await navigator.clipboard.writeText(fullText);
       setCopied(true);
+      analytics.trackEvent('letter_copied', {
+        has_placeholders: false,
+        length: fullText.length
+      });
       toast({
         title: "Copied to clipboard",
         description: "The letter has been copied to your clipboard.",
       });
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
+      analytics.trackError('clipboard', 'Failed to copy to clipboard', 'LetterReview');
       toast({
         title: "Failed to copy",
         description: "Please try selecting and copying the text manually.",
@@ -53,19 +86,64 @@ export function LetterReview({
     }
   };
 
+  const handleComplete = () => {
+    analytics.trackProcessCompletion(
+      Math.floor(Date.now() / 1000),
+      ['platform_selection', 'initial_questions', 'follow_up', 'letter_generation']
+    );
+    onComplete();
+  };
+
   return (
     <div className="space-y-8">
-      <div className="flex items-start gap-3 p-4 bg-accent-light/30 rounded-lg text-muted-foreground">
-        <AlertCircle className="w-5 h-5 mt-0.5 flex-shrink-0" />
-        <div className="space-y-1">
-          <p className="text-foreground font-medium">Review your takedown request letter</p>
-          <p className="text-sm">
-            We've generated a letter based on the information you provided. Some details may have been
-            excluded or summarized for clarity and impact. You can modify the letter before sending
-            or generate a new version if needed.
-          </p>
-        </div>
-      </div>
+      {Object.keys(placeholders).length > 0 && (
+        <QuestionSection title="Required Information">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="space-y-4"
+          >
+            <div className="flex items-start gap-3 p-4 bg-accent-light/30 rounded-lg text-muted-foreground">
+              <AlertCircle className="w-5 h-5 mt-0.5 flex-shrink-0" />
+              <div>
+                <p className="text-foreground font-medium">Required Fields</p>
+                <p className="text-sm">
+                  Please fill in all required fields below to complete your letter.
+                </p>
+              </div>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              {Object.entries(placeholders).map(([placeholder, value]) => (
+                <div key={placeholder} className="space-y-2">
+                  <Label htmlFor={placeholder} className="text-base font-medium capitalize">
+                    {placeholder}
+                  </Label>
+                  <Input
+                    id={placeholder}
+                    value={value}
+                    onChange={(e) => setPlaceholders(prev => ({
+                      ...prev,
+                      [placeholder]: e.target.value
+                    }))}
+                    className="bg-white"
+                  />
+                </div>
+              ))}
+            </div>
+            {!hasUnfilledPlaceholders && (
+              <div className="flex justify-end">
+                <Button
+                  onClick={handleCopy}
+                  className="pill bg-primary text-white hover:opacity-90"
+                >
+                  <Copy className="w-4 h-4 mr-2" />
+                  Copy Completed Letter
+                </Button>
+              </div>
+            )}
+          </motion.div>
+        </QuestionSection>
+      )}
 
       <QuestionSection title="Letter Content">
         <motion.div
@@ -76,15 +154,15 @@ export function LetterReview({
           <div className="space-y-4">
             <div>
               <h4 className="text-lg font-medium mb-2">Subject Line</h4>
-              <div className="p-4 bg-neutral rounded-lg border border-border/50">
-                {letter.subject}
+              <div className="p-4 bg-white rounded-lg border border-border/50 select-none">
+                {replacePlaceholders(letter.subject)}
               </div>
             </div>
 
             <div>
               <h4 className="text-lg font-medium mb-2">Message Content</h4>
-              <div className="p-4 bg-neutral rounded-lg border border-border/50 whitespace-pre-wrap">
-                {letter.body}
+              <div className="p-4 bg-white rounded-lg border border-border/50 whitespace-pre-wrap select-none">
+                {replacePlaceholders(letter.body)}
               </div>
             </div>
           </div>
@@ -110,36 +188,38 @@ export function LetterReview({
       </QuestionSection>
 
       <div className="flex justify-between items-center">
+        <Button
+          variant="outline"
+          className="pill"
+          onClick={() => setShowRegenerateDialog(true)}
+        >
+          <RefreshCcw className="w-4 h-4 mr-2" />
+          Generate Another
+        </Button>
+
         <div className="space-x-4">
           <Button
             variant="outline"
-            className="pill"
-            onClick={() => setShowRegenerateDialog(true)}
-          >
-            <RefreshCcw className="w-4 h-4 mr-2" />
-            Generate Another
-          </Button>
-          <Button
-            variant="outline"
-            className="pill"
+            className={`pill ${hasUnfilledPlaceholders ? 'opacity-50 cursor-not-allowed' : ''}`}
             onClick={handleCopy}
+            disabled={hasUnfilledPlaceholders}
           >
             {copied ? (
               <CheckCircle2 className="w-4 h-4 mr-2" />
             ) : (
               <Copy className="w-4 h-4 mr-2" />
             )}
-            {copied ? 'Copied!' : 'Copy Letter'}
+            {copied ? 'Copied!' : hasUnfilledPlaceholders ? 'Fill Required Fields' : 'Copy Letter'}
+          </Button>
+
+          <Button
+            className="pill bg-primary text-white hover:opacity-90"
+            onClick={() => setShowCompleteDialog(true)}
+          >
+            Finish & Exit
+            <ArrowRight className="w-4 h-4 ml-2" />
           </Button>
         </div>
-
-        <Button
-          className="pill bg-primary text-white hover:opacity-90"
-          onClick={() => setShowCompleteDialog(true)}
-        >
-          I'm Done
-          <ArrowRight className="w-4 h-4 ml-2" />
-        </Button>
       </div>
 
       <AlertDialog open={showRegenerateDialog} onOpenChange={setShowRegenerateDialog}>
@@ -180,12 +260,7 @@ export function LetterReview({
             <AlertDialogCancel onClick={() => setShowCompleteDialog(false)}>
               Go Back
             </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => {
-                setShowCompleteDialog(false);
-                onComplete();
-              }}
-            >
+            <AlertDialogAction onClick={handleComplete}>
               Finish
             </AlertDialogAction>
           </AlertDialogFooter>

@@ -9,6 +9,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { ArrowLeft, ChevronDown, AlertCircle } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { analytics } from '@/lib/analytics';
 
 type ReportingStatus = 'standard-completed' | 'escalated-completed' | 'both-completed' | 'none-completed' | null;
 
@@ -28,6 +29,13 @@ export function RemovalProcessClient({
     router.push('/platforms');
     return null;
   }
+
+  const handleStatusChange = (newStatus: ReportingStatus) => {
+    setStatus(newStatus);
+    if (newStatus) {
+      analytics.trackReportingStatus(newStatus);
+    }
+  };
 
   const handleContinue = () => {
     router.push(`/platforms/${platformId}/letter-generator?status=${status}`);
@@ -153,7 +161,7 @@ export function RemovalProcessClient({
                   <h4 className="text-lg font-medium">Have you previously completed any of these processes?</h4>
                   <RadioGroup
                     value={status || ''}
-                    onValueChange={(value) => setStatus(value as ReportingStatus)}
+                    onValueChange={(value) => handleStatusChange(value as ReportingStatus)}
                     className="space-y-3"
                   >
                     <div className="flex items-center space-x-3">

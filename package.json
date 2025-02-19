@@ -12,6 +12,7 @@
     "@anthropic-ai/sdk": "^0.18.0",
     "@babel/runtime": "^7.24.0",
     "@next/swc-wasm-nodejs": "13.5.1",
+    "@next/third-parties": "^15.1.6",
     "@radix-ui/react-alert-dialog": "^1.1.1",
     "@radix-ui/react-collapsible": "^1.1.0",
     "@radix-ui/react-dialog": "^1.1.1",
