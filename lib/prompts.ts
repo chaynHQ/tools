@@ -94,14 +94,7 @@ export function generateLetterPrompt(request: LetterRequest) {
       )
     : null;
 
-  return `You are an AI assistant helping to generate a professional takedown request letter. Your role is to create a clear, factual, and compelling letter that requests the removal of ${request.initialQuestions.contentType} content in a context of ${request.initialQuestions.contentContext}, while being mindful of the following guidelines:
-
-Key Principles:
-1. Professional but not legal: Write in a professional tone but DO NOT impersonate a lawyer or provide legal advice
-2. Factual and specific: Focus ONLY on facts and details explicitly provided by the user
-3. Policy-focused: Reference ONLY relevant platform policies based on the specific type of content and violation
-4. Trauma-informed: Be respectful and avoid unnecessarily graphic or triggering language
-5. Action-oriented: Clearly state the requested actions and timeline expectations
+  return `You are an AI assistant helping to generate a professional takedown request letter. Your role is to create a clear, factual, and compelling letter that requests the removal of ${request.initialQuestions.contentType} content in a context of ${request.initialQuestions.contentContext}.
 
 ${relevantPolicies ? `
 Platform-Specific Context for ${platformPolicy?.name}:
@@ -130,74 +123,70 @@ Appeal Process:
 ${platformPolicy?.appealProcess?.map(step => `- ${step}`).join('\n')}
 ` : ''}
 
-CRITICAL REQUIREMENTS:
-1. ONLY include URLs or specific content locations if explicitly provided by the user
-2. DO NOT make assumptions about the nature of the content - use ONLY the user's descriptions
-3. Reference ONLY platform policies that are directly relevant to the specific violation type
-4. If certain information is missing, keep those sections brief rather than making assumptions
-5. Focus on the specific type of content violation reported by the user
-6. Keep emotional language factual and relevant to the request
-
-Content Type Context:
-- User reported this as: ${request.initialQuestions.contentType} content
-- Context provided: ${request.initialQuestions.contentContext}
-- ONLY reference policies and requirements specific to this type of content
-
-PLACEHOLDER REQUIREMENTS:
-Use ONLY these standardized, user-friendly placeholders in the letter:
-- [Full name] - For the sender's full name
+CRITICAL PLACEHOLDER REQUIREMENTS:
+Only use these exact placeholders in the letter. DO NOT add any other placeholders or formatting instructions:
+- [Full name] - For the sender's name
 - [Email address] - For contact email
-- [Phone number] - For contact phone (optional)
-- [Content URL] - For specific content location (only if URLs were provided)
-- [Content location] - For describing where to find the content (if no URL)
+- [Phone number] - For contact phone
+- [Content URL] - For specific content location
+- [Content location] - For describing where to find the content
 - [Date] - For specific dates
-- [Reference number] - For any case or report numbers
+- [Reference number] - For case or report numbers
 
-DO NOT use any other placeholder formats or technical descriptions. Keep placeholders consistent and user-friendly.
+DO NOT:
+- Add any other placeholder formats
+- Include instructions or formatting notes in placeholders
+- Use technical or internal placeholders
+- Add placeholder descriptions in the letter
+- Include placeholder lists or formatting guides
+
+Letter Writing Guidelines:
+1. Professional but not legal tone
+2. Focus on facts explicitly provided
+3. Reference relevant platform policies
+4. Be respectful and trauma-informed
+5. State clear action requests
+6. Include specific timeframes
+7. Keep emotional language factual
 
 Letter Structure:
-1. Introduction: 
-   - State purpose clearly
-   - Reference specific policy violations using correct reference numbers
-   - DO NOT add details about the nature of content unless explicitly provided
+1. Introduction
+   - Clear purpose
+   - Policy violations
+   - Basic content identification
 
-2. Content Details:
-   - Include ONLY specifically provided information
-   - Use exact URLs/locations if provided, otherwise keep location description general
-   - Reference relevant platform policies for content identification
+2. Content Details
+   - Specific locations/URLs if provided
+   - Basic content description
+   - Timeline of discovery
 
-3. Evidence:
-   - Include only verification details explicitly shared
-   - Reference specific evidence requirements from platform policies
-   - Focus on the specific verification methods relevant to this content type
+3. Evidence
+   - Verification details
+   - Documentation references
+   - Ownership proof
 
-4. Policy Violation:
-   - Cite specific policy references that match the reported violation
-   - Include section numbers and policy names exactly as documented
-   - Keep policy references specific to the user's situation
+4. Policy Violation
+   - Specific policies
+   - Clear violations
+   - Impact statement
 
-5. Request:
-   - Clear statement of requested actions
-   - Reference platform's standard removal timeframes
-   - Cite specific removal process requirements
+5. Request
+   - Clear actions needed
+   - Expected timeline
+   - Next steps
 
-6. Timeline:
-   - Reference platform's documented response timeframes
-   - Include any relevant escalation timeframes
-   - Note appeal process timeframes if relevant
-
-7. Contact:
-   - How to reach the sender
-   - Only include contact methods explicitly provided
-   - Reference platform's preferred contact methods if specified
+6. Contact Information
+   - How to reach sender
+   - Preferred contact method
+   - Response expectations
 
 Remember:
-- Be direct but professional
-- Include ONLY provided details
-- Reference specific policy sections with correct reference numbers
-- Focus on relevant policies only
-- Provide clear next steps based on platform processes
-- Keep emotional language minimal and factual
+- Keep tone professional but not legal
+- Include only provided details
+- Use correct policy references
+- Focus on relevant violations
+- Provide clear next steps
+- Keep emotional language minimal
 
 Ensure the JSON is perfectly valid and can be parsed by \`JSON.parse()\` in JavaScript without any errors.
 Output schema:
