@@ -1,6 +1,5 @@
+import { GeneratedLetter, LetterRequest } from '@/types/letter';
 import { FollowUpQuestion } from '@/types/questions';
-import { LetterRequest, GeneratedLetter } from '@/types/letter';
-import { parseAIJson } from './utils';
 
 const MAX_RETRIES = 3;
 const RETRY_DELAY = 1000; // 1 second
@@ -83,7 +82,7 @@ function containsIdVerificationOrPlaceholders(letter: GeneratedLetter): boolean 
   // Check for ID verification terms
   const combinedRegex = new RegExp(idTerms.join('|'), 'gi');
   
-  // Check subject, body and nextSteps for ID terms or placeholders
+  // Check subject and body for ID terms or placeholders
   const hasIdTerms = 
     combinedRegex.test(letter.subject) || 
     combinedRegex.test(letter.body);
@@ -92,11 +91,7 @@ function containsIdVerificationOrPlaceholders(letter: GeneratedLetter): boolean 
     placeholderRegex.test(letter.subject) || 
     placeholderRegex.test(letter.body);
   
-  // Check nextSteps array
-  const hasIdTermsInSteps = letter.nextSteps.some(step => combinedRegex.test(step));
-  const hasPlaceholdersInSteps = letter.nextSteps.some(step => placeholderRegex.test(step));
-  
-  return hasIdTerms || hasPlaceholders || hasIdTermsInSteps || hasPlaceholdersInSteps;
+  return hasIdTerms || hasPlaceholders;
 }
 
 // Check for hallucination patterns in the letter
@@ -119,8 +114,7 @@ function containsHallucinationPatterns(letter: GeneratedLetter): boolean {
   const combinedRegex = new RegExp(hallucinationPatterns.join('|'), 'gi');
   
   return combinedRegex.test(letter.subject) || 
-         combinedRegex.test(letter.body) || 
-         letter.nextSteps.some(step => combinedRegex.test(step));
+         combinedRegex.test(letter.body);
 }
 
 export async function generateLetter(formData: LetterRequest): Promise<GeneratedLetter> {
@@ -177,32 +171,6 @@ export async function generateLetter(formData: LetterRequest): Promise<Generated
               .replace(/as indicated in your report/gi, "")
               .replace(/you have/gi, "")
               .replace(/as I mentioned/gi, "");
-          }
-          
-          if (letter.nextSteps && Array.isArray(letter.nextSteps)) {
-            letter.nextSteps = letter.nextSteps.map(step => {
-              return step
-                .replace(/government(-|\s)issued ID/gi, "personal information")
-                .replace(/official identification/gi, "personal information")
-                .replace(/identification document/gi, "personal information")
-                .replace(/proof of residence/gi, "personal information")
-                .replace(/government ID/gi, "personal information")
-                .replace(/passport/gi, "personal information")
-                .replace(/driver('s|\s)license/gi, "personal information")
-                .replace(/\[([^\]]+)\]/g, "") // Remove any remaining placeholders
-                .replace(/as I mentioned earlier/gi, "")
-                .replace(/as stated in my previous correspondence/gi, "")
-                .replace(/as per our conversation/gi, "")
-                .replace(/you have requested/gi, "")
-                .replace(/you have asked me to/gi, "")
-                .replace(/as you know/gi, "")
-                .replace(/as we discussed/gi, "")
-                .replace(/in your email/gi, "")
-                .replace(/in your message/gi, "")
-                .replace(/as indicated in your report/gi, "")
-                .replace(/you have/gi, "")
-                .replace(/as I mentioned/gi, "");
-            });
           }
           
           return letter;

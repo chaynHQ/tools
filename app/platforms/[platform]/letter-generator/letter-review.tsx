@@ -1,10 +1,5 @@
 "use client";
 
-import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Copy, AlertCircle, RefreshCcw, CheckCircle2, ArrowRight, Send, MessageSquare } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { useToast } from '@/hooks/use-toast';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -15,12 +10,17 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { GeneratedLetter } from '@/types/letter';
-import { QuestionSection } from './components/question-section';
+import { Button } from '@/components/ui/button';
+import { useToast } from '@/hooks/use-toast';
 import { analytics } from '@/lib/analytics';
-import { platforms } from '@/lib/platforms';
-import { PopupButton } from '@typeform/embed-react';
 import { useFormContext } from '@/lib/context/FormContext';
+import { platforms } from '@/lib/platforms';
+import { GeneratedLetter } from '@/types/letter';
+import { PopupButton } from '@typeform/embed-react';
+import { motion } from 'framer-motion';
+import { AlertCircle, ArrowRight, CheckCircle2, Copy, MessageSquare, RefreshCcw, Send } from 'lucide-react';
+import { useState } from 'react';
+import { QuestionSection } from './components/question-section';
 
 interface LetterReviewProps {
   letter: GeneratedLetter;
@@ -158,7 +158,7 @@ export function LetterReview({
                 1
               </span>
               <p className="text-muted-foreground pt-0.5">
-                The platform might ask for the evidence you've mentioned in your letter. Have these ready to provide if requested.
+                They might respond asking for the evidence you listed, so make sure you have the things referenced in this letter to hand.
               </p>
             </li>
             <li className="flex items-start gap-3 p-3 bg-white rounded-lg border border-border/50">
@@ -166,7 +166,7 @@ export function LetterReview({
                 2
               </span>
               <p className="text-muted-foreground pt-0.5">
-                Check after 48 hours to see if your content has been removed. Sometimes platforms take action without sending a response.
+                In 48 hours, check if your content has been removed. Sometimes the platforms don't send a response but they do remove the content.
               </p>
             </li>
             <li className="flex items-start gap-3 p-3 bg-white rounded-lg border border-border/50">
@@ -174,7 +174,7 @@ export function LetterReview({
                 3
               </span>
               <p className="text-muted-foreground pt-0.5">
-                If the content is still available, consider sending a follow-up message asking for an update on your request.
+                If the content is still available, you could try sending a follow up asking them to respond.
               </p>
             </li>
           </ul>
