@@ -21,6 +21,11 @@ async function retryWithDelay<T>(
 export async function generateFollowUpQuestions(formData: LetterRequest): Promise<FollowUpQuestion[]> {
   return retryWithDelay(async () => {
     try {
+      // Validate formData before sending to API
+      if (!formData || !formData.initialQuestions || !formData.platformInfo) {
+        throw new Error('Missing required data for generating follow-up questions');
+      }
+      
       const response = await fetch('/api/follow-up-questions', {
         method: 'POST',
         headers: {

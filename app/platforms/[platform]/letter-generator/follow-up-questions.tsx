@@ -1,20 +1,19 @@
 "use client";
 
-import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { generateFollowUpQuestions } from '@/lib/ai';
+import { analytics } from '@/lib/analytics';
 import { FollowUpQuestion } from '@/types/questions';
 import { motion } from 'framer-motion';
 import { AlertCircle, Loader2 } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
 import { QuestionSection } from './components/question-section';
 import { VoiceInput } from './components/voice-input';
-import { analytics } from '@/lib/analytics';
-import { useFormContext } from '@/lib/context/FormContext';
 
 interface FollowUpQuestionsForm {
   [key: string]: string;
@@ -73,6 +72,11 @@ export function FollowUpQuestions({ initialData, savedData = {}, onSubmit }: Fol
     setError(null);
     
     try {
+      // Validate initialData before sending to API
+      if (!initialData || !initialData.initialQuestions || !initialData.platformInfo) {
+        throw new Error('Missing required data for generating follow-up questions');
+      }
+      
       const questions = await generateFollowUpQuestions(initialData);
       if (!isMounted.current) return;
       
@@ -90,6 +94,7 @@ export function FollowUpQuestions({ initialData, savedData = {}, onSubmit }: Fol
         ? error.message 
         : 'We encountered a problem analysing your responses.';
       
+      console.error('Follow-up questions error:', error);
       analytics.trackError('follow_up_generation', message, 'FollowUpQuestions');
       setError(message);
       toast({
@@ -163,7 +168,10 @@ export function FollowUpQuestions({ initialData, savedData = {}, onSubmit }: Fol
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             {error && retryCount < 3 && (
               <Button
-                onClick={fetchQuestions}
+                onClick={() => {
+                  setRetryCount(prev => prev + 1);
+                  fetchQuestions();
+                }}
                 variant="outline"
                 className="pill"
               >

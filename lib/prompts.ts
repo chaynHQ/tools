@@ -3,6 +3,11 @@ import { getPlatformPolicy, getRelevantPolicies } from './platform-policies';
 import { platforms } from './platforms';
 
 export function generateFollowUpPrompt(request: LetterRequest) {
+  // Validate request object to prevent null/undefined errors
+  if (!request || !request.initialQuestions || !request.platformInfo) {
+    throw new Error('Invalid request data for follow-up prompt generation');
+  }
+
   const platform = request.platformInfo.isCustom 
     ? null 
     : platforms.find(p => p.name === request.platformInfo.name);

@@ -16,6 +16,15 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
+    
+    // Validate the request body
+    if (!body || !body.initialQuestions || !body.platformInfo) {
+      return NextResponse.json(
+        { error: 'Invalid request: Missing required fields' },
+        { status: 400 }
+      );
+    }
+    
     const response = await anthropic.messages.create({
       model: 'claude-3-sonnet-20240229',
       max_tokens: 4000,
@@ -32,11 +41,13 @@ export async function POST(request: Request) {
 
     let questions;
     try {
-    questions = parseAIJson(response.content[0].text)
+      questions = parseAIJson(response.content[0].text);
       if (!Array.isArray(questions)) {
         throw new Error('Response is not an array');
       }
     } catch (e) {
+      console.error('JSON parsing error:', e);
+      console.error('Raw response:', response.content[0].text);
       throw new Error('Failed to parse Anthropic response as JSON');
     }
 
