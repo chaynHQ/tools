@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -14,6 +14,7 @@ import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognitio
 import { QuestionSection } from './components/question-section';
 import { VoiceInput } from './components/voice-input';
 import { analytics } from '@/lib/analytics';
+import { useFormContext } from '@/lib/context/FormContext';
 
 interface FollowUpQuestionsForm {
   [key: string]: string;
@@ -21,24 +22,37 @@ interface FollowUpQuestionsForm {
 
 interface FollowUpQuestionsProps {
   initialData: any;
+  savedData?: FollowUpQuestionsForm;
   onSubmit: (data: FollowUpQuestionsForm) => void;
 }
 
-export function FollowUpQuestions({ initialData, onSubmit }: FollowUpQuestionsProps) {
+export function FollowUpQuestions({ initialData, savedData = {}, onSubmit }: FollowUpQuestionsProps) {
   const startTime = useState(() => Date.now())[0];
   const [activeField, setActiveField] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [followUpQuestions, setFollowUpQuestions] = useState<FollowUpQuestion[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [retryCount, setRetryCount] = useState(0);
-  const { register, handleSubmit, setValue, watch } = useForm<FollowUpQuestionsForm>();
+  const { register, handleSubmit, setValue, reset } = useForm<FollowUpQuestionsForm>({
+    defaultValues: savedData
+  });
   const { toast } = useToast();
+  const fetchController = useRef<AbortController | null>(null);
+  const isMounted = useRef(true);
+
   const {
     transcript,
     listening,
     resetTranscript,
     browserSupportsSpeechRecognition
   } = useSpeechRecognition();
+
+  // Set form values from savedData when component mounts
+  useEffect(() => {
+    if (savedData && Object.keys(savedData).length > 0) {
+      reset(savedData);
+    }
+  }, [savedData, reset]);
 
   useEffect(() => {
     if (transcript && activeField) {
@@ -47,22 +61,34 @@ export function FollowUpQuestions({ initialData, onSubmit }: FollowUpQuestionsPr
   }, [transcript, activeField, setValue]);
 
   const fetchQuestions = async () => {
-    let isMounted = true;
+    // Cancel any in-flight request
+    if (fetchController.current) {
+      fetchController.current.abort();
+    }
+
+    // Create new controller for this request
+    fetchController.current = new AbortController();
+    
     setIsLoading(true);
     setError(null);
     
     try {
       const questions = await generateFollowUpQuestions(initialData);
-      if (!isMounted) return;
+      if (!isMounted.current) return;
       
       setFollowUpQuestions(questions);
       setRetryCount(0);
     } catch (error) {
-      if (!isMounted) return;
+      if (!isMounted.current) return;
+      
+      // Ignore aborted requests
+      if (error instanceof Error && error.name === 'AbortError') {
+        return;
+      }
       
       const message = error instanceof Error 
         ? error.message 
-        : 'We encountered a problem analyzing your responses.';
+        : 'We encountered a problem analysing your responses.';
       
       analytics.trackError('follow_up_generation', message, 'FollowUpQuestions');
       setError(message);
@@ -72,18 +98,21 @@ export function FollowUpQuestions({ initialData, onSubmit }: FollowUpQuestionsPr
         variant: "destructive"
       });
     } finally {
-      if (isMounted) {
+      if (isMounted.current) {
         setIsLoading(false);
       }
     }
-
-    return () => {
-      isMounted = false;
-    };
   };
 
   useEffect(() => {
     fetchQuestions();
+
+    return () => {
+      isMounted.current = false;
+      if (fetchController.current) {
+        fetchController.current.abort();
+      }
+    };
   }, [initialData, toast]);
 
   const handleVoiceInput = (field: string) => {
@@ -107,10 +136,13 @@ export function FollowUpQuestions({ initialData, onSubmit }: FollowUpQuestionsPr
   if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center py-12">
-        <Loader2 className="w-8 h-8 animate-spin text-primary mb-4" />
-        <p className="text-muted-foreground">
-          Analyzing your responses...
-        </p>
+        <div className="bg-accent-light/30 rounded-xl p-6 max-w-xl text-center">
+          <Loader2 className="w-8 h-8 mx-auto mb-4 animate-spin text-primary" />
+          <h3 className="text-lg font-medium mb-2">Creating personalised questions</h3>
+          <p className="text-muted-foreground">
+            We're tailoring additional questions based on your responses to help create the most effective takedown letter for your situation.
+          </p>
+        </div>
       </div>
     );
   }
@@ -126,7 +158,7 @@ export function FollowUpQuestions({ initialData, onSubmit }: FollowUpQuestionsPr
           <p className="text-muted-foreground mb-6">
             {error
               ? "We're having trouble connecting to our AI service. You can try again or proceed with generating your letter."
-              : "We have enough information to proceed with your letter."}
+              : "We have enough information to proceed with creating your letter."}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             {error && retryCount < 3 && (
@@ -143,7 +175,7 @@ export function FollowUpQuestions({ initialData, onSubmit }: FollowUpQuestionsPr
               onClick={() => onSubmit({})}
               className="pill bg-primary text-white hover:opacity-90"
             >
-              Continue to letter generation
+              Continue to letter creation
             </Button>
           </div>
         </div>

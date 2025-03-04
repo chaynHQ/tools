@@ -1,17 +1,18 @@
 "use client";
 
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { analytics } from '@/lib/analytics';
-import { useEffect, useState } from 'react';
-import { Controller, useForm } from 'react-hook-form';
-import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
+import { useState, useEffect } from 'react';
+import { useForm, Controller } from 'react-hook-form';
 import 'regenerator-runtime/runtime';
-import { QuestionSection } from './components/question-section';
+import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Button } from '@/components/ui/button';
 import { SelectableCard } from './components/selectable-card';
 import { VoiceInput } from './components/voice-input';
+import { QuestionSection } from './components/question-section';
+import { analytics } from '@/lib/analytics';
+import { useFormContext } from '@/lib/context/FormContext';
 
 interface InitialQuestionsForm {
   imageIdentification: string;
@@ -24,6 +25,7 @@ interface InitialQuestionsForm {
 }
 
 interface InitialQuestionsProps {
+  initialData?: Partial<InitialQuestionsForm>;
   onSubmit: (data: InitialQuestionsForm) => void;
   reportingStatus: 'standard-completed' | 'escalated-completed' | 'both-completed' | 'none-completed';
 }
@@ -55,7 +57,7 @@ const contentContexts = [
   { 
     value: 'hacked', 
     label: 'Account was compromised',
-    description: 'Content was accessed without authorization'
+    description: 'Content was accessed without authorisation'
   },
   { 
     value: 'impersonation', 
@@ -79,10 +81,19 @@ const contentContexts = [
   }
 ];
 
-export function InitialQuestions({ onSubmit, reportingStatus }: InitialQuestionsProps) {
+export function InitialQuestions({ initialData = {}, onSubmit, reportingStatus }: InitialQuestionsProps) {
   const startTime = useState(() => Date.now())[0];
   const [activeField, setActiveField] = useState<keyof InitialQuestionsForm | null>(null);
-  const { control, register, handleSubmit, setValue, watch } = useForm<InitialQuestionsForm>();
+  const { control, register, handleSubmit, setValue, watch, reset } = useForm<InitialQuestionsForm>({
+    defaultValues: initialData
+  });
+
+  // Set form values from initialData when component mounts
+  useEffect(() => {
+    if (initialData && Object.keys(initialData).length > 0) {
+      reset(initialData as InitialQuestionsForm);
+    }
+  }, [initialData, reset]);
 
   const {
     transcript,
@@ -176,7 +187,7 @@ export function InitialQuestions({ onSubmit, reportingStatus }: InitialQuestions
 
           <div className="space-y-2">
             <Label htmlFor="imageIdentification" className="text-lg font-medium">
-              Where can we find the content?
+              Where can the content be found?
             </Label>
             <p className="text-sm text-muted-foreground mb-2">
               Please provide specific information that will help locate the content, such as URLs or post details.
@@ -185,7 +196,7 @@ export function InitialQuestions({ onSubmit, reportingStatus }: InitialQuestions
               <Textarea
                 id="imageIdentification"
                 {...register('imageIdentification')}
-                placeholder="e.g., 'The content appears at [URL] posted on [date]'"
+                placeholder="For example: 'The content appears at [URL] posted on [date]'"
                 className={`${inputClasses} pr-12`}
                 rows={4}
               />
@@ -215,7 +226,7 @@ export function InitialQuestions({ onSubmit, reportingStatus }: InitialQuestions
                 id="imageUploadDate"
                 type="text"
                 {...register('imageUploadDate')}
-                placeholder="e.g., 'Two weeks ago' or 'January 15, 2024'"
+                placeholder="For example: 'Two weeks ago' or '15 January 2024'"
                 className={`${inputClasses} pr-12`}
               />
               {browserSupportsSpeechRecognition && (
@@ -240,7 +251,7 @@ export function InitialQuestions({ onSubmit, reportingStatus }: InitialQuestions
                 id="imageTakenDate"
                 type="text"
                 {...register('imageTakenDate')}
-                placeholder="e.g., 'June 2023' or 'Around summer last year'"
+                placeholder="For example: 'June 2023' or 'Around summer last year'"
                 className={`${inputClasses} pr-12`}
               />
               {browserSupportsSpeechRecognition && (
@@ -267,7 +278,7 @@ export function InitialQuestions({ onSubmit, reportingStatus }: InitialQuestions
             <Textarea
               id="ownershipEvidence"
               {...register('ownershipEvidence')}
-              placeholder="e.g., 'I can be identified by...' or 'I have the original files with...'"
+              placeholder="For example: 'I can be identified by specific features' or 'I have the original files'"
               className={`${inputClasses} pr-12`}
               rows={4}
             />
@@ -288,13 +299,13 @@ export function InitialQuestions({ onSubmit, reportingStatus }: InitialQuestions
             How is this affecting you?
           </Label>
           <p className="text-sm text-muted-foreground mb-2">
-            Explaining the impact helps convey the urgency of removal. Share what you're comfortable with.
+            Explaining the impact helps convey the urgency of removal. Share only what you're comfortable with.
           </p>
           <div className="relative">
             <Textarea
               id="impactStatement"
               {...register('impactStatement')}
-              placeholder="e.g., 'This has affected my personal and professional life by...'"
+              placeholder="For example: 'This has affected my personal and professional life by...'"
               className={`${inputClasses} pr-12`}
               rows={4}
             />

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { platforms, type Platform } from '@/lib/platforms';
@@ -11,6 +11,7 @@ import { motion } from 'framer-motion';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
 import { analytics } from '@/lib/analytics';
+import { useFormContext } from '@/lib/context/FormContext';
 
 export default function PlatformSelection() {
   const router = useRouter();
@@ -18,9 +19,43 @@ export default function PlatformSelection() {
   const [otherPlatform, setOtherPlatform] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const { formState, setPlatformInfo } = useFormContext();
+
+  // Load saved platform selection from context on component mount
+  useEffect(() => {
+    if (formState.platformInfo) {
+      if (formState.platformInfo.isCustom) {
+        setSelectedPlatform('other');
+        if (formState.platformInfo.customName) {
+          setOtherPlatform(formState.platformInfo.customName);
+        }
+      } else {
+        setSelectedPlatform(formState.platformInfo.platformId);
+      }
+    }
+  }, [formState.platformInfo]);
 
   const handleContinue = async () => {
     setIsLoading(true);
+    
+    // Save platform selection to context
+    if (selectedPlatform === 'other') {
+      setPlatformInfo({
+        platformId: 'other',
+        platformName: otherPlatform,
+        isCustom: true,
+        customName: otherPlatform
+      });
+    } else {
+      const platform = platforms.find(p => p.id === selectedPlatform);
+      if (platform) {
+        setPlatformInfo({
+          platformId: platform.id,
+          platformName: platform.name,
+          isCustom: false
+        });
+      }
+    }
     
     analytics.trackPlatformSelection(
       selectedPlatform === 'other' ? otherPlatform : selectedPlatform,
@@ -32,7 +67,9 @@ export default function PlatformSelection() {
         title: "Platform selected",
         description: "We'll help you create a general takedown request for this platform.",
       });
-      // TODO: Implement custom platform flow
+      
+      // Pass the custom platform name as a query parameter
+      router.push(`/platforms/${selectedPlatform}/removal-process?other=${encodeURIComponent(otherPlatform)}`);
     } else {
       router.push(`/platforms/${selectedPlatform}/removal-process`);
     }

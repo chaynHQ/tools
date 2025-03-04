@@ -18,17 +18,27 @@ export function Footer() {
               <span className="font-merriweather text-xl">Chayn</span>
             </div>
             <p className="text-muted-foreground max-w-md">
-              Chayn is a global nonprofit, run by survivors and allies from around the world, creating resources to support 
-              the healing of survivors of gender-based violence. We create open, online resources and services for survivors 
-              of abuse that are trauma-informed, intersectional, multilingual and feminist.
+              Chayn is a global nonprofit created by survivors for survivors, building resources to support 
+              the healing journey of those affected by gender-based violence. Our approach is trauma-informed, 
+              intersectional, multilingual, and centred on survivor experiences.
             </p>
           </div>
           <div>
             <h3 className="font-merriweather text-lg mb-4">About Advokit</h3>
             <p className="text-muted-foreground max-w-md">
-              Advokit is a tool created by Chayn to support those affected by image-based abuse. We provide guidance 
-              through the process of requesting image takedowns, using AI to generate effective letters specific to your case.
+              Advokit was created by Chayn to empower those affected by image-based abuse. We provide 
+              compassionate guidance through the takedown request process, using AI to help you create 
+              effective letters tailored to your specific situation.
             </p>
+            <div className="mt-6 p-4 rounded-lg bg-accent-light/40 text-muted-foreground">
+              <p className="text-sm">
+                Advokit is a new tool in continuous development. If you have suggestions or encounter any issues, please{' '}
+                <Link href="https://form.typeform.com/to/RLYb0eMT" target="_blank" className="text-muted-foreground underline hover:text-foreground/80">
+                  share your experience with us
+                </Link>
+                . Your insights help us better support others in similar situations.
+              </p>
+            </div>
           </div>
         </div>
         <div className="mt-12 pt-6 border-t border-muted">

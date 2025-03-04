@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { platforms } from '@/lib/platforms';
 import { Button } from '@/components/ui/button';
@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label';
 import { ArrowLeft, ChevronDown, AlertCircle } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { analytics } from '@/lib/analytics';
+import { useFormContext } from '@/lib/context/FormContext';
 
 type ReportingStatus = 'standard-completed' | 'escalated-completed' | 'both-completed' | 'none-completed' | null;
 
@@ -19,13 +20,23 @@ export function RemovalProcessClient({
   params: { platform: string }
 }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const platformId = params.platform;
   const platform = platforms.find(p => p.id === platformId);
   const [standardOpen, setStandardOpen] = useState(false);
   const [escalatedOpen, setEscalatedOpen] = useState(false);
   const [status, setStatus] = useState<ReportingStatus>(null);
+  const otherPlatform = searchParams.get('other');
+  const { formState, setReportingInfo } = useFormContext();
 
-  if (!platform) {
+  // Load saved reporting status from context on component mount
+  useEffect(() => {
+    if (formState.reportingInfo && formState.reportingInfo.status) {
+      setStatus(formState.reportingInfo.status);
+    }
+  }, [formState.reportingInfo]);
+
+  if (!platform && platformId !== 'other') {
     router.push('/platforms');
     return null;
   }
@@ -33,12 +44,26 @@ export function RemovalProcessClient({
   const handleStatusChange = (newStatus: ReportingStatus) => {
     setStatus(newStatus);
     if (newStatus) {
+      // Save reporting status to context
+      setReportingInfo({ status: newStatus });
       analytics.trackReportingStatus(newStatus);
     }
   };
 
   const handleContinue = () => {
-    router.push(`/platforms/${platformId}/letter-generator?status=${status}`);
+    const queryParams = new URLSearchParams();
+    
+    // Add status to query params
+    if (status) {
+      queryParams.set('status', status);
+    }
+    
+    // Add other platform name if applicable
+    if (otherPlatform) {
+      queryParams.set('other', otherPlatform);
+    }
+    
+    router.push(`/platforms/${platformId}/letter-generator?${queryParams.toString()}`);
   };
 
   const renderProcessSteps = (steps: string[]) => (
@@ -61,28 +86,30 @@ export function RemovalProcessClient({
     switch (status) {
       case 'standard-completed':
         return {
-          message: "You've taken important steps using the standard process. You can try the escalated process as well, or we can help you create a formal letter now.",
+          message: "You've already taken important steps using the standard process. You might want to try the escalated process as well, or we can help you create a formal letter now.",
           intent: "suggestion"
         };
       case 'escalated-completed':
         return {
-          message: "The escalated process was a good step to take. You might also try the standard process, or we can help you create a formal letter now.",
+          message: "Using the escalated process was a good step. You might also try the standard process, or we can help you create a formal letter now to strengthen your request.",
           intent: "suggestion"
         };
       case 'both-completed':
         return {
-          message: "You've been thorough in trying the platform's processes. Let's help you create a formal letter as your next step.",
+          message: "Thank you for your persistence in trying the platform's processes. Let's create a formal letter to strengthen your request and help you move forward.",
           intent: "support"
         };
       case 'none-completed':
         return {
-          message: "You can try these processes first, or we can help you create a formal letter right away. There's no wrong choice - do what feels right for you.",
+          message: "You can try these platform processes first, or we can help you create a formal letter right away. Choose whatever approach feels right for your situation.",
           intent: "guidance"
         };
       default:
         return null;
     }
   };
+
+  const platformName = otherPlatform || platform?.name || 'this platform';
 
   return (
     <main className="flex-1">
@@ -103,7 +130,7 @@ export function RemovalProcessClient({
             </Button>
 
             <div className="flex flex-col items-start">
-              <h1 className="text-3xl">Content removal options for {platform.name}</h1>
+              <h1 className="text-3xl">Content removal options for {platformName}</h1>
             </div>
           </div>
 
@@ -112,7 +139,7 @@ export function RemovalProcessClient({
               <h2 className="text-xl font-medium mb-2">Available reporting processes</h2>
               <p className="text-muted-foreground mb-4">
                 Below are the official reporting processes available. You can start with these platform-specific 
-                processes, or we can help you create a formal takedown letter. Choose the path that feels most 
+                processes, or we can help you create a formal takedown letter. Choose the approach that feels most 
                 comfortable for you.
               </p>
               
@@ -130,7 +157,12 @@ export function RemovalProcessClient({
                     </CollapsibleTrigger>
                     <CollapsibleContent>
                       <div className="px-4 pb-4">
-                        {renderProcessSteps(platform.flows.basic)}
+                        {platform && renderProcessSteps(platform.flows.basic)}
+                        {!platform && (
+                          <p className="text-sm text-muted-foreground py-2">
+                            Standard reporting processes vary by platform. Check the platform's help centre or support pages for specific instructions.
+                          </p>
+                        )}
                       </div>
                     </CollapsibleContent>
                   </div>
@@ -149,7 +181,12 @@ export function RemovalProcessClient({
                     </CollapsibleTrigger>
                     <CollapsibleContent>
                       <div className="px-4 pb-4">
-                        {renderProcessSteps(platform.flows.escalated)}
+                        {platform && renderProcessSteps(platform.flows.escalated)}
+                        {!platform && (
+                          <p className="text-sm text-muted-foreground py-2">
+                            Escalated reporting processes vary by platform. Look for options like "Report a privacy violation" or "Contact support" on the platform's help pages.
+                          </p>
+                        )}
                       </div>
                     </CollapsibleContent>
                   </div>
@@ -158,7 +195,7 @@ export function RemovalProcessClient({
 
               <div className="mt-8 space-y-6">
                 <div className="space-y-4">
-                  <h4 className="text-lg font-medium">Have you previously completed any of these processes?</h4>
+                  <h4 className="text-lg font-medium">Have you previously tried any of these processes?</h4>
                   <RadioGroup
                     value={status || ''}
                     onValueChange={(value) => handleStatusChange(value as ReportingStatus)}
@@ -166,19 +203,19 @@ export function RemovalProcessClient({
                   >
                     <div className="flex items-center space-x-3">
                       <RadioGroupItem value="standard-completed" id="standard-completed" />
-                      <Label htmlFor="standard-completed" className="text-base">I completed the standard reporting process</Label>
+                      <Label htmlFor="standard-completed" className="text-base">I've tried the standard reporting process</Label>
                     </div>
                     <div className="flex items-center space-x-3">
                       <RadioGroupItem value="escalated-completed" id="escalated-completed" />
-                      <Label htmlFor="escalated-completed" className="text-base">I completed the escalated reporting process</Label>
+                      <Label htmlFor="escalated-completed" className="text-base">I've tried the escalated reporting process</Label>
                     </div>
                     <div className="flex items-center space-x-3">
                       <RadioGroupItem value="both-completed" id="both-completed" />
-                      <Label htmlFor="both-completed" className="text-base">I completed both processes</Label>
+                      <Label htmlFor="both-completed" className="text-base">I've tried both processes</Label>
                     </div>
                     <div className="flex items-center space-x-3">
                       <RadioGroupItem value="none-completed" id="none-completed" />
-                      <Label htmlFor="none-completed" className="text-base">I haven't completed either process</Label>
+                      <Label htmlFor="none-completed" className="text-base">I haven't tried either process yet</Label>
                     </div>
                   </RadioGroup>
                 </div>

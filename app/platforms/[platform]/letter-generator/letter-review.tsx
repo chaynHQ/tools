@@ -1,5 +1,10 @@
 "use client";
 
+import { useState } from 'react';
+import { motion } from 'framer-motion';
+import { Copy, AlertCircle, RefreshCcw, CheckCircle2, ArrowRight, Send, MessageSquare } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { useToast } from '@/hooks/use-toast';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -10,61 +15,39 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { useToast } from '@/hooks/use-toast';
-import { extractPlaceholders } from '@/lib/ai';
-import { analytics } from '@/lib/analytics';
 import { GeneratedLetter } from '@/types/letter';
-import { motion } from 'framer-motion';
-import { AlertCircle, ArrowRight, CheckCircle2, Copy, RefreshCcw } from 'lucide-react';
-import { useState } from 'react';
 import { QuestionSection } from './components/question-section';
+import { analytics } from '@/lib/analytics';
+import { platforms } from '@/lib/platforms';
+import { PopupButton } from '@typeform/embed-react';
+import { useFormContext } from '@/lib/context/FormContext';
 
 interface LetterReviewProps {
   letter: GeneratedLetter;
+  platformId: string;
   onRegenerateRequest: () => void;
   onComplete: () => void;
 }
 
 export function LetterReview({
   letter,
+  platformId,
   onRegenerateRequest,
   onComplete
 }: LetterReviewProps) {
   const [showRegenerateDialog, setShowRegenerateDialog] = useState(false);
   const [showCompleteDialog, setShowCompleteDialog] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [placeholders, setPlaceholders] = useState<Record<string, string>>(() => {
-    const extracted = [
-      ...extractPlaceholders(letter.subject),
-      ...extractPlaceholders(letter.body)
-    ];
-    return Object.fromEntries(extracted.map(p => [p, '']));
-  });
   const { toast } = useToast();
+  const { resetForm } = useFormContext();
 
-  const hasUnfilledPlaceholders = Object.values(placeholders).some(value => !value.trim());
-
-  const replacePlaceholders = (text: string) => {
-    return text.replace(/\[([^\]]+)\]/g, (_, placeholder) => 
-      placeholders[placeholder] || `[${placeholder}]`
-    );
-  };
+  // Get platform email from platforms data
+  const platform = platforms.find(p => p.id === platformId);
+  const platformEmail = platform?.contactEmail || 'Please check the platform\'s help centre for the appropriate contact email';
 
   const handleCopy = async () => {
-    if (hasUnfilledPlaceholders) {
-      toast({
-        title: "Missing information",
-        description: "Please fill in all required fields before copying the letter.",
-        variant: "destructive",
-      });
-      return;
-    }
-
     try {
-      const fullText = `Subject: ${replacePlaceholders(letter.subject)}\n\n${replacePlaceholders(letter.body)}`;
+      const fullText = `Subject: ${letter.subject}\n\n${letter.body}`;
       await navigator.clipboard.writeText(fullText);
       setCopied(true);
       analytics.trackEvent('letter_copied', {
@@ -73,13 +56,13 @@ export function LetterReview({
       });
       toast({
         title: "Copied to clipboard",
-        description: "The letter has been copied to your clipboard.",
+        description: "Your letter has been copied and is ready to paste into an email.",
       });
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
       analytics.trackError('clipboard', 'Failed to copy to clipboard', 'LetterReview');
       toast({
-        title: "Failed to copy",
+        title: "Unable to copy",
         description: "Please try selecting and copying the text manually.",
         variant: "destructive",
       });
@@ -91,80 +74,75 @@ export function LetterReview({
       Math.floor(Date.now() / 1000),
       ['platform_selection', 'initial_questions', 'follow_up', 'letter_generation']
     );
+    resetForm();
     onComplete();
+  };
+
+  const handleTypeformSubmit = () => {
+    analytics.trackFeedbackSubmission('typeform');
   };
 
   return (
     <div className="space-y-8">
-      {Object.keys(placeholders).length > 0 && (
-        <QuestionSection title="Required Information">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="space-y-4"
-          >
-            <div className="flex items-start gap-3 p-4 bg-accent-light/30 rounded-lg text-muted-foreground">
-              <AlertCircle className="w-5 h-5 mt-0.5 flex-shrink-0" />
-              <div>
-                <p className="text-foreground font-medium">Required Fields</p>
-                <p className="text-sm">
-                  Please fill in all required fields below to complete your letter.
-                </p>
-              </div>
-            </div>
-            <div className="grid gap-4 sm:grid-cols-2">
-              {Object.entries(placeholders).map(([placeholder, value]) => (
-                <div key={placeholder} className="space-y-2">
-                  <Label htmlFor={placeholder} className="text-base font-medium capitalize">
-                    {placeholder}
-                  </Label>
-                  <Input
-                    id={placeholder}
-                    value={value}
-                    onChange={(e) => setPlaceholders(prev => ({
-                      ...prev,
-                      [placeholder]: e.target.value
-                    }))}
-                    className="bg-white"
-                  />
-                </div>
-              ))}
-            </div>
-            {!hasUnfilledPlaceholders && (
-              <div className="flex justify-end">
-                <Button
-                  onClick={handleCopy}
-                  className="pill bg-primary text-white hover:opacity-90"
-                >
-                  <Copy className="w-4 h-4 mr-2" />
-                  Copy Completed Letter
-                </Button>
-              </div>
-            )}
-          </motion.div>
-        </QuestionSection>
-      )}
-
-      <QuestionSection title="Letter Content">
+      <QuestionSection title="Your Personalised Letter">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="space-y-6"
         >
+          <div className="flex items-start gap-3 p-4 bg-accent-light/30 rounded-lg text-muted-foreground mb-4">
+            <AlertCircle className="w-5 h-5 mt-0.5 flex-shrink-0" />
+            <div>
+              <p className="text-foreground font-medium">Before sending</p>
+              <p className="text-sm">
+                Remember to add your full name and contact information at the end of the letter. 
+                For your privacy, we don't collect or store these personal details.
+              </p>
+            </div>
+          </div>
+
           <div className="space-y-4">
             <div>
               <h4 className="text-lg font-medium mb-2">Subject Line</h4>
               <div className="p-4 bg-white rounded-lg border border-border/50 select-none">
-                {replacePlaceholders(letter.subject)}
+                {letter.subject}
               </div>
             </div>
 
             <div>
               <h4 className="text-lg font-medium mb-2">Message Content</h4>
               <div className="p-4 bg-white rounded-lg border border-border/50 whitespace-pre-wrap select-none">
-                {replacePlaceholders(letter.body)}
+                {letter.body}
               </div>
             </div>
+          </div>
+
+          <div className="flex flex-col sm:flex-row justify-between items-center gap-4 p-4 bg-neutral rounded-lg">
+            <div className="text-sm text-muted-foreground">
+              Click the button to copy your letter, then paste it into an email. Don't forget to add your name at the end.
+            </div>
+            <Button
+              variant="outline"
+              className="pill whitespace-nowrap"
+              onClick={handleCopy}
+            >
+              {copied ? (
+                <CheckCircle2 className="w-4 h-4 mr-2" />
+              ) : (
+                <Copy className="w-4 h-4 mr-2" />
+              )}
+              {copied ? 'Copied!' : 'Copy Letter'}
+            </Button>
+          </div>
+
+          <div className="p-4 bg-accent-light/20 rounded-lg">
+            <h4 className="text-base font-medium flex items-center gap-2 mb-2">
+              <Send className="w-4 h-4" />
+              Send your email to:
+            </h4>
+            <p className="text-sm font-medium bg-white p-2 rounded border border-border/50">
+              {platformEmail}
+            </p>
           </div>
         </motion.div>
       </QuestionSection>
@@ -175,17 +153,62 @@ export function LetterReview({
           animate={{ opacity: 1, y: 0 }}
         >
           <ul className="space-y-3">
-            {letter.nextSteps.map((step, index) => (
-              <li key={index} className="flex items-start gap-3 p-3 bg-white rounded-lg border border-border/50">
-                <span className="w-6 h-6 rounded-full bg-accent-light flex items-center justify-center flex-shrink-0 text-sm font-medium">
-                  {index + 1}
-                </span>
-                <p className="text-muted-foreground pt-0.5">{step}</p>
-              </li>
-            ))}
+            <li className="flex items-start gap-3 p-3 bg-white rounded-lg border border-border/50">
+              <span className="w-6 h-6 rounded-full bg-accent-light flex items-center justify-center flex-shrink-0 text-sm font-medium">
+                1
+              </span>
+              <p className="text-muted-foreground pt-0.5">
+                The platform might ask for the evidence you've mentioned in your letter. Have these ready to provide if requested.
+              </p>
+            </li>
+            <li className="flex items-start gap-3 p-3 bg-white rounded-lg border border-border/50">
+              <span className="w-6 h-6 rounded-full bg-accent-light flex items-center justify-center flex-shrink-0 text-sm font-medium">
+                2
+              </span>
+              <p className="text-muted-foreground pt-0.5">
+                Check after 48 hours to see if your content has been removed. Sometimes platforms take action without sending a response.
+              </p>
+            </li>
+            <li className="flex items-start gap-3 p-3 bg-white rounded-lg border border-border/50">
+              <span className="w-6 h-6 rounded-full bg-accent-light flex items-center justify-center flex-shrink-0 text-sm font-medium">
+                3
+              </span>
+              <p className="text-muted-foreground pt-0.5">
+                If the content is still available, consider sending a follow-up message asking for an update on your request.
+              </p>
+            </li>
           </ul>
         </motion.div>
       </QuestionSection>
+
+      <QuestionSection title="Additional Support">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="p-5 bg-white rounded-lg border border-border/50"
+        >
+          <p className="text-muted-foreground">
+            We understand that image-based abuse can have a profound impact on your wellbeing and sense of self. Chayn offers a free, online video course about image-based abuse on our healing platform Bloom. It explores the emotional impacts and provides guidance on rebuilding after this type of abuse.
+          </p>
+        </motion.div>
+      </QuestionSection>
+
+      <div className="bg-accent-light/20 rounded-xl p-4 flex items-start gap-3">
+        <MessageSquare className="w-5 h-5 mt-0.5 text-accent-foreground flex-shrink-0" />
+        <div>
+          <p className="text-sm font-medium mb-1">Was this letter helpful?</p>
+          <p className="text-sm text-muted-foreground">
+            Your feedback helps us improve this tool for everyone.{' '}
+            <PopupButton 
+              id="advokit-feedback"
+              className="text-primary underline underline-offset-2"
+              onSubmit={handleTypeformSubmit}
+            >
+              Share your thoughts
+            </PopupButton>
+          </p>
+        </div>
+      </div>
 
       <div className="flex justify-between items-center">
         <Button
@@ -194,41 +217,25 @@ export function LetterReview({
           onClick={() => setShowRegenerateDialog(true)}
         >
           <RefreshCcw className="w-4 h-4 mr-2" />
-          Generate Another
+          Create Another Letter
         </Button>
 
-        <div className="space-x-4">
-          <Button
-            variant="outline"
-            className={`pill ${hasUnfilledPlaceholders ? 'opacity-50 cursor-not-allowed' : ''}`}
-            onClick={handleCopy}
-            disabled={hasUnfilledPlaceholders}
-          >
-            {copied ? (
-              <CheckCircle2 className="w-4 h-4 mr-2" />
-            ) : (
-              <Copy className="w-4 h-4 mr-2" />
-            )}
-            {copied ? 'Copied!' : hasUnfilledPlaceholders ? 'Fill Required Fields' : 'Copy Letter'}
-          </Button>
-
-          <Button
-            className="pill bg-primary text-white hover:opacity-90"
-            onClick={() => setShowCompleteDialog(true)}
-          >
-            Finish & Exit
-            <ArrowRight className="w-4 h-4 ml-2" />
-          </Button>
-        </div>
+        <Button
+          className="pill bg-primary text-white hover:opacity-90"
+          onClick={() => setShowCompleteDialog(true)}
+        >
+          Finish & Exit
+          <ArrowRight className="w-4 h-4 ml-2" />
+        </Button>
       </div>
 
       <AlertDialog open={showRegenerateDialog} onOpenChange={setShowRegenerateDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Generate a new letter?</AlertDialogTitle>
+            <AlertDialogTitle>Create a new letter?</AlertDialogTitle>
             <AlertDialogDescription>
-              Your current letter will be discarded. This data is not saved and will be cleared
-              when you leave the page. Are you sure you want to generate a new letter?
+              Your current letter will be replaced. This data is not saved and will be cleared
+              when you leave the page. Are you sure you want to create a new letter?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -241,7 +248,7 @@ export function LetterReview({
                 onRegenerateRequest();
               }}
             >
-              Generate New Letter
+              Create New Letter
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

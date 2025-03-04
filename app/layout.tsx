@@ -5,19 +5,25 @@ import type { Metadata } from 'next';
 import { Merriweather, Open_Sans } from 'next/font/google';
 import 'regenerator-runtime/runtime';
 import './globals.css';
+import { DisclaimerBanner } from '@/components/feedback/disclaimer-banner';
+import { FormProvider } from '@/lib/context/FormContext';
 
 const merriweather = Merriweather({
   subsets: ['latin'],
   weight: ['400'],
   variable: '--font-merriweather',
   display: 'swap',
+  preload: true,
+  fallback: ['serif']
 });
 
 const openSans = Open_Sans({
   subsets: ['latin'],
-  weight: ['400', '500', '600'],
+  weight: ['400', '500'],
   variable: '--font-open-sans',
   display: 'swap',
+  preload: true,
+  fallback: ['sans-serif']
 });
 
 export const metadata: Metadata = {
@@ -33,10 +39,17 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${merriweather.variable} ${openSans.variable}`}>
       <body className="font-open-sans bg-background min-h-screen flex flex-col">
-        <Header />
-        {children}
-        <Footer />
-        <GoogleAnalytics gaId="G-XXXXXXXXXX" />
+        <FormProvider>
+          <Header />
+          <main className="flex-1">
+            <div className="max-w-7xl mx-auto px-6 py-6">
+              <DisclaimerBanner />
+              {children}
+            </div>
+          </main>
+          <Footer />
+          <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID || "G-XXXXXXXXXX"} />
+        </FormProvider>
       </body>
     </html>
   );

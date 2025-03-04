@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { motion } from 'framer-motion';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { AlertCircle } from 'lucide-react';
+import { useFormContext } from '@/lib/context/FormContext';
 
 interface ReportingDetailsForm {
   standardProcessDetails?: string;
@@ -16,12 +17,22 @@ interface ReportingDetailsForm {
 }
 
 interface ReportingDetailsProps {
+  initialData?: Partial<ReportingDetailsForm>;
   onSubmit: (data: ReportingDetailsForm) => void;
   reportingStatus: 'standard-completed' | 'escalated-completed' | 'both-completed' | 'none-completed';
 }
 
-export function ReportingDetails({ onSubmit, reportingStatus }: ReportingDetailsProps) {
-  const { register, handleSubmit } = useForm<ReportingDetailsForm>();
+export function ReportingDetails({ initialData = {}, onSubmit, reportingStatus }: ReportingDetailsProps) {
+  const { register, handleSubmit, reset } = useForm<ReportingDetailsForm>({
+    defaultValues: initialData
+  });
+  
+  // Set form values from initialData when component mounts
+  useEffect(() => {
+    if (initialData && Object.keys(initialData).length > 0) {
+      reset(initialData as ReportingDetailsForm);
+    }
+  }, [initialData, reset]);
   
   const showStandardQuestions = ['standard-completed', 'both-completed'].includes(reportingStatus);
   const showEscalatedQuestions = ['escalated-completed', 'both-completed'].includes(reportingStatus);
@@ -42,12 +53,12 @@ export function ReportingDetails({ onSubmit, reportingStatus }: ReportingDetails
                   What steps did you take using the standard reporting process?
                 </Label>
                 <p className="text-sm text-muted-foreground mb-2">
-                  Please describe the actions you took and any responses received.
+                  Please describe the actions you took and any responses you received.
                 </p>
                 <Textarea
                   id="standardProcessDetails"
                   {...register('standardProcessDetails')}
-                  placeholder="e.g., 'I reported the content through the platform's reporting tool on [date]...'"
+                  placeholder="For example: 'I reported the content through the platform's reporting tool on [date]...'"
                   className="bg-white focus:ring-accent focus:border-accent"
                   rows={4}
                 />
@@ -74,7 +85,7 @@ export function ReportingDetails({ onSubmit, reportingStatus }: ReportingDetails
                 <Textarea
                   id="escalatedProcessDetails"
                   {...register('escalatedProcessDetails')}
-                  placeholder="e.g., 'I submitted a detailed report through the platform's support form...'"
+                  placeholder="For example: 'I submitted a detailed report through the platform's support form...'"
                   className="bg-white focus:ring-accent focus:border-accent"
                   rows={4}
                 />
@@ -96,12 +107,12 @@ export function ReportingDetails({ onSubmit, reportingStatus }: ReportingDetails
                   What response did you receive from the platform?
                 </Label>
                 <p className="text-sm text-muted-foreground mb-2">
-                  Include any communication or decisions received from the platform.
+                  Include any communication or decisions you received from the platform.
                 </p>
                 <Textarea
                   id="responseReceived"
                   {...register('responseReceived')}
-                  placeholder="e.g., 'The platform responded on [date] stating...'"
+                  placeholder="For example: 'The platform responded on [date] stating...'"
                   className="bg-white focus:ring-accent focus:border-accent"
                   rows={4}
                 />
@@ -109,15 +120,15 @@ export function ReportingDetails({ onSubmit, reportingStatus }: ReportingDetails
 
               <div className="space-y-2">
                 <Label htmlFor="additionalStepsTaken" className="text-lg font-medium">
-                  What additional steps have you taken since then?
+                  Have you taken any other actions since then?
                 </Label>
                 <p className="text-sm text-muted-foreground mb-2">
-                  Describe any follow-up actions or attempts to resolve the issue.
+                  Share any follow-up actions or attempts that could be relevant to your letter.
                 </p>
                 <Textarea
                   id="additionalStepsTaken"
                   {...register('additionalStepsTaken')}
-                  placeholder="e.g., 'After receiving their response, I...'"
+                  placeholder="For example: 'After receiving their response, I...'"
                   className="bg-white focus:ring-accent focus:border-accent"
                   rows={4}
                 />
@@ -132,7 +143,7 @@ export function ReportingDetails({ onSubmit, reportingStatus }: ReportingDetails
               <AlertCircle className="w-5 h-5 mt-1 flex-shrink-0" />
               <p>
                 Since you haven't completed any reporting processes yet, we'll proceed with creating
-                your takedown letter. You can always try the platform's reporting processes later.
+                your takedown letter. You can always try the platform's reporting processes later if needed.
               </p>
             </div>
           </div>
