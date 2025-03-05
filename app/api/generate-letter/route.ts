@@ -26,6 +26,18 @@ export async function POST(request: Request) {
       );
     }
     
+    // Validate initialQuestions has required fields
+    const requiredFields = ['contentType', 'contentContext', 'imageIdentification'];
+    for (const field of requiredFields) {
+      if (!body.initialQuestions[field]) {
+        console.error(`Missing required field in initialQuestions: ${field}`);
+        return NextResponse.json(
+          { error: `Invalid request: Missing required field ${field} in initialQuestions` },
+          { status: 400 }
+        );
+      }
+    }
+    
     // Validate platformInfo has required fields
     if (!body.platformInfo.name) {
       console.error('Missing name in platformInfo');

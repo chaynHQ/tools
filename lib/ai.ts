@@ -1,9 +1,15 @@
+import { GeneratedLetter, LetterRequest } from '@/types/letter';
 import { FollowUpQuestion } from '@/types/questions';
-import { LetterRequest, GeneratedLetter } from '@/types/letter';
-import { parseAIJson } from './utils';
 
 const MAX_RETRIES = 3;
 const RETRY_DELAY = 1000; // 1 second
+
+// Static next steps that will be used for all letters
+const STATIC_NEXT_STEPS = [
+  "They might respond asking for the evidence you listed, so make sure you have the things referenced in this letter to hand.",
+  "In 48 hours, check if your content has been removed. Sometimes the platforms don't send a response but they do remove the content",
+  "If the content is still available, you could try sending a follow up asking them to respond"
+];
 
 async function retryWithDelay<T>(
   fn: () => Promise<T>,
@@ -22,12 +28,6 @@ async function retryWithDelay<T>(
 export async function generateFollowUpQuestions(formData: LetterRequest): Promise<FollowUpQuestion[]> {
   return retryWithDelay(async () => {
     try {
-      // Validate formData before sending to API
-      if (!formData || !formData.initialQuestions || !formData.platformInfo) {
-        console.error('Invalid formData for follow-up questions:', formData);
-        throw new Error('Missing required data for generating follow-up questions');
-      }
-      
       // Create a clean copy of the data to ensure we're not sending any circular references
       const cleanFormData = {
         initialQuestions: { ...formData.initialQuestions },
@@ -207,6 +207,9 @@ export async function generateLetter(formData: LetterRequest): Promise<Generated
               .replace(/as I mentioned/gi, "");
           }
           
+          // Always use static next steps
+          letter.nextSteps = STATIC_NEXT_STEPS;
+          
           return letter;
         }
         
@@ -214,6 +217,9 @@ export async function generateLetter(formData: LetterRequest): Promise<Generated
         await new Promise(resolve => setTimeout(resolve, RETRY_DELAY));
         continue;
       }
+      
+      // Always use static next steps regardless of what the AI generated
+      letter.nextSteps = STATIC_NEXT_STEPS;
       
       return letter;
       

@@ -17,7 +17,7 @@ import { useFormContext } from '@/lib/context/FormContext';
 import { platforms } from '@/lib/platforms';
 import { GeneratedLetter } from '@/types/letter';
 import { motion } from 'framer-motion';
-import { AlertCircle, ArrowRight, CheckCircle2, Copy, MessageSquare, RefreshCcw } from 'lucide-react';
+import { AlertCircle, ArrowRight, CheckCircle2, Copy, MessageSquare, RefreshCw } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
 import { QuestionSection } from './question-section';
@@ -40,7 +40,6 @@ export function LetterReview({
   const { toast } = useToast();
   const { resetForm } = useFormContext();
 
-  // Get platform email from platforms data
   const platform = platforms.find(p => p.id === platformId);
   const platformEmail = platform?.contactEmail || 'Please check the platform\'s help centre for the appropriate contact email';
 
@@ -79,18 +78,7 @@ export function LetterReview({
 
   return (
     <div className="space-y-8">
-      <QuestionSection title="Your Personalised Letter">
-        <div className="flex justify-end mb-4">
-          <Button
-            variant="outline"
-            className="pill"
-            onClick={onRegenerateRequest}
-          >
-            <RefreshCcw className="w-4 h-4 mr-2" />
-            Regenerate Letter
-          </Button>
-        </div>
-        
+      <QuestionSection title="Your personalised letter">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -116,45 +104,80 @@ export function LetterReview({
             </div>
 
             <div>
-              <h4 className="text-lg font-medium mb-2">Subject Line</h4>
+              <h4 className="text-lg font-medium mb-2">Subject line</h4>
               <div className="p-4 bg-white rounded-lg border border-border/50 select-none">
                 {letter.subject}
               </div>
             </div>
 
             <div>
-              <h4 className="text-lg font-medium mb-2">Message Content</h4>
+              <h4 className="text-lg font-medium mb-2">Message content</h4>
               <div className="p-4 bg-white rounded-lg border border-border/50 whitespace-pre-wrap select-none">
                 {letter.body}
               </div>
             </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row justify-between items-center gap-4 p-4 bg-accent-light rounded-lg">
-            <div className="text-sm">
-              Copy your letter, then paste it into an email. Don't forget to add your name at the end and the subject line.
+          <div className="flex flex-col gap-6">
+            <div className="p-6 bg-accent-light rounded-lg">
+              <div className="flex flex-col gap-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex-1">
+                    <h4 className="text-base mb-1">Copy your letter</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Copy your letter, then paste it into an email. Don't forget to add your name at the end and include the subject line.
+                    </p>
+                  </div>
+                  <Button
+                    className="pill whitespace-nowrap bg-primary text-white hover:opacity-90 min-w-[120px] ml-6"
+                    onClick={handleCopy}
+                  >
+                    {copied ? (
+                      <>
+                        <CheckCircle2 className="w-4 h-4 mr-2" />
+                        Copied
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="w-4 h-4 mr-2" />
+                        Copy letter
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </div>
             </div>
-            <Button
-              className="pill whitespace-nowrap bg-primary text-white hover:opacity-90"
-              onClick={handleCopy}
-            >
-              {copied ? (
-                <CheckCircle2 className="w-4 h-4 mr-2" />
-              ) : (
-                <Copy className="w-4 h-4 mr-2" />
-              )}
-              {copied ? 'Copied!' : 'Copy Letter'}
-            </Button>
+
+            <div className="p-6 bg-white rounded-lg border border-border/50">
+              <div className="flex flex-col gap-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex-1">
+                    <h4 className="text-base mb-1">Not quite right?</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Sometimes our AI doesn't get it quite right. You can try regenerating a different letter using the same information to see if you prefer it.
+                    </p>
+                  </div>
+                  <Button
+                    variant="outline"
+                    className="pill bg-white ml-6 min-w-[120px]"
+                    onClick={onRegenerateRequest}
+                  >
+                    <RefreshCw className="w-4 h-4 mr-2" />
+                    Regenerate
+                  </Button>
+                </div>
+              </div>
+            </div>
           </div>
         </motion.div>
       </QuestionSection>
 
-      <QuestionSection title="Next Steps">
+      <QuestionSection title="Next steps">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <ul className="space-y-3">
+          <ul className="space-y-2">
             {letter.nextSteps.map((step, index) => (
               <li key={index} className="flex items-start gap-3 p-3 bg-white rounded-lg border border-border/50">
                 <span className="w-6 h-6 rounded-full bg-accent-light flex items-center justify-center flex-shrink-0 text-sm font-medium">
@@ -167,40 +190,42 @@ export function LetterReview({
             ))}
           </ul>
         </motion.div>
-        
+      </QuestionSection>
+
+      <QuestionSection title="For more support">
+        <p className="text-muted-foreground">
+          When intimate images are shared without our consent—what we often call image-based abuse—it can impact our wellbeing and sense of self. Chayn offers a free, online course about recovering from image-based abuse on our healing platform Bloom. It explores the emotional impacts and tools for rebuilding ourselves.
+        </p>
+      </QuestionSection>
+
+      <div className="bg-accent-light/40 border border-accent/30 rounded-lg p-4 flex items-start gap-3">
+        <div className="bg-accent/20 p-1.5 rounded-full flex-shrink-0">
+          <MessageSquare className="h-5 w-5 text-accent" />
+        </div>
+        <div>
+          <p className="text-foreground font-medium mb-1">Help us improve Advokit</p>
+          <p className="text-muted-foreground text-sm">
+            This tool is new and learning! By sharing your experience, you help us make this tool more supportive for others in similar situations.{' '}
+            <Link 
+              href={process.env.NEXT_PUBLIC_TYPEFORM_FEEDBACK_URL || '#'} 
+              target="_blank"
+              onClick={() => analytics.trackFeedbackSubmission('typeform')}
+              className="underline underline-offset-2 font-medium hover:text-primary/90"
+            >
+              Share your feedback
+            </Link>
+          </p>
+        </div>
+      </div>
+
       <div className="flex justify-end items-center">
         <Button
           className="pill bg-primary text-white hover:opacity-90"
           onClick={() => setShowCompleteDialog(true)}
         >
-          Finish & Exit
+          Finish and exit
           <ArrowRight className="w-4 h-4 ml-2" />
         </Button>
-      </div>
-      </QuestionSection>
-
-      <QuestionSection title="Additional Support">
-      <p className="text-muted-foreground">
-            We understand that image-based abuse can have a profound impact on your wellbeing and sense of self. Chayn offers a free, online video course about image-based abuse on our healing platform Bloom. It explores the emotional impacts and provides guidance on rebuilding after this type of abuse.
-          </p>
-      </QuestionSection>
-
-      <div className="bg-white rounded-xl p-4 flex items-start gap-3">
-        <MessageSquare className="w-5 h-5 mt-0.5 text-accent-foreground flex-shrink-0" />
-        <div>
-          <p className="text-sm font-medium mb-1">Was this letter helpful?</p>
-          <p className="text-sm text-muted-foreground">
-            Your feedback helps us improve this tool for everyone.{' '}
-            <Link 
-              href={process.env.NEXT_PUBLIC_TYPEFORM_FEEDBACK_URL || '#'} 
-              target="_blank"
-              onClick={() => analytics.trackFeedbackSubmission('typeform')}
-              className="text-primary underline underline-offset-2"
-            >
-              Share your thoughts
-            </Link>
-          </p>
-        </div>
       </div>
 
       <AlertDialog open={showCompleteDialog} onOpenChange={setShowCompleteDialog}>
@@ -214,7 +239,7 @@ export function LetterReview({
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel onClick={() => setShowCompleteDialog(false)}>
-              Go Back
+              Go back
             </AlertDialogCancel>
             <AlertDialogAction onClick={handleComplete}>
               Finish

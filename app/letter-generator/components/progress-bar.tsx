@@ -9,13 +9,13 @@ interface ProgressBarProps {
 }
 
 const stepNames = [
-  'Platform Selection',
-  'Removal Process',
-  'Content Information',
-  'Reporting Details',
-  'Additional Details',
-  'Letter Generation',
-  'Review and Send'
+  'Select a platform',
+  'Review removal process',
+  'Content information',
+  'Reporting details',
+  'Additional details',
+  'Letter generation',
+  'Review and send'
 ];
 
 export function ProgressBar({ currentStep, totalSteps }: ProgressBarProps) {
@@ -25,7 +25,6 @@ export function ProgressBar({ currentStep, totalSteps }: ProgressBarProps) {
   return (
     <div className="w-full max-w-[800px]">
       <div className="relative flex items-center justify-between">
-        {/* Progress bar line */}
         <div className="absolute left-0 right-0 h-1 bg-muted/50" />
         <motion.div
           className="absolute left-0 h-1 bg-accent origin-left"
@@ -34,7 +33,6 @@ export function ProgressBar({ currentStep, totalSteps }: ProgressBarProps) {
           transition={{ duration: 0.5 }}
         />
 
-        {/* Step dots */}
         {stepNames.slice(0, totalSteps).map((name, index) => {
           const stepNumber = index;
           const isCurrent = stepNumber === currentStep;
@@ -58,7 +56,6 @@ export function ProgressBar({ currentStep, totalSteps }: ProgressBarProps) {
                 `}
               />
               
-              {/* Step label - only shown on hover */}
               {hoveredStep === stepNumber && (
                 <motion.div 
                   initial={{ opacity: 0, y: 10 }}

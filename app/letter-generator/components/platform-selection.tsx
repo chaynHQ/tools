@@ -1,16 +1,16 @@
 "use client";
 
-import { useState, useEffect } from 'react';
-import Image from 'next/image';
-import { platforms } from '@/lib/platforms';
 import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { motion } from 'framer-motion';
+import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2 } from 'lucide-react';
 import { analytics } from '@/lib/analytics';
 import { useFormContext } from '@/lib/context/FormContext';
+import { platforms } from '@/lib/platforms';
+import { motion } from 'framer-motion';
+import { Loader2 } from 'lucide-react';
+import Image from 'next/image';
+import { useEffect, useState } from 'react';
 
 interface PlatformSelectionProps {
   onComplete: () => void;
@@ -23,7 +23,6 @@ export function PlatformSelection({ onComplete }: PlatformSelectionProps) {
   const { toast } = useToast();
   const { formState, setPlatformInfo } = useFormContext();
 
-  // Load saved platform selection from context on component mount
   useEffect(() => {
     if (formState.platformInfo) {
       if (formState.platformInfo.isCustom) {
@@ -40,7 +39,6 @@ export function PlatformSelection({ onComplete }: PlatformSelectionProps) {
   const handleContinue = async () => {
     setIsLoading(true);
     
-    // Save platform selection to context
     if (selectedPlatform === 'other') {
       setPlatformInfo({
         platformId: 'other',
