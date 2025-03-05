@@ -10,10 +10,26 @@ import { useFormContext } from '@/lib/context/FormContext';
 import { FollowUpQuestion } from '@/types/questions';
 import { motion } from 'framer-motion';
 import { AlertCircle, Loader2 } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
 import { VoiceInput } from './voice-input';
+
+// Common languages that might be used
+const SUPPORTED_LANGUAGES = [
+  'en-US', // English
+  'es-ES', // Spanish
+  'fr-FR', // French
+  'de-DE', // German
+  'it-IT', // Italian
+  'pt-PT', // Portuguese
+  'hi-IN', // Hindi
+  'ar-SA', // Arabic
+  'zh-CN', // Chinese (Simplified)
+  'ja-JP', // Japanese
+  'ko-KR', // Korean
+  'ru-RU', // Russian
+];
 
 interface FollowUpQuestionsForm {
   [key: string]: string;
@@ -34,7 +50,6 @@ export function FollowUpQuestions({ initialData, savedData = {}, onSubmit }: Fol
   const { register, handleSubmit, setValue, reset } = useForm<FollowUpQuestionsForm>();
   const { toast } = useToast();
   const { formState, setFollowUpData } = useFormContext();
-  const hasInitialized = useRef(false);
 
   const {
     transcript,
@@ -57,9 +72,6 @@ export function FollowUpQuestions({ initialData, savedData = {}, onSubmit }: Fol
 
   useEffect(() => {
     const fetchQuestions = async () => {
-      if (hasInitialized.current) return;
-      hasInitialized.current = true;
-
       if (formState.followUpData.questions.length > 0) {
         setFollowUpQuestions(formState.followUpData.questions);
         return;
@@ -107,7 +119,16 @@ export function FollowUpQuestions({ initialData, savedData = {}, onSubmit }: Fol
     } else {
       setActiveField(field);
       resetTranscript();
-      SpeechRecognition.startListening({ continuous: true });
+      // Try to detect user's browser language, fallback to English
+      const browserLang = navigator.language;
+      const supportedLang = SUPPORTED_LANGUAGES.find(lang => 
+        browserLang.toLowerCase().startsWith(lang.toLowerCase().split('-')[0])
+      ) || 'en-US';
+      
+      SpeechRecognition.startListening({ 
+        continuous: true,
+        language: supportedLang
+      });
     }
   };
 
@@ -194,20 +215,25 @@ export function FollowUpQuestions({ initialData, savedData = {}, onSubmit }: Fol
               </p>
             </div>
             
-            <div className="relative">
-              <Textarea
-                id={question.id}
-                {...register(question.id)}
-                className="bg-white focus:ring-accent focus:border-accent pr-12"
-                rows={4}
-              />
+            <div className="flex items-start gap-3">
               {browserSupportsSpeechRecognition && (
                 <VoiceInput
                   isListening={listening && activeField === question.id}
                   onToggle={() => handleVoiceInput(question.id)}
-                  className="absolute right-2 top-2 h-8 w-8 hover:bg-accent-light/50"
+                  className="mt-2"
                 />
               )}
+              <div className="flex-1">
+                <Textarea
+                  id={question.id}
+                  {...register(question.id)}
+                  className="bg-white focus:ring-accent focus:border-accent"
+                  rows={4}
+                  dir="auto"
+                  lang={navigator.language}
+                  spellCheck="false"
+                />
+              </div>
             </div>
             {listening && activeField === question.id && (
               <p className="text-sm text-muted-foreground flex items-center gap-2">
