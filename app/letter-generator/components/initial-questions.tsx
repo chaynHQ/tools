@@ -79,6 +79,22 @@ const contentContexts = [
   }
 ];
 
+// Common languages that might be used
+const SUPPORTED_LANGUAGES = [
+  'en-US', // English
+  'es-ES', // Spanish
+  'fr-FR', // French
+  'de-DE', // German
+  'it-IT', // Italian
+  'pt-PT', // Portuguese
+  'hi-IN', // Hindi
+  'ar-SA', // Arabic
+  'zh-CN', // Chinese (Simplified)
+  'ja-JP', // Japanese
+  'ko-KR', // Korean
+  'ru-RU', // Russian
+];
+
 export function InitialQuestions({ onComplete }: InitialQuestionsProps) {
   const startTime = useState(() => Date.now())[0];
   const [activeField, setActiveField] = useState<keyof InitialQuestionsForm | null>(null);
@@ -112,7 +128,16 @@ export function InitialQuestions({ onComplete }: InitialQuestionsProps) {
     } else {
       setActiveField(field);
       resetTranscript();
-      SpeechRecognition.startListening({ continuous: true });
+      // Try to detect user's browser language, fallback to English
+      const browserLang = navigator.language;
+      const supportedLang = SUPPORTED_LANGUAGES.find(lang => 
+        browserLang.toLowerCase().startsWith(lang.toLowerCase().split('-')[0])
+      ) || 'en-US';
+      
+      SpeechRecognition.startListening({ 
+        continuous: true,
+        language: supportedLang
+      });
     }
   };
 
@@ -123,8 +148,7 @@ export function InitialQuestions({ onComplete }: InitialQuestionsProps) {
     onComplete();
   };
 
-  const inputClasses = "bg-white focus:ring-accent focus:border-accent";
-  const micButtonClasses = "absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 hover:bg-accent-light/50";
+  const inputClasses = "bg-white focus:ring-accent focus:border-accent w-full";
 
   return (
     <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-12">
@@ -206,21 +230,26 @@ export function InitialQuestions({ onComplete }: InitialQuestionsProps) {
             <p className="text-sm text-muted-foreground mb-2">
               Please provide specific information that will help locate the content, such as URLs or post details.
             </p>
-            <div className="relative">
-              <Textarea
-                id="imageIdentification"
-                {...register('imageIdentification', { required: true })}
-                placeholder="For example: 'The content appears at [URL] posted on [date]'"
-                className={`${inputClasses} pr-12`}
-                rows={4}
-              />
+            <div className="flex items-start gap-3">
               {browserSupportsSpeechRecognition && (
                 <VoiceInput
                   isListening={listening && activeField === 'imageIdentification'}
                   onToggle={() => handleVoiceInput('imageIdentification')}
-                  className={micButtonClasses}
+                  className="mt-2"
                 />
               )}
+              <div className="flex-1">
+                <Textarea
+                  id="imageIdentification"
+                  {...register('imageIdentification', { required: true })}
+                  placeholder="For example: 'The content appears at [URL] posted on [date]'"
+                  className={inputClasses}
+                  rows={4}
+                  dir="auto"
+                  lang={navigator.language}
+                  spellCheck="false"
+                />
+              </div>
             </div>
             {errors.imageIdentification && (
               <p className="text-sm text-destructive">
@@ -240,21 +269,25 @@ export function InitialQuestions({ onComplete }: InitialQuestionsProps) {
             <p className="text-sm text-muted-foreground mb-2">
               If known, when did you first discover the content online?
             </p>
-            <div className="relative">
-              <Input
-                id="imageUploadDate"
-                type="text"
-                {...register('imageUploadDate')}
-                placeholder="For example: 'Two weeks ago' or '15 January 2024'"
-                className={`${inputClasses} pr-12`}
-              />
+            <div className="flex items-start gap-3">
               {browserSupportsSpeechRecognition && (
                 <VoiceInput
                   isListening={listening && activeField === 'imageUploadDate'}
                   onToggle={() => handleVoiceInput('imageUploadDate')}
-                  className={micButtonClasses}
                 />
               )}
+              <div className="flex-1">
+                <Input
+                  id="imageUploadDate"
+                  type="text"
+                  {...register('imageUploadDate')}
+                  placeholder="For example: 'Two weeks ago' or '15 January 2024'"
+                  className={inputClasses}
+                  dir="auto"
+                  lang={navigator.language}
+                  spellCheck="false"
+                />
+              </div>
             </div>
           </div>
 
@@ -265,21 +298,25 @@ export function InitialQuestions({ onComplete }: InitialQuestionsProps) {
             <p className="text-sm text-muted-foreground mb-2">
               This helps establish a timeline and verify ownership.
             </p>
-            <div className="relative">
-              <Input
-                id="imageTakenDate"
-                type="text"
-                {...register('imageTakenDate')}
-                placeholder="For example: 'June 2023' or 'Around summer last year'"
-                className={`${inputClasses} pr-12`}
-              />
+            <div className="flex items-start gap-3">
               {browserSupportsSpeechRecognition && (
                 <VoiceInput
                   isListening={listening && activeField === 'imageTakenDate'}
                   onToggle={() => handleVoiceInput('imageTakenDate')}
-                  className={micButtonClasses}
                 />
               )}
+              <div className="flex-1">
+                <Input
+                  id="imageTakenDate"
+                  type="text"
+                  {...register('imageTakenDate')}
+                  placeholder="For example: 'June 2023' or 'Around summer last year'"
+                  className={inputClasses}
+                  dir="auto"
+                  lang={navigator.language}
+                  spellCheck="false"
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -293,21 +330,26 @@ export function InitialQuestions({ onComplete }: InitialQuestionsProps) {
           <p className="text-sm text-muted-foreground mb-2">
             Describe any evidence that proves your connection to the content.
           </p>
-          <div className="relative">
-            <Textarea
-              id="ownershipEvidence"
-              {...register('ownershipEvidence')}
-              placeholder="For example: 'I can be identified by specific features' or 'I have the original files'"
-              className={`${inputClasses} pr-12`}
-              rows={4}
-            />
+          <div className="flex items-start gap-3">
             {browserSupportsSpeechRecognition && (
               <VoiceInput
                 isListening={listening && activeField === 'ownershipEvidence'}
                 onToggle={() => handleVoiceInput('ownershipEvidence')}
-                className={micButtonClasses}
+                className="mt-2"
               />
             )}
+            <div className="flex-1">
+              <Textarea
+                id="ownershipEvidence"
+                {...register('ownershipEvidence')}
+                placeholder="For example: 'I can be identified by specific features' or 'I have the original files'"
+                className={inputClasses}
+                rows={4}
+                dir="auto"
+                lang={navigator.language}
+                spellCheck="false"
+              />
+            </div>
           </div>
         </div>
       </QuestionSection>
@@ -320,21 +362,26 @@ export function InitialQuestions({ onComplete }: InitialQuestionsProps) {
           <p className="text-sm text-muted-foreground mb-2">
             Explaining the impact helps convey the urgency of removal. Share only what you're comfortable with.
           </p>
-          <div className="relative">
-            <Textarea
-              id="impactStatement"
-              {...register('impactStatement')}
-              placeholder="For example: 'This has affected my personal and professional life by...'"
-              className={`${inputClasses} pr-12`}
-              rows={4}
-            />
+          <div className="flex items-start gap-3">
             {browserSupportsSpeechRecognition && (
               <VoiceInput
                 isListening={listening && activeField === 'impactStatement'}
                 onToggle={() => handleVoiceInput('impactStatement')}
-                className={micButtonClasses}
+                className="mt-2"
               />
             )}
+            <div className="flex-1">
+              <Textarea
+                id="impactStatement"
+                {...register('impactStatement')}
+                placeholder="For example: 'This has affected my personal and professional life by...'"
+                className={inputClasses}
+                rows={4}
+                dir="auto"
+                lang={navigator.language}
+                spellCheck="false"
+              />
+            </div>
           </div>
         </div>
       </QuestionSection>
