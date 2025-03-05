@@ -21,11 +21,11 @@ import { ReportingDetails } from './components/reporting-details';
 type Step = 'platform-selection' | 'removal-process' | 'initial-questions' | 'reporting-details' | 'follow-up' | 'generation' | 'review';
 
 const stepTitles: Record<Step, string> = {
-  'platform-selection': 'Select Platform',
-  'removal-process': 'Removal Process',
-  'initial-questions': 'Content Information',
-  'reporting-details': 'Previous Reporting Details',
-  'follow-up': 'Additional Details',
+  'platform-selection': 'Select a platform',
+  'removal-process': 'Review removal process',
+  'initial-questions': 'Tell us about the content',
+  'reporting-details': 'Previous reporting details',
+  'follow-up': 'Additional details',
   'generation': 'Creating your letter',
   'review': 'Review and send'
 };
@@ -214,7 +214,7 @@ export default function LetterGenerator() {
                     {isRegenerating ? 'Regenerating your letter' : 'Creating your personalised letter'}
                   </h3>
                   <p className="text-muted-foreground">
-                    We're crafting a professionally-written takedown request based on the information you've shared.
+                    We're using AI to craft a professionally-written takedown request based on your responses, ensuring it aligns with {platformName}'s content policies and removal processes.
                   </p>
                 </div>
               </div>

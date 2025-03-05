@@ -33,7 +33,11 @@ export function Footer() {
             <div className="mt-6 p-4 rounded-lg bg-accent-light/40 text-muted-foreground">
               <p className="text-sm">
                 Advokit is a new tool in continuous development. If you have suggestions or encounter any issues, please{' '}
-                <Link href="https://form.typeform.com/to/RLYb0eMT" target="_blank" className="text-muted-foreground underline hover:text-foreground/80">
+                <Link 
+                  href={process.env.NEXT_PUBLIC_TYPEFORM_FEEDBACK_URL || '#'} 
+                  target="_blank" 
+                  className="text-muted-foreground underline hover:text-foreground/80"
+                >
                   share your experience with us
                 </Link>
                 . Your insights help us better support others in similar situations.

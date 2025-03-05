@@ -17,23 +17,12 @@ export async function POST(request: Request) {
 
     const body = await request.json();
     
-    // Validate the request body
-    if (!body || !body.initialQuestions || !body.platformInfo) {
-      console.error('Invalid request body for follow-up questions:', body);
-      return NextResponse.json(
-        { error: 'Invalid request: Missing required fields' },
-        { status: 400 }
-      );
-    }
-    
-    // Validate platformInfo has required fields
-    if (!body.platformInfo.name) {
-      console.error('Missing name in platformInfo');
-      return NextResponse.json(
-        { error: 'Invalid request: Missing name in platformInfo' },
-        { status: 400 }
-      );
-    }
+    // Create a clean copy of the data
+    const cleanBody = {
+      initialQuestions: body.initialQuestions || {},
+      platformInfo: body.platformInfo || {},
+      reportingDetails: body.reportingDetails || {}
+    };
     
     const response = await anthropic.messages.create({
       model: 'claude-3-sonnet-20240229',
@@ -41,7 +30,7 @@ export async function POST(request: Request) {
       temperature: 0.7,
       messages: [{
         role: 'user',
-        content: generateFollowUpPrompt(body)
+        content: generateFollowUpPrompt(cleanBody)
       }]
     });
 

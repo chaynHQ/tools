@@ -1,12 +1,12 @@
-import { DisclaimerBanner } from '@/components/feedback/disclaimer-banner';
 import { Footer } from '@/components/layout/footer';
 import { Header } from '@/components/layout/header';
-import { FormProvider } from '@/lib/context/FormContext';
 import { GoogleAnalytics } from '@next/third-parties/google';
 import type { Metadata } from 'next';
 import { Merriweather, Open_Sans } from 'next/font/google';
 import 'regenerator-runtime/runtime';
 import './globals.css';
+import { DisclaimerBanner } from '@/components/feedback/disclaimer-banner';
+import { FormProvider } from '@/lib/context/FormContext';
 
 const merriweather = Merriweather({
   subsets: ['latin'],
