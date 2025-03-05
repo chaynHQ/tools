@@ -11,6 +11,7 @@ export const ANALYTICS_EVENTS = {
   PROCESS_COMPLETED: 'process_completed',
   ERROR_OCCURRED: 'error_occurred',
   RETRY_ATTEMPTED: 'retry_attempted',
+  FEEDBACK_SUBMITTED: 'feedback_submitted',
 } as const;
 
 export const trackEvent = (
@@ -73,6 +74,13 @@ export const analytics = {
     trackEvent(ANALYTICS_EVENTS.PROCESS_COMPLETED, {
       total_time: totalTime,
       steps_completed: stepsCompleted.join(','),
+    });
+  },
+
+  trackFeedbackSubmission: (method: string, length?: number) => {
+    trackEvent(ANALYTICS_EVENTS.FEEDBACK_SUBMITTED, {
+      method,
+      feedback_length: length,
     });
   },
 };

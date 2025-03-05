@@ -2,6 +2,7 @@ export interface Platform {
   id: string;
   name: string;
   logo: string;
+  contactEmail?: string;
   flows: {
     basic: string[];
     escalated: string[];
@@ -13,6 +14,7 @@ export const platforms: Platform[] = [
     id: 'facebook',
     name: 'Facebook',
     logo: '/platform-logos/facebook.svg',
+    contactEmail: 'records@facebook.com',
     flows: {
       basic: [
         'Go to the image or video you want to report',
@@ -34,6 +36,7 @@ export const platforms: Platform[] = [
     id: 'tiktok',
     name: 'TikTok',
     logo: '/platform-logos/tiktok.svg',
+    contactEmail: 'legal@tiktok.com',
     flows: {
       basic: [
         'Tap and hold on the video you want to report',
@@ -54,6 +57,7 @@ export const platforms: Platform[] = [
     id: 'instagram',
     name: 'Instagram',
     logo: '/platform-logos/instagram.svg',
+    contactEmail: 'records@instagram.com',
     flows: {
       basic: [
         'Tap the three dots (...) above the post',
@@ -75,6 +79,7 @@ export const platforms: Platform[] = [
     id: 'pornhub',
     name: 'Pornhub',
     logo: '/platform-logos/pornhub.svg',
+    contactEmail: 'content@pornhub.com',
     flows: {
       basic: [
         'Click the "Flag" button below the video',
@@ -95,6 +100,7 @@ export const platforms: Platform[] = [
     id: 'onlyfans',
     name: 'OnlyFans',
     logo: '/platform-logos/onlyfans.svg',
+    contactEmail: 'support@onlyfans.com',
     flows: {
       basic: [
         'Click the flag icon on the content',

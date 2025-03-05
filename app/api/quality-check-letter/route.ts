@@ -1,4 +1,4 @@
-import { generateFollowUpPrompt } from '@/lib/prompts';
+import { generateLetterQualityCheckPrompt } from '@/lib/prompts';
 import { parseAIJson } from '@/lib/utils';
 import Anthropic from '@anthropic-ai/sdk';
 import { NextResponse } from 'next/server';
@@ -16,32 +16,22 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    
-    // Validate the request body
-    if (!body || !body.initialQuestions || !body.platformInfo) {
-      console.error('Invalid request body for follow-up questions:', body);
+    const { letter, formData } = body;
+
+    if (!letter || !formData) {
       return NextResponse.json(
-        { error: 'Invalid request: Missing required fields' },
+        { error: 'Missing required parameters' },
         { status: 400 }
       );
     }
-    
-    // Validate platformInfo has required fields
-    if (!body.platformInfo.name) {
-      console.error('Missing name in platformInfo');
-      return NextResponse.json(
-        { error: 'Invalid request: Missing name in platformInfo' },
-        { status: 400 }
-      );
-    }
-    
+
     const response = await anthropic.messages.create({
       model: 'claude-3-sonnet-20240229',
       max_tokens: 4000,
-      temperature: 0.7,
+      temperature: 0.5,
       messages: [{
         role: 'user',
-        content: generateFollowUpPrompt(body)
+        content: generateLetterQualityCheckPrompt(JSON.stringify(letter), formData)
       }]
     });
 
@@ -49,26 +39,22 @@ export async function POST(request: Request) {
       throw new Error('Invalid response from Anthropic API');
     }
 
-    let questions;
+    let qualityCheckResult;
     try {
-      const responseText = response.content[0].text;
-      questions = parseAIJson(responseText);
-      if (!Array.isArray(questions)) {
-        throw new Error('Response is not an array');
+      qualityCheckResult = parseAIJson(response.content[0].text);
+      
+      // Validate the response structure
+      if (typeof qualityCheckResult.passesQualityCheck !== 'boolean') {
+        throw new Error('Invalid quality check result format');
       }
-      
-      // Create a new array with the parsed questions instead of modifying the original
-      const processedQuestions = [...questions];
-      
-      return NextResponse.json(processedQuestions);
     } catch (e) {
-      console.error('JSON parsing error:', e);
-      console.error('Raw response:', response.content[0].text);
       throw new Error('Failed to parse Anthropic response as JSON');
     }
 
+    return NextResponse.json(qualityCheckResult);
+
   } catch (error: any) {
-    console.error('Error in follow-up questions API:', error);
+    console.error('Error in letter quality check API:', error);
 
     if (error.status === 401) {
       return NextResponse.json(

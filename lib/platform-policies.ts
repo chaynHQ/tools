@@ -1,43 +1,42 @@
-
-interface PlatformPolicy {
+export interface PlatformPolicy {
   name: string;
-  legalBasis: {
+  legalBasis: Array<{
     reference: string;
     title: string;
-    section?: string;
-    url?: string;
-  }[];
+    section: string;
+    url: string;
+  }>;
   contentPolicies: {
-    intimate: {
+    intimate: Array<{
       reference: string;
       policy: string;
-      section?: string;
-    }[];
-    personal: {
+      section: string;
+    }>;
+    personal: Array<{
       reference: string;
       policy: string;
-      section?: string;
-    }[];
-    private: {
+      section: string;
+    }>;
+    private: Array<{
       reference: string;
       policy: string;
-      section?: string;
-    }[];
-    impersonation: {
+      section: string;
+    }>;
+    impersonation: Array<{
       reference: string;
       policy: string;
-      section?: string;
-    }[];
-    hacked: {
+      section: string;
+    }>;
+    hacked: Array<{
       reference: string;
       policy: string;
-      section?: string;
-    }[];
-    general: {
+      section: string;
+    }>;
+    general: Array<{
       reference: string;
       policy: string;
-      section?: string;
-    }[];
+      section: string;
+    }>;
   };
   removalCriteria: {
     intimate: string[];
@@ -56,12 +55,11 @@ interface PlatformPolicy {
     general: string[];
   };
   timeframes: {
-    response?: string;
-    removal?: string;
+    response: string;
+    removal: string;
   };
-  appealProcess?: string[];
+  appealProcess: string[];
 }
-
 export const platformPolicies: Record<string, PlatformPolicy> = {
   facebook: {
     name: "Facebook",
@@ -920,11 +918,11 @@ export const platformPolicies: Record<string, PlatformPolicy> = {
   }
 };
 
-export function getPlatformPolicy(platformId: string): PlatformPolicy | null {
+function getPlatformPolicy(platformId: string): PlatformPolicy | null {
   return platformPolicies[platformId] || null;
 }
 
-export function getRelevantPolicies(
+function getRelevantPolicies(
   policy: PlatformPolicy,
   contentType: string,
   contentContext: string
@@ -974,3 +972,5 @@ export function getRelevantPolicies(
 
   return relevantPolicies;
 }
+
+export { getPlatformPolicy, getRelevantPolicies };

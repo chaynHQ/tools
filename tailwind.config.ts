@@ -10,8 +10,8 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        merriweather: ['var(--font-merriweather)'],
-        'open-sans': ['var(--font-open-sans)'],
+        merriweather: ['var(--font-merriweather)', 'serif'],
+        'open-sans': ['var(--font-open-sans)', 'sans-serif'],
       },
       colors: {
         background: 'hsl(var(--background))',

@@ -5,32 +5,59 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function trimJSON(input:string){
-  if(input.startsWith('```json')){
-    return input.slice(7, input.length - 3)
+export function trimJSON(input: string) {
+  // Remove any markdown code block syntax
+  if (input.startsWith('```json')) {
+    return input.slice(7, input.length - 3).trim();
   }
-  if(input.startsWith('```')){
-    return input.slice(3, input.length - 3)
+  if (input.startsWith('```')) {
+    return input.slice(3, input.length - 3).trim();
   }
-  return input
+  return input.trim();
 }
 
 export function parseAIJson(input: string) {
   try {
-    const trimmedInput = trimJSON(input)
-    // 1. Remove or escape stray newlines within string values
-    const cleanedInput = trimmedInput.replace(/:\s*"(.*?)"/gs, (match, p1) => {
-      return `: "${p1.replace(/\n/g, '\\n').replace(/\r/g, '\\r').replace(/"/g, '\\"')}"`; // Escape newlines and quotes
-    });
-    console.log("Cleaned JSON:", cleanedInput); // Log cleaned version
+    // First, clean up the input
+    const trimmedInput = trimJSON(input);
 
-    // 2. Attempt to parse
-    const jsonObject = JSON.parse(cleanedInput);
-    return jsonObject;
+    // Try to parse as is first
+    try {
+      return JSON.parse(trimmedInput);
+    } catch (e) {
+      // If direct parsing fails, try to clean up the input
+      console.log('Initial JSON parse failed, attempting cleanup...');
+    }
 
+    // Remove any non-JSON text before the first {
+    const jsonStart = trimmedInput.indexOf('{');
+    const jsonEnd = trimmedInput.lastIndexOf('}');
+    if (jsonStart === -1 || jsonEnd === -1) {
+      throw new Error('No valid JSON object found in response');
+    }
+    const jsonString = trimmedInput.slice(jsonStart, jsonEnd + 1);
+
+    // Clean up common issues
+    const cleanedInput = jsonString
+      // Escape quotes within strings
+      .replace(/:\s*"(.*?)"/gs, (match, p1) => {
+        return `: "${p1.replace(/\n/g, '\\n').replace(/\r/g, '\\r').replace(/"/g, '\\"')}"`; 
+      })
+      // Remove any trailing commas before closing brackets
+      .replace(/,(\s*[}\]])/g, '$1')
+      // Ensure property names are quoted
+      .replace(/([{,]\s*)(\w+)(\s*:)/g, '$1"$2"$3');
+
+    // Try to parse the cleaned JSON
+    try {
+      return JSON.parse(cleanedInput);
+    } catch (e) {
+      console.error('Failed to parse cleaned JSON:', cleanedInput);
+      throw e;
+    }
   } catch (error) {
     console.error("Error parsing or cleaning JSON:", error);
-    console.error("Original JSON:", input); 
-    throw error
+    console.error("Original input:", input);
+    throw new Error('Failed to parse response as JSON');
   }
 }
