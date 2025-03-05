@@ -16,9 +16,9 @@ import { analytics } from '@/lib/analytics';
 import { useFormContext } from '@/lib/context/FormContext';
 import { platforms } from '@/lib/platforms';
 import { GeneratedLetter } from '@/types/letter';
-import { PopupButton } from '@typeform/embed-react';
 import { motion } from 'framer-motion';
 import { AlertCircle, ArrowRight, CheckCircle2, Copy, MessageSquare, RefreshCcw } from 'lucide-react';
+import Link from 'next/link';
 import { useState } from 'react';
 import { QuestionSection } from './question-section';
 
@@ -75,10 +75,6 @@ export function LetterReview({
     );
     resetForm();
     onComplete();
-  };
-
-  const handleTypeformSubmit = () => {
-    analytics.trackFeedbackSubmission('typeform');
   };
 
   return (
@@ -195,17 +191,17 @@ export function LetterReview({
           <p className="text-sm font-medium mb-1">Was this letter helpful?</p>
           <p className="text-sm text-muted-foreground">
             Your feedback helps us improve this tool for everyone.{' '}
-            <PopupButton 
-              id="advokit-feedback"
+            <Link 
+              href={process.env.NEXT_PUBLIC_TYPEFORM_FEEDBACK_URL || '#'} 
+              target="_blank"
+              onClick={() => analytics.trackFeedbackSubmission('typeform')}
               className="text-primary underline underline-offset-2"
-              onSubmit={handleTypeformSubmit}
             >
               Share your thoughts
-            </PopupButton>
+            </Link>
           </p>
         </div>
       </div>
-
 
       <AlertDialog open={showCompleteDialog} onOpenChange={setShowCompleteDialog}>
         <AlertDialogContent>

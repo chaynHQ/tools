@@ -1,15 +1,15 @@
 "use client";
 
-import { useState } from 'react';
-import { AlertCircle, X } from 'lucide-react';
-import { motion } from 'framer-motion';
-import { PopupButton } from '@typeform/embed-react';
 import { analytics } from '@/lib/analytics';
+import { motion } from 'framer-motion';
+import { AlertCircle, X } from 'lucide-react';
+import Link from 'next/link';
+import { useState } from 'react';
 
 export function DisclaimerBanner() {
   const [isVisible, setIsVisible] = useState(true);
 
-  const handleTypeformSubmit = () => {
+  const handleFeedbackClick = () => {
     analytics.trackFeedbackSubmission('typeform');
   };
 
@@ -37,13 +37,14 @@ export function DisclaimerBanner() {
           <p className="text-foreground font-medium mb-1">This tool is still finding its feet :)</p>
           <p className="text-muted-foreground">
             It's safe to use, but if you encounter anything confusing or that doesn't work as expected, please{' '}
-            <PopupButton 
-              id="advokit-feedback"
+            <Link 
+              href={process.env.NEXT_PUBLIC_TYPEFORM_FEEDBACK_URL || '#'} 
+              target="_blank"
+              onClick={handleFeedbackClick}
               className="text-muted-foreground underline underline-offset-2 font-medium"
-              onSubmit={handleTypeformSubmit}
             >
               share your thoughts with us
-            </PopupButton>
+            </Link>
             . We're continuously improving based on your experiences.
           </p>
         </div>
