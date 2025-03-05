@@ -82,10 +82,9 @@ const contentContexts = [
 export function InitialQuestions({ onComplete }: InitialQuestionsProps) {
   const startTime = useState(() => Date.now())[0];
   const [activeField, setActiveField] = useState<keyof InitialQuestionsForm | null>(null);
-  const { control, register, handleSubmit, setValue, watch, reset } = useForm<InitialQuestionsForm>();
+  const { control, register, handleSubmit, setValue, reset, formState: { errors } } = useForm<InitialQuestionsForm>();
   const { formState, setInitialQuestions } = useFormContext();
 
-  // Set form values from context when component mounts
   useEffect(() => {
     if (formState.initialQuestions && Object.keys(formState.initialQuestions).length > 0) {
       reset(formState.initialQuestions as InitialQuestionsForm);
@@ -129,16 +128,22 @@ export function InitialQuestions({ onComplete }: InitialQuestionsProps) {
 
   return (
     <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-12">
-      <QuestionSection title="Content Information">
+      <QuestionSection title="Content information">
+        <p className="text-muted-foreground mb-8">
+          The first three questions help us understand your situation and create an effective takedown request. 
+          Your answers will be used to identify specific policy violations and strengthen your case.
+        </p>
+        
         <div className="space-y-8">
           <div className="space-y-3">
             <Label className="text-lg font-medium">
-              What type of content was shared?
+              What type of content was shared?*
             </Label>
             <div className="grid grid-cols-2 gap-3">
               <Controller
                 name="contentType"
                 control={control}
+                rules={{ required: true }}
                 render={({ field }) => (
                   <>
                     {contentTypes.map((type) => (
@@ -155,16 +160,22 @@ export function InitialQuestions({ onComplete }: InitialQuestionsProps) {
                 )}
               />
             </div>
+            {errors.contentType && (
+              <p className="text-sm text-destructive">
+                Knowing the type of content helps us identify which platform policies have been violated and how to best support your request.
+              </p>
+            )}
           </div>
 
           <div className="space-y-3">
-            <Label className="text-base text-foreground/90">
-              How was the content shared?
+            <Label className="text-lg font-medium">
+              How was the content shared?*
             </Label>
             <div className="grid grid-cols-2 gap-3">
               <Controller
                 name="contentContext"
                 control={control}
+                rules={{ required: true }}
                 render={({ field }) => (
                   <>
                     {contentContexts.map((context) => (
@@ -181,11 +192,16 @@ export function InitialQuestions({ onComplete }: InitialQuestionsProps) {
                 )}
               />
             </div>
+            {errors.contentContext && (
+              <p className="text-sm text-destructive">
+                Understanding how the content was shared helps us address specific privacy violations in your takedown request.
+              </p>
+            )}
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="imageIdentification" className="text-lg font-medium">
-              Where can the content be found?
+              Where can the content be found?*
             </Label>
             <p className="text-sm text-muted-foreground mb-2">
               Please provide specific information that will help locate the content, such as URLs or post details.
@@ -193,7 +209,7 @@ export function InitialQuestions({ onComplete }: InitialQuestionsProps) {
             <div className="relative">
               <Textarea
                 id="imageIdentification"
-                {...register('imageIdentification')}
+                {...register('imageIdentification', { required: true })}
                 placeholder="For example: 'The content appears at [URL] posted on [date]'"
                 className={`${inputClasses} pr-12`}
                 rows={4}
@@ -206,6 +222,11 @@ export function InitialQuestions({ onComplete }: InitialQuestionsProps) {
                 />
               )}
             </div>
+            {errors.imageIdentification && (
+              <p className="text-sm text-destructive">
+                Having specific details about where to find the content ensures the platform can quickly locate and review the material.
+              </p>
+            )}
           </div>
         </div>
       </QuestionSection>

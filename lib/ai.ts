@@ -35,8 +35,6 @@ export async function generateFollowUpQuestions(formData: LetterRequest): Promis
         reportingDetails: formData.reportingDetails ? { ...formData.reportingDetails } : undefined
       };
       
-      console.log('Sending data to follow-up questions API:', JSON.stringify(cleanFormData));
-      
       const response = await fetch('/api/follow-up-questions', {
         method: 'POST',
         headers: {
@@ -52,7 +50,6 @@ export async function generateFollowUpQuestions(formData: LetterRequest): Promis
       }
 
       const questions = await response.json();
-      console.log('Received follow-up questions from API:', questions);
       
       // Validate response structure
       if (!Array.isArray(questions)) {
@@ -157,8 +154,6 @@ export async function generateLetter(formData: LetterRequest): Promise<Generated
         followUp: formData.followUp ? { ...formData.followUp } : undefined
       };
       
-      console.log('Sending data to generate-letter API:', JSON.stringify(cleanFormData));
-      
       const response = await fetch('/api/generate-letter', {
         method: 'POST',
         headers: {
@@ -176,11 +171,8 @@ export async function generateLetter(formData: LetterRequest): Promise<Generated
       
       // Check if letter contains ID verification requests, placeholders, or hallucination patterns
       if (containsIdVerificationOrPlaceholders(letter) || containsHallucinationPatterns(letter)) {
-        console.log(`Letter contains issues (attempt ${attempts}/${maxAttempts}). Regenerating...`);
-        
         // If this is the last attempt, do a basic cleanup instead of rejecting
         if (attempts === maxAttempts) {
-          console.log("Maximum attempts reached. Performing basic cleanup instead.");
           
           // Perform basic cleanup as a fallback
           if (letter.body) {

@@ -26,7 +26,6 @@ export function parseAIJson(input: string) {
       return JSON.parse(trimmedInput);
     } catch (e) {
       // If direct parsing fails, try to clean up the input
-      console.log('Initial JSON parse failed, attempting cleanup...');
     }
 
     // Remove any non-JSON text before the first {
