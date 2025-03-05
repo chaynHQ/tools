@@ -16,6 +16,25 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
+    
+    // Validate the request body
+    if (!body || !body.initialQuestions || !body.platformInfo) {
+      console.error('Invalid request body for letter generation:', body);
+      return NextResponse.json(
+        { error: 'Invalid request: Missing required fields' },
+        { status: 400 }
+      );
+    }
+    
+    // Validate platformInfo has required fields
+    if (!body.platformInfo.name) {
+      console.error('Missing name in platformInfo');
+      return NextResponse.json(
+        { error: 'Invalid request: Missing name in platformInfo' },
+        { status: 400 }
+      );
+    }
+    
     const response = await anthropic.messages.create({
       model: 'claude-3-sonnet-20240229',
       max_tokens: 4000,
@@ -32,11 +51,28 @@ export async function POST(request: Request) {
 
     let letter;
     try {
-      letter = parseAIJson(response.content[0].text)
-      if (!letter.subject || !letter.body || !Array.isArray(letter.nextSteps)) {
+      letter = parseAIJson(response.content[0].text);
+      if (!letter.subject || !letter.body) {
         throw new Error('Invalid letter format in response');
       }
+      
+      // Add default nextSteps if not present
+      if (!letter.nextSteps) {
+        letter.nextSteps = [
+          "Keep a copy of this letter and any response you receive",
+          "Follow up if you don't receive a response within 7 days",
+          "Consider seeking legal advice if the content is not removed"
+        ];
+      } else if (!Array.isArray(letter.nextSteps)) {
+        letter.nextSteps = [
+          "Keep a copy of this letter and any response you receive",
+          "Follow up if you don't receive a response within 7 days",
+          "Consider seeking legal advice if the content is not removed"
+        ];
+      }
     } catch (e) {
+      console.error('JSON parsing error:', e);
+      console.error('Raw response:', response.content[0].text);
       throw new Error('Failed to parse Anthropic response as JSON');
     }
 

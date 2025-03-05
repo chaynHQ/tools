@@ -1,6 +1,7 @@
 "use client";
 
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import { FollowUpQuestion } from '@/types/questions';
+import { createContext, ReactNode, useContext, useState } from 'react';
 
 // Define types for our form data
 interface PlatformInfo {
@@ -31,12 +32,18 @@ interface ReportingDetailsData {
   additionalStepsTaken?: string;
 }
 
+interface FollowUpData {
+  questions: FollowUpQuestion[];
+  answers: Record<string, string>;
+}
+
 interface FormState {
   platformInfo: PlatformInfo | null;
   reportingInfo: ReportingInfo | null;
   initialQuestions: Partial<InitialQuestionsData>;
   reportingDetails: Partial<ReportingDetailsData>;
-  followUpQuestions: Record<string, string>;
+  followUpData: FollowUpData;
+  completeFormData: any; // Store the complete form data for API calls
 }
 
 interface FormContextType {
@@ -45,7 +52,8 @@ interface FormContextType {
   setReportingInfo: (info: ReportingInfo) => void;
   setInitialQuestions: (data: Partial<InitialQuestionsData>) => void;
   setReportingDetails: (data: Partial<ReportingDetailsData>) => void;
-  setFollowUpQuestions: (data: Record<string, string>) => void;
+  setFollowUpData: (questions: FollowUpQuestion[], answers: Record<string, string>) => void;
+  updateCompleteFormData: () => void;
   resetForm: () => void;
 }
 
@@ -55,7 +63,11 @@ const initialState: FormState = {
   reportingInfo: null,
   initialQuestions: {},
   reportingDetails: {},
-  followUpQuestions: {},
+  followUpData: {
+    questions: [],
+    answers: {}
+  },
+  completeFormData: null
 };
 
 // Create context
@@ -99,14 +111,37 @@ export function FormProvider({ children }: { children: ReactNode }) {
     }));
   };
 
-  const setFollowUpQuestions = (data: Record<string, string>) => {
+  const setFollowUpData = (questions: FollowUpQuestion[], answers: Record<string, string>) => {
     setFormState(prev => ({
       ...prev,
-      followUpQuestions: {
-        ...prev.followUpQuestions,
-        ...data,
+      followUpData: {
+        questions,
+        answers
       },
     }));
+  };
+
+  const updateCompleteFormData = () => {
+    setFormState(prev => {
+      const completeData = {
+        initialQuestions: prev.initialQuestions,
+        platformInfo: {
+          name: prev.platformInfo?.isCustom 
+            ? prev.platformInfo.customName 
+            : prev.platformInfo?.platformName,
+          isCustom: prev.platformInfo?.isCustom || false
+        },
+        reportingDetails: Object.keys(prev.reportingDetails).length > 0 
+          ? prev.reportingDetails 
+          : undefined,
+        followUp: prev.followUpData.answers
+      };
+      
+      return {
+        ...prev,
+        completeFormData: completeData
+      };
+    });
   };
 
   const resetForm = () => {
@@ -121,7 +156,8 @@ export function FormProvider({ children }: { children: ReactNode }) {
         setReportingInfo,
         setInitialQuestions,
         setReportingDetails,
-        setFollowUpQuestions,
+        setFollowUpData,
+        updateCompleteFormData,
         resetForm,
       }}
     >

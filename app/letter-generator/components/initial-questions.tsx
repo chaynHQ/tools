@@ -1,18 +1,18 @@
 "use client";
 
-import { useState, useEffect } from 'react';
-import { useForm, Controller } from 'react-hook-form';
-import 'regenerator-runtime/runtime';
-import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { SelectableCard } from './components/selectable-card';
-import { VoiceInput } from './components/voice-input';
-import { QuestionSection } from './components/question-section';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { analytics } from '@/lib/analytics';
 import { useFormContext } from '@/lib/context/FormContext';
+import { useEffect, useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
+import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
+import 'regenerator-runtime/runtime';
+import { QuestionSection } from './question-section';
+import { SelectableCard } from './selectable-card';
+import { VoiceInput } from './voice-input';
 
 interface InitialQuestionsForm {
   imageIdentification: string;
@@ -25,9 +25,7 @@ interface InitialQuestionsForm {
 }
 
 interface InitialQuestionsProps {
-  initialData?: Partial<InitialQuestionsForm>;
-  onSubmit: (data: InitialQuestionsForm) => void;
-  reportingStatus: 'standard-completed' | 'escalated-completed' | 'both-completed' | 'none-completed';
+  onComplete: () => void;
 }
 
 const contentTypes = [
@@ -81,19 +79,18 @@ const contentContexts = [
   }
 ];
 
-export function InitialQuestions({ initialData = {}, onSubmit, reportingStatus }: InitialQuestionsProps) {
+export function InitialQuestions({ onComplete }: InitialQuestionsProps) {
   const startTime = useState(() => Date.now())[0];
   const [activeField, setActiveField] = useState<keyof InitialQuestionsForm | null>(null);
-  const { control, register, handleSubmit, setValue, watch, reset } = useForm<InitialQuestionsForm>({
-    defaultValues: initialData
-  });
+  const { control, register, handleSubmit, setValue, watch, reset } = useForm<InitialQuestionsForm>();
+  const { formState, setInitialQuestions } = useFormContext();
 
-  // Set form values from initialData when component mounts
+  // Set form values from context when component mounts
   useEffect(() => {
-    if (initialData && Object.keys(initialData).length > 0) {
-      reset(initialData as InitialQuestionsForm);
+    if (formState.initialQuestions && Object.keys(formState.initialQuestions).length > 0) {
+      reset(formState.initialQuestions as InitialQuestionsForm);
     }
-  }, [initialData, reset]);
+  }, [formState.initialQuestions, reset]);
 
   const {
     transcript,
@@ -123,7 +120,8 @@ export function InitialQuestions({ initialData = {}, onSubmit, reportingStatus }
   const handleFormSubmit = (data: InitialQuestionsForm) => {
     const timeSpent = Math.floor((Date.now() - startTime) / 1000);
     analytics.trackQuestionsCompleted('initial', timeSpent);
-    onSubmit(data);
+    setInitialQuestions(data);
+    onComplete();
   };
 
   const inputClasses = "bg-white focus:ring-accent focus:border-accent";

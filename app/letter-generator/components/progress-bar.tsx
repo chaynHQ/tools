@@ -9,6 +9,8 @@ interface ProgressBarProps {
 }
 
 const stepNames = [
+  'Platform Selection',
+  'Removal Process',
   'Content Information',
   'Reporting Details',
   'Additional Details',
@@ -17,7 +19,7 @@ const stepNames = [
 ];
 
 export function ProgressBar({ currentStep, totalSteps }: ProgressBarProps) {
-  const progress = (currentStep / totalSteps) * 100;
+  const progress = ((currentStep + 1) / totalSteps) * 100;
   const [hoveredStep, setHoveredStep] = useState<number | null>(null);
 
   return (
@@ -34,7 +36,7 @@ export function ProgressBar({ currentStep, totalSteps }: ProgressBarProps) {
 
         {/* Step dots */}
         {stepNames.slice(0, totalSteps).map((name, index) => {
-          const stepNumber = index + 1;
+          const stepNumber = index;
           const isCurrent = stepNumber === currentStep;
           const isPast = stepNumber < currentStep;
           

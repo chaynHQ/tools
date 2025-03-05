@@ -19,8 +19,18 @@ export async function POST(request: Request) {
     
     // Validate the request body
     if (!body || !body.initialQuestions || !body.platformInfo) {
+      console.error('Invalid request body for follow-up questions:', body);
       return NextResponse.json(
         { error: 'Invalid request: Missing required fields' },
+        { status: 400 }
+      );
+    }
+    
+    // Validate platformInfo has required fields
+    if (!body.platformInfo.name) {
+      console.error('Missing name in platformInfo');
+      return NextResponse.json(
+        { error: 'Invalid request: Missing name in platformInfo' },
         { status: 400 }
       );
     }
@@ -41,17 +51,21 @@ export async function POST(request: Request) {
 
     let questions;
     try {
-      questions = parseAIJson(response.content[0].text);
+      const responseText = response.content[0].text;
+      questions = parseAIJson(responseText);
       if (!Array.isArray(questions)) {
         throw new Error('Response is not an array');
       }
+      
+      // Create a new array with the parsed questions instead of modifying the original
+      const processedQuestions = [...questions];
+      
+      return NextResponse.json(processedQuestions);
     } catch (e) {
       console.error('JSON parsing error:', e);
       console.error('Raw response:', response.content[0].text);
       throw new Error('Failed to parse Anthropic response as JSON');
     }
-
-    return NextResponse.json(questions);
 
   } catch (error: any) {
     console.error('Error in follow-up questions API:', error);

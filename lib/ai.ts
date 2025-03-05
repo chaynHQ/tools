@@ -1,5 +1,6 @@
-import { GeneratedLetter, LetterRequest } from '@/types/letter';
 import { FollowUpQuestion } from '@/types/questions';
+import { LetterRequest, GeneratedLetter } from '@/types/letter';
+import { parseAIJson } from './utils';
 
 const MAX_RETRIES = 3;
 const RETRY_DELAY = 1000; // 1 second
@@ -23,31 +24,49 @@ export async function generateFollowUpQuestions(formData: LetterRequest): Promis
     try {
       // Validate formData before sending to API
       if (!formData || !formData.initialQuestions || !formData.platformInfo) {
+        console.error('Invalid formData for follow-up questions:', formData);
         throw new Error('Missing required data for generating follow-up questions');
       }
+      
+      // Create a clean copy of the data to ensure we're not sending any circular references
+      const cleanFormData = {
+        initialQuestions: { ...formData.initialQuestions },
+        platformInfo: { ...formData.platformInfo },
+        reportingDetails: formData.reportingDetails ? { ...formData.reportingDetails } : undefined
+      };
+      
+      console.log('Sending data to follow-up questions API:', JSON.stringify(cleanFormData));
       
       const response = await fetch('/api/follow-up-questions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(cleanFormData),
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to generate follow-up questions');
+        const errorData = await response.json();
+        console.error('API error response:', errorData);
+        throw new Error(errorData.error || 'Failed to generate follow-up questions');
       }
 
       const questions = await response.json();
+      console.log('Received follow-up questions from API:', questions);
       
       // Validate response structure
       if (!Array.isArray(questions)) {
+        console.error('Invalid response format - not an array:', questions);
         throw new Error('Invalid response format from AI service');
       }
 
       // Filter out any questions related to ID verification
       const filteredQuestions = questions.filter(q => {
+        if (!q || !q.question) {
+          console.warn('Invalid question object in response:', q);
+          return false;
+        }
+        
         const questionText = q.question.toLowerCase();
         return !questionText.includes('id') && 
                !questionText.includes('identification') && 
@@ -130,12 +149,22 @@ export async function generateLetter(formData: LetterRequest): Promise<Generated
     attempts++;
     
     try {
+      // Create a clean copy of the data to ensure we're not sending any circular references
+      const cleanFormData = {
+        initialQuestions: { ...formData.initialQuestions },
+        platformInfo: { ...formData.platformInfo },
+        reportingDetails: formData.reportingDetails ? { ...formData.reportingDetails } : undefined,
+        followUp: formData.followUp ? { ...formData.followUp } : undefined
+      };
+      
+      console.log('Sending data to generate-letter API:', JSON.stringify(cleanFormData));
+      
       const response = await fetch('/api/generate-letter', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(cleanFormData),
       });
 
       if (!response.ok) {

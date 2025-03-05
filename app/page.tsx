@@ -1,6 +1,17 @@
+"use client";
+
 import Link from 'next/link';
+import { useFormContext } from '@/lib/context/FormContext';
+import { useEffect } from 'react';
 
 export default function Home() {
+  const { resetForm } = useFormContext();
+
+  // Reset form state when landing on home page
+  useEffect(() => {
+    resetForm();
+  }, [resetForm]);
+
   return (
     <>
       <div className="bg-neutral rounded-2xl p-8 md:p-12 shadow-sm">
@@ -12,7 +23,7 @@ export default function Home() {
           You're not alone in this journey. Advokit helps you take back control with clear, actionable steps.
         </p>
         <Link 
-          href="/platforms" 
+          href="/letter-generator" 
           className="inline-flex items-center pill bg-primary text-white px-6 py-2.5 text-base hover:opacity-90 transition-opacity"
         >
           Start your request

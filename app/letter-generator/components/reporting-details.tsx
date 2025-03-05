@@ -17,28 +17,35 @@ interface ReportingDetailsForm {
 }
 
 interface ReportingDetailsProps {
-  initialData?: Partial<ReportingDetailsForm>;
-  onSubmit: (data: ReportingDetailsForm) => void;
-  reportingStatus: 'standard-completed' | 'escalated-completed' | 'both-completed' | 'none-completed';
+  onComplete: () => void;
 }
 
-export function ReportingDetails({ initialData = {}, onSubmit, reportingStatus }: ReportingDetailsProps) {
-  const { register, handleSubmit, reset } = useForm<ReportingDetailsForm>({
-    defaultValues: initialData
-  });
+export function ReportingDetails({ onComplete }: ReportingDetailsProps) {
+  const { register, handleSubmit, reset } = useForm<ReportingDetailsForm>();
+  const { formState, setReportingDetails } = useFormContext();
   
-  // Set form values from initialData when component mounts
+  // Set form values from context when component mounts
   useEffect(() => {
-    if (initialData && Object.keys(initialData).length > 0) {
-      reset(initialData as ReportingDetailsForm);
+    if (formState.reportingDetails && Object.keys(formState.reportingDetails).length > 0) {
+      reset(formState.reportingDetails as ReportingDetailsForm);
     }
-  }, [initialData, reset]);
+  }, [formState.reportingDetails, reset]);
   
-  const showStandardQuestions = ['standard-completed', 'both-completed'].includes(reportingStatus);
-  const showEscalatedQuestions = ['escalated-completed', 'both-completed'].includes(reportingStatus);
+  const showStandardQuestions = ['standard-completed', 'both-completed'].includes(formState.reportingInfo?.status || '');
+  const showEscalatedQuestions = ['escalated-completed', 'both-completed'].includes(formState.reportingInfo?.status || '');
+
+  // If no processes were completed, don't render anything
+  if (formState.reportingInfo?.status === 'none-completed') {
+    return null;
+  }
+
+  const handleFormSubmit = (data: ReportingDetailsForm) => {
+    setReportingDetails(data);
+    onComplete();
+  };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+    <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-8">
       <div className="space-y-12">
         {showStandardQuestions && (
           <motion.div
@@ -135,18 +142,6 @@ export function ReportingDetails({ initialData = {}, onSubmit, reportingStatus }
               </div>
             </div>
           </motion.div>
-        )}
-
-        {!showStandardQuestions && !showEscalatedQuestions && (
-          <div className="bg-accent-light/50 rounded-xl p-4">
-            <div className="flex items-start gap-3 text-muted-foreground">
-              <AlertCircle className="w-5 h-5 mt-1 flex-shrink-0" />
-              <p>
-                Since you haven't completed any reporting processes yet, we'll proceed with creating
-                your takedown letter. You can always try the platform's reporting processes later if needed.
-              </p>
-            </div>
-          </div>
         )}
       </div>
 

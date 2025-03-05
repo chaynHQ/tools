@@ -1,11 +1,10 @@
 "use client";
 
 import { motion } from 'framer-motion';
-import { Label } from '@/components/ui/label';
 
 interface QuestionSectionProps {
   title: string;
-  children: React.ReactNode;
+  children?: React.ReactNode;
 }
 
 export function QuestionSection({ title, children }: QuestionSectionProps) {
@@ -16,9 +15,11 @@ export function QuestionSection({ title, children }: QuestionSectionProps) {
       className="space-y-8"
     >
       <h3 className="text-xl font-medium mb-6">{title}</h3>
-      <div className="space-y-8">
-        {children}
-      </div>
+      {children && (
+        <div className="space-y-8">
+          {children}
+        </div>
+      )}
     </motion.div>
   );
 }
