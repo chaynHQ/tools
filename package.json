@@ -1,12 +1,34 @@
 {
-  "name": "nextjs",
+  "name": "advokit",
   "version": "0.1.0",
-  "private": true,
+  "private": false,
+  "description": "AI-powered tool helping survivors request the removal of non-consensual images",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chaynHQ/advokit.git"
+  },
+  "keywords": [
+    "image-takedown",
+    "content-removal",
+    "privacy",
+    "ai",
+    "survivor-support"
+  ],
+  "author": "Chayn CIO",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/chaynHQ/advokit/issues"
+  },
+  "homepage": "https://github.com/chaynHQ/advokit#readme",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test": "vitest",
+    "type-check": "tsc --noEmit",
+    "format": "prettier --write .",
+    "prepare": "husky install"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.18.0",
@@ -46,6 +68,22 @@
     "typescript": "5.2.2"
   },
   "devDependencies": {
-    "@types/react-speech-recognition": "^3.9.5"
+    "@types/react-speech-recognition": "^3.9.5",
+    "@typescript-eslint/eslint-plugin": "^6.21.0",
+    "@typescript-eslint/parser": "^6.21.0",
+    "eslint-config-prettier": "^9.1.0",
+    "husky": "^8.0.3",
+    "lint-staged": "^15.2.2",
+    "prettier": "^3.2.5",
+    "vitest": "^1.3.1"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md,yml}": [
+      "prettier --write"
+    ]
   }
 }
