@@ -50,6 +50,9 @@ export const ANALYTICS_EVENTS = {
 
 type EventParams = Record<string, string | number | boolean | null | undefined>;
 
+// Define feedback submission methods
+type FeedbackMethod = 'typeform' | 'email' | 'form';
+
 // Helper function to validate and clean event parameters
 function cleanEventParams(params: EventParams): EventParams {
   return Object.entries(params).reduce((acc, [key, value]) => {
@@ -219,7 +222,7 @@ export const analytics = {
     }
   },
 
-  trackFeedbackSubmitted: (method: string, length?: number) => {
+  trackFeedbackSubmission: (method: FeedbackMethod, length?: number) => {
     try {
       trackEvent(ANALYTICS_EVENTS.FEEDBACK_SUBMITTED, {
         method,
