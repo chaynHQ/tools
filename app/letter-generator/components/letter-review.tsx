@@ -15,12 +15,17 @@ import { useToast } from '@/hooks/use-toast';
 import { analytics } from '@/lib/analytics';
 import { useFormContext } from '@/lib/context/FormContext';
 import { platforms } from '@/lib/platforms';
+import { clientConfig } from '@/lib/rollbar';
 import { GeneratedLetter } from '@/types/letter';
 import { motion } from 'framer-motion';
 import { AlertCircle, ArrowRight, CheckCircle2, Copy, MessageSquare, RefreshCw } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
+import Rollbar from 'rollbar';
 import { QuestionSection } from './question-section';
+
+// Initialize Rollbar for client-side
+const rollbar = new Rollbar(clientConfig);
 
 interface LetterReviewProps {
   letter: GeneratedLetter;
@@ -58,6 +63,11 @@ export function LetterReview({
       });
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
+      rollbar.error('Failed to copy letter to clipboard', {
+        error: err,
+        component: 'LetterReview',
+        platformId
+      });
       analytics.trackError('clipboard', 'Failed to copy to clipboard', 'LetterReview');
       toast({
         title: "Unable to copy",
@@ -68,12 +78,25 @@ export function LetterReview({
   };
 
   const handleComplete = () => {
-    analytics.trackProcessCompletion(
-      Math.floor(Date.now() / 1000),
-      ['platform_selection', 'initial_questions', 'follow_up', 'letter_generation']
-    );
-    resetForm();
-    onComplete();
+    try {
+      analytics.trackProcessCompletion(
+        Math.floor(Date.now() / 1000),
+        ['platform_selection', 'initial_questions', 'follow_up', 'letter_generation']
+      );
+      resetForm();
+      onComplete();
+    } catch (error) {
+      rollbar.error('Error completing letter process', {
+        error,
+        component: 'LetterReview',
+        platformId
+      });
+      toast({
+        title: "Error finishing process",
+        description: "There was a problem completing the process. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
 
   return (

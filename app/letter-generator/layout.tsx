@@ -1,6 +1,4 @@
 import { Metadata } from 'next';
-import 'regenerator-runtime/runtime';
-
 
 export const metadata: Metadata = {
   title: 'Letter Generator - Advokit by Chayn',

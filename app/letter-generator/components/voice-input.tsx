@@ -27,7 +27,7 @@ export function VoiceInput({ isListening, onToggle, className }: VoiceInputProps
 
   return (
     <div className={cn("relative flex items-center", className)}>
-      <AnimatePresence>
+      <AnimatePresence initial={false}>
         {isListening && (
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
@@ -59,7 +59,7 @@ export function VoiceInput({ isListening, onToggle, className }: VoiceInputProps
         )}
         onClick={onToggle}
       >
-        <AnimatePresence mode="wait">
+        <AnimatePresence initial={false}>
           {isListening ? (
             <motion.div
               key="recording"

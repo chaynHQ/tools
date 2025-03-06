@@ -4,15 +4,21 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { toast } from '@/hooks/use-toast';
 import { analytics } from '@/lib/analytics';
 import { useFormContext } from '@/lib/context/FormContext';
+import { clientConfig } from '@/lib/rollbar';
 import { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
 import 'regenerator-runtime/runtime';
+import Rollbar from 'rollbar';
 import { QuestionSection } from './question-section';
 import { SelectableCard } from './selectable-card';
 import { VoiceInput } from './voice-input';
+
+// Initialize Rollbar for client-side
+const rollbar = new Rollbar(clientConfig);
 
 interface InitialQuestionsForm {
   imageIdentification: string;
@@ -142,10 +148,22 @@ export function InitialQuestions({ onComplete }: InitialQuestionsProps) {
   };
 
   const handleFormSubmit = (data: InitialQuestionsForm) => {
-    const timeSpent = Math.floor((Date.now() - startTime) / 1000);
-    analytics.trackQuestionsCompleted('initial', timeSpent);
-    setInitialQuestions(data);
-    onComplete();
+    try {
+      const timeSpent = Math.floor((Date.now() - startTime) / 1000);
+      analytics.trackInitialQuestionsCompleted(timeSpent);
+      setInitialQuestions(data);
+      onComplete();
+    } catch (error) {
+      rollbar.error('Error submitting initial questions', {
+        error,
+        component: 'InitialQuestions'
+      });
+      toast({
+        title: "Error saving responses",
+        description: "There was a problem saving your responses. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
 
   const inputClasses = "bg-white focus:ring-accent focus:border-accent w-full";

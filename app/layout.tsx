@@ -1,8 +1,10 @@
+import { IS_PRODUCTION } from '@/lib/constants/common';
 import type { Metadata } from 'next';
 import { Merriweather, Open_Sans } from 'next/font/google';
 import 'regenerator-runtime/runtime';
 import { ClientLayout } from './client-layout';
 import './globals.css';
+import { Providers } from './providers';
 
 const merriweather = Merriweather({
   subsets: ['latin'],
@@ -45,10 +47,14 @@ export const metadata: Metadata = {
     images: ['/meta_image.png'],
   },
   robots: {
-    index: true,
-    follow: true,
+    index: IS_PRODUCTION,
+    follow: IS_PRODUCTION,
   },
   themeColor: '#F0244D',
+  viewport: 'width=device-width, initial-scale=1, maximum-scale=1',
+  verification: {
+    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION,
+  },
 };
 
 export default function RootLayout({
@@ -59,7 +65,9 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${merriweather.variable} ${openSans.variable}`}>
       <body className="font-open-sans bg-background min-h-screen flex flex-col">
-        <ClientLayout>{children}</ClientLayout>
+        <Providers>
+          <ClientLayout>{children}</ClientLayout>
+        </Providers>
       </body>
     </html>
   );

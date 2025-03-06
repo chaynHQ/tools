@@ -1,4 +1,5 @@
 import { generateLetterPrompt } from '@/lib/prompts';
+import { handleApiError } from '@/lib/rollbar';
 import { parseAIJson } from '@/lib/utils';
 import Anthropic from '@anthropic-ai/sdk';
 import { NextResponse } from 'next/server';
@@ -25,28 +26,7 @@ export async function POST(request: Request) {
         { status: 400 }
       );
     }
-    
-    // Validate initialQuestions has required fields
-    const requiredFields = ['contentType', 'contentContext', 'imageIdentification'];
-    for (const field of requiredFields) {
-      if (!body.initialQuestions[field]) {
-        console.error(`Missing required field in initialQuestions: ${field}`);
-        return NextResponse.json(
-          { error: `Invalid request: Missing required field ${field} in initialQuestions` },
-          { status: 400 }
-        );
-      }
-    }
-    
-    // Validate platformInfo has required fields
-    if (!body.platformInfo.name) {
-      console.error('Missing name in platformInfo');
-      return NextResponse.json(
-        { error: 'Invalid request: Missing name in platformInfo' },
-        { status: 400 }
-      );
-    }
-    
+
     const response = await anthropic.messages.create({
       model: 'claude-3-sonnet-20240229',
       max_tokens: 4000,
@@ -68,51 +48,19 @@ export async function POST(request: Request) {
         throw new Error('Invalid letter format in response');
       }
       
-      // Add default nextSteps if not present
-      if (!letter.nextSteps) {
-        letter.nextSteps = [
-          "Keep a copy of this letter and any response you receive",
-          "Follow up if you don't receive a response within 7 days",
-          "Consider seeking legal advice if the content is not removed"
-        ];
-      } else if (!Array.isArray(letter.nextSteps)) {
-        letter.nextSteps = [
-          "Keep a copy of this letter and any response you receive",
-          "Follow up if you don't receive a response within 7 days",
-          "Consider seeking legal advice if the content is not removed"
-        ];
-      }
+      return NextResponse.json(letter);
     } catch (e) {
       console.error('JSON parsing error:', e);
       console.error('Raw response:', response.content[0].text);
       throw new Error('Failed to parse Anthropic response as JSON');
     }
 
-    return NextResponse.json(letter);
-
   } catch (error: any) {
-    console.error('Error in letter generation API:', error);
+    const { error: errorMessage, status } = handleApiError(error, '/api/generate-letter', {
+      statusCode: error.status,
+      errorType: error.name,
+    });
 
-    if (error.status === 401) {
-      return NextResponse.json(
-        { error: 'Authentication failed' },
-        { status: 401 }
-      );
-    }
-
-    if (error.status === 429) {
-      return NextResponse.json(
-        { error: 'Rate limit exceeded' },
-        { status: 429 }
-      );
-    }
-
-    return NextResponse.json(
-      { 
-        error: error instanceof Error ? error.message : 'An unexpected error occurred',
-        details: process.env.NODE_ENV === 'development' ? error : undefined
-      },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: errorMessage }, { status });
   }
 }

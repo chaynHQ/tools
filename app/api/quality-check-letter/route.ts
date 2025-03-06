@@ -1,4 +1,5 @@
 import { generateLetterQualityCheckPrompt } from '@/lib/prompts';
+import { handleApiError } from '@/lib/rollbar';
 import { parseAIJson } from '@/lib/utils';
 import Anthropic from '@anthropic-ai/sdk';
 import { NextResponse } from 'next/server';
@@ -54,28 +55,11 @@ export async function POST(request: Request) {
     return NextResponse.json(qualityCheckResult);
 
   } catch (error: any) {
-    console.error('Error in letter quality check API:', error);
+    const { error: errorMessage, status } = handleApiError(error, '/api/quality-check-letter', {
+      statusCode: error.status,
+      errorType: error.name,
+    });
 
-    if (error.status === 401) {
-      return NextResponse.json(
-        { error: 'Authentication failed' },
-        { status: 401 }
-      );
-    }
-
-    if (error.status === 429) {
-      return NextResponse.json(
-        { error: 'Rate limit exceeded' },
-        { status: 429 }
-      );
-    }
-
-    return NextResponse.json(
-      { 
-        error: error instanceof Error ? error.message : 'An unexpected error occurred',
-        details: process.env.NODE_ENV === 'development' ? error : undefined
-      },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: errorMessage }, { status });
   }
 }
