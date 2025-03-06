@@ -19,11 +19,9 @@ export function ClientLayout({ children }: { children: ReactNode }) {
         </div>
       </main>
       <Footer />
-      {IS_PRODUCTION && (
-        <GoogleAnalytics 
-          gaId={process.env.NEXT_PUBLIC_GA_ID || ''} 
-        />
-      )}
+      <GoogleAnalytics 
+        gaId={process.env.NEXT_PUBLIC_GA_ID || ''} 
+      />
     </FormProvider>
   );
 }

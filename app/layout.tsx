@@ -4,6 +4,7 @@ import { ClientLayout } from './client-layout';
 import { Providers } from './providers';
 import { IS_PRODUCTION } from '@/lib/constants/common';
 import 'regenerator-runtime/runtime';
+import { ClientLayout } from './client-layout';
 import './globals.css';
 
 const merriweather = Merriweather({
