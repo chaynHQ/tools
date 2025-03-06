@@ -3,7 +3,6 @@
 import { DisclaimerBanner } from '@/components/feedback/disclaimer-banner';
 import { Footer } from '@/components/layout/footer';
 import { Header } from '@/components/layout/header';
-import { IS_PRODUCTION } from '@/lib/constants/common';
 import { FormProvider } from '@/lib/context/FormContext';
 import { GoogleAnalytics } from '@next/third-parties/google';
 import { ReactNode } from 'react';
@@ -20,7 +19,7 @@ export function ClientLayout({ children }: { children: ReactNode }) {
       </main>
       <Footer />
       <GoogleAnalytics 
-        gaId={process.env.NEXT_PUBLIC_GA_ID || ''} 
+        gaId={process.env.NEXT_PUBLIC_GA_ID || ''}
       />
     </FormProvider>
   );

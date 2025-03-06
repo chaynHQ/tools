@@ -1,6 +1,6 @@
+import { clientConfig } from './rollbar';
 import Rollbar from 'rollbar';
 import { IS_PRODUCTION } from './constants/common';
-import { clientConfig } from './rollbar';
 
 // Initialize Rollbar for client-side
 const rollbar = new Rollbar(clientConfig);

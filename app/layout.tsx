@@ -1,10 +1,10 @@
-import { IS_PRODUCTION } from '@/lib/constants/common';
-import type { Metadata } from 'next';
 import { Merriweather, Open_Sans } from 'next/font/google';
-import 'regenerator-runtime/runtime';
+import type { Metadata } from 'next';
 import { ClientLayout } from './client-layout';
-import './globals.css';
 import { Providers } from './providers';
+import { IS_PRODUCTION } from '@/lib/constants/common';
+import 'regenerator-runtime/runtime';
+import './globals.css';
 
 const merriweather = Merriweather({
   subsets: ['latin'],

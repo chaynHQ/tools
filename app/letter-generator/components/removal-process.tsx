@@ -1,15 +1,15 @@
 "use client";
 
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { platforms } from '@/lib/platforms';
 import { Button } from '@/components/ui/button';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Label } from '@/components/ui/label';
+import { ChevronDown, AlertCircle } from 'lucide-react';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { analytics } from '@/lib/analytics';
 import { useFormContext } from '@/lib/context/FormContext';
-import { platforms } from '@/lib/platforms';
-import { motion } from 'framer-motion';
-import { AlertCircle, ChevronDown } from 'lucide-react';
-import { useState } from 'react';
 
 type ReportingStatus = 'standard-completed' | 'escalated-completed' | 'both-completed' | 'none-completed' | null;
 

@@ -1,10 +1,10 @@
 "use client";
 
 import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
-import { AnimatePresence, motion } from 'framer-motion';
 import { Mic, MicOff } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { cn } from '@/lib/utils';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useEffect } from 'react';
 
 interface VoiceInputProps {
   isListening: boolean;

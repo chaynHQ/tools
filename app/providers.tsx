@@ -1,7 +1,7 @@
 "use client";
 
+import { Provider as RollbarProvider, ErrorBoundary } from '@rollbar/react';
 import { clientConfig } from '@/lib/rollbar';
-import { ErrorBoundary, Provider as RollbarProvider } from '@rollbar/react';
 import { ReactNode } from 'react';
 
 interface ProvidersProps {

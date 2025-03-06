@@ -17,6 +17,7 @@ import { QuestionSection } from './question-section';
 import { SelectableCard } from './selectable-card';
 import { VoiceInput } from './voice-input';
 
+
 // Initialize Rollbar for client-side
 const rollbar = new Rollbar(clientConfig);
 
