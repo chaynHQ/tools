@@ -15,14 +15,14 @@ import { useToast } from '@/hooks/use-toast';
 import { analytics } from '@/lib/analytics';
 import { useFormContext } from '@/lib/context/FormContext';
 import { platforms } from '@/lib/platforms';
-import { clientConfig } from '@/lib/rollbar';
 import { GeneratedLetter } from '@/types/letter';
 import { motion } from 'framer-motion';
 import { AlertCircle, ArrowRight, CheckCircle2, Copy, MessageSquare, RefreshCw } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
-import Rollbar from 'rollbar';
 import { QuestionSection } from './question-section';
+import { clientConfig } from '@/lib/rollbar';
+import Rollbar from 'rollbar';
 
 // Initialize Rollbar for client-side
 const rollbar = new Rollbar(clientConfig);

@@ -23,19 +23,15 @@ export const clientConfig = {
 };
 
 // Helper functions for error handling
-export function handleApiError(
-  error: unknown,
-  endpoint: string,
-  context?: Record<string, unknown>,
-) {
-  if (error instanceof Error) {
+export function handleApiError(error: unknown, endpoint: string, context?: Record<string, unknown>) {
+  if (error instanceof Error) {    
     if (error.message.includes('401') || error.message.includes('unauthorized')) {
       return {
         error: 'Authentication failed',
         status: 401,
       };
     }
-
+    
     if (error.message.includes('429') || error.message.includes('rate limit')) {
       return {
         error: 'Rate limit exceeded',

@@ -1,12 +1,12 @@
 "use client";
 
-import { DisclaimerBanner } from '@/components/feedback/disclaimer-banner';
+import { ReactNode } from 'react';
 import { Footer } from '@/components/layout/footer';
 import { Header } from '@/components/layout/header';
-import { IS_PRODUCTION } from '@/lib/constants/common';
-import { FormProvider } from '@/lib/context/FormContext';
 import { GoogleAnalytics } from '@next/third-parties/google';
-import { ReactNode } from 'react';
+import { DisclaimerBanner } from '@/components/feedback/disclaimer-banner';
+import { FormProvider } from '@/lib/context/FormContext';
+import { IS_PRODUCTION } from '@/lib/constants/common';
 
 export function ClientLayout({ children }: { children: ReactNode }) {
   return (
@@ -19,9 +19,12 @@ export function ClientLayout({ children }: { children: ReactNode }) {
         </div>
       </main>
       <Footer />
-      <GoogleAnalytics 
-        gaId={process.env.NEXT_PUBLIC_GA_ID || ''} 
-      />
+      {IS_PRODUCTION && (
+        <GoogleAnalytics 
+          gaId={process.env.NEXT_PUBLIC_GA_ID || ''} 
+          gaMeasurementId={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID}
+        />
+      )}
     </FormProvider>
   );
 }

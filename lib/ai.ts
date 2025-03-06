@@ -1,5 +1,6 @@
-import { GeneratedLetter, LetterRequest } from '@/types/letter';
 import { FollowUpQuestion } from '@/types/questions';
+import { LetterRequest, GeneratedLetter } from '@/types/letter';
+import { parseAIJson } from './utils';
 
 const MAX_RETRIES = 3;
 const RETRY_DELAY = 1000; // 1 second
@@ -59,6 +60,8 @@ export async function generateFollowUpQuestions(formData: LetterRequest): Promis
         reportingDetails: formData.reportingDetails ? { ...formData.reportingDetails } : undefined
       };
       
+      console.log('Sending data to follow-up questions API:', JSON.stringify(cleanFormData));
+      
       const response = await fetch('/api/follow-up-questions', {
         method: 'POST',
         headers: {
@@ -74,6 +77,7 @@ export async function generateFollowUpQuestions(formData: LetterRequest): Promis
       }
 
       const questions = await response.json();
+      console.log('Received follow-up questions from API:', questions);
       
       // Validate response structure
       if (!Array.isArray(questions)) {

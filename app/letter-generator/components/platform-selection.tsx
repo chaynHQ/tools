@@ -1,16 +1,16 @@
 "use client";
 
+import { useState, useEffect } from 'react';
+import Image from 'next/image';
+import { platforms } from '@/lib/platforms';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { motion } from 'framer-motion';
 import { useToast } from '@/hooks/use-toast';
+import { Loader2 } from 'lucide-react';
 import { analytics } from '@/lib/analytics';
 import { useFormContext } from '@/lib/context/FormContext';
-import { platforms } from '@/lib/platforms';
-import { motion } from 'framer-motion';
-import { Loader2 } from 'lucide-react';
-import Image from 'next/image';
-import { useEffect, useState } from 'react';
 
 interface PlatformSelectionProps {
   onComplete: () => void;

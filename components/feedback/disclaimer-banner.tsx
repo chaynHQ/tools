@@ -1,10 +1,10 @@
 "use client";
 
-import { analytics } from '@/lib/analytics';
-import { motion } from 'framer-motion';
-import { AlertCircle, X } from 'lucide-react';
-import Link from 'next/link';
 import { useState } from 'react';
+import { AlertCircle, X } from 'lucide-react';
+import { motion } from 'framer-motion';
+import Link from 'next/link';
+import { analytics } from '@/lib/analytics';
 
 export function DisclaimerBanner() {
   const [isVisible, setIsVisible] = useState(true);

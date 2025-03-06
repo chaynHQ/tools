@@ -1,19 +1,18 @@
 "use client";
 
-import { Button } from '@/components/ui/button';
+import { useState, useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { motion } from 'framer-motion';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { toast } from '@/hooks/use-toast';
-import { analytics } from '@/lib/analytics';
-import { useFormContext } from '@/lib/context/FormContext';
-import { clientConfig } from '@/lib/rollbar';
-import { motion } from 'framer-motion';
+import { Button } from '@/components/ui/button';
 import { AlertCircle } from 'lucide-react';
-import { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useFormContext } from '@/lib/context/FormContext';
+import { analytics } from '@/lib/analytics';
 import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
-import Rollbar from 'rollbar';
 import { VoiceInput } from './voice-input';
+import { clientConfig } from '@/lib/rollbar';
+import Rollbar from 'rollbar';
 
 // Initialize Rollbar for client-side
 const rollbar = new Rollbar(clientConfig);
