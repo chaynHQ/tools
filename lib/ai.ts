@@ -11,6 +11,30 @@ const STATIC_NEXT_STEPS = [
   "If the content is still available, you could try sending a follow up asking them to respond"
 ];
 
+// Define sensitive terms more precisely
+const SENSITIVE_TERMS = [
+  // Identity documents
+  'government(-|\\s)issued id',
+  'passport\\b',
+  'driver(\'s|\\s)licen[sc]e',
+  'national id',
+  'identity card',
+  'state(-|\\s)issued',
+  'official id',
+  // Verification processes requiring documentation
+  'id verification process',
+  'identity verification document',
+  'verify.*identity.*document',
+  // Residency documents
+  'proof of residence',
+  'proof of address',
+  'utility bill',
+  // Official documentation
+  'notari[sz]ed',
+  'apostille',
+  'certified document'
+].map(term => new RegExp(term, 'i'));
+
 async function retryWithDelay<T>(
   fn: () => Promise<T>,
   retries: number = MAX_RETRIES,
@@ -57,20 +81,15 @@ export async function generateFollowUpQuestions(formData: LetterRequest): Promis
         throw new Error('Invalid response format from AI service');
       }
 
-      // Filter out any questions related to ID verification
+      // Filter out questions that match sensitive terms
       const filteredQuestions = questions.filter(q => {
         if (!q || !q.question) {
           console.warn('Invalid question object in response:', q);
           return false;
         }
         
-        const questionText = q.question.toLowerCase();
-        return !questionText.includes('id') && 
-               !questionText.includes('identification') && 
-               !questionText.includes('passport') && 
-               !questionText.includes('license') && 
-               !questionText.includes('proof of residence') &&
-               !questionText.includes('government');
+        const combinedText = `${q.question} ${q.context}`.toLowerCase();
+        return !SENSITIVE_TERMS.some(term => term.test(combinedText));
       });
 
       return filteredQuestions;
@@ -83,36 +102,17 @@ export async function generateFollowUpQuestions(formData: LetterRequest): Promis
 
 // Check if letter contains ID verification requests or placeholders
 function containsIdVerificationOrPlaceholders(letter: GeneratedLetter): boolean {
-  const idTerms = [
-    'government(-|\\s)issued id',
-    'official identification',
-    'identification document',
-    'proof of residence',
-    'government id',
-    'passport',
-    'driver(\'s|\\s)license',
-    'id verification',
-    'identity verification',
-    'verify your identity',
-    'proof of identity',
-    'identity document'
-  ];
-
   const placeholderRegex = /\[([^\]]+)\]/g;
   
-  // Check for ID verification terms
-  const combinedRegex = new RegExp(idTerms.join('|'), 'gi');
-  
-  // Check subject and body for ID terms or placeholders
-  const hasIdTerms = 
-    combinedRegex.test(letter.subject) || 
-    combinedRegex.test(letter.body);
+  // Check for sensitive terms in subject and body
+  const combinedText = `${letter.subject} ${letter.body}`;
+  const hasSensitiveTerms = SENSITIVE_TERMS.some(term => term.test(combinedText));
   
   const hasPlaceholders = 
     placeholderRegex.test(letter.subject) || 
     placeholderRegex.test(letter.body);
   
-  return hasIdTerms || hasPlaceholders;
+  return hasSensitiveTerms || hasPlaceholders;
 }
 
 // Check for hallucination patterns in the letter
@@ -154,6 +154,8 @@ export async function generateLetter(formData: LetterRequest): Promise<Generated
         followUp: formData.followUp ? { ...formData.followUp } : undefined
       };
       
+      console.log('Sending data to generate-letter API:', JSON.stringify(cleanFormData));
+      
       const response = await fetch('/api/generate-letter', {
         method: 'POST',
         headers: {
@@ -171,19 +173,21 @@ export async function generateLetter(formData: LetterRequest): Promise<Generated
       
       // Check if letter contains ID verification requests, placeholders, or hallucination patterns
       if (containsIdVerificationOrPlaceholders(letter) || containsHallucinationPatterns(letter)) {
+        console.log(`Letter contains issues (attempt ${attempts}/${maxAttempts}). Regenerating...`);
+        
         // If this is the last attempt, do a basic cleanup instead of rejecting
         if (attempts === maxAttempts) {
+          console.log("Maximum attempts reached. Performing basic cleanup instead.");
           
           // Perform basic cleanup as a fallback
           if (letter.body) {
+            // Replace sensitive terms with "personal information"
+            SENSITIVE_TERMS.forEach(term => {
+              letter.body = letter.body.replace(term, "personal information");
+            });
+            
+            // Remove hallucination patterns
             letter.body = letter.body
-              .replace(/government(-|\s)issued ID/gi, "personal information")
-              .replace(/official identification/gi, "personal information")
-              .replace(/identification document/gi, "personal information")
-              .replace(/proof of residence/gi, "personal information")
-              .replace(/government ID/gi, "personal information")
-              .replace(/passport/gi, "personal information")
-              .replace(/driver('s|\s)license/gi, "personal information")
               .replace(/\[([^\]]+)\]/g, "") // Remove any remaining placeholders
               .replace(/as I mentioned earlier/gi, "")
               .replace(/as stated in my previous correspondence/gi, "")

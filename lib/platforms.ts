@@ -78,7 +78,7 @@ export const platforms: Platform[] = [
   {
     id: 'pornhub',
     name: 'Pornhub',
-    logo: '/platform-logos/pornhub.svg',
+    logo: '/platform-logos/pornhub.png',
     contactEmail: 'content@pornhub.com',
     flows: {
       basic: [
