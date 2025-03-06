@@ -39,7 +39,7 @@ interface FollowUpQuestionsProps {
 export function FollowUpQuestions({ initialData, savedData = {}, onSubmit }: FollowUpQuestionsProps) {
   const startTime = useState(() => Date.now())[0];
   const [activeField, setActiveField] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true); // Start with loading true
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [hasInitialized, setHasInitialized] = useState<boolean>(false);
   const [followUpQuestions, setFollowUpQuestions] = useState<FollowUpQuestion[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -47,6 +47,7 @@ export function FollowUpQuestions({ initialData, savedData = {}, onSubmit }: Fol
   const { toast } = useToast();
   const { formState, setFollowUpData } = useFormContext();
   const fetchController = useRef<AbortController | null>(null);
+  const hasQuestionsInContext = formState.followUpData.questions.length > 0;
 
   const {
     transcript,
@@ -57,28 +58,25 @@ export function FollowUpQuestions({ initialData, savedData = {}, onSubmit }: Fol
 
   // Initialize questions from context or fetch new ones
   useEffect(() => {
-    // Skip if already initialized
-    if (hasInitialized) return;
+    if (hasInitialized || !initialData) return;
 
-    // Use cached questions if available
-    if (formState.followUpData.questions.length > 0) {
-      setFollowUpQuestions(formState.followUpData.questions);
-      setIsLoading(false);
-      setHasInitialized(true);
-      return;
-    }
+    const initializeQuestions = async () => {
+      // Use cached questions if available
+      if (hasQuestionsInContext) {
+        setFollowUpQuestions(formState.followUpData.questions);
+        setIsLoading(false);
+        setHasInitialized(true);
+        return;
+      }
 
-    const controller = new AbortController();
-    fetchController.current = controller;
+      // Fetch new questions if none are cached
+      const controller = new AbortController();
+      fetchController.current = controller;
 
-    const fetchQuestions = async () => {
       try {
         const questions = await generateFollowUpQuestions(initialData);
         
-        // Check if the request was aborted
-        if (controller.signal.aborted) {
-          return;
-        }
+        if (controller.signal.aborted) return;
 
         if (questions && Array.isArray(questions)) {
           setFollowUpQuestions(questions);
@@ -86,9 +84,7 @@ export function FollowUpQuestions({ initialData, savedData = {}, onSubmit }: Fol
           analytics.trackAdditionalQuestionsGenerated(questions.length);
         }
       } catch (error) {
-        if (error instanceof Error && error.name === 'AbortError') {
-          return;
-        }
+        if (error instanceof Error && error.name === 'AbortError') return;
         
         const message = error instanceof Error 
           ? error.message 
@@ -113,13 +109,15 @@ export function FollowUpQuestions({ initialData, savedData = {}, onSubmit }: Fol
       }
     };
 
-    fetchQuestions();
+    initializeQuestions();
 
     return () => {
-      controller.abort();
-      fetchController.current = null;
+      if (fetchController.current) {
+        fetchController.current.abort();
+        fetchController.current = null;
+      }
     };
-  }, [initialData, formState.followUpData.questions, setFollowUpData, savedData, toast, hasInitialized]);
+  }, [initialData, hasQuestionsInContext, formState.followUpData.questions, setFollowUpData, savedData, toast, hasInitialized]);
 
   // Reset form with saved data when available
   useEffect(() => {
@@ -251,7 +249,7 @@ export function FollowUpQuestions({ initialData, savedData = {}, onSubmit }: Fol
       <h3 className="text-xl font-medium">Additional information</h3>
 
       <div className="space-y-8">
-        <AnimatePresence mode="wait">
+        <AnimatePresence initial={false}>
           {followUpQuestions.map((question) => (
             <motion.div
               key={question.id}
