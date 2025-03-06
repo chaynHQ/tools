@@ -10,25 +10,15 @@ import { useFormContext } from '@/lib/context/FormContext';
 import { FollowUpQuestion } from '@/types/questions';
 import { motion } from 'framer-motion';
 import { AlertCircle, Loader2 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
 import { VoiceInput } from './voice-input';
 
 // Common languages that might be used
 const SUPPORTED_LANGUAGES = [
-  'en-US', // English
-  'es-ES', // Spanish
-  'fr-FR', // French
-  'de-DE', // German
-  'it-IT', // Italian
-  'pt-PT', // Portuguese
-  'hi-IN', // Hindi
-  'ar-SA', // Arabic
-  'zh-CN', // Chinese (Simplified)
-  'ja-JP', // Japanese
-  'ko-KR', // Korean
-  'ru-RU', // Russian
+  'en-US', 'es-ES', 'fr-FR', 'de-DE', 'it-IT', 'pt-PT', 'hi-IN', 
+  'ar-SA', 'zh-CN', 'ja-JP', 'ko-KR', 'ru-RU'
 ];
 
 interface FollowUpQuestionsForm {
@@ -50,6 +40,7 @@ export function FollowUpQuestions({ initialData, savedData = {}, onSubmit }: Fol
   const { register, handleSubmit, setValue, reset } = useForm<FollowUpQuestionsForm>();
   const { toast } = useToast();
   const { formState, setFollowUpData } = useFormContext();
+  const fetchController = useRef<AbortController | null>(null);
 
   const {
     transcript,
@@ -58,32 +49,48 @@ export function FollowUpQuestions({ initialData, savedData = {}, onSubmit }: Fol
     browserSupportsSpeechRecognition
   } = useSpeechRecognition();
 
+  // Reset form with saved data when available
   useEffect(() => {
     if (savedData && Object.keys(savedData).length > 0) {
       reset(savedData);
     }
   }, [savedData, reset]);
 
+  // Update field value when speech transcript changes
   useEffect(() => {
     if (transcript && activeField) {
       setValue(activeField, transcript);
     }
   }, [transcript, activeField, setValue]);
 
+  // Fetch questions only once on mount
   useEffect(() => {
+    // Return early if we already have questions in context
+    if (formState.followUpData.questions.length > 0) {
+      setFollowUpQuestions(formState.followUpData.questions);
+      return;
+    }
+
+    // Return if already loading or have questions
+    if (isLoading || followUpQuestions.length > 0) {
+      return;
+    }
+
+    const controller = new AbortController();
+    fetchController.current = controller;
+
     const fetchQuestions = async () => {
-      if (formState.followUpData.questions.length > 0) {
-        setFollowUpQuestions(formState.followUpData.questions);
-        return;
-      }
-
-      if (isLoading || followUpQuestions.length > 0) return;
-
       setIsLoading(true);
       setError(null);
-      
+
       try {
         const questions = await generateFollowUpQuestions(initialData);
+        
+        // Check if the request was aborted
+        if (controller.signal.aborted) {
+          return;
+        }
+
         setFollowUpQuestions(questions);
         setFollowUpData(questions, {});
       } catch (error) {
@@ -109,7 +116,13 @@ export function FollowUpQuestions({ initialData, savedData = {}, onSubmit }: Fol
     };
 
     fetchQuestions();
-  }, []);
+
+    // Cleanup function to abort any pending requests
+    return () => {
+      controller.abort();
+      fetchController.current = null;
+    };
+  }, []); // Empty dependency array since we only want to run this once on mount
 
   const handleVoiceInput = (field: string) => {
     if (listening && activeField === field) {

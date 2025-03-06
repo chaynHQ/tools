@@ -49,6 +49,14 @@ export default function LetterGenerator() {
   const [generatedLetter, setGeneratedLetter] = useState<GeneratedLetter | null>(null);
   const [isRegenerating, setIsRegenerating] = useState(false);
 
+  // Scroll to top of main content when step changes
+  useEffect(() => {
+    const mainContent = document.querySelector('.letter-generator-content');
+    if (mainContent) {
+      mainContent.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, [currentStep]);
+
   // Memoize letter generation function
   const generateLetterContent = useCallback(async () => {
     if (!formState.completeFormData) return;
@@ -117,7 +125,6 @@ export default function LetterGenerator() {
     }
     
     setCurrentStep(nextStep);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   // Handle letter generation when entering the generation step
@@ -133,28 +140,30 @@ export default function LetterGenerator() {
 
   return (
     <main className="flex-1">
-      <div className="max-w-5xl mx-auto px-6 py-12">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-12">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-neutral rounded-2xl p-8 shadow-sm"
+          className="bg-neutral rounded-2xl p-6 sm:p-8 letter-generator-content"
         >
-          <div className="space-y-8">
+          <div className="space-y-6 sm:space-y-8">
             {currentStep !== 'platform-selection' && (
-              <div className="flex items-center gap-8">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-8">
                 <Button
                   variant="ghost"
-                  className="pill -ml-2 flex-shrink-0"
+                  className="pill -ml-2 self-start"
                   onClick={handleBack}
                 >
                   <ArrowLeft className="w-4 h-4 mr-2" />
                   Back
                 </Button>
 
-                <ProgressBar
-                  currentStep={getCurrentStepNumber()}
-                  totalSteps={getTotalSteps()}
-                />
+                <div className="hidden sm:block flex-1">
+                  <ProgressBar
+                    currentStep={getCurrentStepNumber()}
+                    totalSteps={getTotalSteps()}
+                  />
+                </div>
               </div>
             )}
 
@@ -170,7 +179,7 @@ export default function LetterGenerator() {
             )}
 
             <div className="flex flex-col items-start">
-              <h1 className="text-3xl mb-2">{stepTitles[currentStep]}</h1>
+              <h1 className="text-2xl sm:text-3xl mb-2">{stepTitles[currentStep]}</h1>
               <p className="text-muted-foreground">
                 {stepDescriptions[currentStep]} {platformName && currentStep !== 'platform-selection' ? `for ${platformName}` : ''}
               </p>
@@ -207,7 +216,7 @@ export default function LetterGenerator() {
             )}
 
             {(currentStep === 'generation' || isRegenerating) && !generatedLetter && (
-              <div className="flex flex-col items-center justify-center py-12">
+              <div className="flex flex-col items-center justify-center py-8 sm:py-12">
                 <div className="bg-accent-light/30 rounded-xl p-6 max-w-xl text-center">
                   <Loader2 className="w-8 h-8 mx-auto mb-4 animate-spin text-primary" />
                   <h3 className="text-lg font-medium mb-2">
