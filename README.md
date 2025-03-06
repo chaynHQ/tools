@@ -60,7 +60,7 @@ cp .env.example .env.local
 - `ANTHROPIC_API_KEY`: Your Anthropic API key for Claude
 - `NEXT_PUBLIC_GA_ID`: Google Analytics ID (optional)
 - `NEXT_PUBLIC_ROLLBAR_CLIENT_TOKEN`: Rollbar client token (optional)
-- `NEXT_PUBLIC_ENV`: Environment ('development' or 'production')
+- `NEXT_PUBLIC_ENV`: Environment ('development', 'preview' or 'production')
 
 5. Start the development server:
 ```bash
