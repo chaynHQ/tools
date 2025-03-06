@@ -1,6 +1,6 @@
 import { generateFollowUpPrompt } from '@/lib/prompts';
+import { handleApiError } from '@/lib/rollbar';
 import { parseAIJson } from '@/lib/utils';
-import { handleApiError, logInfo } from '@/lib/rollbar';
 import Anthropic from '@anthropic-ai/sdk';
 import { NextResponse } from 'next/server';
 
@@ -25,8 +25,6 @@ export async function POST(request: Request) {
       reportingDetails: body.reportingDetails || {}
     };
 
-    logInfo('Generating follow-up questions', { platformInfo: cleanBody.platformInfo });
-    
     const response = await anthropic.messages.create({
       model: 'claude-3-sonnet-20240229',
       max_tokens: 4000,

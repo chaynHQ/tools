@@ -1,6 +1,6 @@
 import { generateLetterPrompt } from '@/lib/prompts';
+import { handleApiError } from '@/lib/rollbar';
 import { parseAIJson } from '@/lib/utils';
-import { handleApiError, logInfo } from '@/lib/rollbar';
 import Anthropic from '@anthropic-ai/sdk';
 import { NextResponse } from 'next/server';
 
@@ -27,8 +27,6 @@ export async function POST(request: Request) {
       );
     }
 
-    logInfo('Generating letter', { platformInfo: body.platformInfo });
-    
     const response = await anthropic.messages.create({
       model: 'claude-3-sonnet-20240229',
       max_tokens: 4000,
