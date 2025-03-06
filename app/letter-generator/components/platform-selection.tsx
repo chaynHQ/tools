@@ -93,7 +93,7 @@ export function PlatformSelection({ onComplete }: PlatformSelectionProps) {
                   src={platform.logo}
                   alt={`${platform.name} logo`}
                   fill
-                  className="object-contain"
+                  className={`object-contain ${platform.id === 'pornhub' ? 'rounded-sm' : ''}`}
                 />
               </div>
               <h3 className="text-sm font-medium">{platform.name}</h3>

@@ -3,13 +3,20 @@
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { toast } from '@/hooks/use-toast';
+import { analytics } from '@/lib/analytics';
 import { useFormContext } from '@/lib/context/FormContext';
+import { clientConfig } from '@/lib/rollbar';
 import { motion } from 'framer-motion';
 import { AlertCircle } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
+import Rollbar from 'rollbar';
 import { VoiceInput } from './voice-input';
+
+// Initialize Rollbar for client-side
+const rollbar = new Rollbar(clientConfig);
 
 // Common languages that might be used
 const SUPPORTED_LANGUAGES = [
@@ -39,6 +46,7 @@ interface ReportingDetailsProps {
 }
 
 export function ReportingDetails({ onComplete }: ReportingDetailsProps) {
+  const startTime = useState(() => Date.now())[0];
   const [activeField, setActiveField] = useState<keyof ReportingDetailsForm | null>(null);
   const { register, handleSubmit, setValue, reset } = useForm<ReportingDetailsForm>();
   const { formState, setReportingDetails } = useFormContext();
@@ -90,8 +98,22 @@ export function ReportingDetails({ onComplete }: ReportingDetailsProps) {
   }
 
   const handleFormSubmit = (data: ReportingDetailsForm) => {
-    setReportingDetails(data);
-    onComplete();
+    try {
+      const timeSpent = Math.floor((Date.now() - startTime) / 1000);
+      analytics.trackReportingQuestionsCompleted(timeSpent);
+      setReportingDetails(data);
+      onComplete();
+    } catch (error) {
+      rollbar.error('Error submitting reporting details', {
+        error,
+        component: 'ReportingDetails'
+      });
+      toast({
+        title: "Error saving responses",
+        description: "There was a problem saving your responses. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
 
   const showStandardQuestions = ['standard-completed', 'both-completed'].includes(formState.reportingInfo?.status || '');

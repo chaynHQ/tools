@@ -1,5 +1,6 @@
 import { generateFollowUpPrompt } from '@/lib/prompts';
 import { parseAIJson } from '@/lib/utils';
+import { handleApiError, logInfo } from '@/lib/rollbar';
 import Anthropic from '@anthropic-ai/sdk';
 import { NextResponse } from 'next/server';
 
@@ -23,6 +24,8 @@ export async function POST(request: Request) {
       platformInfo: body.platformInfo || {},
       reportingDetails: body.reportingDetails || {}
     };
+
+    logInfo('Generating follow-up questions', { platformInfo: cleanBody.platformInfo });
     
     const response = await anthropic.messages.create({
       model: 'claude-3-sonnet-20240229',
@@ -57,28 +60,11 @@ export async function POST(request: Request) {
     }
 
   } catch (error: any) {
-    console.error('Error in follow-up questions API:', error);
+    const { error: errorMessage, status } = handleApiError(error, '/api/follow-up-questions', {
+      statusCode: error.status,
+      errorType: error.name,
+    });
 
-    if (error.status === 401) {
-      return NextResponse.json(
-        { error: 'Authentication failed' },
-        { status: 401 }
-      );
-    }
-
-    if (error.status === 429) {
-      return NextResponse.json(
-        { error: 'Rate limit exceeded' },
-        { status: 429 }
-      );
-    }
-
-    return NextResponse.json(
-      { 
-        error: error instanceof Error ? error.message : 'An unexpected error occurred',
-        details: process.env.NODE_ENV === 'development' ? error : undefined
-      },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: errorMessage }, { status });
   }
 }

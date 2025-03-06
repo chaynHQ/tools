@@ -1,12 +1,10 @@
-import { Footer } from '@/components/layout/footer';
-import { Header } from '@/components/layout/header';
-import { GoogleAnalytics } from '@next/third-parties/google';
-import type { Metadata } from 'next';
 import { Merriweather, Open_Sans } from 'next/font/google';
+import type { Metadata } from 'next';
+import { ClientLayout } from './client-layout';
+import { Providers } from './providers';
+import { IS_PRODUCTION } from '@/lib/constants/common';
 import 'regenerator-runtime/runtime';
 import './globals.css';
-import { DisclaimerBanner } from '@/components/feedback/disclaimer-banner';
-import { FormProvider } from '@/lib/context/FormContext';
 
 const merriweather = Merriweather({
   subsets: ['latin'],
@@ -26,7 +24,37 @@ const openSans = Open_Sans({
 
 export const metadata: Metadata = {
   title: 'Advokit by Chayn - Image Takedown Support',
-  description: 'AI-powered tool helping survivors request the removal of non-consensual images',
+  description: 'AI-powered letter writing tool to support takedown requests for non-consensual images',
+  metadataBase: new URL('https://advokit.chayn.co'),
+  openGraph: {
+    title: 'Advokit by Chayn - Image Takedown Support',
+    description: 'AI-powered letter writing tool to support takedown requests for non-consensual images',
+    images: [
+      {
+        url: '/meta_image.png',
+        width: 1200,
+        height: 630,
+        alt: 'Advokit by Chayn'
+      }
+    ],
+    locale: 'en_US',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Advokit by Chayn - Image Takedown Support',
+    description: 'AI-powered letter writing tool to support takedown requests for non-consensual images',
+    images: ['/meta_image.png'],
+  },
+  robots: {
+    index: IS_PRODUCTION,
+    follow: IS_PRODUCTION,
+  },
+  themeColor: '#F0244D',
+  viewport: 'width=device-width, initial-scale=1, maximum-scale=1',
+  verification: {
+    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION,
+  },
 };
 
 export default function RootLayout({
@@ -37,17 +65,9 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${merriweather.variable} ${openSans.variable}`}>
       <body className="font-open-sans bg-background min-h-screen flex flex-col">
-        <FormProvider>
-          <Header />
-          <main className="flex-1">
-            <div className="max-w-7xl mx-auto px-6 py-6">
-              <DisclaimerBanner />
-              {children}
-            </div>
-          </main>
-          <Footer />
-          <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID || "G-XXXXXXXXXX"} />
-        </FormProvider>
+        <Providers>
+          <ClientLayout>{children}</ClientLayout>
+        </Providers>
       </body>
     </html>
   );

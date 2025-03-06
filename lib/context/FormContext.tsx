@@ -1,7 +1,12 @@
 "use client";
 
+import { clientConfig } from '@/lib/rollbar';
 import { FollowUpQuestion } from '@/types/questions';
 import { createContext, ReactNode, useContext, useState } from 'react';
+import Rollbar from 'rollbar';
+
+// Initialize Rollbar for client-side
+const rollbar = new Rollbar(clientConfig);
 
 // Define types for our form data
 interface PlatformInfo {
@@ -43,7 +48,7 @@ interface FormState {
   initialQuestions: Partial<InitialQuestionsData>;
   reportingDetails: Partial<ReportingDetailsData>;
   followUpData: FollowUpData;
-  completeFormData: any; // Store the complete form data for API calls
+  completeFormData: any;
 }
 
 interface FormContextType {
@@ -57,7 +62,6 @@ interface FormContextType {
   resetForm: () => void;
 }
 
-// Create initial state
 const initialState: FormState = {
   platformInfo: null,
   reportingInfo: null,
@@ -70,82 +74,122 @@ const initialState: FormState = {
   completeFormData: null
 };
 
-// Create context
 const FormContext = createContext<FormContextType | undefined>(undefined);
 
-// Create provider component
 export function FormProvider({ children }: { children: ReactNode }) {
   const [formState, setFormState] = useState<FormState>(initialState);
 
   const setPlatformInfo = (info: PlatformInfo) => {
-    setFormState(prev => ({
-      ...prev,
-      platformInfo: info,
-    }));
+    try {
+      setFormState(prev => ({
+        ...prev,
+        platformInfo: info,
+      }));
+      rollbar.info('Platform info set', { platformInfo: info });
+    } catch (error) {
+      rollbar.error('Error setting platform info', { error, info });
+    }
   };
 
   const setReportingInfo = (info: ReportingInfo) => {
-    setFormState(prev => ({
-      ...prev,
-      reportingInfo: info,
-    }));
+    try {
+      setFormState(prev => ({
+        ...prev,
+        reportingInfo: info,
+      }));
+      rollbar.info('Reporting info set', { reportingInfo: info });
+    } catch (error) {
+      rollbar.error('Error setting reporting info', { error, info });
+    }
   };
 
   const setInitialQuestions = (data: Partial<InitialQuestionsData>) => {
-    setFormState(prev => ({
-      ...prev,
-      initialQuestions: {
-        ...prev.initialQuestions,
-        ...data,
-      },
-    }));
+    try {
+      setFormState(prev => ({
+        ...prev,
+        initialQuestions: {
+          ...prev.initialQuestions,
+          ...data,
+        },
+      }));
+      rollbar.info('Initial questions set', { 
+        contentType: data.contentType,
+        contentContext: data.contentContext 
+      });
+    } catch (error) {
+      rollbar.error('Error setting initial questions', { error });
+    }
   };
 
   const setReportingDetails = (data: Partial<ReportingDetailsData>) => {
-    setFormState(prev => ({
-      ...prev,
-      reportingDetails: {
-        ...prev.reportingDetails,
-        ...data,
-      },
-    }));
+    try {
+      setFormState(prev => ({
+        ...prev,
+        reportingDetails: {
+          ...prev.reportingDetails,
+          ...data,
+        },
+      }));
+      rollbar.info('Reporting details set');
+    } catch (error) {
+      rollbar.error('Error setting reporting details', { error });
+    }
   };
 
   const setFollowUpData = (questions: FollowUpQuestion[], answers: Record<string, string>) => {
-    setFormState(prev => ({
-      ...prev,
-      followUpData: {
-        questions,
-        answers
-      },
-    }));
+    try {
+      setFormState(prev => ({
+        ...prev,
+        followUpData: {
+          questions,
+          answers
+        },
+      }));
+      rollbar.info('Follow-up data set', { 
+        questionCount: questions.length,
+        answerCount: Object.keys(answers).length 
+      });
+    } catch (error) {
+      rollbar.error('Error setting follow-up data', { error });
+    }
   };
 
   const updateCompleteFormData = () => {
-    setFormState(prev => {
-      const completeData = {
-        initialQuestions: prev.initialQuestions,
-        platformInfo: {
-          name: prev.platformInfo?.isCustom 
-            ? prev.platformInfo.customName 
-            : prev.platformInfo?.platformName,
-          isCustom: prev.platformInfo?.isCustom || false
-        },
-        reportingDetails: Object.keys(prev.reportingDetails).length > 0 
-          ? prev.reportingDetails 
-          : undefined,
-        followUp: prev.followUpData.answers
-      };
-      
-      return {
-        ...prev,
-        completeFormData: completeData
-      };
-    });
+    try {
+      setFormState(prev => {
+        const completeData = {
+          initialQuestions: prev.initialQuestions,
+          platformInfo: {
+            name: prev.platformInfo?.isCustom 
+              ? prev.platformInfo.customName 
+              : prev.platformInfo?.platformName,
+            isCustom: prev.platformInfo?.isCustom || false
+          },
+          reportingDetails: Object.keys(prev.reportingDetails).length > 0 
+            ? prev.reportingDetails 
+            : undefined,
+          followUp: prev.followUpData.answers
+        };
+        
+        rollbar.info('Complete form data updated');
+        
+        return {
+          ...prev,
+          completeFormData: completeData
+        };
+      });
+    } catch (error) {
+      rollbar.error('Error updating complete form data', { error });
+    }
   };
 
   const resetForm = () => {
-    setFormState(initialState);
+    try {
+      setFormState(initialState);
+      rollbar.info('Form state reset');
+    } catch (error) {
+      rollbar.error('Error resetting form state', { error });
+    }
   };
 
   return (
@@ -166,10 +210,10 @@ export function FormProvider({ children }: { children: ReactNode }) {
   );
 }
 
-// Create hook for using the context
 export function useFormContext() {
   const context = useContext(FormContext);
   if (context === undefined) {
+    rollbar.error('useFormContext used outside of FormProvider');
     throw new Error('useFormContext must be used within a FormProvider');
   }
   return context;

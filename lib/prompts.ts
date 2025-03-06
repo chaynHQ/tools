@@ -44,6 +44,33 @@ export function generateFollowUpPrompt(request: LetterRequest) {
   const hasOwnershipEvidence = initialResponses.ownershipEvidence?.length > 30;
   const hasImpactStatement = initialResponses.impactStatement?.length > 30;
 
+  // Define sensitive terms more precisely to avoid over-filtering
+  const sensitiveTerms = [
+    // Identity documents
+    'government(-|\\s)issued id',
+    'passport\\b',
+    'driver(\'s|\\s)licen[sc]e',
+    'national id',
+    'identity card',
+    'state(-|\\s)issued',
+    'official id',
+    // Verification processes
+    'id verification',
+    'identity verification',
+    'verify your identity',
+    // Residency documents
+    'proof of residence',
+    'proof of address',
+    'utility bill',
+    // Generic ID references when specifically about documentation
+    '\\bid\\b.*(card|document|verification|upload)',
+    '(card|document|verification|upload).*\\bid\\b',
+    // Official documentation
+    'notari[sz]ed',
+    'apostille',
+    'certified document'
+  ].map(term => new RegExp(term, 'i'));
+
   return `You are an AI assistant helping to generate follow-up questions for a takedown request letter generator. The user has provided information about ${request.initialQuestions.contentType} content being shared ${platformContext} in a context of ${request.initialQuestions.contentContext}.
 
 CRITICAL: Review the information already provided before generating questions:
@@ -60,30 +87,16 @@ ${relevantPolicies ? `
 Platform-Specific Requirements:
 The platform requires the following evidence for this type of content:
 ${relevantPolicies.evidenceRequirements.map(req => {
-  // Filter out ID verification requirements
-  if (req.toLowerCase().includes('id') || 
-      req.toLowerCase().includes('identification') || 
-      req.toLowerCase().includes('passport') || 
-      req.toLowerCase().includes('license') || 
-      req.toLowerCase().includes('proof of residence') ||
-      req.toLowerCase().includes('government')) {
-    return null;
-  }
-  return `- ${req}`;
+  // Only filter out requirements that match sensitive terms
+  const isSensitive = sensitiveTerms.some(term => term.test(req));
+  return isSensitive ? null : `- ${req}`;
 }).filter(Boolean).join('\n')}
 
 Key removal criteria:
 ${relevantPolicies.removalCriteria.map(criteria => {
-  // Filter out ID verification criteria
-  if (criteria.toLowerCase().includes('id') || 
-      criteria.toLowerCase().includes('identification') || 
-      criteria.toLowerCase().includes('passport') || 
-      criteria.toLowerCase().includes('license') || 
-      criteria.toLowerCase().includes('proof of residence') ||
-      criteria.toLowerCase().includes('government')) {
-    return null;
-  }
-  return `- ${criteria}`;
+  // Only filter out criteria that match sensitive terms
+  const isSensitive = sensitiveTerms.some(term => term.test(criteria));
+  return isSensitive ? null : `- ${criteria}`;
 }).filter(Boolean).join('\n')}
 ` : ''}
 
@@ -94,10 +107,22 @@ CRITICAL RULES:
 4. Focus ONLY on gaps in the provided information
 5. Questions should build upon existing information, not duplicate it
 6. DO NOT ask for personal information like name, email, or contact details
-7. DO NOT ask for ID verification, government IDs, proof of residence, or any official documentation
+7. DO NOT ask for ANY form of official documentation or ID verification
 8. This is the ONLY opportunity to request information needed for the letter - if information is not collected here, it will not be included in the letter
 9. Focus on questions that help identify SPECIFIC policy violations and community standards breaches
 10. Prioritize questions that establish clear links between the content and platform policy violations
+11. Use a sensitive trauma-informed approach and language - avoid language like "evidence" and "proof"
+12. Return all text in British English (en_gb) NOT en_us
+
+ALLOWED TOPICS:
+- Content description (without requesting sensitive details)
+- Timeline of events
+- Impact on the person
+- Previous actions taken
+- Evidence of ownership (without requesting official documents)
+- Platform-specific details about the content
+- Context about how the content was shared
+- Specific policy violations
 
 Generate 2-4 focused follow-up questions that ONLY address missing or insufficient information.
 
@@ -164,6 +189,8 @@ CRITICAL INSTRUCTIONS:
 16. Include specific timeframes when possible
 17. Keep emotional language factual and only include if provided by the user and is relevant to the case
 18. At the end of the letter, include a generic closing like "Sincerely," followed by a new line for the user to add their name
+19. Return all text in British English (en_gb) NOT en_us
+
 
 AVAILABLE INFORMATION:
 Content Location: ${contentLocation || 'Not provided'}
