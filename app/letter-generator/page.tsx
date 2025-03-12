@@ -1,5 +1,5 @@
 "use client";
-
+import 'regenerator-runtime/runtime'; // Ensure this import goes first otherwise you will get a runtime error
 import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { useFormContext } from '@/lib/context/FormContext';
@@ -16,7 +16,6 @@ import { useRouter } from 'next/navigation';
 import { analytics } from '@/lib/analytics';
 import { generateLetter } from '@/lib/ai';
 import { GeneratedLetter } from '@/types/letter';
-import 'regenerator-runtime/runtime';
 
 type Step = 'platform-selection' | 'removal-process' | 'initial-questions' | 'reporting-details' | 'follow-up' | 'generation' | 'review';
 
