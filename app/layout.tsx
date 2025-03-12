@@ -1,9 +1,9 @@
+import 'regenerator-runtime/runtime'; // Ensure this import goes first otherwise you will get a runtime error
 import { Merriweather, Open_Sans } from 'next/font/google';
 import type { Metadata } from 'next';
 import { ClientLayout } from './client-layout';
 import { Providers } from './providers';
 import { IS_PRODUCTION } from '@/lib/constants/common';
-import 'regenerator-runtime/runtime';
 import './globals.css';
 
 const merriweather = Merriweather({
