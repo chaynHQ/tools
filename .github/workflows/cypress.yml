@@ -42,7 +42,7 @@ jobs:
         with:
           start: npm start
           wait-on: 'http://localhost:3000'
-          browser: none
+          browser: chrome
           config-file: cypress.config.ts
           config: video=false
         env:
