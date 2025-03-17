@@ -28,7 +28,9 @@
     "test": "vitest",
     "type-check": "tsc --noEmit",
     "format": "prettier --write .",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "cypress": "cypress open",
+    "cypress:headless": "cypress run --browser none --config video=false"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.18.0",
@@ -71,6 +73,7 @@
     "@types/react-speech-recognition": "^3.9.5",
     "@typescript-eslint/eslint-plugin": "^6.21.0",
     "@typescript-eslint/parser": "^6.21.0",
+    "cypress": "^13.6.6",
     "eslint-config-prettier": "^9.1.0",
     "husky": "^8.0.3",
     "lint-staged": "^15.2.2",
