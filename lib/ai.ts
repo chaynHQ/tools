@@ -1,6 +1,10 @@
+import { GeneratedLetter, LetterRequest } from '@/types/letter';
 import { FollowUpQuestion } from '@/types/questions';
-import { LetterRequest, GeneratedLetter } from '@/types/letter';
-import { parseAIJson } from './utils';
+import Rollbar from 'rollbar';
+import { clientConfig } from './rollbar';
+
+// Initialize Rollbar for client-side
+const rollbar = new Rollbar(clientConfig);
 
 const MAX_RETRIES = 3;
 const RETRY_DELAY = 1000; // 1 second
@@ -44,8 +48,15 @@ async function retryWithDelay<T>(
   try {
     return await fn();
   } catch (error) {
-    if (retries === 0) throw error;
+    if (retries === 0) {
+      rollbar.error('Retry attempts exhausted', { error, maxRetries: MAX_RETRIES });
+      throw error;
+    }
     await new Promise(resolve => setTimeout(resolve, delay));
+    rollbar.info('Retrying operation', { 
+      retriesLeft: retries - 1,
+      delay 
+    });
     return retryWithDelay(fn, retries - 1, delay);
   }
 }
@@ -60,7 +71,10 @@ export async function generateFollowUpQuestions(formData: LetterRequest): Promis
         reportingDetails: formData.reportingDetails ? { ...formData.reportingDetails } : undefined
       };
       
-      console.log('Sending data to follow-up questions API:', JSON.stringify(cleanFormData));
+      rollbar.info('Generating follow-up questions', { 
+        platform: cleanFormData.platformInfo.name,
+        hasReportingDetails: !!cleanFormData.reportingDetails
+      });
       
       const response = await fetch('/api/follow-up-questions', {
         method: 'POST',
@@ -72,23 +86,25 @@ export async function generateFollowUpQuestions(formData: LetterRequest): Promis
 
       if (!response.ok) {
         const errorData = await response.json();
-        console.error('API error response:', errorData);
+        rollbar.error('API error response for follow-up questions', { 
+          status: response.status,
+          errorData 
+        });
         throw new Error(errorData.error || 'Failed to generate follow-up questions');
       }
 
       const questions = await response.json();
-      console.log('Received follow-up questions from API:', questions);
       
       // Validate response structure
       if (!Array.isArray(questions)) {
-        console.error('Invalid response format - not an array:', questions);
+        rollbar.error('Invalid response format from AI service', { questions });
         throw new Error('Invalid response format from AI service');
       }
 
       // Filter out questions that match sensitive terms
       const filteredQuestions = questions.filter(q => {
         if (!q || !q.question) {
-          console.warn('Invalid question object in response:', q);
+          rollbar.warning('Invalid question object in response', { question: q });
           return false;
         }
         
@@ -96,9 +112,14 @@ export async function generateFollowUpQuestions(formData: LetterRequest): Promis
         return !SENSITIVE_TERMS.some(term => term.test(combinedText));
       });
 
+      rollbar.info('Follow-up questions generated successfully', {
+        originalCount: questions.length,
+        filteredCount: filteredQuestions.length
+      });
+
       return filteredQuestions;
     } catch (error) {
-      console.error('Error in generateFollowUpQuestions:', error);
+      rollbar.error('Error generating follow-up questions', { error });
       throw error instanceof Error ? error : new Error('An unexpected error occurred');
     }
   });
@@ -115,6 +136,13 @@ function containsIdVerificationOrPlaceholders(letter: GeneratedLetter): boolean 
   const hasPlaceholders = 
     placeholderRegex.test(letter.subject) || 
     placeholderRegex.test(letter.body);
+  
+  if (hasSensitiveTerms || hasPlaceholders) {
+    rollbar.warning('Letter contains sensitive terms or placeholders', {
+      hasSensitiveTerms,
+      hasPlaceholders
+    });
+  }
   
   return hasSensitiveTerms || hasPlaceholders;
 }
@@ -138,8 +166,18 @@ function containsHallucinationPatterns(letter: GeneratedLetter): boolean {
   
   const combinedRegex = new RegExp(hallucinationPatterns.join('|'), 'gi');
   
-  return combinedRegex.test(letter.subject) || 
-         combinedRegex.test(letter.body);
+  const hasHallucinations = combinedRegex.test(letter.subject) || 
+                           combinedRegex.test(letter.body);
+                           
+  if (hasHallucinations) {
+    rollbar.warning('Letter contains hallucination patterns', {
+      patterns: hallucinationPatterns.filter(pattern => 
+        letter.subject.includes(pattern) || letter.body.includes(pattern)
+      )
+    });
+  }
+  
+  return hasHallucinations;
 }
 
 export async function generateLetter(formData: LetterRequest): Promise<GeneratedLetter> {
@@ -158,7 +196,12 @@ export async function generateLetter(formData: LetterRequest): Promise<Generated
         followUp: formData.followUp ? { ...formData.followUp } : undefined
       };
       
-      console.log('Sending data to generate-letter API:', JSON.stringify(cleanFormData));
+      rollbar.info('Generating letter', {
+        attempt: attempts,
+        platform: cleanFormData.platformInfo.name,
+        hasReportingDetails: !!cleanFormData.reportingDetails,
+        hasFollowUp: !!cleanFormData.followUp
+      });
       
       const response = await fetch('/api/generate-letter', {
         method: 'POST',
@@ -170,6 +213,10 @@ export async function generateLetter(formData: LetterRequest): Promise<Generated
 
       if (!response.ok) {
         const error = await response.json();
+        rollbar.error('API error response for letter generation', {
+          status: response.status,
+          error
+        });
         throw new Error(error.message || 'Failed to generate letter');
       }
 
@@ -177,11 +224,11 @@ export async function generateLetter(formData: LetterRequest): Promise<Generated
       
       // Check if letter contains ID verification requests, placeholders, or hallucination patterns
       if (containsIdVerificationOrPlaceholders(letter) || containsHallucinationPatterns(letter)) {
-        console.log(`Letter contains issues (attempt ${attempts}/${maxAttempts}). Regenerating...`);
+        rollbar.info(`Letter contains issues (attempt ${attempts}/${maxAttempts}). Regenerating...`);
         
         // If this is the last attempt, do a basic cleanup instead of rejecting
         if (attempts === maxAttempts) {
-          console.log("Maximum attempts reached. Performing basic cleanup instead.");
+          rollbar.warning("Maximum attempts reached. Performing basic cleanup.");
           
           // Perform basic cleanup as a fallback
           if (letter.body) {
@@ -210,6 +257,10 @@ export async function generateLetter(formData: LetterRequest): Promise<Generated
           // Always use static next steps
           letter.nextSteps = STATIC_NEXT_STEPS;
           
+          rollbar.info('Letter cleanup completed', {
+            letterLength: letter.body.length
+          });
+          
           return letter;
         }
         
@@ -221,14 +272,23 @@ export async function generateLetter(formData: LetterRequest): Promise<Generated
       // Always use static next steps regardless of what the AI generated
       letter.nextSteps = STATIC_NEXT_STEPS;
       
+      rollbar.info('Letter generated successfully', {
+        attempt: attempts,
+        letterLength: letter.body.length
+      });
+      
       return letter;
       
     } catch (error) {
-      console.error('Error in generateLetter:', error);
+      rollbar.error('Error generating letter', {
+        error,
+        attempt: attempts
+      });
       throw error instanceof Error ? error : new Error('An unexpected error occurred');
     }
   }
   
+  rollbar.error('Failed to generate letter after maximum attempts');
   throw new Error('Failed to generate a letter without issues after multiple attempts');
 }
 
