@@ -1,7 +1,6 @@
 "use client";
 
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from '@/hooks/use-toast';
@@ -16,7 +15,6 @@ import Rollbar from 'rollbar';
 import { QuestionSection } from './question-section';
 import { SelectableCard } from './selectable-card';
 import { VoiceInput } from './voice-input';
-
 
 // Initialize Rollbar for client-side
 const rollbar = new Rollbar(clientConfig);
@@ -167,7 +165,8 @@ export function InitialQuestions({ onComplete }: InitialQuestionsProps) {
     }
   };
 
-  const inputClasses = "bg-white focus:ring-accent focus:border-accent w-full";
+  const inputClasses = "bg-white focus:ring-accent focus:border-accent w-full min-h-[80px] text-base px-4 py-3";
+  const textareaClasses = "bg-white focus:ring-accent focus:border-accent w-full min-h-[120px] text-base";
 
   return (
     <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-12">
@@ -262,7 +261,7 @@ export function InitialQuestions({ onComplete }: InitialQuestionsProps) {
                   id="imageIdentification"
                   {...register('imageIdentification', { required: true })}
                   placeholder="For example: 'The content appears at [URL] posted on [date]'"
-                  className={inputClasses}
+                  className={textareaClasses}
                   rows={4}
                   dir="auto"
                   lang={navigator.language}
@@ -280,7 +279,7 @@ export function InitialQuestions({ onComplete }: InitialQuestionsProps) {
       </QuestionSection>
 
       <QuestionSection title="Timeline">
-        <div className="grid grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-2">
             <Label htmlFor="imageUploadDate" className="text-lg font-medium">
               When was the content uploaded?
@@ -296,12 +295,12 @@ export function InitialQuestions({ onComplete }: InitialQuestionsProps) {
                 />
               )}
               <div className="flex-1">
-                <Input
+                <Textarea
                   id="imageUploadDate"
-                  type="text"
                   {...register('imageUploadDate')}
                   placeholder="For example: 'Two weeks ago' or '15 January 2024'"
-                  className={inputClasses}
+                  className={textareaClasses}
+                  rows={2}
                   dir="auto"
                   lang={navigator.language}
                   spellCheck="false"
@@ -325,12 +324,12 @@ export function InitialQuestions({ onComplete }: InitialQuestionsProps) {
                 />
               )}
               <div className="flex-1">
-                <Input
+                <Textarea
                   id="imageTakenDate"
-                  type="text"
                   {...register('imageTakenDate')}
                   placeholder="For example: 'June 2023' or 'Around summer last year'"
-                  className={inputClasses}
+                  className={textareaClasses}
+                  rows={2}
                   dir="auto"
                   lang={navigator.language}
                   spellCheck="false"
@@ -362,7 +361,7 @@ export function InitialQuestions({ onComplete }: InitialQuestionsProps) {
                 id="ownershipEvidence"
                 {...register('ownershipEvidence')}
                 placeholder="For example: 'I can be identified by specific features' or 'I have the original files'"
-                className={inputClasses}
+                className={textareaClasses}
                 rows={4}
                 dir="auto"
                 lang={navigator.language}
@@ -394,7 +393,7 @@ export function InitialQuestions({ onComplete }: InitialQuestionsProps) {
                 id="impactStatement"
                 {...register('impactStatement')}
                 placeholder="For example: 'This has affected my personal and professional life by...'"
-                className={inputClasses}
+                className={textareaClasses}
                 rows={4}
                 dir="auto"
                 lang={navigator.language}
