@@ -17,12 +17,12 @@ export default function Home() {
     <>
       <div className="bg-neutral rounded-2xl p-4 sm:p-8 md:p-12 md:pb-0">
         <div className="flex flex-col md:flex-row items-center gap-8 md:gap-12">
-          <div className="flex-1">
+          <div className="flex-1 max-w-2xl">
             <h1 className="text-3xl sm:text-4xl md:text-4xl mb-5">Welcome to Advokit</h1>
-            <p className="text-lg mb-4 max-w-2xl text-muted-foreground">
+            <p className="text-lg mb-4 text-muted-foreground">
               Discovering your content shared without consent can feel overwhelming. We're here to guide you through creating an effective image takedown request letter.
             </p>
-            <p className="text-lg mb-8 max-w-2xl text-muted-foreground">
+            <p className="text-lg mb-8 text-muted-foreground">
               You're not alone in this journey. Advokit helps you take back control with clear, actionable steps.
             </p>
             <Link 
@@ -32,7 +32,7 @@ export default function Home() {
               Start your request
             </Link>
           </div>
-          <div className="flex-shrink-0 w-full md:w-[400px]">
+          <div className="flex-shrink-0 w-[80%] sm:w-[60%] md:w-[300px] lg:w-[400px] mx-auto md:mx-0">
             <Image
               src="/header_image.png"
               alt="Illustration of a person using a digital device"
