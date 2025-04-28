@@ -23,18 +23,18 @@ const openSans = Open_Sans({
 });
 
 export const metadata: Metadata = {
-  title: 'Advokit by Chayn - Image Takedown Support',
-  description: 'AI-powered letter writing tool to support takedown requests for non-consensual images',
-  metadataBase: new URL('https://advokit.chayn.co'),
+  title: 'Survivor AI | Free AI-Powered Image Takedown Tool by Chayn',
+  description: 'Get free, confidential help removing non-consensual images online. Our AI-powered tool creates personalized takedown requests for major platforms, with step-by-step guidance and trauma-informed support.',
+  metadataBase: new URL('https://survivorai.chayn.co'),
   openGraph: {
-    title: 'Advokit by Chayn - Image Takedown Support',
-    description: 'AI-powered letter writing tool to support takedown requests for non-consensual images',
+    title: 'Survivor AI | Free AI-Powered Image Takedown Tool by Chayn',
+    description: 'Get free, confidential help removing non-consensual images online. Our AI-powered tool creates personalized takedown requests for major platforms, with step-by-step guidance and trauma-informed support.',
     images: [
       {
         url: '/meta_image.png',
         width: 1200,
         height: 630,
-        alt: 'Advokit by Chayn'
+        alt: 'Survivor AI by Chayn'
       }
     ],
     locale: 'en_US',
@@ -42,8 +42,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Advokit by Chayn - Image Takedown Support',
-    description: 'AI-powered letter writing tool to support takedown requests for non-consensual images',
+    title: 'Survivor AI | Free AI-Powered Image Takedown Tool by Chayn',
+    description: 'Get free, confidential help removing non-consensual images online. Our AI-powered tool creates personalized takedown requests for major platforms, with step-by-step guidance and trauma-informed support.',
     images: ['/meta_image.png'],
   },
   robots: {

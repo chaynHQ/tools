@@ -16,7 +16,7 @@ export function Header() {
             className="w-6 h-6 sm:w-8 sm:h-8"
           />
           <div className="flex flex-col">
-            <span className="font-merriweather text-xl sm:text-2xl">Advokit</span>
+            <span className="font-merriweather text-xl sm:text-2xl">Survivor AI</span>
             <span className="text-xs text-muted-foreground">by Chayn</span>
           </div>
         </Link>

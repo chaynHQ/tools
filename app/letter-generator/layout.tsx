@@ -1,7 +1,7 @@
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Letter Generator - Advokit by Chayn',
+  title: 'Letter Generator - Survivor AI by Chayn',
   description: 'Create a personalised takedown request letter',
 };
 

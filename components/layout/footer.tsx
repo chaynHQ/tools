@@ -1,6 +1,6 @@
+import { Facebook, Github, Instagram, Linkedin, Twitter, Youtube } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Facebook, Instagram, Twitter, Youtube, Linkedin, Github } from 'lucide-react';
 
 export function Footer() {
   return (
@@ -25,9 +25,9 @@ export function Footer() {
             </p>
           </div>
           <div>
-            <h3 className="font-merriweather text-lg mb-4">About Advokit</h3>
+            <h3 className="font-merriweather text-lg mb-4">About Chayn's Survivor AI</h3>
             <p className="text-muted-foreground max-w-md text-sm md:text-[15px]">
-              Advokit was created by Chayn to empower those affected by image-based abuse. We provide 
+              Our Survivor AI was created by Chayn to empower those affected by image-based abuse. We provide 
               compassionate guidance through the takedown request process, using AI to help you create 
               effective letters tailored to your specific situation.
             </p>

@@ -1,11 +1,11 @@
 {
-  "name": "advokit",
+  "name": "tools",
   "version": "0.1.0",
   "private": false,
   "description": "AI-powered tool helping survivors request the removal of non-consensual images",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/chaynHQ/advokit.git"
+    "url": "git+https://github.com/chaynHQ/tools.git"
   },
   "keywords": [
     "image-takedown",
@@ -17,9 +17,9 @@
   "author": "Chayn CIO",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/chaynHQ/advokit/issues"
+    "url": "https://github.com/chaynHQ/tools/issues"
   },
-  "homepage": "https://github.com/chaynHQ/advokit#readme",
+  "homepage": "https://github.com/chaynHQ/tools#readme",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -30,11 +30,12 @@
     "format": "prettier --write .",
     "prepare": "husky install",
     "cypress": "cypress open",
-    "cypress:headless": "cypress run --browser none --config video=false"
+    "cypress:headless": "cypress run --browser electron --config video=false"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.18.0",
     "@babel/runtime": "^7.24.0",
+    "@google/genai": "^0.10.0",
     "@next/swc-wasm-nodejs": "13.5.1",
     "@next/third-parties": "^15.1.6",
     "@radix-ui/react-alert-dialog": "^1.1.1",
@@ -45,6 +46,7 @@
     "@radix-ui/react-slot": "^1.1.0",
     "@radix-ui/react-toast": "^1.2.1",
     "@rollbar/react": "^0.11.2",
+    "@slack/webhook": "^7.0.2",
     "@types/node": "20.6.2",
     "@types/react": "18.2.22",
     "@types/react-dom": "18.2.7",
