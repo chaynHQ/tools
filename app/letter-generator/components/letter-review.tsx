@@ -15,14 +15,14 @@ import { useToast } from '@/hooks/use-toast';
 import { analytics } from '@/lib/analytics';
 import { useFormContext } from '@/lib/context/FormContext';
 import { platforms } from '@/lib/platforms';
+import { clientConfig } from '@/lib/rollbar';
 import { GeneratedLetter } from '@/types/letter';
 import { motion } from 'framer-motion';
 import { AlertCircle, ArrowRight, CheckCircle2, Copy, MessageSquare, RefreshCw } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
-import { QuestionSection } from './question-section';
-import { clientConfig } from '@/lib/rollbar';
 import Rollbar from 'rollbar';
+import { QuestionSection } from './question-section';
 
 // Initialize Rollbar for client-side
 const rollbar = new Rollbar(clientConfig);
@@ -217,7 +217,15 @@ export function LetterReview({
 
       <QuestionSection title="For more support">
         <p className="text-muted-foreground">
-          When intimate images are shared without our consent—what we often call image-based abuse—it can impact our wellbeing and sense of self. Chayn offers a free, online course about recovering from image-based abuse on our healing platform Bloom. It explores the emotional impacts and tools for rebuilding ourselves.
+          When intimate images are shared without our consent—what we often call image-based abuse—it can impact our wellbeing and sense of self. Chayn offers a{' '}
+          <Link 
+            href="https://bloom.chayn.co/courses/image-based-abuse-and-rebuilding-ourselves?utm_source=tools.chayn.co&utm_medium=referrall&utm_campaign=tools.chayn.co-iba-referral"
+            target="_blank"
+            className="underline underline-offset-2 hover:text-primary/90"
+          >
+            free, online course about recovering from image-based abuse on our healing platform Bloom
+          </Link>
+          . It explores the emotional impacts and tools for rebuilding ourselves.
         </p>
       </QuestionSection>
 
@@ -226,7 +234,7 @@ export function LetterReview({
           <MessageSquare className="h-5 w-5 text-accent" />
         </div>
         <div>
-          <p className="text-foreground font-medium mb-1">Help us improve Advokit</p>
+          <p className="text-foreground font-medium mb-1">Help us improve our Survivor AI</p>
           <p className="text-muted-foreground text-sm">
             This tool is new and learning! By sharing your experience, you help us make this tool more supportive for others in similar situations.{' '}
             <Link 
