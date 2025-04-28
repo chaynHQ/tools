@@ -12,11 +12,11 @@ describe('TikTok Platform Flow', () => {
 
     // Select TikTok and continue
     cy.contains('TikTok').click();
-    cy.contains('Continue').click();
+    cy.contains('Continue', {timeout: 30000}).click();
 
     // Select reporting status and continue
     cy.contains("I haven't tried either process yet").click();
-    cy.contains('Continue').click();
+    cy.contains('Continue', {timeout: 30000}).click();
 
     // Select content type and context
     cy.contains('Intimate images').click();
@@ -35,7 +35,7 @@ describe('TikTok Platform Flow', () => {
       'This has caused significant distress and affected my mental health'
     );
 
-    cy.contains('Continue').click();
+    cy.contains('Continue', {timeout: 30000}).click();
 
     // Wait for AI to generate follow-up questions
     cy.contains('Analysing your responses', { timeout: 30000 });

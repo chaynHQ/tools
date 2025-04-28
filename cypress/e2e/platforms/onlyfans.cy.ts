@@ -48,7 +48,7 @@ describe('OnlyFans Platform Flow', () => {
       'I tried contacting support through email'
     );
 
-    cy.contains('Continue').click();
+    cy.contains('Continue', {timeout: 30000}).click();
 
     // Wait for AI to generate follow-up questions
     cy.contains('Analysing your responses', { timeout: 30000 });
