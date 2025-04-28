@@ -35,7 +35,7 @@ describe('Facebook Platform Flow', () => {
       'This has affected my personal and professional relationships significantly.'
     );
 
-    cy.contains('Continue').click();
+    cy.contains('Continue', {timeout: 30000}).click();
 
     // Fill in reporting process details
     cy.get('#standardProcessDetails').type(

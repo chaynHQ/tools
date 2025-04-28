@@ -16,7 +16,7 @@ describe('Pornhub Platform Flow', () => {
 
     // Select reporting status and continue
     cy.contains("I've tried the escalated reporting process").click();
-    cy.contains('Continue').click();
+    cy.contains('Continue', {timeout: 30000}).click();
 
     // Select content type and context
     cy.contains('Intimate images').click();
@@ -35,7 +35,7 @@ describe('Pornhub Platform Flow', () => {
       'This has caused severe emotional distress and affected my work life'
     );
 
-    cy.contains('Continue').click();
+    cy.contains('Continue', {timeout: 30000}).click();
 
     // Fill in reporting process details
     cy.get('#escalatedProcessDetails').type(
@@ -48,7 +48,7 @@ describe('Pornhub Platform Flow', () => {
       'I followed up through their support system multiple times'
     );
 
-    cy.contains('Continue').click();
+    cy.contains('Continue', {timeout: 30000}).click();
 
     // Wait for AI to generate follow-up questions
     cy.contains('Analysing your responses', { timeout: 30000 });
