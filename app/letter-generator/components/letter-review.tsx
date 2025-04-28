@@ -219,7 +219,7 @@ export function LetterReview({
         <p className="text-muted-foreground">
           When intimate images are shared without our consent—what we often call image-based abuse—it can impact our wellbeing and sense of self. Chayn offers a{' '}
           <Link 
-            href="https://bloom.chayn.co/courses/image-based-abuse-and-rebuilding-ourselves?utm_source=tools.chayn.co&utm_medium=referrall&utm_campaign=tools.chayn.co-iba-referral"
+            href="https://bloom.chayn.co/courses/image-based-abuse-and-rebuilding-ourselves?utm_source=tools.chayn.co&utm_medium=referral&utm_campaign=tools.chayn.co-iba-referral"
             target="_blank"
             className="underline underline-offset-2 hover:text-primary/90"
           >
