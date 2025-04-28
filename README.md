@@ -1,12 +1,12 @@
-# Welcome to Advokit
+# Welcome to Tools by Chayn
 
-[Advokit](https://advokit.chayn.co) is a free, secure, and AI-powered tool by [Chayn](https://www.chayn.co/about) that helps survivors request the removal of non-consensual images from online platforms. Since 2013, Chayn has reached over 500,000 survivors worldwide with our trauma-informed, survivor-centred, and intersectional approaches in utilizing open-source tech for positive social impact. Advokit is our latest initiative — providing AI-assisted letter generation, platform-specific guidance, and step-by-step support for content takedown requests.
+[Tools by Chayn](https://tools.chayn.co) is a free, secure platform by [Chayn](https://www.chayn.co/about) that helps survivors request the removal of non-consensual images from online platforms. Since 2013, Chayn has reached over 500,000 survivors worldwide with our trauma-informed, survivor-centred, and intersectional approaches in utilizing open-source tech for positive social impact. Our Survivor AI is our latest initiative — providing AI-assisted letter generation, platform-specific guidance, and step-by-step support for content takedown requests.
 
 Explore Chayn's [website](https://www.chayn.co/about), [research](https://org.chayn.co/research), [resources](https://www.chayn.co/resources), [projects](https://org.chayn.co/projects), [impact](https://org.chayn.co/impact), and [support services directory](https://www.chayn.co/global-directory). 💖
 
 ## Key Features
 
-Advokit offers several key features designed to support individuals requesting content removal:
+Our Survivor AI offers several key features designed to support individuals requesting content removal:
 
 - **Free and Private:** No data storage, completely anonymous usage
 - **AI-Powered Assistance:** Intelligent letter generation tailored to specific platforms
@@ -42,8 +42,8 @@ Technologies Used:
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/chaynHQ/advokit.git
-cd advokit
+git clone https://github.com/chaynHQ/tools.git
+cd tools
 ```
 
 2. Install dependencies:
@@ -60,7 +60,7 @@ cp .env.example .env.local
 - `ANTHROPIC_API_KEY`: Your Anthropic API key for Claude
 - `NEXT_PUBLIC_GA_ID`: Google Analytics ID (optional)
 - `NEXT_PUBLIC_ROLLBAR_CLIENT_TOKEN`: Rollbar client token (optional)
-- `NEXT_PUBLIC_ENV`: Environment ('development', 'preview' or 'production')
+- `NEXT_PUBLIC_ENV`: Environment ('development' or 'production')
 
 5. Start the development server:
 ```bash
@@ -87,4 +87,4 @@ Support our mission further by [sponsoring us on GitHub](https://github.com/spon
 
 This project uses the [MIT License](/LICENSE). While the core tech stack included here is open-source, some external integrations used in this project require subscriptions.
 
-Advokit and all of Chayn's projects are open-source.
+All of Chayn's projects are open-source. 
