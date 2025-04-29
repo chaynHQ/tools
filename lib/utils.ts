@@ -39,25 +39,27 @@ export function parseAIJson(input: string) {
 
     // Clean up common issues
     const cleanedInput = jsonString
-      // Escape quotes within strings
-      .replace(/:\s*"(.*?)"/gs, (match, p1) => {
-        return `: "${p1.replace(/\n/g, '\\n').replace(/\r/g, '\\r').replace(/"/g, '\\"')}"`; 
+      // Fix escaped quotes within strings
+      .replace(/:\s*"([^"\\]*(\\.[^"\\]*)*)"/g, (match) => {
+        return match.replace(/\\"/g, '"').replace(/"/g, '\\"');
       })
       // Remove any trailing commas before closing brackets
       .replace(/,(\s*[}\]])/g, '$1')
       // Ensure property names are quoted
-      .replace(/([{,]\s*)(\w+)(\s*:)/g, '$1"$2"$3');
+      .replace(/([{,]\s*)(\w+)(\s*:)/g, '$1"$2"$3')
+      // Fix newlines in strings
+      .replace(/\n/g, '\\n');
 
     // Try to parse the cleaned JSON
     try {
       return JSON.parse(cleanedInput);
     } catch (e) {
       console.error('Failed to parse cleaned JSON:', cleanedInput);
-      throw e;
+      throw new Error('Failed to parse AI response - the response format was invalid');
     }
   } catch (error) {
     console.error("Error parsing or cleaning JSON:", error);
     console.error("Original input:", input);
-    throw new Error('Failed to parse response as JSON');
+    throw error instanceof Error ? error : new Error('Failed to parse response as JSON');
   }
 }

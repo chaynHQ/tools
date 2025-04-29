@@ -26,7 +26,7 @@ export async function POST(request: Request) {
         { status: 400 }
       );
     }
-
+    
     const response = await anthropic.messages.create({
       model: 'claude-3-sonnet-20240229',
       max_tokens: 4000,
@@ -45,14 +45,28 @@ export async function POST(request: Request) {
     try {
       letter = parseAIJson(response.content[0].text);
       if (!letter.subject || !letter.body) {
-        throw new Error('Invalid letter format in response');
+        throw new Error('Generated letter is missing required fields');
       }
       
       return NextResponse.json(letter);
-    } catch (e) {
+    } catch (e: any) {
       console.error('JSON parsing error:', e);
       console.error('Raw response:', response.content[0].text);
-      throw new Error('Failed to parse Anthropic response as JSON');
+      
+      // Provide more specific error messages based on the error type
+      let errorMessage = 'Failed to generate letter';
+      if (e instanceof SyntaxError) {
+        errorMessage = 'The AI generated an invalid response. Please try again.';
+      } else if (e.message.includes('missing required fields')) {
+        errorMessage = 'The generated letter was incomplete. Please try again.';
+      } else if (e.message.includes('No valid JSON')) {
+        errorMessage = 'The AI response was in an incorrect format. Please try again.';
+      }
+      
+      return NextResponse.json({ 
+        error: errorMessage,
+        details: e.message
+      }, { status: 500 });
     }
 
   } catch (error: any) {
@@ -61,6 +75,9 @@ export async function POST(request: Request) {
       errorType: error.name,
     });
 
-    return NextResponse.json({ error: errorMessage }, { status });
+    return NextResponse.json({ 
+      error: errorMessage,
+      details: error instanceof Error ? error.message : 'Unknown error occurred'
+    }, { status });
   }
 }

@@ -11,6 +11,8 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { analytics } from '@/lib/analytics';
 import { useFormContext } from '@/lib/context/FormContext';
@@ -18,7 +20,7 @@ import { platforms } from '@/lib/platforms';
 import { clientConfig } from '@/lib/rollbar';
 import { GeneratedLetter } from '@/types/letter';
 import { motion } from 'framer-motion';
-import { AlertCircle, ArrowRight, CheckCircle2, Copy, MessageSquare, RefreshCw } from 'lucide-react';
+import { AlertCircle, ArrowRight, CheckCircle2, Copy, MessageSquare, RefreshCw, ThumbsDown, ThumbsUp } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
 import Rollbar from 'rollbar';
@@ -42,6 +44,10 @@ export function LetterReview({
 }: LetterReviewProps) {
   const [showCompleteDialog, setShowCompleteDialog] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [feedbackSubmitted, setFeedbackSubmitted] = useState(false);
+  const [feedbackError, setFeedbackError] = useState<string | null>(null);
+  const [consentToShare, setConsentToShare] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
   const { resetForm } = useFormContext();
 
@@ -99,6 +105,58 @@ export function LetterReview({
     }
   };
 
+  const submitFeedback = async (isUseful: boolean) => {
+    try {
+      setIsSubmitting(true);
+      setFeedbackError(null);
+
+      if (!process.env.NEXT_PUBLIC_ZAPIER_WEBHOOK_URL) {
+        throw new Error('Unable to submit feedback at this time');
+      }
+
+      const payload = {
+        date: new Date().toISOString(),
+        feedbackRating: isUseful ? 'positive' : 'negative',
+        ...(consentToShare && {
+          redactedLetter: {
+            subject: letter.subject.replace(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g, '[EMAIL]')
+              .replace(/\b(?:\d{1,3}\.){3}\d{1,3}\b/g, '[IP]')
+              .replace(/\b\d{10,}\b/g, '[NUMBER]'),
+            body: letter.body.replace(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g, '[EMAIL]')
+              .replace(/\b(?:\d{1,3}\.){3}\d{1,3}\b/g, '[IP]')
+              .replace(/\b\d{10,}\b/g, '[NUMBER]')
+          }
+        })
+      };
+
+      const response = await fetch('/api/feedback', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to submit feedback');
+      }
+
+      setFeedbackSubmitted(true);
+      analytics.trackEvent('letter_feedback_submitted', {
+        rating: isUseful ? 'positive' : 'negative',
+        letterShared: consentToShare
+      });
+    } catch (error) {
+      rollbar.error('Error submitting feedback', {
+        error,
+        component: 'LetterReview'
+      });
+      setFeedbackError('Unable to submit feedback. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <div className="space-y-8">
       <QuestionSection title="Your personalised letter">
@@ -142,6 +200,91 @@ export function LetterReview({
           </div>
 
           <div className="flex flex-col gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="p-6 bg-white rounded-lg border border-border/50">
+                <div className="flex flex-col gap-4">
+                  {!feedbackSubmitted ? (
+                    <>
+                      <div>
+                        <h4 className="text-base mb-1">Is this useful?</h4>
+                        <p className="text-sm text-muted-foreground">
+                          Did this tool produce a letter that you think could be useful for your case?
+                        </p>
+                      </div>
+                      <div className="flex items-start space-x-2">
+                        <Checkbox
+                          id="consent"
+                          checked={consentToShare}
+                          onCheckedChange={(checked) => setConsentToShare(checked as boolean)}
+                          disabled={isSubmitting}
+                        />
+                        <Label
+                          htmlFor="consent"
+                          className="text-sm text-muted-foreground leading-normal"
+                        >
+                          I consent to sharing this letter with Chayn to help improve our Survivor AI
+                        </Label>
+                      </div>
+                      <div className="flex gap-4">
+                        <Button
+                          variant="outline"
+                          className="flex-1 bg-white hover:bg-accent-light/20"
+                          onClick={() => submitFeedback(true)}
+                          disabled={isSubmitting || !!feedbackError}
+                        >
+                          <ThumbsUp className="w-4 h-4 mr-2" />
+                          Yes
+                        </Button>
+                        <Button
+                          variant="outline"
+                          className="flex-1 bg-white hover:bg-accent-light/20"
+                          onClick={() => submitFeedback(false)}
+                          disabled={isSubmitting || !!feedbackError}
+                        >
+                          <ThumbsDown className="w-4 h-4 mr-2" />
+                          No
+                        </Button>
+                      </div>
+                      {feedbackError && (
+                        <div className="flex items-start gap-2 text-destructive">
+                          <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                          <p className="text-sm">{feedbackError}</p>
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <div className="flex flex-col gap-2">
+                      <h4 className="text-base font-medium">Your feedback has been submitted</h4>
+                      <p className="text-sm text-muted-foreground">
+                        Thank you for your feedback. This tool is new and learning! By sharing your experience, you help us make this tool more supportive for others in similar situations.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="p-6 bg-white rounded-lg border border-border/50">
+                <div className="flex flex-col gap-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1">
+                      <h4 className="text-base mb-1">Not quite right?</h4>
+                      <p className="text-sm text-muted-foreground">
+                        Sometimes our AI doesn't get it quite right. You can try regenerating a different letter using the same information to see if you prefer it.
+                      </p>
+                    </div>
+                    <Button
+                      variant="outline"
+                      className="pill bg-white ml-6 min-w-[120px] hover:bg-accent-light/20"
+                      onClick={onRegenerateRequest}
+                    >
+                      <RefreshCw className="w-4 h-4 mr-2" />
+                      Regenerate
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <div className="p-6 bg-accent-light rounded-lg">
               <div className="flex flex-col gap-4">
                 <div className="flex items-center justify-between">
@@ -166,27 +309,6 @@ export function LetterReview({
                         Copy letter
                       </>
                     )}
-                  </Button>
-                </div>
-              </div>
-            </div>
-
-            <div className="p-6 bg-white rounded-lg border border-border/50">
-              <div className="flex flex-col gap-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex-1">
-                    <h4 className="text-base mb-1">Not quite right?</h4>
-                    <p className="text-sm text-muted-foreground">
-                      Sometimes our AI doesn't get it quite right. You can try regenerating a different letter using the same information to see if you prefer it.
-                    </p>
-                  </div>
-                  <Button
-                    variant="outline"
-                    className="pill bg-white ml-6 min-w-[120px]"
-                    onClick={onRegenerateRequest}
-                  >
-                    <RefreshCw className="w-4 h-4 mr-2" />
-                    Regenerate
                   </Button>
                 </div>
               </div>
