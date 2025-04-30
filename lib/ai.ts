@@ -128,23 +128,23 @@ export async function generateFollowUpQuestions(formData: LetterRequest): Promis
 // Check if letter contains ID verification requests or placeholders
 function containsIdVerificationOrPlaceholders(letter: GeneratedLetter): boolean {
   const placeholderRegex = /\[([^\]]+)\]/g;
+  const matches = letter.subject.match(placeholderRegex) || letter.body.match(placeholderRegex) || [];
+  
+  // Allow [Content Location] placeholder but flag any others
+  const hasUnwantedPlaceholders = matches.some(match => match !== '[Content Location]');
   
   // Check for sensitive terms in subject and body
   const combinedText = `${letter.subject} ${letter.body}`;
   const hasSensitiveTerms = SENSITIVE_TERMS.some(term => term.test(combinedText));
   
-  const hasPlaceholders = 
-    placeholderRegex.test(letter.subject) || 
-    placeholderRegex.test(letter.body);
-  
-  if (hasSensitiveTerms || hasPlaceholders) {
-    rollbar.warning('Letter contains sensitive terms or placeholders', {
+  if (hasSensitiveTerms || hasUnwantedPlaceholders) {
+    rollbar.warning('Letter contains sensitive terms or unwanted placeholders', {
       hasSensitiveTerms,
-      hasPlaceholders
+      hasUnwantedPlaceholders
     });
   }
   
-  return hasSensitiveTerms || hasPlaceholders;
+  return hasSensitiveTerms || hasUnwantedPlaceholders;
 }
 
 // Check for hallucination patterns in the letter
@@ -180,7 +180,12 @@ function containsHallucinationPatterns(letter: GeneratedLetter): boolean {
   return hasHallucinations;
 }
 
-export async function generateLetter(formData: LetterRequest): Promise<GeneratedLetter> {
+interface GeneratedLetterResponse {
+  originalLetter: GeneratedLetter;
+  finalLetter: GeneratedLetter;
+}
+
+export async function generateLetter(formData: LetterRequest): Promise<GeneratedLetterResponse> {
   let attempts = 0;
   const maxAttempts = 3;
   
@@ -220,10 +225,24 @@ export async function generateLetter(formData: LetterRequest): Promise<Generated
         throw new Error(error.message || 'Failed to generate letter');
       }
 
-      const letter = await response.json();
+      let letter = await response.json();
       
-      // Check if letter contains ID verification requests, placeholders, or hallucination patterns
-      if (containsIdVerificationOrPlaceholders(letter) || containsHallucinationPatterns(letter)) {
+      // Store the original letter before any modifications
+      const originalLetter = { ...letter };
+      
+      // Create final letter with content location replaced
+      const finalLetter = { ...letter };
+      
+      // Replace [Content Location] placeholder with actual content location
+      if (formData.initialQuestions.contentUrl || formData.initialQuestions.contentDescription) {
+        finalLetter.body = finalLetter.body.replace(
+          /\[Content Location\]/g, 
+          formData.initialQuestions.contentUrl || formData.initialQuestions.contentDescription
+        );
+      }
+      
+      // Check if letter contains ID verification requests, unwanted placeholders, or hallucination patterns
+      if (containsIdVerificationOrPlaceholders(originalLetter) || containsHallucinationPatterns(originalLetter)) {
         rollbar.info(`Letter contains issues (attempt ${attempts}/${maxAttempts}). Regenerating...`);
         
         // If this is the last attempt, do a basic cleanup instead of rejecting
@@ -231,37 +250,45 @@ export async function generateLetter(formData: LetterRequest): Promise<Generated
           rollbar.warning("Maximum attempts reached. Performing basic cleanup.");
           
           // Perform basic cleanup as a fallback
-          if (letter.body) {
+          if (originalLetter.body) {
             // Replace sensitive terms with "personal information"
             SENSITIVE_TERMS.forEach(term => {
-              letter.body = letter.body.replace(term, "personal information");
+              originalLetter.body = originalLetter.body.replace(term, "personal information");
+              finalLetter.body = finalLetter.body.replace(term, "personal information");
             });
             
             // Remove hallucination patterns
-            letter.body = letter.body
-              .replace(/\[([^\]]+)\]/g, "") // Remove any remaining placeholders
-              .replace(/as I mentioned earlier/gi, "")
-              .replace(/as stated in my previous correspondence/gi, "")
-              .replace(/as per our conversation/gi, "")
-              .replace(/you have requested/gi, "")
-              .replace(/you have asked me to/gi, "")
-              .replace(/as you know/gi, "")
-              .replace(/as we discussed/gi, "")
-              .replace(/in your email/gi, "")
-              .replace(/in your message/gi, "")
-              .replace(/as indicated in your report/gi, "")
-              .replace(/you have/gi, "")
-              .replace(/as I mentioned/gi, "");
+            const cleanupPatterns = [
+              /\[([^\]]+)\]/g, // Remove any remaining placeholders except [Content Location]
+              /as I mentioned earlier/gi,
+              /as stated in my previous correspondence/gi,
+              /as per our conversation/gi,
+              /you have requested/gi,
+              /you have asked me to/gi,
+              /as you know/gi,
+              /as we discussed/gi,
+              /in your email/gi,
+              /in your message/gi,
+              /as indicated in your report/gi,
+              /you have/gi,
+              /as I mentioned/gi
+            ];
+            
+            cleanupPatterns.forEach(pattern => {
+              originalLetter.body = originalLetter.body.replace(pattern, "");
+              finalLetter.body = finalLetter.body.replace(pattern, "");
+            });
           }
           
           // Always use static next steps
-          letter.nextSteps = STATIC_NEXT_STEPS;
+          originalLetter.nextSteps = STATIC_NEXT_STEPS;
+          finalLetter.nextSteps = STATIC_NEXT_STEPS;
           
           rollbar.info('Letter cleanup completed', {
-            letterLength: letter.body.length
+            letterLength: originalLetter.body.length
           });
           
-          return letter;
+          return { originalLetter, finalLetter };
         }
         
         // If not the last attempt, continue to the next iteration to try again
@@ -270,14 +297,15 @@ export async function generateLetter(formData: LetterRequest): Promise<Generated
       }
       
       // Always use static next steps regardless of what the AI generated
-      letter.nextSteps = STATIC_NEXT_STEPS;
+      originalLetter.nextSteps = STATIC_NEXT_STEPS;
+      finalLetter.nextSteps = STATIC_NEXT_STEPS;
       
       rollbar.info('Letter generated successfully', {
         attempt: attempts,
-        letterLength: letter.body.length
+        letterLength: originalLetter.body.length
       });
       
-      return letter;
+      return { originalLetter, finalLetter };
       
     } catch (error) {
       rollbar.error('Error generating letter', {

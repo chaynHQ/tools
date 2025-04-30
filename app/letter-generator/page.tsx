@@ -1,21 +1,22 @@
 "use client";
 import 'regenerator-runtime/runtime'; // Ensure this import goes first otherwise you will get a runtime error
-import { useState, useEffect, useCallback } from 'react';
-import { motion } from 'framer-motion';
-import { useFormContext } from '@/lib/context/FormContext';
-import { PlatformSelection } from './components/platform-selection';
-import { RemovalProcess } from './components/removal-process';
-import { InitialQuestions } from './components/initial-questions';
-import { ReportingDetails } from './components/reporting-details';
-import { FollowUpQuestions } from './components/follow-up-questions';
-import { LetterReview } from './components/letter-review';
-import { ProgressBar } from './components/progress-bar';
+
 import { Button } from '@/components/ui/button';
+import { generateLetter } from '@/lib/ai';
+import { analytics } from '@/lib/analytics';
+import { useFormContext } from '@/lib/context/FormContext';
+import { GeneratedLetter } from '@/types/letter';
+import { motion } from 'framer-motion';
 import { ArrowLeft, Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { analytics } from '@/lib/analytics';
-import { generateLetter } from '@/lib/ai';
-import { GeneratedLetter } from '@/types/letter';
+import { useCallback, useEffect, useState } from 'react';
+import { FollowUpQuestions } from './components/follow-up-questions';
+import { InitialQuestions } from './components/initial-questions';
+import { LetterReview } from './components/letter-review';
+import { PlatformSelection } from './components/platform-selection';
+import { ProgressBar } from './components/progress-bar';
+import { RemovalProcess } from './components/removal-process';
+import { ReportingDetails } from './components/reporting-details';
 
 type Step = 'platform-selection' | 'removal-process' | 'initial-questions' | 'reporting-details' | 'follow-up' | 'generation' | 'review';
 
@@ -46,6 +47,7 @@ export default function LetterGenerator() {
   const { formState, updateCompleteFormData } = useFormContext();
   const [hasGeneratedLetter, setHasGeneratedLetter] = useState(false);
   const [generatedLetter, setGeneratedLetter] = useState<GeneratedLetter | null>(null);
+  const [redactedLetter, setRedactedLetter] = useState<GeneratedLetter | null>(null);
   const [isRegenerating, setIsRegenerating] = useState(false);
 
   // Scroll to top of main content when step changes
@@ -62,8 +64,9 @@ export default function LetterGenerator() {
 
     try {
       setIsLoading(true);
-      const letter = await generateLetter(formState.completeFormData);
-      setGeneratedLetter(letter);
+      const letters = await generateLetter(formState.completeFormData);
+      setGeneratedLetter(letters.finalLetter);
+      setRedactedLetter(letters.originalLetter);
       setHasGeneratedLetter(true);
       
       // Only change step if not regenerating
@@ -228,13 +231,15 @@ export default function LetterGenerator() {
               </div>
             )}
 
-            {currentStep === 'review' && formState.completeFormData && generatedLetter && (
+            {currentStep === 'review' && formState.completeFormData && generatedLetter && redactedLetter && (
               <LetterReview
                 letter={generatedLetter}
+                redactedLetter={redactedLetter}
                 platformId={formState.platformInfo?.platformId || ''}
                 onRegenerateRequest={async () => {
                   setIsRegenerating(true);
                   setGeneratedLetter(null);
+                  setRedactedLetter(null);
                   await generateLetterContent();
                 }}
                 onComplete={() => {

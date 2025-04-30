@@ -1,6 +1,8 @@
 export interface LetterRequest {
   initialQuestions: {
-    imageIdentification: string;
+    contentLocationType: 'url' | 'description';
+    contentUrl?: string;
+    contentDescription?: string;
     contentType: 'intimate' | 'personal' | 'private' | 'other';
     contentContext: 'hacked' | 'impersonation' | 'relationship' | 'unknown' | 'other';
     imageUploadDate: string;

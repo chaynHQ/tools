@@ -31,6 +31,7 @@ const rollbar = new Rollbar(clientConfig);
 
 interface LetterReviewProps {
   letter: GeneratedLetter;
+  redactedLetter: GeneratedLetter;
   platformId: string;
   onRegenerateRequest: () => void;
   onComplete: () => void;
@@ -38,6 +39,7 @@ interface LetterReviewProps {
 
 export function LetterReview({
   letter,
+  redactedLetter,
   platformId,
   onRegenerateRequest,
   onComplete
@@ -119,10 +121,10 @@ export function LetterReview({
         feedbackRating: isUseful ? 'positive' : 'negative',
         ...(consentToShare && {
           redactedLetter: {
-            subject: letter.subject.replace(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g, '[EMAIL]')
+            subject: redactedLetter.subject.replace(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g, '[EMAIL]')
               .replace(/\b(?:\d{1,3}\.){3}\d{1,3}\b/g, '[IP]')
               .replace(/\b\d{10,}\b/g, '[NUMBER]'),
-            body: letter.body.replace(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g, '[EMAIL]')
+            body: redactedLetter.body.replace(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g, '[EMAIL]')
               .replace(/\b(?:\d{1,3}\.){3}\d{1,3}\b/g, '[IP]')
               .replace(/\b\d{10,}\b/g, '[NUMBER]')
           }
