@@ -37,9 +37,9 @@ export function generateFollowUpPrompt(request: LetterRequest) {
   const hasMinimalInfo = Object.values(initialResponses).some(value => !value || value.length < 20);
 
   // Check what information we already have
-  const hasContentLocation = initialResponses.imageIdentification?.includes('http') || 
-                           initialResponses.imageIdentification?.includes('www') ||
-                           initialResponses.imageIdentification?.includes('URL');
+  const hasContentLocation = initialResponses.contentLocationType === 'url' 
+    ? initialResponses.contentUrl && initialResponses.contentUrl.length > 0 
+    : initialResponses.contentDescription && initialResponses.contentDescription.length > 0;
   const hasTimeline = initialResponses.imageUploadDate && initialResponses.imageTakenDate;
   const hasOwnershipEvidence = initialResponses.ownershipEvidence?.length > 30;
   const hasImpactStatement = initialResponses.impactStatement?.length > 30;
@@ -81,7 +81,10 @@ Ownership Evidence: ${hasOwnershipEvidence ? 'PROVIDED' : 'NEEDS MORE DETAIL'}
 Impact Statement: ${hasImpactStatement ? 'PROVIDED' : 'NEEDS MORE DETAIL'}
 
 Initial Information Provided:
-${Object.entries(initialResponses).map(([key, value]) => `${key}: ${value}`).join('\n')}
+${Object.entries(initialResponses)
+  .filter(([key]) => !['contentUrl', 'contentDescription'].includes(key))
+  .map(([key, value]) => `${key}: ${value}`)
+  .join('\n')}
 
 ${relevantPolicies ? `
 Platform-Specific Requirements:
@@ -160,8 +163,6 @@ export function generateLetterPrompt(request: LetterRequest) {
   const reportingInfo = request.reportingDetails || {};
 
   // Analyze what information we already have
-  const contentLocation = initialInfo.imageIdentification;
-  const hasSpecificUrl = contentLocation?.includes('http') || contentLocation?.includes('www');
   const hasTimeline = initialInfo.imageUploadDate && initialInfo.imageTakenDate;
   const hasReportingHistory = reportingInfo.standardProcessDetails || reportingInfo.escalatedProcessDetails;
   const hasReferenceNumbers = Object.values(followUpInfo).some(value => 
@@ -172,13 +173,13 @@ export function generateLetterPrompt(request: LetterRequest) {
 
 CRITICAL INSTRUCTIONS:
 1. Use ONLY the information provided by the user - DO NOT invent or hallucinate additional details
-2. DO NOT include ANY placeholders in the letter - not even for name or email
+2. DO NOT include ANY placeholders in the letter - not even for name or email - EXCEPT for [Content Location]
 3. DO NOT make demands or use aggressive language in the letter - keep it professional and respectful
 4. DO NOT include any internal notes, formatting instructions, or placeholder descriptions
-5. DO NOT include any placeholders like [Insert X], [List Y], [Full name], or [Email address]
+5. DO NOT include any placeholders like [Insert X], [List Y], [Full name], or [Email address] except for [Content Location]
 6. DO NOT include any placeholders for information that was not collected in the previous questions
 7. DO NOT reference or suggest the need for ID verification, government IDs, proof of residence, or any official documentation
-8. DO NOT mention platform policies related to ID verification or official documentation requirements
+8. DO NOT include any internal policy reference codes
 9. FOCUS on clearly identifying which specific community standards and policies have been violated
 10. EMPHASIZE the exact policy breaches that apply to this specific situation
 11. INCLUDE relevant links and supporting evidence provided by the user
@@ -190,10 +191,14 @@ CRITICAL INSTRUCTIONS:
 17. Keep emotional language factual and only include if provided by the user and is relevant to the case
 18. At the end of the letter, include a generic closing like "Sincerely," followed by a new line for the user to add their name
 19. Return all text in British English (en_gb) NOT en_us
-
+20. Use [Content Location] as a placeholder for the content location - this will be replaced later
+21. When citing platform policies, do NOT include reference codes or identifiers - just describe the policy clearly
+22. Format the content location statement based on type:
+    - For URLs: "The content can be found at [Content Location]"
+    - For descriptions: "The content can be found at the following location: [Content Location]"
 
 AVAILABLE INFORMATION:
-Content Location: ${contentLocation || 'Not provided'}
+Content Location Type: ${initialInfo.contentLocationType || 'Not provided'}
 Upload Date: ${initialInfo.imageUploadDate || 'Not provided'}
 Creation Date: ${initialInfo.imageTakenDate || 'Not provided'}
 Ownership Evidence: ${initialInfo.ownershipEvidence || 'Not provided'}
@@ -206,7 +211,7 @@ Platform-Specific Context for ${platformPolicy?.name}:
 
 Legal Basis:
 ${relevantPolicies.legalBasis.map(basis => 
-  `- ${basis.title} ${basis.section} (Ref: ${basis.reference})`
+  `- ${basis.title} ${basis.section}`
 ).join('\n')}
 
 Applicable Policies:
@@ -220,7 +225,7 @@ ${relevantPolicies.contentPolicies.map(policy => {
       policy.policy.toLowerCase().includes('government')) {
     return null;
   }
-  return `- ${policy.policy} (Ref: ${policy.reference})`;
+  return `- ${policy.policy}`;
 }).filter(Boolean).join('\n')}
 
 Removal Requirements:
@@ -263,7 +268,7 @@ LETTER STRUCTURE (skip any sections that are not relevant):
    - Basic content identification
 
 2. Content Details
-   - Use provided locations/URLs
+   - Use [Content Location] placeholder
    - Include timeline information
    - Reference previous reports if any
 
@@ -283,7 +288,6 @@ LETTER STRUCTURE (skip any sections that are not relevant):
    - Expected timeline
    - Next steps
 
-
 RESPONSE FORMAT:
 You must respond with a valid JSON object containing exactly two fields:
 1. "subject": A clear, specific subject line for the email
@@ -298,12 +302,22 @@ The response must be parseable by JSON.parse() and should look like this:
 Remember:
 - Use \\n for line breaks in the JSON
 - Escape any quotes within the text
-- Do not include any placeholders
+- Only include [Content Location] placeholder
 - Only include information that was provided
 - Keep the format simple and valid`;
 }
 
 export function generateLetterQualityCheckPrompt(letter: string, request: LetterRequest) {
+  // Define policy reference patterns
+  const policyReferencePatterns = [
+    /\([A-Z]+-[A-Z0-9-]+\)/g,  // Matches (CS-NCSII), (FB-TOS), etc.
+    /\(Ref:\s*[A-Z]+-[A-Z0-9-]+\)/g,  // Matches (Ref: CS-NCSII), etc.
+    /Reference\s+[A-Z]+-[A-Z0-9-]+/g,  // Matches Reference CS-NCSII, etc.
+    /\([^)]*Standards[^)]*\)/g,  // Matches (Community Standards on X)
+    /\([^)]*Terms of Service[^)]*\)/g,  // Matches (Terms of Service X)
+    /\([^)]*Policy[^)]*\)/g,  // Matches (Privacy Policy X)
+  ];
+
   return `You are an expert in content takedown requests and platform policy enforcement. Your task is to review a generated takedown letter and ensure it meets quality standards and follows guidelines.
 
 ORIGINAL LETTER:
@@ -317,15 +331,17 @@ CONTEXT:
 QUALITY CHECK CRITERIA:
 1. NO HALLUCINATION: The letter must not contain any invented information not provided by the user
 2. NO SENSITIVE INFORMATION: The letter should not request or include unnecessary sensitive personal information
-3. NO PLACEHOLDERS: The letter must not contain any placeholders like [Insert X] or [Your Name]
+3. NO PLACEHOLDERS: The letter must not contain any placeholders like [Insert X] or [Your Name] except for [Content Location]
 4. POLICY FOCUS: The letter should clearly identify specific policy violations and community standards breaches
 5. EVIDENCE INCLUSION: The letter should reference all relevant evidence provided by the user
 6. CLARITY: The letter should have a clear purpose, specific requests, and expected outcomes
 7. PROFESSIONALISM: The letter should be professional, respectful, and trauma-informed
 8. ACTIONABILITY: The letter should include specific actions for the platform to take
+9. NO POLICY REFERENCES: The letter must not contain any internal policy reference codes
 
 REVIEW INSTRUCTIONS:
-- Identify any issues in the letter based on the criteria above
+- Check for any policy reference codes
+- Identify any issues in the letter based on all criteria above
 - For each issue, provide a specific recommendation for improvement
 - If the letter meets all criteria, indicate that it passes the quality check
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from '@/hooks/use-toast';
@@ -20,7 +21,9 @@ import { VoiceInput } from './voice-input';
 const rollbar = new Rollbar(clientConfig);
 
 interface InitialQuestionsForm {
-  imageIdentification: string;
+  contentLocationType: 'url' | 'description';
+  contentUrl?: string;
+  contentDescription?: string;
   contentType: 'intimate' | 'personal' | 'private' | 'other';
   contentContext: 'hacked' | 'impersonation' | 'relationship' | 'unknown' | 'other';
   imageUploadDate: string;
@@ -103,21 +106,34 @@ const SUPPORTED_LANGUAGES = [
 export function InitialQuestions({ onComplete }: InitialQuestionsProps) {
   const startTime = useState(() => Date.now())[0];
   const [activeField, setActiveField] = useState<keyof InitialQuestionsForm | null>(null);
-  const { control, register, handleSubmit, setValue, reset, formState: { errors } } = useForm<InitialQuestionsForm>();
-  const { formState, setInitialQuestions } = useFormContext();
-
-  useEffect(() => {
-    if (formState.initialQuestions && Object.keys(formState.initialQuestions).length > 0) {
-      reset(formState.initialQuestions as InitialQuestionsForm);
+  const { control, register, handleSubmit, setValue, reset, watch, formState: { errors } } = useForm<InitialQuestionsForm>({
+    defaultValues: {
+      contentLocationType: 'url'
     }
-  }, [formState.initialQuestions, reset]);
-
+  });
+  const { formState, setInitialQuestions } = useFormContext();
+  const contentLocationType = watch('contentLocationType');
+  
   const {
     transcript,
     listening,
     resetTranscript,
     browserSupportsSpeechRecognition
   } = useSpeechRecognition();
+
+  useEffect(() => {
+    if (formState.initialQuestions && Object.keys(formState.initialQuestions).length > 0) {
+      const savedData = formState.initialQuestions;
+      const isUrl = savedData.imageIdentification?.startsWith('http');
+      
+      reset({
+        ...savedData,
+        contentLocationType: isUrl ? 'url' : 'description',
+        contentUrl: isUrl ? savedData.imageIdentification : undefined,
+        contentDescription: !isUrl ? savedData.imageIdentification : undefined
+      });
+    }
+  }, [formState.initialQuestions, reset]);
 
   useEffect(() => {
     if (transcript && activeField) {
@@ -150,6 +166,7 @@ export function InitialQuestions({ onComplete }: InitialQuestionsProps) {
     try {
       const timeSpent = Math.floor((Date.now() - startTime) / 1000);
       analytics.trackInitialQuestionsCompleted(timeSpent);
+
       setInitialQuestions(data);
       onComplete();
     } catch (error) {
@@ -241,39 +258,80 @@ export function InitialQuestions({ onComplete }: InitialQuestionsProps) {
             )}
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="imageIdentification" className="text-lg font-medium">
+          <div className="space-y-4">
+            <Label className="text-lg font-medium">
               Where can the content be found?*
             </Label>
-            <p className="text-sm text-muted-foreground mb-2">
-              Please provide specific information that will help locate the content, such as URLs or post details.
-            </p>
-            <div className="flex items-start gap-3">
-              {browserSupportsSpeechRecognition && (
-                <VoiceInput
-                  isListening={listening && activeField === 'imageIdentification'}
-                  onToggle={() => handleVoiceInput('imageIdentification')}
-                  className="mt-2"
-                />
-              )}
-              <div className="flex-1">
-                <Textarea
-                  id="imageIdentification"
-                  {...register('imageIdentification', { required: true })}
-                  placeholder="For example: 'The content appears at [URL] posted on [date]'"
-                  className={textareaClasses}
-                  rows={4}
-                  dir="auto"
-                  lang={navigator.language}
-                  spellCheck="false"
-                />
+            <div className="space-y-4">
+              <div className="flex gap-4">
+                <label className="flex items-center">
+                  <input
+                    type="radio"
+                    {...register('contentLocationType')}
+                    value="url"
+                    className="mr-2"
+                  />
+                  I have the URL
+                </label>
+                <label className="flex items-center">
+                  <input
+                    type="radio"
+                    {...register('contentLocationType')}
+                    value="description"
+                    className="mr-2"
+                  />
+                  I need to describe the location
+                </label>
               </div>
+
+              {contentLocationType === 'url' ? (
+                <div className="space-y-2">
+                  <Input
+                    type="url"
+                    {...register('contentUrl', {
+                      required: 'Please provide the URL where the content can be found',
+                      pattern: {
+                        value: /^https?:\/\/.+/i,
+                        message: 'Please enter a valid URL starting with http:// or https://'
+                      }
+                    })}
+                    placeholder="https://example.com/content"
+                    className="bg-white focus:ring-accent focus:border-accent"
+                  />
+                  {errors.contentUrl && (
+                    <p className="text-sm text-destructive">{errors.contentUrl.message}</p>
+                  )}
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <div className="flex items-start gap-3">
+                    {browserSupportsSpeechRecognition && (
+                      <VoiceInput
+                        isListening={listening && activeField === 'contentDescription'}
+                        onToggle={() => handleVoiceInput('contentDescription')}
+                        className="mt-2"
+                      />
+                    )}
+                    <div className="flex-1">
+                      <Textarea
+                        {...register('contentDescription', {
+                          required: 'Please describe where the content can be found'
+                        })}
+                        placeholder="For example: 'The content appears in posts by the user @username' or 'The content is in an album titled...'"
+                        className={textareaClasses}
+                        rows={4}
+                        dir="auto"
+                        lang={navigator.language}
+                        spellCheck="false"
+                      />
+                    </div>
+                  </div>
+                  {errors.contentDescription && (
+                    <p className="text-sm text-destructive">{errors.contentDescription.message}</p>
+                  )}
+                </div>
+              )}
             </div>
-            {errors.imageIdentification && (
-              <p className="text-sm text-destructive">
-                Having specific details about where to find the content ensures the platform can quickly locate and review the material.
-              </p>
-            )}
           </div>
         </div>
       </QuestionSection>
