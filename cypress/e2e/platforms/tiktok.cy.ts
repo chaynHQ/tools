@@ -12,18 +12,19 @@ describe('TikTok Platform Flow', () => {
 
     // Select TikTok and continue
     cy.contains('TikTok').click();
-    cy.contains('Continue', {timeout: 30000}).click();
+    cy.contains('Continue').click();
 
     // Select reporting status and continue
     cy.contains("I haven't tried either process yet").click();
-    cy.contains('Continue', {timeout: 30000}).click();
+    cy.contains('Continue').click();
 
     // Select content type and context
     cy.contains('Intimate images').click();
     cy.contains('Account was compromised').click();
 
-    // Fill in content location
-    cy.get('#imageIdentification').type('https://tiktok.com/@username/video/123456789');
+    // Fill in content location using URL option
+    cy.get('input[type="radio"][value="url"]').check();
+    cy.get('input[type="url"]').type('https://tiktok.com/@username/video/123456789');
 
     // Fill in dates
     cy.get('#imageUploadDate').type('5 March 2025');
@@ -35,7 +36,7 @@ describe('TikTok Platform Flow', () => {
       'This has caused significant distress and affected my mental health'
     );
 
-    cy.contains('Continue', {timeout: 30000}).click();
+    cy.contains('Continue').click();
 
     // Wait for AI to generate follow-up questions
     cy.contains('Analysing your responses', { timeout: 30000 });

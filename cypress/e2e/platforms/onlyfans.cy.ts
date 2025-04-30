@@ -22,8 +22,9 @@ describe('OnlyFans Platform Flow', () => {
     cy.contains('Private information').click();
     cy.contains('Someone is impersonating me').click();
 
-    // Fill in content location
-    cy.get('#imageIdentification').type('https://onlyfans.com/users/123456789');
+    // Fill in content location using description option
+    cy.get('input[type="radio"][value="description"]').check();
+    cy.get('textarea[id="contentDescription"]').type('The content is posted on a profile claiming to be me with username @impersonator123');
 
     // Fill in dates
     cy.get('#imageUploadDate').type('10 March 2025');
@@ -48,7 +49,7 @@ describe('OnlyFans Platform Flow', () => {
       'I tried contacting support through email'
     );
 
-    cy.contains('Continue', {timeout: 30000}).click();
+    cy.contains('Continue').click();
 
     // Wait for AI to generate follow-up questions
     cy.contains('Analysing your responses', { timeout: 30000 });
