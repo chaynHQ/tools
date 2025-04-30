@@ -22,8 +22,9 @@ describe('Facebook Platform Flow', () => {
     cy.contains('Personal content').click();
     cy.contains('Posted by someone I know').click();
 
-    // Fill in content location
-    cy.get('#imageIdentification').type('https://facebook.com/harmful-post-123');
+    // Fill in content location using URL option
+    cy.get('input[type="radio"][value="url"]').check();
+    cy.get('input[type="url"]').type('https://facebook.com/harmful-post-123');
 
     // Fill in dates
     cy.get('#imageUploadDate').type('1 March 2025');
@@ -35,7 +36,7 @@ describe('Facebook Platform Flow', () => {
       'This has affected my personal and professional relationships significantly.'
     );
 
-    cy.contains('Continue', {timeout: 30000}).click();
+    cy.contains('Continue').click();
 
     // Fill in reporting process details
     cy.get('#standardProcessDetails').type(

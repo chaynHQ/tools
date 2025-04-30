@@ -16,14 +16,15 @@ describe('Pornhub Platform Flow', () => {
 
     // Select reporting status and continue
     cy.contains("I've tried the escalated reporting process").click();
-    cy.contains('Continue', {timeout: 30000}).click();
+    cy.contains('Continue').click();
 
     // Select content type and context
     cy.contains('Intimate images').click();
     cy.contains('Source unknown').click();
 
-    // Fill in content location
-    cy.get('#imageIdentification').type('https://pornhub.com/view_video.php?viewkey=123456789');
+    // Fill in content location using URL option
+    cy.get('input[type="radio"][value="url"]').check();
+    cy.get('input[type="url"]').type('https://pornhub.com/view_video.php?viewkey=123456789');
 
     // Fill in dates
     cy.get('#imageUploadDate').type('15 March 2025');
@@ -35,7 +36,7 @@ describe('Pornhub Platform Flow', () => {
       'This has caused severe emotional distress and affected my work life'
     );
 
-    cy.contains('Continue', {timeout: 30000}).click();
+    cy.contains('Continue').click();
 
     // Fill in reporting process details
     cy.get('#escalatedProcessDetails').type(
@@ -48,7 +49,7 @@ describe('Pornhub Platform Flow', () => {
       'I followed up through their support system multiple times'
     );
 
-    cy.contains('Continue', {timeout: 30000}).click();
+    cy.contains('Continue').click();
 
     // Wait for AI to generate follow-up questions
     cy.contains('Analysing your responses', { timeout: 30000 });
