@@ -1,25 +1,37 @@
 "use client";
 
-import { useState, useEffect } from 'react';
-import Image from 'next/image';
-import { platforms } from '@/lib/platforms';
 import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { motion } from 'framer-motion';
+import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2 } from 'lucide-react';
 import { analytics } from '@/lib/analytics';
 import { useFormContext } from '@/lib/context/FormContext';
+import { platforms } from '@/lib/platforms';
+import { AnimatePresence, motion } from 'framer-motion';
+import { AlertTriangle, Loader2 } from 'lucide-react';
+import Image from 'next/image';
+import { useEffect, useState } from 'react';
 
 interface PlatformSelectionProps {
   onComplete: () => void;
 }
 
+const MESSAGING_PLATFORMS = [
+  'whatsapp',
+  'whats app',
+  'imessage',
+  'i message',
+  'imessenger',
+  'i messenger',
+  'signal',
+  'telegram'
+];
+
 export function PlatformSelection({ onComplete }: PlatformSelectionProps) {
   const [selectedPlatform, setSelectedPlatform] = useState<string>('');
   const [otherPlatform, setOtherPlatform] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showMessagingWarning, setShowMessagingWarning] = useState(false);
   const { toast } = useToast();
   const { formState, setPlatformInfo } = useFormContext();
 
@@ -35,6 +47,14 @@ export function PlatformSelection({ onComplete }: PlatformSelectionProps) {
       }
     }
   }, [formState.platformInfo]);
+
+  const handleOtherPlatformChange = (value: string) => {
+    setOtherPlatform(value);
+    const isMessagingPlatform = MESSAGING_PLATFORMS.some(platform => 
+      value.toLowerCase().includes(platform.toLowerCase())
+    );
+    setShowMessagingWarning(isMessagingPlatform);
+  };
 
   const handleContinue = async () => {
     setIsLoading(true);
@@ -126,19 +146,49 @@ export function PlatformSelection({ onComplete }: PlatformSelectionProps) {
           initial={{ opacity: 0, height: 0 }}
           animate={{ opacity: 1, height: 'auto' }}
           exit={{ opacity: 0, height: 0 }}
-          className="bg-white rounded-xl p-6"
+          className="space-y-4"
         >
-          <Label htmlFor="other-platform" className="text-base font-medium block mb-3">
-            Tell us which platform you need help with
-          </Label>
-          <Input
-            id="other-platform"
-            type="text"
-            placeholder="Enter the platform name"
-            value={otherPlatform}
-            onChange={(e) => setOtherPlatform(e.target.value)}
-            className="bg-white focus:ring-accent focus:border-accent"
-          />
+          <div className="bg-white rounded-xl p-6">
+            <Label htmlFor="other-platform" className="text-base font-medium block mb-3">
+              Tell us which platform you need help with
+            </Label>
+            <Input
+              id="other-platform"
+              type="text"
+              placeholder="Enter the platform name"
+              value={otherPlatform}
+              onChange={(e) => handleOtherPlatformChange(e.target.value)}
+              className="bg-white focus:ring-accent focus:border-accent"
+            />
+          </div>
+
+          <AnimatePresence>
+            {showMessagingWarning && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="bg-accent-yellow/30 border border-accent-yellow rounded-xl p-6"
+              >
+                <div className="flex gap-3">
+                  <AlertTriangle className="h-5 w-5 flex-shrink-0 text-accent-yellow mt-1" />
+                  <div className="space-y-2">
+                    <h4 className="font-medium">Reminder about messaging platforms</h4>
+                    <p className="text-muted-foreground text-sm">
+                      Remember that for messaging platforms such as WhatsApp, iMessage, Signal and Telegram, 
+                      the platform does not have the power to remove content from people's messaging threads 
+                      or groups. If you have been sent the content, or are in the group it was shared then 
+                      you can report the individual sharing it from within the app.
+                    </p>
+                    <p className="text-muted-foreground text-sm">
+                      You can still go ahead and generate a letter to send to the platform if you think it 
+                      will be helpful in your case.
+                    </p>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </motion.div>
       )}
 
