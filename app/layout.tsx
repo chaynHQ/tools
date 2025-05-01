@@ -1,10 +1,12 @@
-import 'regenerator-runtime/runtime'; // Ensure this import goes first otherwise you will get a runtime error
-import { Merriweather, Open_Sans } from 'next/font/google';
-import type { Metadata } from 'next';
-import { ClientLayout } from './client-layout';
-import { Providers } from './providers';
+import { CookieConsent } from '@/components/cookie-consent';
 import { IS_PRODUCTION } from '@/lib/constants/common';
+import type { Metadata } from 'next';
+import { Merriweather, Open_Sans } from 'next/font/google';
+import Script from 'next/script';
+import 'regenerator-runtime/runtime'; // Ensure this import goes first otherwise you will get a runtime error
+import { ClientLayout } from './client-layout';
 import './globals.css';
+import { Providers } from './providers';
 
 const merriweather = Merriweather({
   subsets: ['latin'],
@@ -64,9 +66,28 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${merriweather.variable} ${openSans.variable}`}>
+      <head>
+        {/* Initialize Google Analytics with consent mode */}
+        <Script
+          id="gtag-init"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', '${process.env.NEXT_PUBLIC_GA_ID}', {
+                'consent': 'default',
+                'analytics_storage': 'denied'
+              });
+            `,
+          }}
+        />
+      </head>
       <body className="font-open-sans bg-background min-h-screen flex flex-col">
         <Providers>
           <ClientLayout>{children}</ClientLayout>
+          <CookieConsent />
         </Providers>
       </body>
     </html>
