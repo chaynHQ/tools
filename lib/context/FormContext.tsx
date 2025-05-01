@@ -1,9 +1,11 @@
 "use client";
 
+import { usePrefillData } from '@/lib/dev/prefill';
 import { clientConfig } from '@/lib/rollbar';
 import { FollowUpQuestion } from '@/types/questions';
-import { createContext, ReactNode, useContext, useState } from 'react';
+import { createContext, ReactNode, useContext, useEffect, useState } from 'react';
 import Rollbar from 'rollbar';
+import { IS_DEVELOPMENT } from '../constants/common';
 
 // Initialize Rollbar for client-side
 const rollbar = new Rollbar(clientConfig);
@@ -78,6 +80,27 @@ const FormContext = createContext<FormContextType | undefined>(undefined);
 
 export function FormProvider({ children }: { children: ReactNode }) {
   const [formState, setFormState] = useState<FormState>(initialState);
+  const prefillHandler = usePrefillData();
+
+  // Add keyboard shortcut listener for development
+  useEffect(() => {
+    if (!IS_DEVELOPMENT || !prefillHandler) return;
+
+    const handleKeyPress = (event: KeyboardEvent) => {
+      const data = prefillHandler(event);
+      if (data) {
+        setFormState(prevState => ({
+          ...prevState,
+          ...data,
+          completeFormData: data
+        }));
+        console.log('Development: Form pre-filled with test data');
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
+  }, [prefillHandler]);
 
   const setPlatformInfo = (info: PlatformInfo) => {
     try {

@@ -67,6 +67,27 @@ cp .env.example .env.local
 npm run dev
 ```
 
+### Development Features
+
+#### Quick Form Fill Mode
+
+When developing locally, you can use a keyboard shortcut to automatically fill forms with test data:
+
+- Windows/Linux: `Alt + P`
+- Mac: `Command (⌘) + P`
+
+This feature:
+- Only works in development mode
+- Pre-fills all form fields with sample data
+- Helps speed up testing and development
+- Can be triggered at any point in the form flow
+
+The test data includes:
+- Platform selection
+- Content information
+- Reporting details
+- Follow-up responses
+
 ## Contributing
 
 We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details and read our [Code of Conduct](CODE_OF_CONDUCT.md).
@@ -87,4 +108,4 @@ Support our mission further by [sponsoring us on GitHub](https://github.com/spon
 
 This project uses the [MIT License](/LICENSE). While the core tech stack included here is open-source, some external integrations used in this project require subscriptions.
 
-All of Chayn's projects are open-source. 
+All of Chayn's projects are open-source.
