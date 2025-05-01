@@ -287,6 +287,7 @@ export function InitialQuestions({ onComplete }: InitialQuestionsProps) {
               {contentLocationType === 'url' ? (
                 <div className="space-y-2">
                   <Input
+                    id="contentUrl"  
                     type="url"
                     {...register('contentUrl', {
                       required: 'Please provide the URL where the content can be found',
@@ -314,6 +315,7 @@ export function InitialQuestions({ onComplete }: InitialQuestionsProps) {
                     )}
                     <div className="flex-1">
                       <Textarea
+                        id="contentDescription"  
                         {...register('contentDescription', {
                           required: 'Please describe where the content can be found'
                         })}
