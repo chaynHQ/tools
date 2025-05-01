@@ -267,16 +267,14 @@ export function LetterReview({
 
               <div className="p-6 bg-white rounded-lg border border-border/50">
                 <div className="flex flex-col gap-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <h4 className="text-base mb-1">Not quite right?</h4>
-                      <p className="text-sm text-muted-foreground">
-                        Sometimes our AI doesn't get it quite right. You can try regenerating a different letter using the same information to see if you prefer it.
-                      </p>
-                    </div>
+                  <div>
+                    <h4 className="text-base mb-1">Not quite right?</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Sometimes our AI doesn't get it quite right. You can try regenerating a different letter using the same information to see if you prefer it.
+                    </p>
                     <Button
                       variant="outline"
-                      className="pill bg-white ml-6 min-w-[120px] hover:bg-accent-light/20"
+                      className="pill bg-white mt-4 hover:bg-accent-light/20"
                       onClick={onRegenerateRequest}
                     >
                       <RefreshCw className="w-4 h-4 mr-2" />
