@@ -67,6 +67,97 @@ export default function Home() {
           </p>
         </div>
       </div>
+
+      <div className="mb-12">
+        <h2 className="text-2xl mb-8 text-center">Example takedown letters</h2>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Example 1: Non-consensual intimate content */}
+          <div className="bg-white rounded-xl p-6 shadow-sm">
+            <h3 className="text-lg font-medium mb-4 border-b border-accent-blue pb-2">
+              Example: Non-consensual intimate content
+            </h3>
+            <div className="space-y-6">
+              <div>
+                <h4 className="font-medium mb-3">Subject:</h4>
+                <p className="text-muted-foreground bg-neutral rounded-lg p-4">
+                  Urgent Request to Remove Non-consensual Intimate Content - Privacy Violation
+                </p>
+              </div>
+              <div>
+                <h4 className="font-medium mb-3">Letter:</h4>
+                <div className="text-muted-foreground bg-neutral rounded-lg p-4 space-y-4">
+                  <p>Dear Support Team,</p>
+
+                  <p>I am writing to request the immediate removal of intimate content that was shared without my consent. The content can be found at [Content Location].</p>
+
+                  <p>This content was uploaded on 15 January 2024 without my knowledge or permission. I discovered it on 20 January 2024 and immediately used your platform's reporting tools to request its removal. I have not received a response to my initial report.</p>
+
+                  <p>I can verify that I am the person in the content, and it was taken from my private, password-protected cloud storage account that was compromised. This sharing of intimate content without consent violates your platform's community guidelines regarding non-consensual intimate imagery.</p>
+
+                  <p>The continued presence of this content is causing me significant distress and affecting my mental health and professional life. I request that you:</p>
+
+                  <ul className="list-disc pl-6 space-y-2">
+                    <li>Immediately remove the content</li>
+                    <li>Prevent any re-uploads of the same content</li>
+                    <li>Provide confirmation once the content has been removed</li>
+                  </ul>
+
+                  <p>Thank you for your prompt attention to this matter.</p>
+
+                  <p>Sincerely,</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Example 2: Impersonation account */}
+          <div className="bg-white rounded-xl p-6 shadow-sm">
+            <h3 className="text-lg font-medium mb-4 border-b border-accent-blue pb-2">
+              Example: Impersonation account
+            </h3>
+            <div className="space-y-6">
+              <div>
+                <h4 className="font-medium mb-3">Subject:</h4>
+                <p className="text-muted-foreground bg-neutral rounded-lg p-4">
+                  Request to Remove Impersonation Account - Urgent Privacy Violation
+                </p>
+              </div>
+              <div>
+                <h4 className="font-medium mb-3">Letter:</h4>
+                <div className="text-muted-foreground bg-neutral rounded-lg p-4 space-y-4">
+                  <p>Dear Trust & Safety Team,</p>
+
+                  <p>I am writing to report an account that is impersonating me and sharing my personal content without authorization. The impersonating account can be found at [Content Location].</p>
+
+                  <p>This account was created on 1 March 2024 and is using my name, photos, and personal information to deceive others. The account is sharing private photos taken from my personal social media accounts without permission.</p>
+
+                  <p>I have already reported this through your standard reporting process on 5 March 2024 and through your escalated support channel on 10 March 2024, but the account remains active.</p>
+
+                  <p>This impersonation violates your platform's policies regarding:</p>
+
+                  <ul className="list-disc pl-6 space-y-2">
+                    <li>Account authenticity and integrity</li>
+                    <li>Unauthorized use of personal information</li>
+                    <li>Deceptive practices</li>
+                  </ul>
+
+                  <p>The impersonation is causing significant harm to my reputation and relationships. I request that you:</p>
+
+                  <ul className="list-disc pl-6 space-y-2">
+                    <li>Remove the impersonating account</li>
+                    <li>Prevent the creation of similar impersonating accounts</li>
+                    <li>Confirm once action has been taken</li>
+                  </ul>
+
+                  <p>Thank you for your assistance in resolving this issue.</p>
+
+                  <p>Sincerely,</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </>
   );
 }
