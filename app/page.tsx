@@ -78,13 +78,13 @@ export default function Home() {
             </h3>
             <div className="space-y-6">
               <div>
-                <h4 className="font-medium mb-3">Subject:</h4>
+                <h4 className="font-medium">Subject:</h4>
                 <p className="text-muted-foreground bg-neutral rounded-lg p-4">
                   Urgent Request to Remove Non-consensual Intimate Content - Privacy Violation
                 </p>
               </div>
               <div>
-                <h4 className="font-medium mb-3">Letter:</h4>
+                <h4 className="font-medium">Letter:</h4>
                 <div className="text-muted-foreground bg-neutral rounded-lg p-4 space-y-4">
                   <p>Dear Support Team,</p>
 
@@ -117,13 +117,13 @@ export default function Home() {
             </h3>
             <div className="space-y-6">
               <div>
-                <h4 className="font-medium mb-3">Subject:</h4>
+                <h4 className="font-medium">Subject:</h4>
                 <p className="text-muted-foreground bg-neutral rounded-lg p-4">
                   Request to Remove Impersonation Account - Urgent Privacy Violation
                 </p>
               </div>
               <div>
-                <h4 className="font-medium mb-3">Letter:</h4>
+                <h4 className="font-medium">Letter:</h4>
                 <div className="text-muted-foreground bg-neutral rounded-lg p-4 space-y-4">
                   <p>Dear Trust & Safety Team,</p>
 
