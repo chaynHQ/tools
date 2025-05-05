@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from '@/hooks/use-toast';
 import { analytics } from '@/lib/analytics';
+import { GA_EVENTS } from '@/lib/constants/analytics';
 import { useFormContext } from '@/lib/context/FormContext';
 import { clientConfig } from '@/lib/rollbar';
 import { useEffect, useState } from 'react';
@@ -142,28 +143,58 @@ export function InitialQuestions({ onComplete }: InitialQuestionsProps) {
   }, [transcript, activeField, setValue]);
 
   const handleVoiceInput = (field: keyof InitialQuestionsForm) => {
-    if (listening && activeField === field) {
-      SpeechRecognition.stopListening();
-      resetTranscript();
-      setActiveField(null);
-    } else {
-      setActiveField(field);
-      resetTranscript();
-      // Try to detect user's browser language, fallback to English
-      const browserLang = navigator.language;
-      const supportedLang = SUPPORTED_LANGUAGES.find(lang => 
-        browserLang.toLowerCase().startsWith(lang.toLowerCase().split('-')[0])
-      ) || 'en-US';
+    try {
+      if (listening && activeField === field) {
+        SpeechRecognition.stopListening();
+        resetTranscript();
+        setActiveField(null);
+        
+        // Track successful voice input completion
+        analytics.trackEvent('TDLG_VOICE_INPUT_USED', {
+          field,
+          success: true,
+          component: 'InitialQuestions'
+        });
+      } else {
+        setActiveField(field);
+        resetTranscript();
+        // Try to detect user's browser language, fallback to English
+        const browserLang = navigator.language;
+        const supportedLang = SUPPORTED_LANGUAGES.find(lang => 
+          browserLang.toLowerCase().startsWith(lang.toLowerCase().split('-')[0])
+        ) || 'en-US';
+        
+        SpeechRecognition.startListening({ 
+          continuous: true,
+          language: supportedLang
+        });
+      }
+    } catch (error) {
+      rollbar.error('Error handling voice input', {
+        error,
+        component: 'InitialQuestions',
+        field
+      });
       
-      SpeechRecognition.startListening({ 
-        continuous: true,
-        language: supportedLang
+      // Track failed voice input attempt
+      analytics.trackEvent('TDLG_VOICE_INPUT_USED', {
+        field,
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+        component: 'InitialQuestions'
+      });
+      
+      toast({
+        title: "Voice input error",
+        description: "There was a problem with the voice input. Please try typing instead.",
+        variant: "destructive"
       });
     }
   };
 
   const handleFormSubmit = (data: InitialQuestionsForm) => {
     try {
+      analytics.trackEvent(GA_EVENTS.TDLG_INITIAL_QUESTIONS_CONTINUE_CLICKED);
       const timeSpent = Math.floor((Date.now() - startTime) / 1000);
       analytics.trackInitialQuestionsCompleted(timeSpent);
 

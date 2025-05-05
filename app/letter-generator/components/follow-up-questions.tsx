@@ -6,6 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { generateFollowUpQuestions } from '@/lib/ai';
 import { analytics } from '@/lib/analytics';
+import { GA_EVENTS } from '@/lib/constants/analytics';
 import { useFormContext } from '@/lib/context/FormContext';
 import { clientConfig } from '@/lib/rollbar';
 import { FollowUpQuestion } from '@/types/questions';
@@ -142,6 +143,13 @@ export function FollowUpQuestions({ initialData, savedData = {}, onSubmit }: Fol
         SpeechRecognition.stopListening();
         resetTranscript();
         setActiveField(null);
+        
+        // Track successful voice input completion
+        analytics.trackEvent('TDLG_VOICE_INPUT_USED', {
+          field,
+          success: true,
+          component: 'FollowUpQuestions'
+        });
       } else {
         setActiveField(field);
         resetTranscript();
@@ -156,6 +164,7 @@ export function FollowUpQuestions({ initialData, savedData = {}, onSubmit }: Fol
           language: supportedLang
         });
         
+        
         rollbar.info('Voice input started', {
           field,
           language: supportedLang
@@ -165,10 +174,17 @@ export function FollowUpQuestions({ initialData, savedData = {}, onSubmit }: Fol
       rollbar.error('Error handling voice input', {
         error,
         component: 'FollowUpQuestions',
-        field,
-        listening,
-        activeField
+        field
       });
+      
+      // Track failed voice input attempt
+      analytics.trackEvent('TDLG_VOICE_INPUT_USED', {
+        field,
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+        component: 'FollowUpQuestions'
+      });
+      
       toast({
         title: "Voice input error",
         description: "There was a problem with the voice input. Please try typing instead.",
@@ -228,7 +244,10 @@ export function FollowUpQuestions({ initialData, savedData = {}, onSubmit }: Fol
             We're having trouble connecting to our AI service. You can proceed with generating your letter.
           </p>
           <Button
-            onClick={() => onSubmit({})}
+            onClick={() => {
+              analytics.trackEvent(GA_EVENTS.TDLG_NO_QUESTIONS_CONTINUE_CLICKED);
+              onSubmit({});
+            }}
             className="pill bg-primary text-white hover:opacity-90"
           >
             Continue to letter creation
@@ -247,7 +266,10 @@ export function FollowUpQuestions({ initialData, savedData = {}, onSubmit }: Fol
             We have enough information to proceed with creating your letter.
           </p>
           <Button
-            onClick={() => onSubmit({})}
+            onClick={() => {
+              analytics.trackEvent(GA_EVENTS.TDLG_NO_QUESTIONS_CONTINUE_CLICKED);
+              onSubmit({});
+            }}
             className="pill bg-primary text-white hover:opacity-90"
           >
             Continue to letter creation
