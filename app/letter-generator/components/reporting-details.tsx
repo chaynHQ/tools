@@ -80,7 +80,7 @@ export function ReportingDetails({ onComplete }: ReportingDetailsProps) {
         setActiveField(null);
         
         // Track successful voice input completion
-        analytics.trackEvent('TDLG_VOICE_INPUT_USED', {
+        analytics.trackEvent(GA_EVENTS.TDLG_VOICE_INPUT_USED, {
           field,
           success: true,
           component: 'ReportingDetails'
