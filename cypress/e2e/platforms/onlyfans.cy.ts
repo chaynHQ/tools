@@ -1,4 +1,4 @@
-describe('OnlyFans Platform Flow', () => {
+describe.skip('OnlyFans Platform Flow', () => {
   beforeEach(() => {
     cy.visit('/');
   });

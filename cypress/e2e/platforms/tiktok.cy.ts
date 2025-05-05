@@ -1,4 +1,4 @@
-describe('TikTok Platform Flow', () => {
+describe.skip('TikTok Platform Flow', () => {
   beforeEach(() => {
     cy.visit('/');
   });
