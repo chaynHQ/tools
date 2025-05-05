@@ -1,17 +1,17 @@
-describe.skip('Facebook Platform Flow', () => {
+describe('Instagram', () => {
   beforeEach(() => {
     cy.visit('/');
   });
 
-  it('should complete the full letter generation flow for Facebook', () => {
+  it('should complete the full letter generation flow', () => {
     // Start the process
     cy.contains('Start your request').click();
 
     // Verify we're on the letter generator page
     cy.url().should('include', '/letter-generator');
 
-    // Select Facebook and continue
-    cy.contains('Facebook').click();
+    // Select Instagram and continue
+    cy.contains('Instagram').click();
     cy.contains('Continue').click();
 
     // Select reporting status and continue
@@ -19,37 +19,36 @@ describe.skip('Facebook Platform Flow', () => {
     cy.contains('Continue').click();
 
     // Select content type and context
-    cy.contains('Personal content').click();
-    cy.contains('Posted by someone I know').click();
+    cy.contains('Intimate images').click();
+    cy.contains('Account was compromised').click();
 
-    // Fill in content location using URL option
-    cy.get('input[type="radio"][value="url"]').check();
-    cy.get('input[type="url"]').type('https://facebook.com/harmful-post-123');
+    // Fill in content location
+    cy.get('#imageIdentification').type('https://example.com/harmful-content');
 
     // Fill in dates
-    cy.get('#imageUploadDate').type('1 March 2025');
-    cy.get('#imageTakenDate').type('15 February 2025');
+    cy.get('#imageUploadDate').type('15 January 2025');
+    cy.get('#imageTakenDate').type('1 January 2025');
 
     // Fill in verification and impact
-    cy.get('#ownershipEvidence').type('I can be identified in the content and have original copies');
+    cy.get('#ownershipEvidence').type('https://facebook.com/myprofile');
     cy.get('#impactStatement').type(
-      'This has affected my personal and professional relationships significantly.'
+      'This has caused me significant anxiety and affected my mental health.'
     );
 
     cy.contains('Continue').click();
 
     // Fill in reporting process details
     cy.get('#standardProcessDetails').type(
-      'I reported through Facebook\'s reporting tool on March 2nd, 2025'
+      "I reported the content through the platform's reporting tool on 10th January 2025"
     );
     cy.get('#escalatedProcessDetails').type(
-      'I submitted a detailed report through Facebook\'s Help Center'
+      "I escalated through the platform's suggested route"
     );
     cy.get('#responseReceived').type(
-      'Facebook acknowledged my report but no action was taken'
+      'No response was received from the platform'
     );
     cy.get('#additionalStepsTaken').type(
-      'I tried contacting Facebook support multiple times'
+      'I sent a follow-up email to request an update'
     );
 
     cy.contains('Continue').click();
@@ -63,9 +62,10 @@ describe.skip('Facebook Platform Flow', () => {
     cy.contains('Creating your personalised letter', { timeout: 40000 });
 
     // Verify letter was generated
-    cy.contains('Your personalised letter', { timeout: 60000 }).should('be.visible');
+    cy.contains('Your personalised letter', { timeout: 60000 }).should(
+      'be.visible'
+    );
     cy.contains('Subject line').should('be.visible');
     cy.contains('Message content').should('be.visible');
-    cy.contains('records@facebook.com').should('be.visible');
   });
 });
