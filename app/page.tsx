@@ -1,5 +1,7 @@
 "use client";
 
+import { analytics } from '@/lib/analytics';
+import { GA_EVENTS } from '@/lib/constants/analytics';
 import { useFormContext } from '@/lib/context/FormContext';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -13,6 +15,10 @@ export default function Home() {
     resetForm();
   }, [resetForm]);
 
+  const handleStartRequest = () => {
+    analytics.trackEvent(GA_EVENTS.TDLG_START_YOUR_REQUEST_CLICKED);
+  };
+
   return (
     <>
       <div className="bg-neutral rounded-2xl p-4 sm:p-8 md:p-12 md:pb-0">
@@ -23,10 +29,11 @@ export default function Home() {
               Discovering your content shared without consent can feel overwhelming. We're here to guide you through creating an effective image takedown request letter.
             </p>
             <p className="text-lg mb-8 text-muted-foreground">
-              You're not alone in this journey. Our Survivor AI helps you take back control with clear, actionable steps.
+              You're not alone in this journey. Survivor AI helps you take back control with clear, actionable steps.
             </p>
             <Link 
               href="/letter-generator" 
+              onClick={handleStartRequest}
               className="inline-flex items-center pill bg-primary text-white px-6 py-2.5 text-base hover:opacity-90 transition-opacity"
             >
               Start your request
@@ -69,22 +76,22 @@ export default function Home() {
       </div>
 
       <div className="mb-12">
-        <h2 className="text-2xl mb-8 text-center">Example takedown letters</h2>
+        <h2 className="text-2xl mb-8 text-center">Example Takedown Letters</h2>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Example 1: Non-consensual intimate content */}
           <div className="bg-white rounded-xl p-6 shadow-sm">
             <h3 className="text-lg font-medium mb-4 border-b border-accent-blue pb-2">
-              Example: Non-consensual intimate content
+              Example: Non-consensual Intimate Content
             </h3>
             <div className="space-y-6">
               <div>
-                <h4 className="font-medium">Subject:</h4>
+                <h4 className="font-medium mb-3">Subject:</h4>
                 <p className="text-muted-foreground bg-neutral rounded-lg p-4">
                   Urgent Request to Remove Non-consensual Intimate Content - Privacy Violation
                 </p>
               </div>
               <div>
-                <h4 className="font-medium">Letter:</h4>
+                <h4 className="font-medium mb-3">Letter:</h4>
                 <div className="text-muted-foreground bg-neutral rounded-lg p-4 space-y-4">
                   <p>Dear Support Team,</p>
 
@@ -113,17 +120,17 @@ export default function Home() {
           {/* Example 2: Impersonation account */}
           <div className="bg-white rounded-xl p-6 shadow-sm">
             <h3 className="text-lg font-medium mb-4 border-b border-accent-blue pb-2">
-              Example: Impersonation account
+              Example: Impersonation Account
             </h3>
             <div className="space-y-6">
               <div>
-                <h4 className="font-medium">Subject:</h4>
+                <h4 className="font-medium mb-3">Subject:</h4>
                 <p className="text-muted-foreground bg-neutral rounded-lg p-4">
                   Request to Remove Impersonation Account - Urgent Privacy Violation
                 </p>
               </div>
               <div>
-                <h4 className="font-medium">Letter:</h4>
+                <h4 className="font-medium mb-3">Letter:</h4>
                 <div className="text-muted-foreground bg-neutral rounded-lg p-4 space-y-4">
                   <p>Dear Trust & Safety Team,</p>
 

@@ -15,6 +15,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { analytics } from '@/lib/analytics';
+import { GA_EVENTS } from '@/lib/constants/analytics';
 import { useFormContext } from '@/lib/context/FormContext';
 import { platforms } from '@/lib/platforms';
 import { clientConfig } from '@/lib/rollbar';
@@ -61,7 +62,7 @@ export function LetterReview({
       const fullText = `Subject: ${letter.subject}\n\n${letter.body}`;
       await navigator.clipboard.writeText(fullText);
       setCopied(true);
-      analytics.trackEvent('letter_copied', {
+      analytics.trackEvent(GA_EVENTS.TDLG_LETTER_COPIED, {
         has_placeholders: false,
         length: fullText.length
       });
@@ -81,6 +82,21 @@ export function LetterReview({
         title: "Unable to copy",
         description: "Please try selecting and copying the text manually.",
         variant: "destructive",
+      });
+    }
+  };
+
+  const handleRegenerate = () => {
+    try {
+      analytics.trackEvent(GA_EVENTS.TDLG_LETTER_REGENERATED, {
+        platform: platform?.name || 'unknown'
+      });
+      onRegenerateRequest();
+    } catch (error) {
+      rollbar.error('Error handling letter regeneration', {
+        error,
+        component: 'LetterReview',
+        platformId
       });
     }
   };
@@ -275,7 +291,7 @@ export function LetterReview({
                     <Button
                       variant="outline"
                       className="pill bg-white mt-4 hover:bg-accent-light/20"
-                      onClick={onRegenerateRequest}
+                      onClick={handleRegenerate}
                     >
                       <RefreshCw className="w-4 h-4 mr-2" />
                       Regenerate
@@ -341,6 +357,12 @@ export function LetterReview({
         <p className="text-muted-foreground">
           When intimate images are shared without our consent—what we often call image-based abuse—it can impact our wellbeing and sense of self. Chayn offers a{' '}
           <Link 
+            onClick={() => {
+              analytics.trackEvent(GA_EVENTS.TDLG_BLOOM_IBA_COURSE_LINK_CLICKED, {
+                source: 'letter_review',
+                platform: platform?.name || 'unknown'
+              });
+            }}
             href="https://bloom.chayn.co/courses/image-based-abuse-and-rebuilding-ourselves?utm_source=tools.chayn.co&utm_medium=referral&utm_campaign=tools.chayn.co-iba-referral"
             target="_blank"
             className="underline underline-offset-2 hover:text-primary/90"

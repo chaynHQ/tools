@@ -5,6 +5,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { analytics } from '@/lib/analytics';
+import { GA_EVENTS } from '@/lib/constants/analytics';
 import { useFormContext } from '@/lib/context/FormContext';
 import { platforms } from '@/lib/platforms';
 import { motion } from 'framer-motion';
@@ -69,7 +70,8 @@ export function RemovalProcess({ onComplete }: RemovalProcessProps) {
         };
       case 'both-completed':
         return {
-          message: "Sorry to hear that following the processes hasn't worked so far. Our Survivor AI can help you generate a formal letter to escalate this issue further.",          intent: "support"
+          message: "Sorry to hear that following the processes hasn't worked so far. Our Survivor AI can help you generate a formal letter to escalate this issue further.",
+          intent: "support"
         };
       case 'none-completed':
         return {
@@ -189,7 +191,10 @@ export function RemovalProcess({ onComplete }: RemovalProcessProps) {
         <Button 
           className="pill bg-primary text-white px-6 py-2.5 hover:opacity-90"
           disabled={!status}
-          onClick={onComplete}
+          onClick={() => {
+            analytics.trackEvent(GA_EVENTS.TDLG_REMOVAL_PROCESS_CONTINUE_CLICKED);
+            onComplete();
+          }}
         >
           Continue
         </Button>

@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { analytics } from '@/lib/analytics';
+import { GA_EVENTS } from '@/lib/constants/analytics';
 import { useFormContext } from '@/lib/context/FormContext';
 import { platforms } from '@/lib/platforms';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -57,6 +58,7 @@ export function PlatformSelection({ onComplete }: PlatformSelectionProps) {
   };
 
   const handleContinue = async () => {
+    analytics.trackEvent(GA_EVENTS.TDLG_PLATFORM_CONTINUE_CLICKED);
     setIsLoading(true);
     
     if (selectedPlatform === 'other') {
