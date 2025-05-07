@@ -196,6 +196,15 @@ CRITICAL INSTRUCTIONS:
 22. Format the content location statement based on type:
     - For URLs: "The content can be found at [Content Location]"
     - For descriptions: "The content can be found at the following location: [Content Location]"
+22. NEVER use the term "revenge porn" - use "non-consensual intimate content" instead
+23. NEVER use the phrase "function normally" - use more specific descriptions of impact
+24. NEVER use the term "criminal justice" - use "legal system" or "legal justice" instead
+25. NEVER use the terms "suffering" or "suffer" - use more specific descriptions of impact
+26. NEVER use the term "victims" - use "survivors" instead
+27. NEVER assume that "Intimate images" or "Photos or videos of a private nature" depict nudity or sexual activity - let the user's description guide the content characterization
+28. NEVER use the term "prostitution" - use "sex work" instead
+29. NEVER use the term "child pornography" - use "child sexual abuse material" instead
+30. NEVER use the term "honour-based crimes" - use "so called honour-based crimes" instead
 
 AVAILABLE INFORMATION:
 Content Location Type: ${initialInfo.contentLocationType || 'Not provided'}
@@ -308,6 +317,19 @@ Remember:
 }
 
 export function generateLetterQualityCheckPrompt(letter: string, request: LetterRequest) {
+  // Define banned terms and their replacements
+  const bannedTerms = [
+    { term: 'revenge porn', replacement: 'non-consensual intimate content' },
+    { term: 'function normally', replacement: 'specific impact description' },
+    { term: 'criminal justice', replacement: 'legal system or legal justice' },
+    { term: 'suffering', replacement: 'specific impact description' },
+    { term: 'suffer', replacement: 'specific impact description' },
+    { term: 'victims', replacement: 'survivors' },
+    { term: 'prostitution', replacement: 'sex work' },
+    { term: 'child pornography', replacement: 'child sexual abuse material' },
+    { term: 'honour-based crimes', replacement: 'so called honour-based crimes' }
+  ];
+
   // Define policy reference patterns
   const policyReferencePatterns = [
     /\([A-Z]+-[A-Z0-9-]+\)/g,  // Matches (CS-NCSII), (FB-TOS), etc.
@@ -338,9 +360,21 @@ QUALITY CHECK CRITERIA:
 7. PROFESSIONALISM: The letter should be professional, respectful, and trauma-informed
 8. ACTIONABILITY: The letter should include specific actions for the platform to take
 9. NO POLICY REFERENCES: The letter must not contain any internal policy reference codes
+10. NO BANNED TERMS: The letter must not contain any banned terms or phrases:
+    - "revenge porn" (use "non-consensual intimate content")
+    - "function normally" (use specific impact descriptions)
+    - "criminal justice" (use "legal system" or "legal justice")
+    - "suffering/suffer" (use specific impact descriptions)
+    - "victims" (use "survivors")
+    - "prostitution" (use "sex work")
+    - "child pornography" (use "child sexual abuse material")
+    - "honour-based crimes" (use "so called honour-based crimes")
+11. NO ASSUMPTIONS: The letter must not assume that "Intimate images" or "Photos or videos of a private nature" depict nudity or sexual activity
 
 REVIEW INSTRUCTIONS:
 - Check for any policy reference codes
+- Check for any banned terms or phrases
+- Check for assumptions about content type
 - Identify any issues in the letter based on all criteria above
 - For each issue, provide a specific recommendation for improvement
 - If the letter meets all criteria, indicate that it passes the quality check
