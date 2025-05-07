@@ -19,7 +19,7 @@ const webhook = process.env.SLACK_WEBHOOK_URL ?
 
 export async function validatePolicy(platform: string, policyData: any) {
   try {
-    console.log(`Starting policy validation for ${platform}...`);
+    rollbar.info(`Starting policy validation for ${platform}...`);
     
     if (!process.env.GOOGLE_AI_API_KEY) {
       throw new Error('Google AI API key not configured');
@@ -71,8 +71,8 @@ export async function validatePolicy(platform: string, policyData: any) {
         },
       })
     
+    rollbar.info(`Received response from AI for ${platform} validation`);
 
-    console.log(`Received response from AI for ${platform} validation`);
 
     const candidates = result?.candidates as { content: { parts: { text: string }[] } }[] | undefined;
     if (!candidates?.length) {
@@ -91,18 +91,12 @@ export async function validatePolicy(platform: string, policyData: any) {
       confidence: parsedResult.confidence,
       suggestedChangesCount: parsedResult.suggestedChanges.length
     });
-    console.log(`Successfully validated ${platform} policies:`, {
-      confidence: parsedResult.confidence,
-      suggestedChangesCount: parsedResult.suggestedChanges.length
-    });
-    return;
   } catch (error: any) {
     console.error('Policy validation error:', error);
     if (webhook) {
       try {
         await webhook.send(webhookFormattedError(platform, error));
       } catch (webhookError) {
-        console.error('Failed to send error to Slack:', webhookError);
         rollbar.error('Failed to send error to Slack', {
           error: webhookError,
           platform,
