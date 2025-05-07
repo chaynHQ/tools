@@ -1,13 +1,21 @@
 import { GoogleGenAI, Type } from "@google/genai";
+import { IncomingWebhook } from '@slack/webhook';
+import { NextResponse } from "next/server";
 import Rollbar from 'rollbar';
 import { clientConfig } from '../rollbar';
 import { parseJsonFromString } from './parser';
 import { createPrompt } from './prompt';
+import { webhookFormattedError, webhookFormattedResponse } from "./slack";
+
 
 // Initialize Rollbar for client-side
 const rollbar = new Rollbar(clientConfig);
 
 const genAI = new GoogleGenAI({apiKey: process.env.GOOGLE_AI_API_KEY || ''});
+// Initialize Slack webhook
+const webhook = process.env.SLACK_WEBHOOK_URL ? 
+  new IncomingWebhook(process.env.SLACK_WEBHOOK_URL) : 
+  null;
 
 export async function validatePolicy(platform: string, policyData: any) {
   try {
@@ -15,6 +23,12 @@ export async function validatePolicy(platform: string, policyData: any) {
     
     if (!process.env.GOOGLE_AI_API_KEY) {
       throw new Error('Google AI API key not configured');
+    }
+      if (!webhook) {
+          return NextResponse.json(
+            { error: 'Missing Slack webhook URL' },
+            { status: 500 }
+          );
     }
 
     const result = await genAI.models.generateContent({
@@ -71,14 +85,30 @@ export async function validatePolicy(platform: string, policyData: any) {
     }
 
     // Log successful validation
+    await webhook?.send(webhookFormattedResponse(platform, parsedResult));
+    rollbar.info('Policy validation successful', {
+      platform,
+      confidence: parsedResult.confidence,
+      suggestedChangesCount: parsedResult.suggestedChanges.length
+    });
     console.log(`Successfully validated ${platform} policies:`, {
       confidence: parsedResult.confidence,
       suggestedChangesCount: parsedResult.suggestedChanges.length
     });
-
-    return parsedResult;
-
+    return;
   } catch (error: any) {
-    throw error
+    console.error('Policy validation error:', error);
+    if (webhook) {
+      try {
+        await webhook.send(webhookFormattedError(platform, error));
+      } catch (webhookError) {
+        console.error('Failed to send error to Slack:', webhookError);
+        rollbar.error('Failed to send error to Slack', {
+          error: webhookError,
+          platform,
+          originalError: error
+        });
+      }
+    }
   }
 }

@@ -2,7 +2,7 @@ import { handleAuthError, validateZapierAuth } from '@/lib/auth/zapier-auth.guar
 import { getPlatformPolicy } from '@/lib/platform-policies';
 import { platforms } from '@/lib/platforms';
 import { handleApiError } from '@/lib/rollbar';
-import { webhookFormattedError, webhookFormattedResponse } from '@/lib/validation/slack';
+import { webhookFormattedError } from '@/lib/validation/slack';
 import { validatePolicy } from '@/lib/validation/validator';
 import { IncomingWebhook } from '@slack/webhook';
 import { NextResponse } from 'next/server';
@@ -58,18 +58,12 @@ export async function GET(
       );
     }
 
-    const result = await validatePolicy(platform.name, policy);    
-    if (webhook) {
-      try {
-        await webhook.send(webhookFormattedResponse(platform.name, result));
-      } catch (webhookError) {
-        console.error('Failed to send error to Slack:', webhookError);
-      }
-    }
-
+    // Start validation asynchronously
+    validatePolicy(platform.name, policy);
+    // Return immediately that validation has started
     return NextResponse.json({
-      message: `${platform.name} policy validation complete`,
-      result
+      message: `${platform.name} policy validation started`,
+      status: 'pending'
     });
 
   } catch (error: any) {
@@ -80,7 +74,7 @@ export async function GET(
 
     if (webhook) {
       try {
-        await webhook.send(webhookFormattedError(params.platform, error))
+        await webhook.send(webhookFormattedError(params.platform, error));
       } catch (webhookError) {
         console.error('Failed to send error to Slack:', webhookError);
       }
