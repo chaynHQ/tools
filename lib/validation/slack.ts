@@ -29,7 +29,7 @@ export const webhookFormattedResponse = (platform: string, result: ValidationRes
         type: "section",
         text: {
           type: "mrkdwn",
-          text: result.confidence > 0.7 && result.suggestedChanges.length > 0 ? 
+          text: result.confidence < 0.7 && result.suggestedChanges.length > 0 ? 
             "*Suggested Changes:*\n" + result.suggestedChanges.map((change) => 
               `• *${change.section}*: ${change.reason}`
             ).join("\n") :

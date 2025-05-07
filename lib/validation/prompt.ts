@@ -21,7 +21,8 @@ CRITICAL INSTRUCTIONS:
 - Consider any major policy updates in the past year
 - Verify all URLs and policy references against official sources
 
-Return your analysis in this structured JSON format only:
+Return your analysis in this structured JSON format only. Ensure the JSON is perfectly valid and can be parsed by \`JSON.parse()\` in JavaScript without any errors.
+Output schema:
 {
   "suggestedChanges": [
     {
