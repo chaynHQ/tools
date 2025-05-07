@@ -76,22 +76,22 @@ export default function Home() {
       </div>
 
       <div className="mb-12">
-        <h2 className="text-2xl mb-8 text-center">Example Takedown Letters</h2>
+        <h2 className="text-2xl mb-8 text-center">Example takedown letters</h2>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Example 1: Non-consensual intimate content */}
           <div className="bg-white rounded-xl p-6 shadow-sm">
             <h3 className="text-lg font-medium mb-4 border-b border-accent-blue pb-2">
-              Example: Non-consensual Intimate Content
+              Example: Non-consensual intimate content
             </h3>
             <div className="space-y-6">
               <div>
-                <h4 className="font-medium mb-3">Subject:</h4>
+                <h4 className="font-medium">Subject:</h4>
                 <p className="text-muted-foreground bg-neutral rounded-lg p-4">
                   Urgent Request to Remove Non-consensual Intimate Content - Privacy Violation
                 </p>
               </div>
               <div>
-                <h4 className="font-medium mb-3">Letter:</h4>
+                <h4 className="font-medium">Letter:</h4>
                 <div className="text-muted-foreground bg-neutral rounded-lg p-4 space-y-4">
                   <p>Dear Support Team,</p>
 
@@ -120,17 +120,17 @@ export default function Home() {
           {/* Example 2: Impersonation account */}
           <div className="bg-white rounded-xl p-6 shadow-sm">
             <h3 className="text-lg font-medium mb-4 border-b border-accent-blue pb-2">
-              Example: Impersonation Account
+              Example: Impersonation account
             </h3>
             <div className="space-y-6">
               <div>
-                <h4 className="font-medium mb-3">Subject:</h4>
+                <h4 className="font-medium">Subject:</h4>
                 <p className="text-muted-foreground bg-neutral rounded-lg p-4">
                   Request to Remove Impersonation Account - Urgent Privacy Violation
                 </p>
               </div>
               <div>
-                <h4 className="font-medium mb-3">Letter:</h4>
+                <h4 className="font-medium">Letter:</h4>
                 <div className="text-muted-foreground bg-neutral rounded-lg p-4 space-y-4">
                   <p>Dear Trust & Safety Team,</p>
 
