@@ -303,7 +303,14 @@ export function LetterReview({
                     <div className="flex flex-col gap-2">
                       <h4 className="text-base font-medium">Your feedback has been submitted</h4>
                       <p className="text-sm text-muted-foreground">
-                        Thank you for your feedback. This tool is new and learning! By sharing your experience, you help us make this tool more supportive for others in similar situations.
+                        Thank you for your feedback. This tool is new and learning! By sharing your experience, you help us make this tool more supportive for others in similar situations. If you would like to provide more detailed feedback, please <Link 
+              href={process.env.NEXT_PUBLIC_TYPEFORM_FEEDBACK_URL || '#'} 
+              target="_blank"
+              onClick={() => analytics.trackFeedbackSubmission('typeform')}
+              className="underline underline-offset-2 font-medium hover:text-primary/90"
+            >
+              share your thoughts with us.
+            </Link> 
                       </p>
                     </div>
                   )}
