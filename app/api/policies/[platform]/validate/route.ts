@@ -1,10 +1,11 @@
+import { handleAuthError, validateZapierAuth } from '@/lib/auth/zapier-auth.guard';
+import { getPlatformPolicy } from '@/lib/platform-policies';
 import { platforms } from '@/lib/platforms';
 import { handleApiError } from '@/lib/rollbar';
+import { webhookFormattedError, webhookFormattedResponse } from '@/lib/validation/slack';
+import { validatePolicy } from '@/lib/validation/validator';
 import { IncomingWebhook } from '@slack/webhook';
 import { NextResponse } from 'next/server';
-import { validatePolicy } from '@/lib/validation/validator';
-import { webhookFormattedResponse, webhookFormattedError } from '@/lib/validation/slack';
-import { getPlatformPolicy } from '@/lib/platform-policies';
 
 // Initialize Slack webhook
 const webhook = process.env.SLACK_WEBHOOK_URL ? 
@@ -16,6 +17,13 @@ export async function GET(
   { params }: { params: { platform: string } }
 ) {
   try {
+    // Validate Zapier authentication
+    try {
+      validateZapierAuth(request);
+    } catch (error) {
+      return handleAuthError(error);
+    }
+
     if (!process.env.GOOGLE_AI_API_KEY) {
       return NextResponse.json(
         { error: 'Missing Google AI API key' },
@@ -50,8 +58,14 @@ export async function GET(
       );
     }
 
-    const result = await validatePolicy(platform.name, policy);
-    await webhook.send(webhookFormattedResponse(platform.name, result));
+    const result = await validatePolicy(platform.name, policy);    
+    if (webhook) {
+      try {
+        await webhook.send(webhookFormattedResponse(platform.name, result));
+      } catch (webhookError) {
+        console.error('Failed to send error to Slack:', webhookError);
+      }
+    }
 
     return NextResponse.json({
       message: `${platform.name} policy validation complete`,
@@ -64,7 +78,14 @@ export async function GET(
       errorType: error.name,
     });
 
-    await webhook?.send(webhookFormattedError(params.platform, error));
+    if (webhook) {
+      try {
+        await webhook.send(webhookFormattedError(params.platform, error))
+      } catch (webhookError) {
+        console.error('Failed to send error to Slack:', webhookError);
+      }
+    }
+    
     return NextResponse.json({ error: errorMessage }, { status });
   }
 }
