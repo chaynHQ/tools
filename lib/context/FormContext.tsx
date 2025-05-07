@@ -11,7 +11,7 @@ import { IS_DEVELOPMENT } from '../constants/common';
 const rollbar = new Rollbar(clientConfig);
 
 // Define types for our form data
-interface PlatformInfo {
+export interface PlatformInfo {
   platformId: string;
   platformName: string;
   isCustom: boolean;

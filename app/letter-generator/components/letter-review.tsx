@@ -217,6 +217,35 @@ export function LetterReview({
             </div>
           </div>
 
+          <div className="p-6 bg-accent-light rounded-lg">
+              <div className="flex flex-col gap-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex-1">
+                    <h4 className="text-base mb-1">Copy your letter</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Copy your letter, then paste it into an email. Don't forget to add your name at the end and include the subject line.
+                    </p>
+                  </div>
+                  <Button
+                    className="pill whitespace-nowrap bg-primary text-white hover:opacity-90 min-w-[120px] ml-6"
+                    onClick={handleCopy}
+                  >
+                    {copied ? (
+                      <>
+                        <CheckCircle2 className="w-4 h-4 mr-2" />
+                        Copied
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="w-4 h-4 mr-2" />
+                        Copy letter
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </div>
+            </div>
+
           <div className="flex flex-col gap-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="p-6 bg-white rounded-lg border border-border/50">
@@ -301,34 +330,7 @@ export function LetterReview({
               </div>
             </div>
 
-            <div className="p-6 bg-accent-light rounded-lg">
-              <div className="flex flex-col gap-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex-1">
-                    <h4 className="text-base mb-1">Copy your letter</h4>
-                    <p className="text-sm text-muted-foreground">
-                      Copy your letter, then paste it into an email. Don't forget to add your name at the end and include the subject line.
-                    </p>
-                  </div>
-                  <Button
-                    className="pill whitespace-nowrap bg-primary text-white hover:opacity-90 min-w-[120px] ml-6"
-                    onClick={handleCopy}
-                  >
-                    {copied ? (
-                      <>
-                        <CheckCircle2 className="w-4 h-4 mr-2" />
-                        Copied
-                      </>
-                    ) : (
-                      <>
-                        <Copy className="w-4 h-4 mr-2" />
-                        Copy letter
-                      </>
-                    )}
-                  </Button>
-                </div>
-              </div>
-            </div>
+         
           </div>
         </motion.div>
       </QuestionSection>

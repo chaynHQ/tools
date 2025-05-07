@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { analytics } from '@/lib/analytics';
 import { GA_EVENTS } from '@/lib/constants/analytics';
-import { useFormContext } from '@/lib/context/FormContext';
+import { PlatformInfo, useFormContext } from '@/lib/context/FormContext';
 import { platforms } from '@/lib/platforms';
 import { AnimatePresence, motion } from 'framer-motion';
 import { AlertTriangle, Loader2 } from 'lucide-react';
@@ -14,7 +14,7 @@ import Image from 'next/image';
 import { useEffect, useState } from 'react';
 
 interface PlatformSelectionProps {
-  onComplete: () => void;
+  onComplete: (platformInfo: PlatformInfo) => void;
 }
 
 const MESSAGING_PLATFORMS = [
@@ -58,41 +58,69 @@ export function PlatformSelection({ onComplete }: PlatformSelectionProps) {
   };
 
   const handleContinue = async () => {
-    analytics.trackEvent(GA_EVENTS.TDLG_PLATFORM_CONTINUE_CLICKED);
-    setIsLoading(true);
-    
-    if (selectedPlatform === 'other') {
-      setPlatformInfo({
-        platformId: 'other',
-        platformName: otherPlatform,
-        isCustom: true,
-        customName: otherPlatform
-      });
-    } else {
-      const platform = platforms.find(p => p.id === selectedPlatform);
-      if (platform) {
-        setPlatformInfo({
-          platformId: platform.id,
-          platformName: platform.name,
-          isCustom: false
+    try {
+      setIsLoading(true);
+
+      // Track the continue button click
+      analytics.trackEvent(GA_EVENTS.TDLG_PLATFORM_CONTINUE_CLICKED);
+
+      if (!selectedPlatform || (selectedPlatform === 'other' && !otherPlatform)) {
+        toast({
+          title: "Platform selection required",
+          description: "Please select a platform or enter a custom platform name.",
+          variant: "destructive"
         });
+        return;
       }
-    }
-    
-    analytics.trackPlatformSelection(
-      selectedPlatform === 'other' ? otherPlatform : selectedPlatform,
-      selectedPlatform === 'other'
-    );
-    
-    if (selectedPlatform === 'other') {
+      let platformInfo: PlatformInfo = {
+        platformId: '',
+        platformName: '',
+        isCustom: false,
+        customName: ''
+      };
+
+      if (selectedPlatform === 'other') {
+        platformInfo = {
+          platformId: 'other',
+          platformName: otherPlatform,
+          isCustom: true,
+          customName: otherPlatform
+        };
+
+        // Track custom platform selection
+        analytics.trackEvent(GA_EVENTS.TDLG_PLATFORM_SELECTED, {
+          platform: otherPlatform,
+          is_custom: true
+        });
+      } else {
+        // Set platform info for known platform
+
+        const platform = platforms.find(p => p.id === selectedPlatform);
+        if (platform) {
+          platformInfo = {
+            platformId: platform.id,
+            platformName: platform.name,
+            isCustom: false
+          };
+          // Track known platform selection
+          analytics.trackEvent(GA_EVENTS.TDLG_PLATFORM_SELECTED, {
+            platform: platform.name,
+            is_custom: false
+          });
+        }
+      }
+      setPlatformInfo(platformInfo);
+      onComplete(platformInfo);
+    } catch (error) {
+      console.error('Error in platform selection:', error);
       toast({
-        title: "Platform selected",
-        description: "We'll help you create a general takedown request for this platform.",
+        title: "Error selecting platform",
+        description: "There was a problem processing your selection. Please try again.",
+        variant: "destructive"
       });
+    } finally {
+      setIsLoading(false);
     }
-    
-    setIsLoading(false);
-    onComplete();
   };
 
   return (
