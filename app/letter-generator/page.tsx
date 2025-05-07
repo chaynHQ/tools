@@ -4,7 +4,8 @@ import 'regenerator-runtime/runtime'; // Ensure this import goes first otherwise
 import { Button } from '@/components/ui/button';
 import { generateLetter } from '@/lib/ai';
 import { analytics } from '@/lib/analytics';
-import { useFormContext } from '@/lib/context/FormContext';
+import { GA_EVENTS } from '@/lib/constants/analytics';
+import { PlatformInfo, useFormContext } from '@/lib/context/FormContext';
 import { GeneratedLetter } from '@/types/letter';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Loader2 } from 'lucide-react';
@@ -69,6 +70,11 @@ export default function LetterGenerator() {
       setRedactedLetter(letters.originalLetter);
       setHasGeneratedLetter(true);
       
+      analytics.trackEvent(GA_EVENTS.TDLG_LETTER_GENERATED, {
+        platform: formState.platformInfo?.platformName,
+        isRegeneration: isRegenerating
+      });
+      
       // Only change step if not regenerating
       if (!isRegenerating) {
         setCurrentStep('review');
@@ -76,13 +82,18 @@ export default function LetterGenerator() {
       setIsRegenerating(false);
     } catch (error) {
       console.error('Error generating letter:', error);
-      // Handle error appropriately
+      analytics.trackError('letter_generation', error instanceof Error ? error.message : 'Unknown error', 'LetterGenerator');
     } finally {
       setIsLoading(false);
     }
   }, [formState.completeFormData, isRegenerating]);
 
   const getStepOrder = (): Step[] => {
+    // Skip removal process for custom platforms
+    if (formState.platformInfo?.isCustom) {
+      return ['platform-selection', 'initial-questions', 'follow-up', 'generation', 'review'];
+    }
+
     return formState.reportingInfo?.status === 'none-completed'
       ? ['platform-selection', 'removal-process', 'initial-questions', 'follow-up', 'generation', 'review']
       : ['platform-selection', 'removal-process', 'initial-questions', 'reporting-details', 'follow-up', 'generation', 'review'];
@@ -94,6 +105,9 @@ export default function LetterGenerator() {
   };
 
   const getTotalSteps = () => {
+    if (formState.platformInfo?.isCustom) {
+      return 5; // Skip removal process for custom platforms
+    }
     return formState.reportingInfo?.status === 'none-completed' ? 6 : 7;
   };
 
@@ -114,7 +128,16 @@ export default function LetterGenerator() {
     }
   };
 
-  const handleNext = (nextStep: Step) => {
+  const handleNext = (nextStep: Step, platformInfo?: PlatformInfo) => {
+    // For custom platforms, skip removal process
+    if (nextStep === 'removal-process' && platformInfo?.isCustom) {
+      nextStep = 'initial-questions';
+    }
+
+    if (nextStep === 'reporting-details' && (formState.reportingInfo?.status === 'none-completed' || !formState.reportingInfo || Object.keys(formState.reportingInfo).length === 0)) {
+      nextStep = 'follow-up';
+    }
+
     // Update complete form data before moving to follow-up or generation steps
     if (nextStep === 'follow-up' || nextStep === 'generation') {
       updateCompleteFormData();
@@ -188,10 +211,10 @@ export default function LetterGenerator() {
             </div>
 
             {currentStep === 'platform-selection' && (
-              <PlatformSelection onComplete={() => handleNext('removal-process')} />
+              <PlatformSelection onComplete={(platformInfo) => handleNext('removal-process', platformInfo)} />
             )}
 
-            {currentStep === 'removal-process' && (
+            {currentStep === 'removal-process' && !formState.platformInfo?.isCustom && (
               <RemovalProcess onComplete={() => handleNext('initial-questions')} />
             )}
 
