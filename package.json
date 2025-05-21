@@ -74,7 +74,7 @@
   },
   "devDependencies": {
     "@types/react-speech-recognition": "^3.9.5",
-    "@typescript-eslint/eslint-plugin": "^6.21.0",
+    "@typescript-eslint/eslint-plugin": "^8.32.1",
     "@typescript-eslint/parser": "^6.21.0",
     "cypress": "^13.6.6",
     "eslint-config-prettier": "^9.1.0",
