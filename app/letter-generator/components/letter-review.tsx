@@ -160,10 +160,11 @@ export function LetterReview({
       }
 
       setFeedbackSubmitted(true);
-      analytics.trackEvent('letter_feedback_submitted', {
+      analytics.trackEvent(GA_EVENTS.TDLG_LETTER_FEEDBACK_SUBMITTED, {
         rating: isUseful ? 'positive' : 'negative',
         letterShared: consentToShare
       });
+      if (consentToShare) { analytics.trackEvent(GA_EVENTS.TDLG_LETTER_FEEDBACK_CONSENT_TO_SHARE)}
     } catch (error) {
       rollbar.error('Error submitting feedback', {
         error,

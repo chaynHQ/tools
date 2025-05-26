@@ -1,6 +1,7 @@
-import { clientConfig } from './rollbar';
 import Rollbar from 'rollbar';
+import { GA_EVENTS } from './constants/analytics';
 import { IS_PRODUCTION } from './constants/common';
+import { clientConfig } from './rollbar';
 
 // Initialize Rollbar for client-side
 const rollbar = new Rollbar(clientConfig);
@@ -13,39 +14,6 @@ export const GA_CATEGORIES = {
   FEEDBACK: 'feedback',
   ERROR: 'error',
   ENGAGEMENT: 'engagement'
-} as const;
-
-// Define all possible event names
-export const ANALYTICS_EVENTS = {
-  // Onboarding events
-  PROCESS_STARTED: 'process_started',
-  PLATFORM_SELECTED: 'platform_selected',
-  
-  // Question events
-  INITIAL_QUESTIONS_COMPLETED: 'initial_questions_completed',
-  REPORTING_QUESTIONS_COMPLETED: 'reporting_questions_completed',
-  ADDITIONAL_QUESTIONS_COMPLETED: 'additional_questions_completed',
-  REPORTING_STATUS_SELECTED: 'reporting_status_selected',
-  ADDITIONAL_QUESTIONS_GENERATED: 'additional_questions_generated',
-  
-  // Letter events
-  LETTER_GENERATED: 'letter_generated',
-  LETTER_REGENERATED: 'letter_regenerated',
-  LETTER_COPIED: 'letter_copied',
-  PROCESS_COMPLETED: 'process_completed',
-  
-  // Error events
-  ERROR_OCCURRED: 'error_occurred',
-  RETRY_ATTEMPTED: 'retry_attempted',
-  
-  // Feedback events
-  FEEDBACK_OPENED: 'feedback_opened',
-  FEEDBACK_SUBMITTED: 'feedback_submitted',
-  
-  // Engagement events
-  VOICE_INPUT_USED: 'voice_input_used',
-  EXTERNAL_LINK_CLICKED: 'external_link_clicked',
-  SOCIAL_LINK_CLICKED: 'social_link_clicked'
 } as const;
 
 type EventParams = Record<string, string | number | boolean | null | undefined>;
@@ -102,7 +70,7 @@ export const analytics = {
 
   trackPlatformSelection: (platform: string, isCustom: boolean) => {
     try {
-      trackEvent(ANALYTICS_EVENTS.PLATFORM_SELECTED, {
+      trackEvent(GA_EVENTS.TDLG_PLATFORM_SELECTED, {
         platform,
         is_custom: isCustom,
       }, GA_CATEGORIES.ONBOARDING);
@@ -113,7 +81,7 @@ export const analytics = {
 
   trackInitialQuestionsCompleted: (timeSpent: number) => {
     try {
-      trackEvent(ANALYTICS_EVENTS.INITIAL_QUESTIONS_COMPLETED, {
+      trackEvent(GA_EVENTS.TDLG_INITIAL_QUESTIONS_COMPLETED, {
         time_spent: timeSpent,
       }, GA_CATEGORIES.QUESTIONS);
     } catch (error) {
@@ -123,7 +91,7 @@ export const analytics = {
 
   trackReportingQuestionsCompleted: (timeSpent: number) => {
     try {
-      trackEvent(ANALYTICS_EVENTS.REPORTING_QUESTIONS_COMPLETED, {
+      trackEvent(GA_EVENTS.TDLG_REPORTING_QUESTIONS_COMPLETED, {
         time_spent: timeSpent,
       }, GA_CATEGORIES.QUESTIONS);
     } catch (error) {
@@ -133,7 +101,7 @@ export const analytics = {
 
   trackAdditionalQuestionsCompleted: (timeSpent: number, questionCount: number) => {
     try {
-      trackEvent(ANALYTICS_EVENTS.ADDITIONAL_QUESTIONS_COMPLETED, {
+      trackEvent(GA_EVENTS.TDLG_ADDITIONAL_QUESTIONS_COMPLETED, {
         time_spent: timeSpent,
         question_count: questionCount,
       }, GA_CATEGORIES.QUESTIONS);
@@ -144,7 +112,7 @@ export const analytics = {
 
   trackAdditionalQuestionsGenerated: (questionCount: number) => {
     try {
-      trackEvent(ANALYTICS_EVENTS.ADDITIONAL_QUESTIONS_GENERATED, {
+      trackEvent(GA_EVENTS.TDLG_ADDITIONAL_QUESTIONS_GENERATED, {
         question_count: questionCount,
       }, GA_CATEGORIES.QUESTIONS);
     } catch (error) {
@@ -154,7 +122,7 @@ export const analytics = {
 
   trackReportingStatus: (status: string) => {
     try {
-      trackEvent(ANALYTICS_EVENTS.REPORTING_STATUS_SELECTED, {
+      trackEvent(GA_EVENTS.TDLG_REPORTING_STATUS_SELECTED, {
         status,
       }, GA_CATEGORIES.QUESTIONS);
     } catch (error) {
@@ -165,7 +133,7 @@ export const analytics = {
   trackLetterGeneration: (success: boolean, retryCount?: number, isRegeneration: boolean = false) => {
     try {
       trackEvent(
-        isRegeneration ? ANALYTICS_EVENTS.LETTER_REGENERATED : ANALYTICS_EVENTS.LETTER_GENERATED,
+        isRegeneration ? GA_EVENTS.TDLG_LETTER_REGENERATED : GA_EVENTS.TDLG_LETTER_GENERATED,
         {
           success,
           retry_count: retryCount,
@@ -179,7 +147,7 @@ export const analytics = {
 
   trackError: (errorType: string, errorMessage: string, component: string) => {
     try {
-      trackEvent(ANALYTICS_EVENTS.ERROR_OCCURRED, {
+      trackEvent(GA_EVENTS.TDLG_ERROR_OCCURRED, {
         error_type: errorType,
         error_message: errorMessage,
         component,
@@ -192,7 +160,7 @@ export const analytics = {
 
   trackRetry: (action: string, attemptNumber: number) => {
     try {
-      trackEvent(ANALYTICS_EVENTS.RETRY_ATTEMPTED, {
+      trackEvent(GA_EVENTS.TDLG_RETRY_ATTEMPTED, {
         action,
         attempt_number: attemptNumber,
       }, GA_CATEGORIES.ERROR);
@@ -203,7 +171,7 @@ export const analytics = {
 
   trackProcessCompletion: (totalTime: number, stepsCompleted: string[]) => {
     try {
-      trackEvent(ANALYTICS_EVENTS.PROCESS_COMPLETED, {
+      trackEvent(GA_EVENTS.TDLG_PROCESS_COMPLETED, {
         total_time: totalTime,
         steps_completed: stepsCompleted.join(','),
       }, GA_CATEGORIES.LETTER);
@@ -214,7 +182,7 @@ export const analytics = {
 
   trackFeedbackOpened: (source: string) => {
     try {
-      trackEvent(ANALYTICS_EVENTS.FEEDBACK_OPENED, {
+      trackEvent(GA_EVENTS.TDLG_FEEDBACK_OPENED, {
         source,
       }, GA_CATEGORIES.FEEDBACK);
     } catch (error) {
@@ -224,7 +192,7 @@ export const analytics = {
 
   trackFeedbackSubmission: (method: FeedbackMethod, length?: number) => {
     try {
-      trackEvent(ANALYTICS_EVENTS.FEEDBACK_SUBMITTED, {
+      trackEvent(GA_EVENTS.TDLG_FEEDBACK_SUBMITTED, {
         method,
         feedback_length: length,
       }, GA_CATEGORIES.FEEDBACK);
@@ -235,7 +203,7 @@ export const analytics = {
 
   trackVoiceInput: (field: string, success: boolean) => {
     try {
-      trackEvent(ANALYTICS_EVENTS.VOICE_INPUT_USED, {
+      trackEvent(GA_EVENTS.TDLG_VOICE_INPUT_USED, {
         field,
         success,
       }, GA_CATEGORIES.ENGAGEMENT);
@@ -246,7 +214,7 @@ export const analytics = {
 
   trackExternalLink: (url: string, type: string) => {
     try {
-      trackEvent(ANALYTICS_EVENTS.EXTERNAL_LINK_CLICKED, {
+      trackEvent(GA_EVENTS.EXTERNAL_LINK_CLICKED, {
         url,
         type,
       }, GA_CATEGORIES.ENGAGEMENT);
@@ -257,7 +225,7 @@ export const analytics = {
 
   trackSocialLink: (platform: string) => {
     try {
-      trackEvent(ANALYTICS_EVENTS.SOCIAL_LINK_CLICKED, {
+      trackEvent(GA_EVENTS.SOCIAL_LINK_CLICKED, {
         platform,
       }, GA_CATEGORIES.ENGAGEMENT);
     } catch (error) {

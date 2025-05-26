@@ -177,7 +177,7 @@ export function InitialQuestions({ onComplete }: InitialQuestionsProps) {
       });
       
       // Track failed voice input attempt
-      analytics.trackEvent('TDLG_VOICE_INPUT_USED', {
+      analytics.trackEvent(GA_EVENTS.TDLG_VOICE_INPUT_USED, {
         field,
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error',
