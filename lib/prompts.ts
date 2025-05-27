@@ -1,15 +1,18 @@
 import { LetterRequest } from '@/types/letter';
 import { getPlatformPolicy, getRelevantPolicies } from './platform-policies';
 import { platforms } from './platforms';
+import { rollbar } from './rollbar';
 
 export function generateFollowUpPrompt(request: LetterRequest) {
   // Validate required data
   if (!request.initialQuestions || !request.platformInfo) {
+    rollbar.error('generateFollowUpPrompt: Missing required data for generating follow-up questions');
     throw new Error('Missing required data for generating follow-up questions');
   }
 
   // Validate platformInfo
   if (!request.platformInfo.name) {
+    rollbar.error('generateFollowUpPrompt: Missing platform name in platformInfo')
     throw new Error('Missing name in platformInfo');
   }
 

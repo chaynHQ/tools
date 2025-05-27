@@ -129,7 +129,11 @@ export function LetterReview({
       setFeedbackError(null);
 
       if (!process.env.NEXT_PUBLIC_ZAPIER_WEBHOOK_URL) {
-        throw new Error('Unable to submit feedback at this time');
+        rollbar.error('Zapier webhook URL not configured', {
+          component: 'LetterReview',
+          platformId
+        });
+        throw new Error('Zapier webhook URL not configured');
       }
 
       const payload = {

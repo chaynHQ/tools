@@ -1,3 +1,4 @@
+import Rollbar from 'rollbar';
 import { ENVIRONMENT } from './constants/common';
 
 const baseConfig = {
@@ -22,6 +23,9 @@ export const clientConfig = {
   ...baseConfig,
 };
 
+export const rollbar = new Rollbar(clientConfig);
+
+
 // Helper functions for error handling
 export function handleApiError(error: unknown, endpoint: string, context?: Record<string, unknown>) {
   if (error instanceof Error) {    
@@ -29,6 +33,7 @@ export function handleApiError(error: unknown, endpoint: string, context?: Recor
       return {
         error: 'Authentication failed',
         status: 401,
+        message: error.message
       };
     }
     
@@ -36,12 +41,14 @@ export function handleApiError(error: unknown, endpoint: string, context?: Recor
       return {
         error: 'Rate limit exceeded',
         status: 429,
+        message: error.message
       };
     }
 
     return {
       error: error.message,
       status: 500,
+      message: error.message,
     };
   }
 

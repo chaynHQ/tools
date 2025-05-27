@@ -1,5 +1,5 @@
 import { generateFollowUpPrompt } from '@/lib/prompts';
-import { handleApiError } from '@/lib/rollbar';
+import { handleApiError, rollbar } from '@/lib/rollbar';
 import { parseAIJson } from '@/lib/utils';
 import Anthropic from '@anthropic-ai/sdk';
 import { NextResponse } from 'next/server';
@@ -36,6 +36,7 @@ export async function POST(request: Request) {
     });
 
     if (!response?.content?.[0]?.text) {
+      rollbar.error('FollowUpQuestions: Invalid response from Anthropic API');
       throw new Error('Invalid response from Anthropic API');
     }
 
@@ -44,6 +45,7 @@ export async function POST(request: Request) {
       const responseText = response.content[0].text;
       questions = parseAIJson(responseText);
       if (!Array.isArray(questions)) {
+        rollbar.error('FollowUpQuestions: Parsed response is not an array');
         throw new Error('Response is not an array');
       }
       
@@ -51,9 +53,10 @@ export async function POST(request: Request) {
       const processedQuestions = [...questions];
       
       return NextResponse.json(processedQuestions);
-    } catch (e) {
-      console.error('JSON parsing error:', e);
-      console.error('Raw response:', response.content[0].text);
+    } catch (err) {
+      rollbar.error('FollowUpQuestions: Failed to parse Anthropic response as JSON', {
+        error: err});
+      // Log the raw response for debugging
       throw new Error('Failed to parse Anthropic response as JSON');
     }
 
