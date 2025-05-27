@@ -1,5 +1,5 @@
 import { generateLetterQualityCheckPrompt } from '@/lib/prompts';
-import { handleApiError } from '@/lib/rollbar';
+import { handleApiError, rollbar } from '@/lib/rollbar';
 import { parseAIJson } from '@/lib/utils';
 import Anthropic from '@anthropic-ai/sdk';
 import { NextResponse } from 'next/server';
@@ -37,6 +37,9 @@ export async function POST(request: Request) {
     });
 
     if (!response?.content?.[0]?.text) {
+      rollbar.error('QualityCheckLetter: Invalid response from Anthropic API', {
+        response
+      });
       throw new Error('Invalid response from Anthropic API');
     }
 
@@ -46,12 +49,21 @@ export async function POST(request: Request) {
       
       // Validate the response structure
       if (typeof qualityCheckResult.passesQualityCheck !== 'boolean') {
+        rollbar.error('QualityCheckLetter: Invalid quality check result format', {
+          response: qualityCheckResult
+        });
         throw new Error('Invalid quality check result format');
       }
     } catch (e) {
+      rollbar.error('QualityCheckLetter: Failed to parse Anthropic response as JSON', {
+        error: e,
+        responseText: response.content[0].text
+      });
       throw new Error('Failed to parse Anthropic response as JSON');
     }
-
+    rollbar.info('QualityCheckLetter: Successfully parsed quality check result', {
+      qualityCheckResult
+    });
     return NextResponse.json(qualityCheckResult);
 
   } catch (error: any) {

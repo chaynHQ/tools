@@ -1,15 +1,10 @@
+import { rollbar } from "@/lib/rollbar";
 import { GoogleGenAI, Type } from "@google/genai";
 import { IncomingWebhook } from '@slack/webhook';
 import { NextResponse } from "next/server";
-import Rollbar from 'rollbar';
-import { clientConfig } from '../rollbar';
 import { parseJsonFromString } from './parser';
 import { createPrompt } from './prompt';
 import { webhookFormattedError, webhookFormattedResponse } from "./slack";
-
-
-// Initialize Rollbar for client-side
-const rollbar = new Rollbar(clientConfig);
 
 const genAI = new GoogleGenAI({apiKey: process.env.GOOGLE_AI_API_KEY || ''});
 // Initialize Slack webhook
@@ -22,13 +17,15 @@ export async function validatePolicy(platform: string, policyData: any) {
     rollbar.info(`Starting policy validation for ${platform}...`);
     
     if (!process.env.GOOGLE_AI_API_KEY) {
+      rollbar.error('Validator: Google AI API key not configured');
       throw new Error('Google AI API key not configured');
     }
-      if (!webhook) {
-          return NextResponse.json(
-            { error: 'Missing Slack webhook URL' },
-            { status: 500 }
-          );
+    if (!webhook) {
+      rollbar.error('Validator: Slack webhook URL not configured');
+      return NextResponse.json(
+        { error: 'Missing Slack webhook URL' },
+        { status: 500 }
+      );
     }
 
     const result = await genAI.models.generateContent({
@@ -71,16 +68,17 @@ export async function validatePolicy(platform: string, policyData: any) {
         },
       })
     
-    rollbar.info(`Received response from AI for ${platform} validation`);
-
+    rollbar.info(`Validator: Received response from AI for ${platform} validation`);
 
     const candidates = result?.candidates as { content: { parts: { text: string }[] } }[] | undefined;
     if (!candidates?.length) {
+      rollbar.error('Validator: No candidates returned from AI model', { platform });
       throw new Error('No candidates returned from AI model');
     }
 
     const parsedResult = parseJsonFromString(candidates[0].content?.parts[0]?.text);
     if (!parsedResult) {
+      rollbar.error('Validator: Failed to parse AI response as JSON', { platform, response: candidates[0].content?.parts[0]?.text });
       throw new Error('Failed to parse AI response as JSON');
     }
 
@@ -93,6 +91,11 @@ export async function validatePolicy(platform: string, policyData: any) {
     });
   } catch (error: any) {
     console.error('Policy validation error:', error);
+    rollbar.error('Validator: Policy validation error', {
+      error,
+      platform,
+      originalError: error.message || 'Unknown error'
+    });
     if (webhook) {
       try {
         await webhook.send(webhookFormattedError(platform, error));

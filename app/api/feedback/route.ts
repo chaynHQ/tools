@@ -1,4 +1,4 @@
-import { handleApiError } from '@/lib/rollbar';
+import { handleApiError, rollbar } from '@/lib/rollbar';
 import { NextResponse } from 'next/server';
 
 export async function POST(request: Request) {
@@ -24,6 +24,7 @@ export async function POST(request: Request) {
     });
 
     if (!response.ok) {
+      rollbar.error('feedback: Failed to submit feedback to Zapier');
       throw new Error('Failed to submit feedback to Zapier');
     }
 

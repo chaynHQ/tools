@@ -1,5 +1,5 @@
 import { generateLetterPrompt } from '@/lib/prompts';
-import { handleApiError } from '@/lib/rollbar';
+import { handleApiError, rollbar } from '@/lib/rollbar';
 import { parseAIJson } from '@/lib/utils';
 import Anthropic from '@anthropic-ai/sdk';
 import { NextResponse } from 'next/server';
@@ -38,6 +38,7 @@ export async function POST(request: Request) {
     });
 
     if (!response?.content?.[0]?.text) {
+      rollbar.error('GenerateLetter: Invalid response from Anthropic API');
       throw new Error('Invalid response from Anthropic API');
     }
 
@@ -45,13 +46,14 @@ export async function POST(request: Request) {
     try {
       letter = parseAIJson(response.content[0].text);
       if (!letter.subject || !letter.body) {
+        rollbar.error('GenerateLetter: Generated letter is missing required fields');
         throw new Error('Generated letter is missing required fields');
       }
       
       return NextResponse.json(letter);
     } catch (e: any) {
       console.error('JSON parsing error:', e);
-      console.error('Raw response:', response.content[0].text);
+      rollbar.error('Failed to parse Anthropic response as JSON');
       
       // Provide more specific error messages based on the error type
       let errorMessage = 'Failed to generate letter';
