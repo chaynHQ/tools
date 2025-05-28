@@ -11,6 +11,7 @@ export async function POST(request: Request) {
   rollbar.info('GenerateLetter: Received request to generate letter');
   try {
     if (!process.env.ANTHROPIC_API_KEY) {
+      rollbar.error('GenerateLetter: Missing Anthropic API key');
       return NextResponse.json({ error: 'Missing Anthropic API key' }, { status: 500 });
     }
 
