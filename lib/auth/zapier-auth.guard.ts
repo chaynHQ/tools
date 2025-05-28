@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { rollbar } from '../rollbar';
+import { serverInstance as rollbar } from '../rollbar';
 
 export class UnauthorizedException extends Error {
   constructor(message: string) {

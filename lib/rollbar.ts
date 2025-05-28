@@ -23,7 +23,14 @@ export const clientConfig = {
   ...baseConfig,
 };
 
+// Use this import for client side helper functions otherwise use the useRollbar hook in components
 export const rollbar = new Rollbar(clientConfig);
+
+// Never import the serverInstance into clientside code
+export const serverInstance = new Rollbar({
+  accessToken: process.env.ROLLBAR_SERVER_TOKEN,
+  ...baseConfig,
+});
 
 
 // Helper functions for error handling

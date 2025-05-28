@@ -1,10 +1,6 @@
-import Rollbar from 'rollbar';
 import { GA_EVENTS } from './constants/analytics';
 import { IS_PRODUCTION } from './constants/common';
-import { clientConfig } from './rollbar';
-
-// Initialize Rollbar for client-side
-const rollbar = new Rollbar(clientConfig);
+import { rollbar } from './rollbar';
 
 // Define event categories for better organization
 export const GA_CATEGORIES = {
