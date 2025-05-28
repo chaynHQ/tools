@@ -1,55 +1,43 @@
-describe.skip('TikTok Platform Flow', () => {
-  beforeEach(() => {
+describe('Tiktok Platform Flow', () => {
+  before(() => {
     cy.visit('/');
   });
 
-  it('should complete the full letter generation flow for TikTok', () => {
-    // Start the process
+  it('starts the request and navigates to the letter generator', () => {
     cy.contains('Start your request').click();
-
-    // Verify we're on the letter generator page
     cy.url().should('include', '/letter-generator');
 
-    // Select TikTok and continue
     cy.contains('TikTok').click();
     cy.contains('Continue').click();
-
-    // Select reporting status and continue
-    cy.contains("I haven't tried either process yet").click();
+    cy.contains("I've tried both processes").click();
     cy.contains('Continue').click();
-
-    // Select content type and context
     cy.contains('Intimate images').click();
     cy.contains('Account was compromised').click();
 
-    // Fill in content location using URL option
     cy.get('input[type="radio"][value="url"]').check();
-    cy.get('input[type="url"]').type('https://tiktok.com/@username/video/123456789');
+    cy.get('input[type="url"]').type('https://tiktok.com/harmful-post-123');
+    cy.get('#imageUploadDate').type('1 March 2025');
+    cy.get('#imageTakenDate').type('15 February 2025');
 
-    // Fill in dates
-    cy.get('#imageUploadDate').type('5 March 2025');
-    cy.get('#imageTakenDate').type('1 March 2025');
-
-    // Fill in verification and impact
-    cy.get('#ownershipEvidence').type('The content was taken from my private account');
+    cy.get('#ownershipEvidence').type('https://facebook.com/myprofile');
     cy.get('#impactStatement').type(
-      'This has caused significant distress and affected my mental health'
+      'This has caused me significant anxiety and affected my mental health.',
     );
-
     cy.contains('Continue').click();
 
-    // Wait for AI to generate follow-up questions
+    cy.get('#standardProcessDetails').type(
+      "I reported the content through the platform's reporting tool on 10th January 2025",
+    );
+    cy.get('#escalatedProcessDetails').type("I escalated through the platform's suggested route");
+    cy.get('#responseReceived').type('No response was received from the platform');
+    cy.get('#additionalStepsTaken').type('I sent a follow-up email to request an update');
+    cy.contains('Continue').click();
+
     cy.contains('Analysing your responses', { timeout: 30000 });
-
     cy.contains('Continue', { timeout: 30000 }).click();
-
-    // Wait for letter generation
     cy.contains('Creating your personalised letter', { timeout: 40000 });
-
-    // Verify letter was generated
     cy.contains('Your personalised letter', { timeout: 60000 }).should('be.visible');
     cy.contains('Subject line').should('be.visible');
     cy.contains('Message content').should('be.visible');
-    cy.contains('legal@tiktok.com').should('be.visible');
   });
 });

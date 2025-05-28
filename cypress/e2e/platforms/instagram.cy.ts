@@ -1,36 +1,39 @@
-function startOnlyFansFlow() {
+function startInstagramFlow() {
   cy.visit('/');
   cy.contains('Start your request').click();
-  cy.contains('OnlyFans').click();
+  cy.get('h3').contains('Instagram').click();
   cy.contains('Continue').click();
+  cy.log('Started Instagram flow');
 }
 
-function selectReportingStatus() {
+function selectInstagramReportingStatus() {
   cy.contains("I've tried both processes").click();
   cy.contains('Continue').click();
+  cy.log('Selected Instagram reporting status');
 }
 
-function selectContentTypeAndContext() {
+function selectInstagramContentTypeAndContext() {
   cy.contains('Intimate images').click();
   cy.contains('Account was compromised').click();
 }
 
-function fillContentLocationAndDates() {
+function fillInstagramContentLocationAndDates() {
   cy.get('input[type="radio"][value="url"]').check();
-  cy.get('input[type="url"]').type('https://onlyfans.com/harmful-post-123');
+  cy.get('input[type="url"]').type('https://instagram.com/harmful-post-123');
   cy.get('#imageUploadDate').type('1 March 2025');
   cy.get('#imageTakenDate').type('15 February 2025');
+  cy.log('Filled Facebook content location and dates');
 }
 
-function fillVerificationAndImpact() {
-  cy.get('#ownershipEvidence').type('https://onlyfans.com/myprofile');
+function fillInstagramVerificationAndImpact() {
+  cy.get('#ownershipEvidence').type('https://facebook.com/myprofile');
   cy.get('#impactStatement').type(
     'This has caused me significant anxiety and affected my mental health.',
   );
   cy.contains('Continue').click();
 }
 
-function fillReportingProcessDetails() {
+function fillInstagramReportingProcessDetails() {
   cy.get('#standardProcessDetails').type(
     "I reported the content through the platform's reporting tool on 10th January 2025",
   );
@@ -40,14 +43,14 @@ function fillReportingProcessDetails() {
   cy.contains('Continue').click();
 }
 
-describe('OnlyFans Platform Flow', () => {
-  it('waits for AI follow-up and generates the letter', () => {
-    startOnlyFansFlow();
-    selectReportingStatus();
-    selectContentTypeAndContext();
-    fillContentLocationAndDates();
-    fillVerificationAndImpact();
-    fillReportingProcessDetails();
+describe('Instagram Platform Flow', () => {
+  it('fills out instagram flow', () => {
+    startInstagramFlow();
+    selectInstagramReportingStatus();
+    selectInstagramContentTypeAndContext();
+    fillInstagramContentLocationAndDates();
+    fillInstagramVerificationAndImpact();
+    fillInstagramReportingProcessDetails();
     cy.contains('Analysing your responses', { timeout: 30000 });
     cy.contains('Continue', { timeout: 30000 }).click();
     cy.contains('Creating your personalised letter', { timeout: 40000 });
