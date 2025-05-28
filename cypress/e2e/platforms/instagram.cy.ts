@@ -22,7 +22,7 @@ function fillInstagramContentLocationAndDates() {
   cy.get('input[type="url"]').type('https://instagram.com/harmful-post-123');
   cy.get('#imageUploadDate').type('1 March 2025');
   cy.get('#imageTakenDate').type('15 February 2025');
-  cy.log('Filled Facebook content location and dates');
+  cy.log('Filled Instagram content location and dates');
 }
 
 function fillInstagramVerificationAndImpact() {
