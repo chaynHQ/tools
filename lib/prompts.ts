@@ -1,48 +1,49 @@
 import { LetterRequest } from '@/types/letter';
 import { getPlatformPolicy, getRelevantPolicies } from './platform-policies';
 import { platforms } from './platforms';
-import { rollbar } from './rollbar';
+import { serverInstance as rollbar } from './rollbar';
 
 export function generateFollowUpPrompt(request: LetterRequest) {
+  rollbar.info('generateFollowUpPrompt: Generating follow-up questions prompt', {
+    platform: request.platformInfo.name,
+  });
   // Validate required data
   if (!request.initialQuestions || !request.platformInfo) {
-    rollbar.error('generateFollowUpPrompt: Missing required data for generating follow-up questions');
+    rollbar.error(
+      'generateFollowUpPrompt: Missing required data for generating follow-up questions',
+    );
     throw new Error('Missing required data for generating follow-up questions');
   }
 
   // Validate platformInfo
   if (!request.platformInfo.name) {
-    rollbar.error('generateFollowUpPrompt: Missing platform name in platformInfo')
+    rollbar.error('generateFollowUpPrompt: Missing platform name in platformInfo');
     throw new Error('Missing name in platformInfo');
   }
 
-  const platform = request.platformInfo.isCustom 
-    ? null 
-    : platforms.find(p => p.name === request.platformInfo.name);
-  
-  const platformPolicy = platform 
-    ? getPlatformPolicy(platform.id) 
-    : null;
+  const platform = request.platformInfo.isCustom
+    ? null
+    : platforms.find((p) => p.name === request.platformInfo.name);
 
-  const relevantPolicies = platformPolicy 
+  const platformPolicy = platform ? getPlatformPolicy(platform.id) : null;
+
+  const relevantPolicies = platformPolicy
     ? getRelevantPolicies(
         platformPolicy,
         request.initialQuestions.contentType,
-        request.initialQuestions.contentContext
+        request.initialQuestions.contentContext,
       )
     : null;
 
-  const platformContext = platform 
-    ? `on ${platform.name}` 
-    : 'on an online platform';
+  const platformContext = platform ? `on ${platform.name}` : 'on an online platform';
 
   const initialResponses = request.initialQuestions;
-  const hasMinimalInfo = Object.values(initialResponses).some(value => !value || value.length < 20);
 
   // Check what information we already have
-  const hasContentLocation = initialResponses.contentLocationType === 'url' 
-    ? initialResponses.contentUrl && initialResponses.contentUrl.length > 0 
-    : initialResponses.contentDescription && initialResponses.contentDescription.length > 0;
+  const hasContentLocation =
+    initialResponses.contentLocationType === 'url'
+      ? initialResponses.contentUrl && initialResponses.contentUrl.length > 0
+      : initialResponses.contentDescription && initialResponses.contentDescription.length > 0;
   const hasTimeline = initialResponses.imageUploadDate && initialResponses.imageTakenDate;
   const hasOwnershipEvidence = initialResponses.ownershipEvidence?.length > 30;
   const hasImpactStatement = initialResponses.impactStatement?.length > 30;
@@ -52,7 +53,7 @@ export function generateFollowUpPrompt(request: LetterRequest) {
     // Identity documents
     'government(-|\\s)issued id',
     'passport\\b',
-    'driver(\'s|\\s)licen[sc]e',
+    "driver('s|\\s)licen[sc]e",
     'national id',
     'identity card',
     'state(-|\\s)issued',
@@ -71,8 +72,8 @@ export function generateFollowUpPrompt(request: LetterRequest) {
     // Official documentation
     'notari[sz]ed',
     'apostille',
-    'certified document'
-  ].map(term => new RegExp(term, 'i'));
+    'certified document',
+  ].map((term) => new RegExp(term, 'i'));
 
   return `You are an AI assistant helping to generate follow-up questions for a takedown request letter generator. The user has provided information about ${request.initialQuestions.contentType} content being shared ${platformContext} in a context of ${request.initialQuestions.contentContext}.
 
@@ -89,22 +90,32 @@ ${Object.entries(initialResponses)
   .map(([key, value]) => `${key}: ${value}`)
   .join('\n')}
 
-${relevantPolicies ? `
+${
+  relevantPolicies
+    ? `
 Platform-Specific Requirements:
 The platform requires the following evidence for this type of content:
-${relevantPolicies.evidenceRequirements.map(req => {
-  // Only filter out requirements that match sensitive terms
-  const isSensitive = sensitiveTerms.some(term => term.test(req));
-  return isSensitive ? null : `- ${req}`;
-}).filter(Boolean).join('\n')}
+${relevantPolicies.evidenceRequirements
+  .map((req) => {
+    // Only filter out requirements that match sensitive terms
+    const isSensitive = sensitiveTerms.some((term) => term.test(req));
+    return isSensitive ? null : `- ${req}`;
+  })
+  .filter(Boolean)
+  .join('\n')}
 
 Key removal criteria:
-${relevantPolicies.removalCriteria.map(criteria => {
-  // Only filter out criteria that match sensitive terms
-  const isSensitive = sensitiveTerms.some(term => term.test(criteria));
-  return isSensitive ? null : `- ${criteria}`;
-}).filter(Boolean).join('\n')}
-` : ''}
+${relevantPolicies.removalCriteria
+  .map((criteria) => {
+    // Only filter out criteria that match sensitive terms
+    const isSensitive = sensitiveTerms.some((term) => term.test(criteria));
+    return isSensitive ? null : `- ${criteria}`;
+  })
+  .filter(Boolean)
+  .join('\n')}
+`
+    : ''
+}
 
 CRITICAL RULES:
 1. DO NOT ask for information that has already been provided
@@ -148,15 +159,18 @@ Output schema:
 }
 
 export function generateLetterPrompt(request: LetterRequest) {
-  const platformPolicy = request.platformInfo.isCustom 
-    ? null 
-    : getPlatformPolicy(platforms.find(p => p.name === request.platformInfo.name)?.id || '');
+  rollbar.info('generateLetterPrompt: Generating takedown letter prompt', {
+    platform: request.platformInfo.name,
+  });
+  const platformPolicy = request.platformInfo.isCustom
+    ? null
+    : getPlatformPolicy(platforms.find((p) => p.name === request.platformInfo.name)?.id || '');
 
-  const relevantPolicies = platformPolicy 
+  const relevantPolicies = platformPolicy
     ? getRelevantPolicies(
         platformPolicy,
         request.initialQuestions.contentType,
-        request.initialQuestions.contentContext
+        request.initialQuestions.contentContext,
       )
     : null;
 
@@ -167,9 +181,10 @@ export function generateLetterPrompt(request: LetterRequest) {
 
   // Analyze what information we already have
   const hasTimeline = initialInfo.imageUploadDate && initialInfo.imageTakenDate;
-  const hasReportingHistory = reportingInfo.standardProcessDetails || reportingInfo.escalatedProcessDetails;
-  const hasReferenceNumbers = Object.values(followUpInfo).some(value => 
-    value?.includes('case') || value?.includes('reference') || value?.includes('report')
+  const hasReportingHistory =
+    reportingInfo.standardProcessDetails || reportingInfo.escalatedProcessDetails;
+  const hasReferenceNumbers = Object.values(followUpInfo).some(
+    (value) => value?.includes('case') || value?.includes('reference') || value?.includes('report'),
   );
 
   return `You are an AI assistant helping to generate a professional takedown request letter. Your role is to create a clear, factual, and compelling letter that requests the removal of ${request.initialQuestions.contentType} content in a context of ${request.initialQuestions.contentContext}.
@@ -216,62 +231,81 @@ Creation Date: ${initialInfo.imageTakenDate || 'Not provided'}
 Ownership Evidence: ${initialInfo.ownershipEvidence || 'Not provided'}
 Impact Statement: ${initialInfo.impactStatement || 'Not provided'}
 ${hasReportingHistory ? `Previous Reports: ${reportingInfo.standardProcessDetails || ''} ${reportingInfo.escalatedProcessDetails || ''}` : ''}
-${Object.entries(followUpInfo).map(([key, value]) => `${key}: ${value || 'Not provided'}`).join('\n')}
+${Object.entries(followUpInfo)
+  .map(([key, value]) => `${key}: ${value || 'Not provided'}`)
+  .join('\n')}
 
-${relevantPolicies ? `
+${
+  relevantPolicies
+    ? `
 Platform-Specific Context for ${platformPolicy?.name}:
 
 Legal Basis:
-${relevantPolicies.legalBasis.map(basis => 
-  `- ${basis.title} ${basis.section}`
-).join('\n')}
+${relevantPolicies.legalBasis.map((basis) => `- ${basis.title} ${basis.section}`).join('\n')}
 
 Applicable Policies:
-${relevantPolicies.contentPolicies.map(policy => {
-  // Filter out ID verification policies
-  if (policy.policy.toLowerCase().includes('id verification') || 
-      policy.policy.toLowerCase().includes('identification') || 
-      policy.policy.toLowerCase().includes('passport') || 
-      policy.policy.toLowerCase().includes('license') || 
+${relevantPolicies.contentPolicies
+  .map((policy) => {
+    // Filter out ID verification policies
+    if (
+      policy.policy.toLowerCase().includes('id verification') ||
+      policy.policy.toLowerCase().includes('identification') ||
+      policy.policy.toLowerCase().includes('passport') ||
+      policy.policy.toLowerCase().includes('license') ||
       policy.policy.toLowerCase().includes('proof of residence') ||
-      policy.policy.toLowerCase().includes('government')) {
-    return null;
-  }
-  return `- ${policy.policy}`;
-}).filter(Boolean).join('\n')}
+      policy.policy.toLowerCase().includes('government')
+    ) {
+      return null;
+    }
+    return `- ${policy.policy}`;
+  })
+  .filter(Boolean)
+  .join('\n')}
 
 Removal Requirements:
-${relevantPolicies.removalCriteria.map(criteria => {
-  // Filter out ID verification criteria
-  if (criteria.toLowerCase().includes('id') || 
-      criteria.toLowerCase().includes('identification') || 
-      criteria.toLowerCase().includes('passport') || 
-      criteria.toLowerCase().includes('license') || 
+${relevantPolicies.removalCriteria
+  .map((criteria) => {
+    // Filter out ID verification criteria
+    if (
+      criteria.toLowerCase().includes('id') ||
+      criteria.toLowerCase().includes('identification') ||
+      criteria.toLowerCase().includes('passport') ||
+      criteria.toLowerCase().includes('license') ||
       criteria.toLowerCase().includes('proof of residence') ||
-      criteria.toLowerCase().includes('government')) {
-    return null;
-  }
-  return `- ${criteria}`;
-}).filter(Boolean).join('\n')}
+      criteria.toLowerCase().includes('government')
+    ) {
+      return null;
+    }
+    return `- ${criteria}`;
+  })
+  .filter(Boolean)
+  .join('\n')}
 
 Evidence Requirements:
-${relevantPolicies.evidenceRequirements.map(req => {
-  // Filter out ID verification requirements
-  if (req.toLowerCase().includes('id') || 
-      req.toLowerCase().includes('identification') || 
-      req.toLowerCase().includes('passport') || 
-      req.toLowerCase().includes('license') || 
+${relevantPolicies.evidenceRequirements
+  .map((req) => {
+    // Filter out ID verification requirements
+    if (
+      req.toLowerCase().includes('id') ||
+      req.toLowerCase().includes('identification') ||
+      req.toLowerCase().includes('passport') ||
+      req.toLowerCase().includes('license') ||
       req.toLowerCase().includes('proof of residence') ||
-      req.toLowerCase().includes('government')) {
-    return null;
-  }
-  return `- ${req}`;
-}).filter(Boolean).join('\n')}
+      req.toLowerCase().includes('government')
+    ) {
+      return null;
+    }
+    return `- ${req}`;
+  })
+  .filter(Boolean)
+  .join('\n')}
 
 Timeframes:
 - Initial Response: ${platformPolicy?.timeframes.response}
 - Content Removal: ${platformPolicy?.timeframes.removal}
-` : ''}
+`
+    : ''
+}
 
 LETTER STRUCTURE (skip any sections that are not relevant):
 1. Introduction
@@ -330,17 +364,17 @@ export function generateLetterQualityCheckPrompt(letter: string, request: Letter
     { term: 'victims', replacement: 'survivors' },
     { term: 'prostitution', replacement: 'sex work' },
     { term: 'child pornography', replacement: 'child sexual abuse material' },
-    { term: 'honour-based crimes', replacement: 'so called honour-based crimes' }
+    { term: 'honour-based crimes', replacement: 'so called honour-based crimes' },
   ];
 
   // Define policy reference patterns
   const policyReferencePatterns = [
-    /\([A-Z]+-[A-Z0-9-]+\)/g,  // Matches (CS-NCSII), (FB-TOS), etc.
-    /\(Ref:\s*[A-Z]+-[A-Z0-9-]+\)/g,  // Matches (Ref: CS-NCSII), etc.
-    /Reference\s+[A-Z]+-[A-Z0-9-]+/g,  // Matches Reference CS-NCSII, etc.
-    /\([^)]*Standards[^)]*\)/g,  // Matches (Community Standards on X)
-    /\([^)]*Terms of Service[^)]*\)/g,  // Matches (Terms of Service X)
-    /\([^)]*Policy[^)]*\)/g,  // Matches (Privacy Policy X)
+    /\([A-Z]+-[A-Z0-9-]+\)/g, // Matches (CS-NCSII), (FB-TOS), etc.
+    /\(Ref:\s*[A-Z]+-[A-Z0-9-]+\)/g, // Matches (Ref: CS-NCSII), etc.
+    /Reference\s+[A-Z]+-[A-Z0-9-]+/g, // Matches Reference CS-NCSII, etc.
+    /\([^)]*Standards[^)]*\)/g, // Matches (Community Standards on X)
+    /\([^)]*Terms of Service[^)]*\)/g, // Matches (Terms of Service X)
+    /\([^)]*Policy[^)]*\)/g, // Matches (Privacy Policy X)
   ];
 
   return `You are an expert in content takedown requests and platform policy enforcement. Your task is to review a generated takedown letter and ensure it meets quality standards and follows guidelines.

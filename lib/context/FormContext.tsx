@@ -1,14 +1,11 @@
 "use client";
 
 import { usePrefillData } from '@/lib/dev/prefill';
-import { clientConfig } from '@/lib/rollbar';
 import { FollowUpQuestion } from '@/types/questions';
+import { useRollbar } from '@rollbar/react';
 import { createContext, ReactNode, useContext, useEffect, useState } from 'react';
-import Rollbar from 'rollbar';
 import { IS_DEVELOPMENT } from '../constants/common';
 
-// Initialize Rollbar for client-side
-const rollbar = new Rollbar(clientConfig);
 
 // Define types for our form data
 export interface PlatformInfo {
@@ -81,7 +78,7 @@ const FormContext = createContext<FormContextType | undefined>(undefined);
 export function FormProvider({ children }: { children: ReactNode }) {
   const [formState, setFormState] = useState<FormState>(initialState);
   const prefillHandler = usePrefillData();
-
+  const rollbar = useRollbar()
   // Add keyboard shortcut listener for development
   useEffect(() => {
     if (!IS_DEVELOPMENT || !prefillHandler) return;
@@ -235,6 +232,7 @@ export function FormProvider({ children }: { children: ReactNode }) {
 
 export function useFormContext() {
   const context = useContext(FormContext);
+  const rollbar = useRollbar();
   if (context === undefined) {
     rollbar.error('useFormContext used outside of FormProvider');
     throw new Error('useFormContext must be used within a FormProvider');

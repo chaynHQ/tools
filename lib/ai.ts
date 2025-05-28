@@ -1,10 +1,7 @@
 import { GeneratedLetter, LetterRequest } from '@/types/letter';
 import { FollowUpQuestion } from '@/types/questions';
-import Rollbar from 'rollbar';
-import { clientConfig } from './rollbar';
+import { rollbar } from './rollbar';
 
-// Initialize Rollbar for client-side
-const rollbar = new Rollbar(clientConfig);
 
 const MAX_RETRIES = 3;
 const RETRY_DELAY = 1000; // 1 second

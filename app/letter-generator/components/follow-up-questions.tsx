@@ -8,18 +8,14 @@ import { generateFollowUpQuestions } from '@/lib/ai';
 import { analytics } from '@/lib/analytics';
 import { GA_EVENTS } from '@/lib/constants/analytics';
 import { useFormContext } from '@/lib/context/FormContext';
-import { clientConfig } from '@/lib/rollbar';
 import { FollowUpQuestion } from '@/types/questions';
+import { useRollbar } from '@rollbar/react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { AlertCircle, Loader2 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
-import Rollbar from 'rollbar';
 import { VoiceInput } from './voice-input';
-
-// Initialize Rollbar for client-side
-const rollbar = new Rollbar(clientConfig);
 
 // Common languages that might be used
 const SUPPORTED_LANGUAGES = [
@@ -49,7 +45,7 @@ export function FollowUpQuestions({ initialData, savedData = {}, onSubmit }: Fol
   const { formState, setFollowUpData } = useFormContext();
   const fetchController = useRef<AbortController | null>(null);
   const hasQuestionsInContext = formState.followUpData.questions.length > 0;
-
+  const rollbar = useRollbar()
   const {
     transcript,
     listening,
