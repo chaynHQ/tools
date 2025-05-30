@@ -15,7 +15,7 @@ describe('Tiktok Platform Flow', () => {
     cy.contains('Account was compromised').click();
 
     cy.get('input[type="radio"][value="url"]').check();
-    cy.get('input[type="url"]').type('https://tiktok.com/harmful-post-123');
+    cy.get('input[id="contentUrl"]').type('https://tiktok.com/harmful-post-123');
     cy.get('#imageUploadDate').type('1 March 2025');
     cy.get('#imageTakenDate').type('15 February 2025');
 
