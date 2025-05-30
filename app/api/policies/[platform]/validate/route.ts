@@ -12,9 +12,10 @@ const webhook = process.env.SLACK_WEBHOOK_URL
   ? new IncomingWebhook(process.env.SLACK_WEBHOOK_URL)
   : null;
 
-export async function GET(request: Request, { params }: { params: { platform: string } }) {
+export async function GET(request: Request, { params }: { params: Promise<{ platform: string } >}) {
+  const { platform: platformParam } = await params;
   rollbar.info('ValidatePolicy: Received request to validate policy', {
-    platform: params.platform,
+    platform: platformParam,
   });
   try {
     // Validate Zapier authentication
@@ -37,7 +38,7 @@ export async function GET(request: Request, { params }: { params: { platform: st
     }
 
     // Get platform ID and validate it exists
-    const platformId = params.platform.toLowerCase();
+    const platformId = platformParam.toLowerCase();
     const platform = platforms.find((p) => p.id === platformId);
 
     if (!platform) {
@@ -63,11 +64,11 @@ export async function GET(request: Request, { params }: { params: { platform: st
     rollbar.error('ValidatePolicy: Error processing validation request', {
       error: error.message,
       stack: error.stack,
-      platform: params.platform,
+      platform: platformParam,
     });
     const { error: errorMessage, status } = handleApiError(
       error,
-      `/api/policies/${params.platform}/validate`,
+      `/api/policies/${platformParam}/validate`,
       {
         statusCode: error.status,
         errorType: error.name,
@@ -76,7 +77,7 @@ export async function GET(request: Request, { params }: { params: { platform: st
 
     if (webhook) {
       try {
-        await webhook.send(webhookFormattedError(params.platform, error));
+        await webhook.send(webhookFormattedError(platformParam, error));
       } catch (webhookError) {
         console.error('Failed to send error to Slack:', webhookError);
       }

@@ -36,16 +36,19 @@ export async function POST(request: Request) {
       ],
     });
 
+    // @ts-ignore
     if (!response?.content?.[0]?.text) {
       rollbar.error('FollowUpQuestions: Invalid response from Anthropic API');
       throw new Error('Invalid response from Anthropic API');
     }
     rollbar.info('FollowUpQuestions: Successfully received response from Anthropic API', {
+      // @ts-ignore
       response: response.content[0].text,
     });
 
     let questions;
     try {
+      // @ts-ignore
       const responseText = response.content[0].text;
       questions = parseAIJson(responseText);
       if (!Array.isArray(questions)) {

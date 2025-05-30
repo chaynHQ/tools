@@ -12,7 +12,6 @@ const nextConfig = {
       },
     ],
   },
-  swcMinify: true,
   webpack: (config, { dev, isServer }) => {
     if (dev && !isServer) {
       config.cache = false;

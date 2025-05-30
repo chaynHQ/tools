@@ -39,6 +39,7 @@ export async function POST(request: Request) {
       ],
     });
 
+    // @ts-ignore
     if (!response?.content?.[0]?.text) {
       rollbar.error('GenerateLetter: Invalid response from Anthropic API');
       throw new Error('Invalid response from Anthropic API');
@@ -47,6 +48,7 @@ export async function POST(request: Request) {
 
     let letter;
     try {
+      // @ts-ignore
       letter = parseAIJson(response.content[0].text);
       if (!letter.subject || !letter.body) {
         rollbar.error('GenerateLetter: Generated letter is missing required fields');

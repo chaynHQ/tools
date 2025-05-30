@@ -39,6 +39,7 @@ export async function POST(request: Request) {
       ],
     });
 
+    // @ts-ignore
     if (!response?.content?.[0]?.text) {
       rollbar.error('QualityCheckLetter: Invalid response from Anthropic API', {
         response,
@@ -50,6 +51,7 @@ export async function POST(request: Request) {
     });
     let qualityCheckResult;
     try {
+      // @ts-ignore
       qualityCheckResult = parseAIJson(response.content[0].text);
 
       // Validate the response structure
@@ -62,6 +64,7 @@ export async function POST(request: Request) {
     } catch (e) {
       rollbar.error('QualityCheckLetter: Failed to parse Anthropic response as JSON', {
         error: e,
+        // @ts-ignore
         responseText: response.content[0].text,
       });
       throw new Error('Failed to parse Anthropic response as JSON');
