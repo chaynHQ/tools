@@ -1,97 +1,159 @@
 import { GeneratedLetter, LetterRequest } from '@/types/letter';
 import { FollowUpQuestion } from '@/types/questions';
 import { rollbar } from './rollbar';
-
-
-const MAX_RETRIES = 3;
-const RETRY_DELAY = 1000; // 1 second
+import { cleanupSanitizationMap, desanitizeLetter, sanitizeFormData } from './utils';
 
 // Static next steps that will be used for all letters
 const STATIC_NEXT_STEPS = [
-  "They might respond asking for the evidence you listed, so make sure you have the things referenced in this letter to hand.",
+  'They might respond asking for the evidence you listed, so make sure you have the things referenced in this letter to hand.',
   "In 48 hours, check if your content has been removed. Sometimes the platforms don't send a response but they do remove the content",
-  "If the content is still available, you could try sending a follow up asking them to respond"
+  'If the content is still available, you could try sending a follow up asking them to respond',
 ];
 
-// Define sensitive terms more precisely
-const SENSITIVE_TERMS = [
-  // Identity documents
-  'government(-|\\s)issued id',
-  'passport\\b',
-  'driver(\'s|\\s)licen[sc]e',
-  'national id',
-  'identity card',
-  'state(-|\\s)issued',
-  'official id',
-  // Verification processes requiring documentation
-  'id verification process',
-  'identity verification document',
-  'verify.*identity.*document',
-  // Residency documents
-  'proof of residence',
-  'proof of address',
-  'utility bill',
-  // Official documentation
-  'notari[sz]ed',
-  'apostille',
-  'certified document'
-].map(term => new RegExp(term, 'i'));
+// Define banned terms and their replacements
+export const SENSITIVE_TERMS = [
+  { term: 'revenge porn', replacement: 'non-consensual intimate content' },
+  { term: 'function normally', replacement: 'specific impact description' },
+  { term: 'criminal justice', replacement: 'legal system or legal justice' },
+  { term: 'suffering', replacement: 'specific impact description' },
+  { term: 'suffer', replacement: 'specific impact description' },
+  { term: 'victims', replacement: 'survivors' },
+  { term: 'prostitution', replacement: 'sex work' },
+  { term: 'child pornography', replacement: 'child sexual abuse material' },
+  { term: 'honour-based crimes', replacement: 'so called honour-based crimes' },
+  { term: 'mental health', replacement: 'wellbeing' },
+  { term: 'trauma', replacement: 'impact' },
+  { term: 'depression', replacement: 'emotional impact' },
+  { term: 'anxiety', replacement: 'distress' },
+  { term: 'suicide', replacement: 'severe emotional distress' },
+  { term: 'self-harm', replacement: 'personal harm' },
+];
 
-async function retryWithDelay<T>(
-  fn: () => Promise<T>,
-  retries: number = MAX_RETRIES,
-  delay: number = RETRY_DELAY
-): Promise<T> {
-  try {
-    return await fn();
-  } catch (error) {
-    if (retries === 0) {
-      rollbar.error('Retry attempts exhausted', { error, maxRetries: MAX_RETRIES });
-      throw error;
-    }
-    await new Promise(resolve => setTimeout(resolve, delay));
-    rollbar.info('Retrying operation', { 
-      retriesLeft: retries - 1,
-      delay 
-    });
-    return retryWithDelay(fn, retries - 1, delay);
-  }
+export const QUALITY_CHECK_CRITERIA = {
+  MAJOR: {
+    SENSITIVE_TERMS: SENSITIVE_TERMS.map((term) => term.term),
+    HALLUCINATION_TERMS: [
+      'as I mentioned earlier',
+      'as stated in my previous correspondence',
+      'as per our conversation',
+      'you have requested',
+      'you have asked me to',
+      'as you know',
+      'as we discussed',
+      'in your email',
+      'in your message',
+      'as indicated in your report',
+      'you have',
+      'as I mentioned',
+      'per our discussion',
+      'as previously noted',
+      'as explained before',
+      'in my previous email',
+      'as requested',
+      'your previous message',
+    ],
+    EVIDENCE_TERMS: [
+      'government(-|\\s)issued id',
+      'passport\\b',
+      "driver('s|\\s)licen[sc]e",
+      'national id',
+      'identity card',
+      'state(-|\\s)issued',
+      'official id',
+      'id verification process',
+      'identity verification document',
+      'verify.*identity.*document',
+      'proof of residence',
+      'proof of address',
+      'utility bill',
+      'notari[sz]ed',
+      'apostille',
+      'certified document',
+      'legal document',
+      'official documentation',
+      'government document',
+      'identification document',
+      'verification process',
+      'proof of identity',
+    ].map((term) => new RegExp(term, 'i')),
+  },
+  MINOR: {
+    STYLE_PATTERNS: [
+      /\b(please|kindly)\b/gi,
+      /\b(demand|insist|require)\b/gi,
+      /\b(immediately|urgently|asap)\b/gi,
+      /\b(must|shall|will)\b/gi,
+      /\b(legal action|lawsuit|sue)\b/gi,
+      /\b(failure to comply|failure to act)\b/gi,
+      /\b(emotional distress|mental anguish)\b/gi,
+      /\b(traumatic|devastating|horrific)\b/gi,
+      /\b(expect|anticipate|await)\b.*\b(immediate|prompt|quick)\b/gi,
+    ],
+  },
+};
+
+// Check for major issues that require regeneration
+function hasMajorIssues(letter: GeneratedLetter): boolean {
+  // Check for hallucination patterns
+  const hasHallucinations = QUALITY_CHECK_CRITERIA.MAJOR.HALLUCINATION_TERMS.some(
+    (pattern) =>
+      letter.subject.toLowerCase().includes(pattern.toLowerCase()) ||
+      letter.body.toLowerCase().includes(pattern.toLowerCase()),
+  );
+
+  // Check for sensitive terms
+  const hasEvidenceTerms = QUALITY_CHECK_CRITERIA.MAJOR.EVIDENCE_TERMS.some(
+    (term) => term.test(letter.subject) || term.test(letter.body),
+  );
+
+  const hasSensitiveTerms = QUALITY_CHECK_CRITERIA.MAJOR.SENSITIVE_TERMS.some(
+    (pattern) =>
+      letter.subject.toLowerCase().includes(pattern.toLowerCase()) ||
+      letter.body.toLowerCase().includes(pattern.toLowerCase()),
+  );
+
+  return hasHallucinations || hasSensitiveTerms || hasEvidenceTerms;
 }
 
-export async function generateFollowUpQuestions(formData: LetterRequest): Promise<FollowUpQuestion[]> {
-  return retryWithDelay(async () => {
+export async function generateFollowUpQuestions(
+  formData: LetterRequest,
+): Promise<FollowUpQuestion[]> {
+  let attempts = 0;
+  const maxAttempts = 3;
+
+  while (attempts < maxAttempts) {
+    attempts++;
     try {
-      // Create a clean copy of the data to ensure we're not sending any circular references
-      const cleanFormData = {
-        initialQuestions: { ...formData.initialQuestions },
-        platformInfo: { ...formData.platformInfo },
-        reportingDetails: formData.reportingDetails ? { ...formData.reportingDetails } : undefined
-      };
-      
-      rollbar.info('Generating follow-up questions', { 
-        platform: cleanFormData.platformInfo.name,
-        hasReportingDetails: !!cleanFormData.reportingDetails
+      // Sanitize the form data before sending to AI
+      const sanitizedData = sanitizeFormData(formData);
+
+      rollbar.info('Generating follow-up questions', {
+        platform: sanitizedData.platformInfo.name,
+        hasReportingDetails: !!sanitizedData.reportingDetails,
       });
-      
+
       const response = await fetch('/api/follow-up-questions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(cleanFormData),
+        body: JSON.stringify(sanitizedData),
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        rollbar.error('API error response for follow-up questions', { 
+        rollbar.error('API error response for follow-up questions', {
           status: response.status,
-          errorData 
+          errorData,
         });
         throw new Error(errorData.error || 'Failed to generate follow-up questions');
       }
 
       const questions = await response.json();
-      
+
+      // Clean up sanitization mappings
+      cleanupSanitizationMap(sanitizedData.formId);
+
       // Validate response structure
       if (!Array.isArray(questions)) {
         rollbar.error('Invalid response format from AI service', { questions });
@@ -99,19 +161,19 @@ export async function generateFollowUpQuestions(formData: LetterRequest): Promis
       }
 
       // Filter out questions that match sensitive terms
-      const filteredQuestions = questions.filter(q => {
+      const filteredQuestions = questions.filter((q) => {
         if (!q || !q.question) {
           rollbar.warning('Invalid question object in response', { question: q });
           return false;
         }
-        
+
         const combinedText = `${q.question} ${q.context}`.toLowerCase();
-        return !SENSITIVE_TERMS.some(term => term.test(combinedText));
+        return !QUALITY_CHECK_CRITERIA.MAJOR.EVIDENCE_TERMS.some((term) => term.test(combinedText));
       });
 
       rollbar.info('Follow-up questions generated successfully', {
         originalCount: questions.length,
-        filteredCount: filteredQuestions.length
+        filteredCount: filteredQuestions.length,
       });
 
       return filteredQuestions;
@@ -119,62 +181,9 @@ export async function generateFollowUpQuestions(formData: LetterRequest): Promis
       rollbar.error('Error generating follow-up questions', { error });
       throw error instanceof Error ? error : new Error('An unexpected error occurred');
     }
-  });
-}
-
-// Check if letter contains ID verification requests or placeholders
-function containsIdVerificationOrPlaceholders(letter: GeneratedLetter): boolean {
-  const placeholderRegex = /\[([^\]]+)\]/g;
-  const matches = letter.subject.match(placeholderRegex) || letter.body.match(placeholderRegex) || [];
-  
-  // Allow [Content Location] placeholder but flag any others
-  const hasUnwantedPlaceholders = matches.some(match => match !== '[Content Location]');
-  
-  // Check for sensitive terms in subject and body
-  const combinedText = `${letter.subject} ${letter.body}`;
-  const hasSensitiveTerms = SENSITIVE_TERMS.some(term => term.test(combinedText));
-  
-  if (hasSensitiveTerms || hasUnwantedPlaceholders) {
-    rollbar.warning('Letter contains sensitive terms or unwanted placeholders', {
-      hasSensitiveTerms,
-      hasUnwantedPlaceholders
-    });
   }
-  
-  return hasSensitiveTerms || hasUnwantedPlaceholders;
-}
-
-// Check for hallucination patterns in the letter
-function containsHallucinationPatterns(letter: GeneratedLetter): boolean {
-  const hallucinationPatterns = [
-    'as I mentioned earlier',
-    'as stated in my previous correspondence',
-    'as per our conversation',
-    'you have requested',
-    'you have asked me to',
-    'as you know',
-    'as we discussed',
-    'in your email',
-    'in your message',
-    'as indicated in your report',
-    'you have',
-    'as I mentioned'
-  ];
-  
-  const combinedRegex = new RegExp(hallucinationPatterns.join('|'), 'gi');
-  
-  const hasHallucinations = combinedRegex.test(letter.subject) || 
-                           combinedRegex.test(letter.body);
-                           
-  if (hasHallucinations) {
-    rollbar.warning('Letter contains hallucination patterns', {
-      patterns: hallucinationPatterns.filter(pattern => 
-        letter.subject.includes(pattern) || letter.body.includes(pattern)
-      )
-    });
-  }
-  
-  return hasHallucinations;
+  rollbar.error('Failed to generate follow up questions after maximum attempts');
+  throw new Error('Failed to generate follow up questions without issues after multiple attempts');
 }
 
 interface GeneratedLetterResponse {
@@ -185,141 +194,144 @@ interface GeneratedLetterResponse {
 export async function generateLetter(formData: LetterRequest): Promise<GeneratedLetterResponse> {
   let attempts = 0;
   const maxAttempts = 3;
-  
+
   while (attempts < maxAttempts) {
     attempts++;
-    
+
     try {
-      // Create a clean copy of the data to ensure we're not sending any circular references
-      const cleanFormData = {
-        initialQuestions: { ...formData.initialQuestions },
-        platformInfo: { ...formData.platformInfo },
-        reportingDetails: formData.reportingDetails ? { ...formData.reportingDetails } : undefined,
-        followUp: formData.followUp ? { ...formData.followUp } : undefined
-      };
-      
+      const sanitizedData = sanitizeFormData(formData);
+
       rollbar.info('Generating letter', {
         attempt: attempts,
-        platform: cleanFormData.platformInfo.name,
-        hasReportingDetails: !!cleanFormData.reportingDetails,
-        hasFollowUp: !!cleanFormData.followUp
+        platform: sanitizedData.platformInfo.name,
+        hasReportingDetails: !!sanitizedData.reportingDetails,
+        hasFollowUp: !!sanitizedData.followUp,
       });
-      
+
       const response = await fetch('/api/generate-letter', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(cleanFormData),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(sanitizedData),
       });
 
       if (!response.ok) {
         const error = await response.json();
-        rollbar.error('API error response for letter generation', {
-          status: response.status,
-          error
-        });
         throw new Error(error.message || 'Failed to generate letter');
       }
 
       let letter = await response.json();
-      
-      // Store the original letter before any modifications
       const originalLetter = { ...letter };
-      
-      // Create final letter with content location replaced
-      const finalLetter = { ...letter };
-      
-      // Replace [Content Location] placeholder with actual content location
-      if (formData.initialQuestions.contentUrl || formData.initialQuestions.contentDescription) {
-        finalLetter.body = finalLetter.body.replace(
-          /\[Content Location\]/g, 
-          formData.initialQuestions.contentUrl || formData.initialQuestions.contentDescription
-        );
-      }
-      
-      // Check if letter contains ID verification requests, unwanted placeholders, or hallucination patterns
-      if (containsIdVerificationOrPlaceholders(originalLetter) || containsHallucinationPatterns(originalLetter)) {
-        rollbar.info(`Letter contains issues (attempt ${attempts}/${maxAttempts}). Regenerating...`);
-        
-        // If this is the last attempt, do a basic cleanup instead of rejecting
-        if (attempts === maxAttempts) {
-          rollbar.warning("Maximum attempts reached. Performing basic cleanup.");
-          
-          // Perform basic cleanup as a fallback
-          if (originalLetter.body) {
-            // Replace sensitive terms with "personal information"
-            SENSITIVE_TERMS.forEach(term => {
-              originalLetter.body = originalLetter.body.replace(term, "personal information");
-              finalLetter.body = finalLetter.body.replace(term, "personal information");
-            });
-            
-            // Remove hallucination patterns
-            const cleanupPatterns = [
-              /\[([^\]]+)\]/g, // Remove any remaining placeholders except [Content Location]
-              /as I mentioned earlier/gi,
-              /as stated in my previous correspondence/gi,
-              /as per our conversation/gi,
-              /you have requested/gi,
-              /you have asked me to/gi,
-              /as you know/gi,
-              /as we discussed/gi,
-              /in your email/gi,
-              /in your message/gi,
-              /as indicated in your report/gi,
-              /you have/gi,
-              /as I mentioned/gi
-            ];
-            
-            cleanupPatterns.forEach(pattern => {
-              originalLetter.body = originalLetter.body.replace(pattern, "");
-              finalLetter.body = finalLetter.body.replace(pattern, "");
-            });
-          }
-          
-          // Always use static next steps
-          originalLetter.nextSteps = STATIC_NEXT_STEPS;
-          finalLetter.nextSteps = STATIC_NEXT_STEPS;
-          
-          rollbar.info('Letter cleanup completed', {
-            letterLength: originalLetter.body.length
-          });
-          
-          return { originalLetter, finalLetter };
+
+      // Perform quality check
+      try {
+        const qualityCheckResponse = await fetch('/api/quality-check-letter', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            letter: originalLetter,
+            formData: sanitizedData,
+          }),
+        });
+
+        if (!qualityCheckResponse.ok) {
+          throw new Error('Quality check request failed');
         }
-        
-        // If not the last attempt, continue to the next iteration to try again
-        await new Promise(resolve => setTimeout(resolve, RETRY_DELAY));
-        continue;
+
+        const qualityCheckResult = await qualityCheckResponse.json();
+
+        // If major issues found, retry generation unless on last attempt
+        if (qualityCheckResult.severity === 'critical' || hasMajorIssues(originalLetter)) {
+          rollbar.info('Major quality issues found', {
+            attempt: attempts,
+            issues: qualityCheckResult.issues,
+          });
+
+          if (attempts === maxAttempts && qualityCheckResult.improvedLetter) {
+            // On final attempt, use improved letter if available
+            letter = {
+              subject: qualityCheckResult.improvedLetter.subject || letter.subject,
+              body: qualityCheckResult.improvedLetter.body || letter.body,
+              nextSteps: STATIC_NEXT_STEPS,
+            };
+
+            // Desanitize and return the final attempt
+            const desanitizedLetter = {
+              subject: desanitizeLetter(letter.subject, sanitizedData.formId),
+              body: desanitizeLetter(letter.body, sanitizedData.formId),
+              nextSteps: STATIC_NEXT_STEPS,
+            };
+
+            cleanupSanitizationMap(sanitizedData.formId);
+
+            return {
+              originalLetter,
+              finalLetter: desanitizedLetter,
+            };
+          }
+
+          // Not final attempt, continue to next try
+          continue;
+        }
+
+        // No major issues - check for minor issues
+        if (qualityCheckResult.severity === 'minor' && qualityCheckResult.improvedLetter) {
+          letter = {
+            subject: qualityCheckResult.improvedLetter.subject || letter.subject,
+            body: qualityCheckResult.improvedLetter.body,
+            nextSteps: STATIC_NEXT_STEPS,
+          };
+        }
+
+        // Desanitize and return the successful letter
+        const desanitizedLetter = {
+          subject: desanitizeLetter(letter.subject, sanitizedData.formId),
+          body: desanitizeLetter(letter.body, sanitizedData.formId),
+          nextSteps: STATIC_NEXT_STEPS,
+        };
+
+        cleanupSanitizationMap(sanitizedData.formId);
+
+        rollbar.info('Letter generated successfully', {
+          attempt: attempts,
+          letterLength: letter.body.length,
+          hadMinorIssues: qualityCheckResult.severity === 'minor',
+        });
+
+        return {
+          originalLetter,
+          finalLetter: desanitizedLetter,
+        };
+      } catch (error) {
+        rollbar.error('Error during quality check', { error });
+        // On quality check error, return original letter
+        const desanitizedLetter = {
+          subject: desanitizeLetter(letter.subject, sanitizedData.formId),
+          body: desanitizeLetter(letter.body, sanitizedData.formId),
+          nextSteps: STATIC_NEXT_STEPS,
+        };
+
+        cleanupSanitizationMap(sanitizedData.formId);
+
+        return {
+          originalLetter,
+          finalLetter: desanitizedLetter,
+        };
       }
-      
-      // Always use static next steps regardless of what the AI generated
-      originalLetter.nextSteps = STATIC_NEXT_STEPS;
-      finalLetter.nextSteps = STATIC_NEXT_STEPS;
-      
-      rollbar.info('Letter generated successfully', {
-        attempt: attempts,
-        letterLength: originalLetter.body.length
-      });
-      
-      return { originalLetter, finalLetter };
-      
     } catch (error) {
-      rollbar.error('Error generating letter', {
+      if (attempts === maxAttempts) {
+        rollbar.error('Error generating letter on final attempt', {
+          error,
+          attempt: attempts,
+        });
+        throw error instanceof Error ? error : new Error('An unexpected error occurred');
+      }
+      rollbar.warning('Error generating letter, retrying', {
         error,
-        attempt: attempts
+        attempt: attempts,
       });
-      throw error instanceof Error ? error : new Error('An unexpected error occurred');
     }
   }
-  
+
   rollbar.error('Failed to generate letter after maximum attempts');
   throw new Error('Failed to generate a letter without issues after multiple attempts');
-}
-
-export function extractPlaceholders(text: string): string[] {
-  const placeholderRegex = /\[([^\]]+)\]/g;
-  const matches = text.match(placeholderRegex);
-  if (!matches) return [];
-  return matches.map(match => match.slice(1, -1));
 }
