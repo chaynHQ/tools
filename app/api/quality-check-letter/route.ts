@@ -1,3 +1,4 @@
+import { AI_MODEL } from '@/lib/constants/common';
 import { generateLetterQualityCheckPrompt } from '@/lib/prompts';
 import { handleApiError, serverInstance as rollbar } from '@/lib/rollbar';
 import { parseAIJson } from '@/lib/utils';
@@ -27,7 +28,7 @@ export async function POST(request: Request) {
     }
 
     const response = await anthropic.messages.create({
-      model: 'claude-3-sonnet-20240229',
+      model: AI_MODEL,
       max_tokens: 4000,
       temperature: 0.5,
       messages: [
@@ -38,6 +39,7 @@ export async function POST(request: Request) {
       ],
     });
 
+    // @ts-ignore
     if (!response?.content?.[0]?.text) {
       rollbar.error('QualityCheckLetter: Invalid response from Anthropic API', {
         response,
@@ -49,6 +51,7 @@ export async function POST(request: Request) {
     });
     let qualityCheckResult;
     try {
+      // @ts-ignore
       qualityCheckResult = parseAIJson(response.content[0].text);
 
       // Validate the response structure
@@ -61,6 +64,7 @@ export async function POST(request: Request) {
     } catch (e) {
       rollbar.error('QualityCheckLetter: Failed to parse Anthropic response as JSON', {
         error: e,
+        // @ts-ignore
         responseText: response.content[0].text,
       });
       throw new Error('Failed to parse Anthropic response as JSON');
