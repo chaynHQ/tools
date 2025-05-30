@@ -63,3 +63,44 @@ export function parseAIJson(input: string) {
     throw error instanceof Error ? error : new Error('Failed to parse response as JSON');
   }
 }
+
+export function normalizeUrl(url: string): string {
+  try {
+    // If the URL doesn't start with a protocol, add https://
+    if (!url.match(/^https?:\/\//i)) {
+      url = 'https://' + url;
+    }
+
+    // Add www. if it's missing and the domain is a known platform
+    const knownPlatforms = ['facebook.com', 'instagram.com', 'tiktok.com', 'onlyfans.com'];
+    const urlObj = new URL(url);
+    const domain = urlObj.hostname.replace(/^www\./i, '');
+    
+    if (knownPlatforms.includes(domain) && !urlObj.hostname.startsWith('www.')) {
+      urlObj.hostname = 'www.' + urlObj.hostname;
+    }
+
+    return urlObj.toString();
+  } catch (error) {
+    // If URL parsing fails, return the original string
+    // The form validation will catch invalid URLs
+    return url;
+  }
+}
+
+export function isValidUrl(url: string): boolean {
+  try {
+    const urlObj = new URL(normalizeUrl(url));
+    // Check for valid protocol
+    if (!urlObj.protocol.match(/^https?:$/i)) {
+      return false;
+    }
+    // Check for valid hostname
+    if (!urlObj.hostname.match(/^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z]{2,}$/i)) {
+      return false;
+    }
+    return true;
+  } catch (error) {
+    return false;
+  }
+}

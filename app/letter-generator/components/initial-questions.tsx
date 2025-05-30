@@ -9,6 +9,7 @@ import { analytics } from '@/lib/analytics';
 import { GA_EVENTS } from '@/lib/constants/analytics';
 import { useFormContext } from '@/lib/context/FormContext';
 import { clientConfig } from '@/lib/rollbar';
+import { isValidUrl, normalizeUrl } from '@/lib/utils';
 import { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
@@ -195,6 +196,12 @@ export function InitialQuestions({ onComplete }: InitialQuestionsProps) {
   const handleFormSubmit = (data: InitialQuestionsForm) => {
     try {
       analytics.trackEvent(GA_EVENTS.TDLG_INITIAL_QUESTIONS_CONTINUE_CLICKED);
+      
+      // Normalize URL if URL type is selected
+      if (data.contentLocationType === 'url' && data.contentUrl) {
+        data.contentUrl = normalizeUrl(data.contentUrl);
+      }
+
       const timeSpent = Math.floor((Date.now() - startTime) / 1000);
       analytics.trackInitialQuestionsCompleted(timeSpent);
 
@@ -319,15 +326,14 @@ export function InitialQuestions({ onComplete }: InitialQuestionsProps) {
                 <div className="space-y-2">
                   <Input
                     id="contentUrl"  
-                    type="url"
+                    type="text"
                     {...register('contentUrl', {
                       required: 'Please provide the URL where the content can be found',
-                      pattern: {
-                        value: /^https?:\/\/.+/i,
-                        message: 'Please enter a valid URL starting with http:// or https://'
+                      validate: {
+                        isValidUrl: (value) => isValidUrl(value||'') || 'Please enter a valid URL'
                       }
                     })}
-                    placeholder="https://example.com/content"
+                    placeholder="facebook.com/content or https://www.facebook.com/content"
                     className="bg-white focus:ring-accent focus:border-accent"
                   />
                   {errors.contentUrl && (
