@@ -5,11 +5,9 @@ import { parseAIJson } from '@/lib/utils';
 import Anthropic from '@anthropic-ai/sdk';
 import { NextResponse } from 'next/server';
 
-// Initialize Anthropic with environment variable
 const anthropic = new Anthropic();
 
 export async function POST(request: Request) {
-  rollbar.info('QualityCheckLetter: Received request to check letter quality');
   try {
     if (!process.env.ANTHROPIC_API_KEY) {
       rollbar.error('QualityCheckLetter: Anthropic API key not configured');
@@ -20,10 +18,7 @@ export async function POST(request: Request) {
     const { letter, formData } = body;
 
     if (!letter || !formData) {
-      rollbar.error('QualityCheckLetter: Missing required parameters', {
-        letter,
-        formData,
-      });
+      rollbar.error('QualityCheckLetter: Missing required parameters', { letter, formData });
       return NextResponse.json({ error: 'Missing required parameters' }, { status: 400 });
     }
 
@@ -41,48 +36,40 @@ export async function POST(request: Request) {
 
     // @ts-ignore
     if (!response?.content?.[0]?.text) {
-      rollbar.error('QualityCheckLetter: Invalid response from Anthropic API', {
-        response,
-      });
+      rollbar.error('QualityCheckLetter: Invalid response from Anthropic API');
       throw new Error('Invalid response from Anthropic API');
     }
-    rollbar.info('QualityCheckLetter: Successfully received response from Anthropic API', {
-      response,
-    });
-    let qualityCheckResult;
-    try {
-      // @ts-ignore
-      qualityCheckResult = parseAIJson(response.content[0].text);
 
-      // Validate the response structure
-      if (typeof qualityCheckResult.passesQualityCheck !== 'boolean') {
-        rollbar.error('QualityCheckLetter: Invalid quality check result format', {
-          response: qualityCheckResult,
-        });
-        throw new Error('Invalid quality check result format');
+    // @ts-ignore
+    const result = parseAIJson(response.content[0].text);
+
+    // Ensure improvedLetter has the correct structure
+    if (result.improvedLetter) {
+      if (typeof result.improvedLetter === 'string') {
+        // If improvedLetter is a string, convert it to the correct object structure
+        result.improvedLetter = {
+          subject: letter.subject, // Keep original subject if not specified
+          body: result.improvedLetter, // Use improved body
+        };
+      } else if (!result.improvedLetter.subject || !result.improvedLetter.body) {
+        // If object but missing fields, ensure both fields exist
+        result.improvedLetter = {
+          subject: result.improvedLetter.subject || letter.subject,
+          body: result.improvedLetter.body || letter.body,
+        };
       }
-    } catch (e) {
-      rollbar.error('QualityCheckLetter: Failed to parse Anthropic response as JSON', {
-        error: e,
-        // @ts-ignore
-        responseText: response.content[0].text,
-      });
-      throw new Error('Failed to parse Anthropic response as JSON');
     }
-    rollbar.info('QualityCheckLetter: Successfully parsed quality check result', {
-      qualityCheckResult,
-    });
-    return NextResponse.json(qualityCheckResult);
-  } catch (error: any) {
-    rollbar.error('QualityCheckLetter: Error processing quality check request', {
-      error: error.message,
-      stack: error.stack,
-    });
-    const { error: errorMessage, status } = handleApiError(error, '/api/quality-check-letter', {
-      statusCode: error.status,
-      errorType: error.name,
+
+    rollbar.info('QualityCheckLetter: Quality check completed', {
+      passesQualityCheck: result.passesQualityCheck,
+      severity: result.severity,
+      issueCount: result.issues.length,
+      hasImprovedLetter: !!result.improvedLetter,
     });
 
+    return NextResponse.json(result);
+  } catch (error: any) {
+    const { error: errorMessage, status } = handleApiError(error, '/api/quality-check-letter');
     return NextResponse.json({ error: errorMessage }, { status });
   }
 }

@@ -1,4 +1,5 @@
 import { LetterRequest } from '@/types/letter';
+import { QUALITY_CHECK_CRITERIA, SENSITIVE_TERMS } from './ai';
 import { getPlatformPolicy, getRelevantPolicies } from './platform-policies';
 import { platforms } from './platforms';
 import { serverInstance as rollbar } from './rollbar';
@@ -7,6 +8,7 @@ export function generateFollowUpPrompt(request: LetterRequest) {
   rollbar.info('generateFollowUpPrompt: Generating follow-up questions prompt', {
     platform: request.platformInfo.name,
   });
+
   // Validate required data
   if (!request.initialQuestions || !request.platformInfo) {
     rollbar.error(
@@ -48,34 +50,7 @@ export function generateFollowUpPrompt(request: LetterRequest) {
   const hasOwnershipEvidence = initialResponses.ownershipEvidence?.length > 30;
   const hasImpactStatement = initialResponses.impactStatement?.length > 30;
 
-  // Define sensitive terms more precisely to avoid over-filtering
-  const sensitiveTerms = [
-    // Identity documents
-    'government(-|\\s)issued id',
-    'passport\\b',
-    "driver('s|\\s)licen[sc]e",
-    'national id',
-    'identity card',
-    'state(-|\\s)issued',
-    'official id',
-    // Verification processes
-    'id verification',
-    'identity verification',
-    'verify your identity',
-    // Residency documents
-    'proof of residence',
-    'proof of address',
-    'utility bill',
-    // Generic ID references when specifically about documentation
-    '\\bid\\b.*(card|document|verification|upload)',
-    '(card|document|verification|upload).*\\bid\\b',
-    // Official documentation
-    'notari[sz]ed',
-    'apostille',
-    'certified document',
-  ].map((term) => new RegExp(term, 'i'));
-
-  return `You are an AI assistant helping to generate follow-up questions for a takedown request letter generator. The user has provided information about ${request.initialQuestions.contentType} content being shared ${platformContext} in a context of ${request.initialQuestions.contentContext}.
+  return `You are an AI assistant helping to generate 2-3 follow-up questions for a takedown request letter generator. The user has provided information about ${request.initialQuestions.contentType} content being shared ${platformContext} in a context of ${request.initialQuestions.contentContext}.
 
 CRITICAL: Review the information already provided before generating questions:
 
@@ -98,7 +73,7 @@ The platform requires the following evidence for this type of content:
 ${relevantPolicies.evidenceRequirements
   .map((req) => {
     // Only filter out requirements that match sensitive terms
-    const isSensitive = sensitiveTerms.some((term) => term.test(req));
+    const isSensitive = QUALITY_CHECK_CRITERIA.MAJOR.EVIDENCE_TERMS.some((term) => term.test(req));
     return isSensitive ? null : `- ${req}`;
   })
   .filter(Boolean)
@@ -108,7 +83,9 @@ Key removal criteria:
 ${relevantPolicies.removalCriteria
   .map((criteria) => {
     // Only filter out criteria that match sensitive terms
-    const isSensitive = sensitiveTerms.some((term) => term.test(criteria));
+    const isSensitive = QUALITY_CHECK_CRITERIA.MAJOR.EVIDENCE_TERMS.some((term) =>
+      term.test(criteria),
+    );
     return isSensitive ? null : `- ${criteria}`;
   })
   .filter(Boolean)
@@ -118,11 +95,11 @@ ${relevantPolicies.removalCriteria
 }
 
 CRITICAL RULES:
-1. DO NOT ask for information that has already been provided
+1. DO NOT ask for information that has already been provided or does support the case
 2. DO NOT repeat questions about URLs if content location is already given
 3. DO NOT ask for timeline details if dates are already provided
-4. Focus ONLY on gaps in the provided information
-5. Questions should build upon existing information, not duplicate it
+4. Focus ONLY on gaps in the provided information that are essential for the letter or request
+5. Questions should build upon existing information only where required, not duplicate it
 6. DO NOT ask for personal information like name, email, or contact details
 7. DO NOT ask for ANY form of official documentation or ID verification
 8. This is the ONLY opportunity to request information needed for the letter - if information is not collected here, it will not be included in the letter
@@ -130,6 +107,7 @@ CRITICAL RULES:
 10. Prioritize questions that establish clear links between the content and platform policy violations
 11. Use a sensitive trauma-informed approach and language - avoid language like "evidence" and "proof"
 12. Return all text in British English (en_gb) NOT en_us
+13. If no additional information is needed, return an empty array. Remember, the user has already provided a lot of information, so only ask for what is absolutely essential or would significantly strengthen the case.
 
 ALLOWED TOPICS:
 - Content description (without requesting sensitive details)
@@ -140,8 +118,6 @@ ALLOWED TOPICS:
 - Platform-specific details about the content
 - Context about how the content was shared
 - Specific policy violations
-
-Generate 2-4 focused follow-up questions that ONLY address missing or insufficient information.
 
 For each question, provide:
 - A clear, concise question (no more than 1 sentence)
@@ -180,49 +156,33 @@ export function generateLetterPrompt(request: LetterRequest) {
   const reportingInfo = request.reportingDetails || {};
 
   // Analyze what information we already have
-  const hasTimeline = initialInfo.imageUploadDate && initialInfo.imageTakenDate;
   const hasReportingHistory =
     reportingInfo.standardProcessDetails || reportingInfo.escalatedProcessDetails;
-  const hasReferenceNumbers = Object.values(followUpInfo).some(
-    (value) => value?.includes('case') || value?.includes('reference') || value?.includes('report'),
-  );
 
   return `You are an AI assistant helping to generate a professional takedown request letter. Your role is to create a clear, factual, and compelling letter that requests the removal of ${request.initialQuestions.contentType} content in a context of ${request.initialQuestions.contentContext}.
 
 CRITICAL INSTRUCTIONS:
 1. Use ONLY the information provided by the user - DO NOT invent or hallucinate additional details
-2. DO NOT include ANY placeholders in the letter - not even for name or email - EXCEPT for [Content Location]
-3. DO NOT make demands or use aggressive language in the letter - keep it professional and respectful
+2. DO NOT include additional placeholders like [Insert X] in the letter - e.g. for name or email - EXCEPT for [Content Location] and existing placeholders redacted for privacy
+3. DO NOT use demanding, threatening or aggressive language in the letter - keep it professional and respectful
 4. DO NOT include any internal notes, formatting instructions, or placeholder descriptions
-5. DO NOT include any placeholders like [Insert X], [List Y], [Full name], or [Email address] except for [Content Location]
-6. DO NOT include any placeholders for information that was not collected in the previous questions
-7. DO NOT reference or suggest the need for ID verification, government IDs, proof of residence, or any official documentation
-8. DO NOT include any internal policy reference codes
-9. FOCUS on clearly identifying which specific community standards and policies have been violated
-10. EMPHASIZE the exact policy breaches that apply to this specific situation
-11. INCLUDE relevant links and supporting evidence provided by the user
-12. AVOID including sensitive personal information not required for the letter
-13. Keep the letter professional but not overly legal in tone
-14. Be respectful and trauma-informed
-15. State clear action requests
-16. Include specific timeframes when possible
-17. Keep emotional language factual and only include if provided by the user and is relevant to the case
-18. At the end of the letter, include a generic closing like "Sincerely," followed by a new line for the user to add their name
-19. Return all text in British English (en_gb) NOT en_us
-20. Use [Content Location] as a placeholder for the content location - this will be replaced later
-21. When citing platform policies, do NOT include reference codes or identifiers - just describe the policy clearly
-22. Format the content location statement based on type:
+5. DO NOT reference or suggest the need for ID verification, government IDs, proof of residence, or any official documentation
+6. DO NOT include any internal policy reference codes - just describe the policy clearly
+7. FOCUS on clearly identifying which specific community standards and policies have been violated
+8. EMPHASIZE the exact policy breaches that apply to this specific situation
+9. INCLUDE relevant links and supporting evidence provided by the user - maintain placeholders as these will be replaced later
+10. AVOID including sensitive personal information not required for the letter
+11. Keep the letter professional but not overly legal in tone - do not imitate a lawyer
+12. Be respectful and trauma-informed - keep emotional language factual and only include if provided by the user and is relevant to the case
+13. State clear action requests
+14. At the end of the letter, include a generic closing like "Sincerely," followed by a new line for the user to add their name
+15. Return all text in British English (en_gb) NOT en_us
+16. Format the content location statement based on type:
     - For URLs: "The content can be found at [Content Location]"
     - For descriptions: "The content can be found at the following location: [Content Location]"
-22. NEVER use the term "revenge porn" - use "non-consensual intimate content" instead
-23. NEVER use the phrase "function normally" - use more specific descriptions of impact
-24. NEVER use the term "criminal justice" - use "legal system" or "legal justice" instead
-25. NEVER use the terms "suffering" or "suffer" - use more specific descriptions of impact
-26. NEVER use the term "victims" - use "survivors" instead
-27. NEVER assume that "Intimate images" or "Photos or videos of a private nature" depict nudity or sexual activity - let the user's description guide the content characterization
-28. NEVER use the term "prostitution" - use "sex work" instead
-29. NEVER use the term "child pornography" - use "child sexual abuse material" instead
-30. NEVER use the term "honour-based crimes" - use "so called honour-based crimes" instead
+
+BANNED TERMS: The letter must not contain any banned terms or phrases:
+   ${SENSITIVE_TERMS.map(({ term, replacement }) => `- "${term}" (use "${replacement}")`).join('\n   ')}
 
 AVAILABLE INFORMATION:
 Content Location Type: ${initialInfo.contentLocationType || 'Not provided'}
@@ -354,30 +314,7 @@ Remember:
 }
 
 export function generateLetterQualityCheckPrompt(letter: string, request: LetterRequest) {
-  // Define banned terms and their replacements
-  const bannedTerms = [
-    { term: 'revenge porn', replacement: 'non-consensual intimate content' },
-    { term: 'function normally', replacement: 'specific impact description' },
-    { term: 'criminal justice', replacement: 'legal system or legal justice' },
-    { term: 'suffering', replacement: 'specific impact description' },
-    { term: 'suffer', replacement: 'specific impact description' },
-    { term: 'victims', replacement: 'survivors' },
-    { term: 'prostitution', replacement: 'sex work' },
-    { term: 'child pornography', replacement: 'child sexual abuse material' },
-    { term: 'honour-based crimes', replacement: 'so called honour-based crimes' },
-  ];
-
-  // Define policy reference patterns
-  const policyReferencePatterns = [
-    /\([A-Z]+-[A-Z0-9-]+\)/g, // Matches (CS-NCSII), (FB-TOS), etc.
-    /\(Ref:\s*[A-Z]+-[A-Z0-9-]+\)/g, // Matches (Ref: CS-NCSII), etc.
-    /Reference\s+[A-Z]+-[A-Z0-9-]+/g, // Matches Reference CS-NCSII, etc.
-    /\([^)]*Standards[^)]*\)/g, // Matches (Community Standards on X)
-    /\([^)]*Terms of Service[^)]*\)/g, // Matches (Terms of Service X)
-    /\([^)]*Policy[^)]*\)/g, // Matches (Privacy Policy X)
-  ];
-
-  return `You are an expert in content takedown requests and platform policy enforcement. Your task is to review a generated takedown letter and ensure it meets quality standards and follows guidelines.
+  return `You are an expert in content takedown requests and platform policy enforcement. Your task is to review a generated takedown letter and ensure it meets quality standards.
 
 ORIGINAL LETTER:
 ${letter}
@@ -387,45 +324,60 @@ CONTEXT:
 - Content context: ${request.initialQuestions.contentContext}
 - Platform: ${request.platformInfo.name}
 
-QUALITY CHECK CRITERIA:
-1. NO HALLUCINATION: The letter must not contain any invented information not provided by the user
-2. NO SENSITIVE INFORMATION: The letter should not request or include unnecessary sensitive personal information
-3. NO PLACEHOLDERS: The letter must not contain any placeholders like [Insert X] or [Your Name] except for [Content Location]
-4. POLICY FOCUS: The letter should clearly identify specific policy violations and community standards breaches
-5. EVIDENCE INCLUSION: The letter should reference all relevant evidence provided by the user
-6. CLARITY: The letter should have a clear purpose, specific requests, and expected outcomes
-7. PROFESSIONALISM: The letter should be professional, respectful, and trauma-informed
-8. ACTIONABILITY: The letter should include specific actions for the platform to take
-9. NO POLICY REFERENCES: The letter must not contain any internal policy reference codes
-10. NO BANNED TERMS: The letter must not contain any banned terms or phrases:
-    - "revenge porn" (use "non-consensual intimate content")
-    - "function normally" (use specific impact descriptions)
-    - "criminal justice" (use "legal system" or "legal justice")
-    - "suffering/suffer" (use specific impact descriptions)
-    - "victims" (use "survivors")
-    - "prostitution" (use "sex work")
-    - "child pornography" (use "child sexual abuse material")
-    - "honour-based crimes" (use "so called honour-based crimes")
-11. NO ASSUMPTIONS: The letter must not assume that "Intimate images" or "Photos or videos of a private nature" depict nudity or sexual activity
+CRITICAL ISSUES (Require regeneration):
+1. Hallucinations - Inventing information not provided:
+   - References to previous correspondence
+   - Claims about user requests or conversations
+   - Assumptions about platform actions
+
+2. Sensitive data included:
+   - Users story or personal details where it does not support the case (policy violations should be the focus)
+   - Overly emotional language or personal information related to health, identity, or personal circumstances
+
+3. Lack of policy focus:
+   - References to policies not relevant to the content type
+   - References to policy codes or internal references, only allow clear policy descriptions
+   - Does not clearly state which policies were violated
+   - Avoids making assumptions about content
+
+MINOR ISSUES (Must be improved):
+1. Tone and Style:
+   - Overly demanding language
+   - Excessive urgency
+   - Unprofessional phrasing
+   - Language unaligned with trauma-informed care
+
+2. Structure:
+   - Missing key components
+   - Poor organization
+   - Unclear requests
+   - Note: do not update the policies as these are set by the platform
+
+3. Requesting evidence:
+   - Asking for sensitive personal details
+   - Requests for ID verification
+   - Requests for official documents
 
 REVIEW INSTRUCTIONS:
-- Check for any policy reference codes
-- Check for any banned terms or phrases
-- Check for assumptions about content type
-- Identify any issues in the letter based on all criteria above
-- For each issue, provide a specific recommendation for improvement
-- If the letter meets all criteria, indicate that it passes the quality check
+1. First check for CRITICAL issues that require regeneration
+2. Then identify MINOR issues that can be improved
+3. If only minor issues exist, provide an improved version
+4. Return analysis in this JSON format:
 
-Output your analysis in JSON format:
 {
-  "passesQualityCheck": true/false,
+  "passesQualityCheck": boolean,
+  "severity": "critical" | "minor" | "none",
   "issues": [
     {
-      "criterion": "The criterion that failed",
-      "issue": "Description of the issue",
-      "recommendation": "Specific recommendation for improvement"
+      "type": "critical" | "minor",
+      "issue": "Description of the issue"
     }
   ],
-  "improvedLetter": "Only include this field if changes are needed. If so, provide the complete improved letter."
-}`;
+  "improvedLetter": {
+    "subject": "Improved subject line if needed",
+    "body": "Improved letter body if needed"
+  }
+}
+
+IMPORTANT: When providing improvedLetter, always include both subject and body as a complete letter object, even if only one part needs improvement.`;
 }
