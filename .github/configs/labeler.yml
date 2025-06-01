@@ -1,0 +1,69 @@
+# -----------------------------------------------------------------------------
+# Labeler config for scan-and-label-forks.yml (auto-generated for this repo)
+# -----------------------------------------------------------------------------
+
+needs-review:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'lib/auth/**'
+          - 'lib/platform-policies/**'
+          - 'lib/constants/**'
+          - 'lib/api.ts'
+          - 'lib/firebase.ts'
+          - 'lib/rollbar.ts'
+          - 'lib/prompts.ts'
+          - 'lib/utils.ts'
+          - 'lib/analytics.ts'
+          - 'middleware.ts'
+          - 'components/guards/**'
+          - 'app/api/**'
+          - 'app/letter-generator/**'
+          - 'next.config.js'
+          - '.env*'
+          - '**/.env*'
+          - 'types/**'
+
+config-changes:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'tsconfig.json'
+          - 'package.json'
+          - '**/*.lock'
+          - 'cypress.config.ts'
+          - 'jest.config.js'
+          - 'tailwind.config.ts'
+          - 'postcss.config.js'
+          - 'next.config.js'
+          - 'lib/rollbar.ts'
+          - '**/*.json'
+          - '**/*.yaml'
+          - '**/*.yml'
+
+automation-changes:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'scripts/**'
+          - 'bin/**'
+          - '*.sh'
+          - '*.py'
+          - '.husky/**'
+          - '.github/**'
+
+dev-tooling-changes:
+  - changed-files:
+      - any-glob-to-any-file:
+          - '.vscode/**'
+          - '.gitignore'
+          - '.prettierrc'
+          - '.nycrc'
+          - 'next-env.d.ts'
+          - 'lib/dev/**'
+          - 'hooks/**'
+
+test-config-changes:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'cypress/**'
+          - 'cypress.config.ts'
+          - 'jest.config.js'
+          - 'types/**'
