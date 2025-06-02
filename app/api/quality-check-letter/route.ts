@@ -1,5 +1,5 @@
 import { AI_MODEL } from '@/lib/constants/common';
-import { generateLetterQualityCheckPrompt } from '@/lib/prompts';
+import { generateLetterQualityCheckPrompt } from '@/lib/prompts/quality-check';
 import { handleApiError, serverInstance as rollbar } from '@/lib/rollbar';
 import { parseAIJson, retryWithDelay } from '@/lib/utils';
 import Anthropic from '@anthropic-ai/sdk';
@@ -28,7 +28,6 @@ export async function POST(request: Request) {
 
     const generateQualityCheck = async () => {
       const content = generateLetterQualityCheckPrompt(JSON.stringify(letter), formData);
-      console.log('QualityCheckLetter content:', content);
       const response = await anthropic.messages.create({
         model: AI_MODEL,
         max_tokens: 4000,

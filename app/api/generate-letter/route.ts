@@ -1,5 +1,5 @@
 import { AI_MODEL } from '@/lib/constants/common';
-import { generateLetterPrompt } from '@/lib/prompts';
+import { generateLetterPrompt } from '@/lib/prompts/generate-letter';
 import { handleApiError, serverInstance as rollbar } from '@/lib/rollbar';
 import { parseAIJson, retryWithDelay } from '@/lib/utils';
 import Anthropic from '@anthropic-ai/sdk';
