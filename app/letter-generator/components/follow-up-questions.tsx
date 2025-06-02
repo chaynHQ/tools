@@ -4,14 +4,15 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { generateFollowUpQuestions } from '@/lib/ai';
+import { generateFollowUpQuestions } from '@/lib/ai/follow-up';
 import { analytics } from '@/lib/analytics';
+import { GA_EVENTS } from '@/lib/constants/analytics';
 import { useFormContext } from '@/lib/context/FormContext';
 import { rollbar } from '@/lib/rollbar';
 import { FollowUpQuestion } from '@/types/questions';
 import { AnimatePresence, motion } from 'framer-motion';
 import { AlertCircle, Loader2 } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
 import { VoiceInput } from './voice-input';
@@ -49,14 +50,13 @@ export function FollowUpQuestions({
 }: FollowUpQuestionsProps) {
   const startTime = useState(() => Date.now())[0];
   const [activeField, setActiveField] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [hasInitialized, setHasInitialized] = useState<boolean>(false);
   const [followUpQuestions, setFollowUpQuestions] = useState<FollowUpQuestion[]>([]);
   const [error, setError] = useState<string | null>(null);
   const { register, handleSubmit, setValue, reset } = useForm<FollowUpQuestionsForm>();
   const { toast } = useToast();
   const { formState, setFollowUpData } = useFormContext();
-  const fetchController = useRef<AbortController | null>(null);
   const hasQuestionsInContext = formState.followUpData.questions.length > 0;
 
   const { transcript, listening, resetTranscript, browserSupportsSpeechRecognition } =
@@ -64,7 +64,7 @@ export function FollowUpQuestions({
 
   // Initialize questions from context or fetch new ones
   useEffect(() => {
-    if (hasInitialized || !initialData) return;
+    if (hasInitialized || !initialData || isLoading) return;
 
     const initializeQuestions = async () => {
       // Use cached questions if available
@@ -75,14 +75,10 @@ export function FollowUpQuestions({
         return;
       }
 
-      // Fetch new questions if none are cached
-      const controller = new AbortController();
-      fetchController.current = controller;
+      setIsLoading(true);
 
       try {
         const questions = await generateFollowUpQuestions(initialData);
-
-        if (controller.signal.aborted) return;
 
         if (questions && Array.isArray(questions)) {
           setFollowUpQuestions(questions);
@@ -120,13 +116,6 @@ export function FollowUpQuestions({
     };
 
     initializeQuestions();
-
-    return () => {
-      if (fetchController.current) {
-        fetchController.current.abort();
-        fetchController.current = null;
-      }
-    };
   }, [
     initialData,
     hasQuestionsInContext,
@@ -158,7 +147,7 @@ export function FollowUpQuestions({
         resetTranscript();
         setActiveField(null);
 
-        analytics.trackEvent('TDLG_VOICE_INPUT_USED', {
+        analytics.trackEvent(GA_EVENTS.TDLG_VOICE_INPUT_USED, {
           field,
           success: true,
           component: 'FollowUpQuestions',
@@ -184,7 +173,7 @@ export function FollowUpQuestions({
         field,
       });
 
-      analytics.trackEvent('TDLG_VOICE_INPUT_USED', {
+      analytics.trackEvent(GA_EVENTS.TDLG_VOICE_INPUT_USED, {
         field,
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error',
@@ -201,7 +190,7 @@ export function FollowUpQuestions({
 
   const handleFormSubmit = (data: FollowUpQuestionsForm) => {
     try {
-      analytics.trackEvent('TDLG_FOLLOW_UP_CONTINUE_CLICKED');
+      analytics.trackEvent(GA_EVENTS.TDLG_FOLLOW_UP_CONTINUE_CLICKED);
       const timeSpent = Math.floor((Date.now() - startTime) / 1000);
       analytics.trackAdditionalQuestionsCompleted(timeSpent, followUpQuestions.length);
       setFollowUpData(followUpQuestions, data);

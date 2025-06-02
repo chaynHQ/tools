@@ -1,29 +1,12 @@
 import { AI_MODEL } from '@/lib/constants/common';
 import { generateLetterQualityCheckPrompt } from '@/lib/prompts';
 import { handleApiError, serverInstance as rollbar } from '@/lib/rollbar';
-import { parseAIJson } from '@/lib/utils';
+import { parseAIJson, retryWithDelay } from '@/lib/utils';
 import Anthropic from '@anthropic-ai/sdk';
 import { NextResponse } from 'next/server';
 
 // Initialize Anthropic with environment variable
 const anthropic = new Anthropic();
-
-const MAX_RETRIES = 3;
-const RETRY_DELAY = 1000; // 1 second delay between retries
-
-async function retryWithDelay<T>(
-  fn: () => Promise<T>,
-  retries: number = MAX_RETRIES,
-  delay: number = RETRY_DELAY,
-): Promise<T> {
-  try {
-    return await fn();
-  } catch (error) {
-    if (retries === 0) throw error;
-    await new Promise((resolve) => setTimeout(resolve, delay));
-    return retryWithDelay(fn, retries - 1, delay);
-  }
-}
 
 export async function POST(request: Request) {
   try {
@@ -44,6 +27,8 @@ export async function POST(request: Request) {
     }
 
     const generateQualityCheck = async () => {
+      const content = generateLetterQualityCheckPrompt(JSON.stringify(letter), formData);
+      console.log('QualityCheckLetter content:', content);
       const response = await anthropic.messages.create({
         model: AI_MODEL,
         max_tokens: 4000,
@@ -51,15 +36,15 @@ export async function POST(request: Request) {
         messages: [
           {
             role: 'user',
-            content: generateLetterQualityCheckPrompt(JSON.stringify(letter), formData),
+            content: content,
           },
         ],
       });
-
+      //@ts-ignore
       if (!response?.content?.[0]?.text) {
         throw new Error('Invalid response from Anthropic API');
       }
-
+      //@ts-ignore
       return parseAIJson(response.content[0].text);
     };
 

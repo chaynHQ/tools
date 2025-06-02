@@ -18,7 +18,7 @@ import { analytics } from '@/lib/analytics';
 import { GA_EVENTS } from '@/lib/constants/analytics';
 import { useFormContext } from '@/lib/context/FormContext';
 import { platforms } from '@/lib/platforms';
-import { clientConfig } from '@/lib/rollbar';
+import { rollbar } from '@/lib/rollbar';
 import { GeneratedLetter } from '@/types/letter';
 import { motion } from 'framer-motion';
 import {
@@ -33,11 +33,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
-import Rollbar from 'rollbar';
 import { QuestionSection } from './question-section';
-
-// Initialize Rollbar for client-side
-const rollbar = new Rollbar(clientConfig);
 
 interface LetterReviewProps {
   letter: GeneratedLetter;
@@ -188,7 +184,7 @@ export function LetterReview({
       }
 
       setFeedbackSubmitted(true);
-      analytics.trackEvent('letter_feedback_submitted', {
+      analytics.trackEvent(GA_EVENTS.TDLG_LETTER_FEEDBACK_SUBMITTED, {
         rating: isUseful ? 'positive' : 'negative',
         letterShared: consentToShare,
       });

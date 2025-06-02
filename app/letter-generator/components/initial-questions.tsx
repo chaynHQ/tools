@@ -9,7 +9,7 @@ import { analytics } from '@/lib/analytics';
 import { GA_EVENTS } from '@/lib/constants/analytics';
 import { useFormContext } from '@/lib/context/FormContext';
 import { rollbar } from '@/lib/rollbar';
-import { isValidUrl, normalizeUrl } from '@/lib/utils';
+import { isValidUrl } from '@/lib/utils';
 import { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
@@ -198,15 +198,25 @@ export function InitialQuestions({ onComplete }: InitialQuestionsProps) {
     try {
       analytics.trackEvent(GA_EVENTS.TDLG_INITIAL_QUESTIONS_CONTINUE_CLICKED);
 
-      // Normalize URL if URL type is selected
-      if (data.contentLocationType === 'url' && data.contentUrl) {
-        data.contentUrl = normalizeUrl(data.contentUrl);
-      }
+      // Create imageIdentification from either URL or description
+      const imageIdentification =
+        data.contentLocationType === 'url' ? data.contentUrl : data.contentDescription;
+
+      // Create clean data object with single content location field
+      const cleanData = {
+        contentType: data.contentType,
+        contentContext: data.contentContext,
+        imageIdentification,
+        imageUploadDate: data.imageUploadDate,
+        imageTakenDate: data.imageTakenDate,
+        ownershipEvidence: data.ownershipEvidence,
+        impactStatement: data.impactStatement,
+      };
 
       const timeSpent = Math.floor((Date.now() - startTime) / 1000);
       analytics.trackInitialQuestionsCompleted(timeSpent);
 
-      setInitialQuestions(data);
+      setInitialQuestions(cleanData);
       onComplete();
     } catch (error) {
       rollbar.error('Error submitting initial questions', {

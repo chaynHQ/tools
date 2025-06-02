@@ -2,11 +2,10 @@
 import 'regenerator-runtime/runtime'; // Ensure this import goes first otherwise you will get a runtime error
 
 import { Button } from '@/components/ui/button';
-import { generateLetter } from '@/lib/ai';
+import { generateLetter } from '@/lib/ai/generate-letter';
 import { analytics } from '@/lib/analytics';
 import { GA_EVENTS } from '@/lib/constants/analytics';
 import { PlatformInfo, useFormContext } from '@/lib/context/FormContext';
-import { rollbar } from '@/lib/rollbar';
 import { GeneratedLetter } from '@/types/letter';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Loader2 } from 'lucide-react';
@@ -58,6 +57,7 @@ export default function LetterGenerator() {
   const [generatedLetter, setGeneratedLetter] = useState<GeneratedLetter | null>(null);
   const [redactedLetter, setRedactedLetter] = useState<GeneratedLetter | null>(null);
   const [isRegenerating, setIsRegenerating] = useState(false);
+  console.log('LetterGenerator formState:', formState);
 
   // Scroll to top of main content when step changes
   useEffect(() => {
@@ -69,7 +69,6 @@ export default function LetterGenerator() {
 
   // Memoize letter generation function
   const generateLetterContent = useCallback(async () => {
-    rollbar.info('LetterGenerator: Starting letter generation');
     if (!formState.completeFormData) return;
 
     try {
@@ -90,7 +89,6 @@ export default function LetterGenerator() {
       }
       setIsRegenerating(false);
     } catch (error) {
-      rollbar.error('LetterGenerator: Error generating letter', { error });
       console.error('Error generating letter:', error);
       analytics.trackError(
         'letter_generation',
@@ -141,10 +139,6 @@ export default function LetterGenerator() {
   };
 
   const handleBack = () => {
-    rollbar.info('LetterGenerator: Going back to previous step');
-    analytics.trackEvent(GA_EVENTS.TDLG_STEP_BACK, {
-      currentStep,
-    });
     if (currentStep === 'platform-selection') {
       router.push('/');
     } else {
@@ -162,17 +156,26 @@ export default function LetterGenerator() {
   };
 
   const handleNext = (nextStep: Step, platformInfo?: PlatformInfo) => {
+    console.log('Next step:', nextStep);
+    console.log('platformInfo:', formState, platformInfo);
     // For custom platforms, skip removal process
     if (nextStep === 'removal-process' && platformInfo?.isCustom) {
+      console.warn('Skipping removal process for custom platform');
       nextStep = 'initial-questions';
     }
-
+    console.log(
+      'Reporting details:',
+      formState.reportingInfo?.status === 'none-completed',
+      !formState.reportingInfo,
+      Object.keys(formState.reportingInfo || {}).length === 0,
+    );
     if (
       nextStep === 'reporting-details' &&
       (formState.reportingInfo?.status === 'none-completed' ||
         !formState.reportingInfo ||
         Object.keys(formState.reportingInfo).length === 0)
     ) {
+      console.warn('Skipping reporting details step');
       nextStep = 'follow-up';
     }
 

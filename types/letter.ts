@@ -9,6 +9,7 @@ export interface LetterRequest {
     imageTakenDate: string;
     ownershipEvidence: string;
     impactStatement: string;
+    imageIdentification: string;
   };
   reportingDetails?: {
     standardProcessDetails?: string;
