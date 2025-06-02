@@ -6,10 +6,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { generateFollowUpQuestions } from '@/lib/ai';
 import { analytics } from '@/lib/analytics';
-import { GA_EVENTS } from '@/lib/constants/analytics';
 import { useFormContext } from '@/lib/context/FormContext';
+import { rollbar } from '@/lib/rollbar';
 import { FollowUpQuestion } from '@/types/questions';
-import { useRollbar } from '@rollbar/react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { AlertCircle, Loader2 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
@@ -58,7 +57,8 @@ export function FollowUpQuestions({
   const { toast } = useToast();
   const { formState, setFollowUpData } = useFormContext();
   const fetchController = useRef<AbortController | null>(null);
-  const rollbar = useRollbar();
+  const hasQuestionsInContext = formState.followUpData.questions.length > 0;
+
   const { transcript, listening, resetTranscript, browserSupportsSpeechRecognition } =
     useSpeechRecognition();
 
@@ -68,7 +68,7 @@ export function FollowUpQuestions({
 
     const initializeQuestions = async () => {
       // Use cached questions if available
-      if (formState.followUpData.questions.length > 0) {
+      if (hasQuestionsInContext) {
         setFollowUpQuestions(formState.followUpData.questions);
         setIsLoading(false);
         setHasInitialized(true);
@@ -129,12 +129,12 @@ export function FollowUpQuestions({
     };
   }, [
     initialData,
+    hasQuestionsInContext,
     formState.followUpData.questions,
     setFollowUpData,
     savedData,
     toast,
     hasInitialized,
-    rollbar,
   ]);
 
   // Reset form with saved data when available
@@ -158,7 +158,7 @@ export function FollowUpQuestions({
         resetTranscript();
         setActiveField(null);
 
-        analytics.trackEvent(GA_EVENTS.TDLG_VOICE_INPUT_USED, {
+        analytics.trackEvent('TDLG_VOICE_INPUT_USED', {
           field,
           success: true,
           component: 'FollowUpQuestions',
@@ -176,11 +176,6 @@ export function FollowUpQuestions({
           continuous: true,
           language: supportedLang,
         });
-
-        rollbar.info('Voice input started', {
-          field,
-          language: supportedLang,
-        });
       }
     } catch (error) {
       rollbar.error('Error handling voice input', {
@@ -189,7 +184,7 @@ export function FollowUpQuestions({
         field,
       });
 
-      analytics.trackEvent(GA_EVENTS.TDLG_VOICE_INPUT_USED, {
+      analytics.trackEvent('TDLG_VOICE_INPUT_USED', {
         field,
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error',
@@ -206,6 +201,7 @@ export function FollowUpQuestions({
 
   const handleFormSubmit = (data: FollowUpQuestionsForm) => {
     try {
+      analytics.trackEvent('TDLG_FOLLOW_UP_CONTINUE_CLICKED');
       const timeSpent = Math.floor((Date.now() - startTime) / 1000);
       analytics.trackAdditionalQuestionsCompleted(timeSpent, followUpQuestions.length);
       setFollowUpData(followUpQuestions, data);
@@ -255,10 +251,7 @@ export function FollowUpQuestions({
             letter.
           </p>
           <Button
-            onClick={() => {
-              analytics.trackEvent(GA_EVENTS.TDLG_NO_QUESTIONS_CONTINUE_CLICKED);
-              onSubmit({});
-            }}
+            onClick={() => onSubmit({})}
             className="pill bg-primary text-white hover:opacity-90"
           >
             Continue to letter creation
@@ -277,10 +270,7 @@ export function FollowUpQuestions({
             We have enough information to proceed with creating your letter.
           </p>
           <Button
-            onClick={() => {
-              analytics.trackEvent(GA_EVENTS.TDLG_NO_QUESTIONS_CONTINUE_CLICKED);
-              onSubmit({});
-            }}
+            onClick={() => onSubmit({})}
             className="pill bg-primary text-white hover:opacity-90"
           >
             Continue to letter creation

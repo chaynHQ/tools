@@ -8,88 +8,69 @@ import { NextResponse } from 'next/server';
 // Initialize Anthropic with environment variable
 const anthropic = new Anthropic();
 
+const MAX_RETRIES = 3;
+const RETRY_DELAY = 1000; // 1 second delay between retries
+
+async function retryWithDelay<T>(
+  fn: () => Promise<T>,
+  retries: number = MAX_RETRIES,
+  delay: number = RETRY_DELAY,
+): Promise<T> {
+  try {
+    return await fn();
+  } catch (error) {
+    if (retries === 0) throw error;
+    await new Promise((resolve) => setTimeout(resolve, delay));
+    return retryWithDelay(fn, retries - 1, delay);
+  }
+}
+
 export async function POST(request: Request) {
-  rollbar.info('GenerateLetter: Received request to generate letter');
   try {
     if (!process.env.ANTHROPIC_API_KEY) {
-      rollbar.error('GenerateLetter: Missing Anthropic API key');
+      rollbar.error('GenerateLetter: Anthropic API key not configured');
       return NextResponse.json({ error: 'Missing Anthropic API key' }, { status: 500 });
     }
 
     const body = await request.json();
 
-    // Validate the request body
-    if (!body || !body.initialQuestions || !body.platformInfo) {
-      console.error('Invalid request body for letter generation:', body);
-      return NextResponse.json(
-        { error: 'Invalid request: Missing required fields' },
-        { status: 400 },
-      );
-    }
+    const generateLetter = async () => {
+      const response = await anthropic.messages.create({
+        model: AI_MODEL,
+        max_tokens: 4000,
+        temperature: 0.7,
+        messages: [
+          {
+            role: 'user',
+            content: generateLetterPrompt(body),
+          },
+        ],
+      });
 
-    const response = await anthropic.messages.create({
-      model: AI_MODEL,
-      max_tokens: 4000,
-      temperature: 0.7,
-      messages: [
-        {
-          role: 'user',
-          content: generateLetterPrompt(body),
-        },
-      ],
+      if (!response?.content?.[0]?.text) {
+        throw new Error('Invalid response from Anthropic API');
+      }
+
+      return parseAIJson(response.content[0].text);
+    };
+
+    const letter = await retryWithDelay(generateLetter);
+
+    rollbar.info('GenerateLetter: Successfully generated letter', {
+      letterLength: letter.body.length,
     });
 
-    // @ts-ignore
-    if (!response?.content?.[0]?.text) {
-      rollbar.error('GenerateLetter: Invalid response from Anthropic API');
-      throw new Error('Invalid response from Anthropic API');
-    }
-    rollbar.info('GenerateLetter: Successfully received response from Anthropic API');
-
-    let letter;
-    try {
-      // @ts-ignore
-      letter = parseAIJson(response.content[0].text);
-      if (!letter.subject || !letter.body) {
-        rollbar.error('GenerateLetter: Generated letter is missing required fields');
-        throw new Error('Generated letter is missing required fields');
-      }
-      rollbar.info('GenerateLetter: Successfully parsed letter');
-      return NextResponse.json(letter);
-    } catch (e: any) {
-      console.error('JSON parsing error:', e);
-      rollbar.error('Failed to parse Anthropic response as JSON');
-
-      // Provide more specific error messages based on the error type
-      let errorMessage = 'Failed to generate letter';
-      if (e instanceof SyntaxError) {
-        errorMessage = 'The AI generated an invalid response. Please try again.';
-      } else if (e.message.includes('missing required fields')) {
-        errorMessage = 'The generated letter was incomplete. Please try again.';
-      } else if (e.message.includes('No valid JSON')) {
-        errorMessage = 'The AI response was in an incorrect format. Please try again.';
-      }
-
-      return NextResponse.json(
-        {
-          error: errorMessage,
-          details: e.message,
-        },
-        { status: 500 },
-      );
-    }
+    return NextResponse.json(letter);
   } catch (error: any) {
+    rollbar.error('GenerateLetter: Error generating letter', {
+      error: error.message,
+      stack: error.stack,
+    });
     const { error: errorMessage, status } = handleApiError(error, '/api/generate-letter', {
       statusCode: error.status,
       errorType: error.name,
     });
 
-    return NextResponse.json(
-      {
-        error: errorMessage,
-        details: error instanceof Error ? error.message : 'Unknown error occurred',
-      },
-      { status },
-    );
+    return NextResponse.json({ error: errorMessage }, { status });
   }
 }

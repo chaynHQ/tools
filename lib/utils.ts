@@ -26,7 +26,6 @@ export function parseAIJson(input: string) {
     try {
       return JSON.parse(trimmedInput);
     } catch (e) {
-      // If direct parsing fails, try to clean up the input
       console.log('Initial JSON parse failed, attempting cleanup...');
     }
 
@@ -110,6 +109,24 @@ export function isValidUrl(url: string): boolean {
 // Store sanitized data mappings
 const sanitizationMap = new Map<string, Map<string, string>>();
 
+// Define placeholder types
+export const PLACEHOLDER_TYPES = {
+  CONTENT_LOCATION: '[CONTENT_LOCATION]',
+  EMAIL: '[EMAIL]',
+  PHONE: '[PHONE]',
+  REFERENCE: '[REFERENCE]',
+  DATE: '[DATE]',
+  IP: '[IP]',
+  ID: '[ID]',
+  USERNAME: '[USERNAME]',
+  URL: '[URL]',
+  PLATFORM: '[PLATFORM]',
+  CASE_NUMBER: '[CASE_NUMBER]',
+  ACCOUNT: '[ACCOUNT]',
+  LOCATION: '[LOCATION]',
+  NAME: '[NAME]',
+} as const;
+
 // Sanitize text to remove potential identifiers
 export function sanitizeText(text: string): string {
   if (!text) return '';
@@ -117,28 +134,44 @@ export function sanitizeText(text: string): string {
   return (
     text
       // Remove email addresses
-      .replace(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g, '[EMAIL]')
+      .replace(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g, PLACEHOLDER_TYPES.EMAIL)
       // Remove phone numbers (various formats)
-      .replace(/(?:\+?\d{1,3}[-. ]?)?\(?\d{3}\)?[-. ]?\d{3}[-. ]?\d{4}/g, '[PHONE]')
+      .replace(/(?:\+?\d{1,3}[-. ]?)?\(?\d{3}\)?[-. ]?\d{3}[-. ]?\d{4}/g, PLACEHOLDER_TYPES.PHONE)
       // Remove case/reference numbers
-      .replace(/\b(?:case|ref|reference|ticket)\s*#?\s*[\w-]+/gi, '[REFERENCE]')
+      .replace(/\b(?:case|ref|reference|ticket)\s*#?\s*[\w-]+/gi, PLACEHOLDER_TYPES.REFERENCE)
       // Remove dates in various formats while preserving general timeframes
-      .replace(/\b\d{1,2}[-/]\d{1,2}[-/]\d{2,4}\b/g, '[DATE]')
+      .replace(/\b\d{1,2}[-/]\d{1,2}[-/]\d{2,4}\b/g, PLACEHOLDER_TYPES.DATE)
       // Remove IP addresses
-      .replace(/\b(?:\d{1,3}\.){3}\d{1,3}\b/g, '[IP]')
+      .replace(/\b(?:\d{1,3}\.){3}\d{1,3}\b/g, PLACEHOLDER_TYPES.IP)
       // Remove long numbers that might be IDs
-      .replace(/\b\d{10,}\b/g, '[ID]')
+      .replace(/\b\d{10,}\b/g, PLACEHOLDER_TYPES.ID)
       // Remove social media handles while preserving platform names
-      .replace(/@[\w.]+/g, '[USERNAME]')
+      .replace(/@[\w.]+/g, PLACEHOLDER_TYPES.USERNAME)
       // Remove URLs while preserving domain names
       .replace(/https?:\/\/[^\s]+/g, (match) => {
         try {
           const url = new URL(match);
-          return `[URL:${url.hostname}]`;
+          return `${PLACEHOLDER_TYPES.URL}:${url.hostname}`;
         } catch {
-          return '[URL]';
+          return PLACEHOLDER_TYPES.URL;
         }
       })
+      // Remove platform-specific identifiers
+      .replace(
+        /\b(?:facebook\.com|instagram\.com|tiktok\.com)\/[^\s]+/g,
+        PLACEHOLDER_TYPES.PLATFORM,
+      )
+      // Remove case numbers and ticket references
+      .replace(/\b(?:case|ticket|ref)[-#]?\d+\b/gi, PLACEHOLDER_TYPES.CASE_NUMBER)
+      // Remove account identifiers
+      .replace(/\baccount\s*(?:id|number|#)?\s*[\w-]+\b/gi, PLACEHOLDER_TYPES.ACCOUNT)
+      // Remove location information
+      .replace(
+        /\b(?:address|location|city|state|zip|postal)\s*:\s*[^\n,]+/gi,
+        PLACEHOLDER_TYPES.LOCATION,
+      )
+      // Remove potential names (sequences of capitalized words)
+      .replace(/\b(?:[A-Z][a-z]+(?:\s+[A-Z][a-z]+)+)\b/g, PLACEHOLDER_TYPES.NAME)
   );
 }
 
@@ -149,27 +182,48 @@ export function sanitizeFormData(data: Record<string, any>): Record<string, any>
   const mappings = new Map<string, string>();
   sanitizationMap.set(formId, mappings);
 
-  for (const [key, value] of Object.entries(data)) {
+  function processSanitization(value: any, isContentLocation: boolean = false): any {
     if (typeof value === 'string') {
-      // Special handling for content location
-      if (key === 'contentUrl' || key === 'contentDescription') {
-        const sanitizedValue = sanitizeText(value);
-        mappings.set('[CONTENT_LOCATION]', value);
-        sanitized[key] = '[CONTENT_LOCATION]';
-      } else {
-        const sanitizedText = sanitizeText(value);
-        if (sanitizedText !== value) {
-          mappings.set(sanitizedText, value);
-        }
-        sanitized[key] = sanitizedText;
+      if (isContentLocation) {
+        mappings.set(PLACEHOLDER_TYPES.CONTENT_LOCATION, value);
+        return PLACEHOLDER_TYPES.CONTENT_LOCATION;
       }
-    } else if (Array.isArray(value)) {
-      sanitized[key] = value.map((item) => (typeof item === 'string' ? sanitizeText(item) : item));
-    } else if (typeof value === 'object' && value !== null) {
-      sanitized[key] = sanitizeFormData(value);
-    } else {
-      sanitized[key] = value;
+      const sanitizedText = sanitizeText(value);
+      if (sanitizedText !== value) {
+        // Store original values for all placeholders
+        const placeholders = sanitizedText.match(/\[.*?\]/g) || [];
+        placeholders.forEach((placeholder) => {
+          if (placeholder.startsWith('[URL:')) {
+            const domain = placeholder.slice(5, -1);
+            mappings.set(placeholder, `https://${domain}`);
+          } else {
+            mappings.set(placeholder, value);
+          }
+        });
+      }
+      return sanitizedText;
     }
+    if (Array.isArray(value)) {
+      return value.map((item) => processSanitization(item));
+    }
+    if (typeof value === 'object' && value !== null) {
+      const result: Record<string, any> = {};
+      for (const [key, val] of Object.entries(value)) {
+        result[key] = processSanitization(
+          val,
+          key === 'contentUrl' || key === 'contentDescription',
+        );
+      }
+      return result;
+    }
+    return value;
+  }
+
+  for (const [key, value] of Object.entries(data)) {
+    sanitized[key] = processSanitization(
+      value,
+      key === 'contentUrl' || key === 'contentDescription',
+    );
   }
 
   return { formId, ...sanitized };
@@ -184,8 +238,13 @@ export function desanitizeLetter(text: string, formId: string): string {
   }
 
   let desanitizedText = text;
-  for (const [sanitized, original] of mappings.entries()) {
-    desanitizedText = desanitizedText.replace(new RegExp(sanitized, 'g'), original);
+
+  // Sort mappings by length (longest first) to handle nested placeholders correctly
+  const sortedMappings = Array.from(mappings.entries()).sort(([a], [b]) => b.length - a.length);
+
+  for (const [placeholder, original] of sortedMappings) {
+    const regex = new RegExp(placeholder.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
+    desanitizedText = desanitizedText.replace(regex, original);
   }
 
   return desanitizedText;

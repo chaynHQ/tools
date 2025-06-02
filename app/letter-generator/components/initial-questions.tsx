@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,19 +8,15 @@ import { toast } from '@/hooks/use-toast';
 import { analytics } from '@/lib/analytics';
 import { GA_EVENTS } from '@/lib/constants/analytics';
 import { useFormContext } from '@/lib/context/FormContext';
-import { clientConfig } from '@/lib/rollbar';
+import { rollbar } from '@/lib/rollbar';
 import { isValidUrl, normalizeUrl } from '@/lib/utils';
 import { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
 import 'regenerator-runtime/runtime';
-import Rollbar from 'rollbar';
 import { QuestionSection } from './question-section';
 import { SelectableCard } from './selectable-card';
 import { VoiceInput } from './voice-input';
-
-// Initialize Rollbar for client-side
-const rollbar = new Rollbar(clientConfig);
 
 interface InitialQuestionsForm {
   contentLocationType: 'url' | 'description';
@@ -39,54 +35,54 @@ interface InitialQuestionsProps {
 }
 
 const contentTypes = [
-  { 
-    value: 'intimate', 
+  {
+    value: 'intimate',
     label: 'Intimate images',
-    description: 'Photos or videos of a private nature'
+    description: 'Photos or videos of a private nature',
   },
-  { 
-    value: 'personal', 
+  {
+    value: 'personal',
     label: 'Personal content',
-    description: 'Non-intimate photos or videos shared without permission'
+    description: 'Non-intimate photos or videos shared without permission',
   },
-  { 
-    value: 'private', 
+  {
+    value: 'private',
     label: 'Private information',
-    description: 'Personal documents or identifying details'
+    description: 'Personal documents or identifying details',
   },
-  { 
-    value: 'other', 
+  {
+    value: 'other',
     label: 'Other content',
-    description: 'Content that violates your privacy in other ways'
-  }
+    description: 'Content that violates your privacy in other ways',
+  },
 ];
 
 const contentContexts = [
-  { 
-    value: 'hacked', 
+  {
+    value: 'hacked',
     label: 'Account was compromised',
-    description: 'Content was accessed without authorisation'
+    description: 'Content was accessed without authorisation',
   },
-  { 
-    value: 'impersonation', 
+  {
+    value: 'impersonation',
     label: 'Someone is impersonating me',
-    description: 'Content posted by someone pretending to be you'
+    description: 'Content posted by someone pretending to be you',
   },
-  { 
-    value: 'relationship', 
+  {
+    value: 'relationship',
     label: 'Posted by someone I know',
-    description: 'Content shared by a known person'
+    description: 'Content shared by a known person',
   },
-  { 
-    value: 'unknown', 
+  {
+    value: 'unknown',
     label: 'Source unknown',
-    description: 'Not sure who shared the content'
+    description: 'Not sure who shared the content',
   },
-  { 
-    value: 'other', 
+  {
+    value: 'other',
     label: 'Other situation',
-    description: 'Different from the options above'
-  }
+    description: 'Different from the options above',
+  },
 ];
 
 // Common languages that might be used
@@ -108,31 +104,35 @@ const SUPPORTED_LANGUAGES = [
 export function InitialQuestions({ onComplete }: InitialQuestionsProps) {
   const startTime = useState(() => Date.now())[0];
   const [activeField, setActiveField] = useState<keyof InitialQuestionsForm | null>(null);
-  const { control, register, handleSubmit, setValue, reset, watch, formState: { errors } } = useForm<InitialQuestionsForm>({
+  const {
+    control,
+    register,
+    handleSubmit,
+    setValue,
+    reset,
+    watch,
+    formState: { errors },
+  } = useForm<InitialQuestionsForm>({
     defaultValues: {
-      contentLocationType: 'url'
-    }
+      contentLocationType: 'url',
+    },
   });
   const { formState, setInitialQuestions } = useFormContext();
   const contentLocationType = watch('contentLocationType');
-  
-  const {
-    transcript,
-    listening,
-    resetTranscript,
-    browserSupportsSpeechRecognition
-  } = useSpeechRecognition();
+
+  const { transcript, listening, resetTranscript, browserSupportsSpeechRecognition } =
+    useSpeechRecognition();
 
   useEffect(() => {
     if (formState.initialQuestions && Object.keys(formState.initialQuestions).length > 0) {
       const savedData = formState.initialQuestions;
       const isUrl = savedData.imageIdentification?.startsWith('http');
-      
+
       reset({
         ...savedData,
         contentLocationType: isUrl ? 'url' : 'description',
         contentUrl: isUrl ? savedData.imageIdentification : undefined,
-        contentDescription: !isUrl ? savedData.imageIdentification : undefined
+        contentDescription: !isUrl ? savedData.imageIdentification : undefined,
       });
     }
   }, [formState.initialQuestions, reset]);
@@ -149,46 +149,47 @@ export function InitialQuestions({ onComplete }: InitialQuestionsProps) {
         SpeechRecognition.stopListening();
         resetTranscript();
         setActiveField(null);
-        
+
         // Track successful voice input completion
         analytics.trackEvent(GA_EVENTS.TDLG_VOICE_INPUT_USED, {
           field,
           success: true,
-          component: 'InitialQuestions'
+          component: 'InitialQuestions',
         });
       } else {
         setActiveField(field);
         resetTranscript();
         // Try to detect user's browser language, fallback to English
         const browserLang = navigator.language;
-        const supportedLang = SUPPORTED_LANGUAGES.find(lang => 
-          browserLang.toLowerCase().startsWith(lang.toLowerCase().split('-')[0])
-        ) || 'en-US';
-        
-        SpeechRecognition.startListening({ 
+        const supportedLang =
+          SUPPORTED_LANGUAGES.find((lang) =>
+            browserLang.toLowerCase().startsWith(lang.toLowerCase().split('-')[0]),
+          ) || 'en-US';
+
+        SpeechRecognition.startListening({
           continuous: true,
-          language: supportedLang
+          language: supportedLang,
         });
       }
     } catch (error) {
       rollbar.error('Error handling voice input', {
         error,
         component: 'InitialQuestions',
-        field
+        field,
       });
-      
+
       // Track failed voice input attempt
       analytics.trackEvent(GA_EVENTS.TDLG_VOICE_INPUT_USED, {
         field,
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error',
-        component: 'InitialQuestions'
+        component: 'InitialQuestions',
       });
-      
+
       toast({
-        title: "Voice input error",
-        description: "There was a problem with the voice input. Please try typing instead.",
-        variant: "destructive"
+        title: 'Voice input error',
+        description: 'There was a problem with the voice input. Please try typing instead.',
+        variant: 'destructive',
       });
     }
   };
@@ -196,7 +197,7 @@ export function InitialQuestions({ onComplete }: InitialQuestionsProps) {
   const handleFormSubmit = (data: InitialQuestionsForm) => {
     try {
       analytics.trackEvent(GA_EVENTS.TDLG_INITIAL_QUESTIONS_CONTINUE_CLICKED);
-      
+
       // Normalize URL if URL type is selected
       if (data.contentLocationType === 'url' && data.contentUrl) {
         data.contentUrl = normalizeUrl(data.contentUrl);
@@ -210,32 +211,33 @@ export function InitialQuestions({ onComplete }: InitialQuestionsProps) {
     } catch (error) {
       rollbar.error('Error submitting initial questions', {
         error,
-        component: 'InitialQuestions'
+        component: 'InitialQuestions',
       });
       toast({
-        title: "Error saving responses",
-        description: "There was a problem saving your responses. Please try again.",
-        variant: "destructive"
+        title: 'Error saving responses',
+        description: 'There was a problem saving your responses. Please try again.',
+        variant: 'destructive',
       });
     }
   };
 
-  const inputClasses = "bg-white focus:ring-accent focus:border-accent w-full min-h-[80px] text-base px-4 py-3";
-  const textareaClasses = "bg-white focus:ring-accent focus:border-accent w-full min-h-[120px] text-base";
+  const inputClasses =
+    'bg-white focus:ring-accent focus:border-accent w-full min-h-[80px] text-base px-4 py-3';
+  const textareaClasses =
+    'bg-white focus:ring-accent focus:border-accent w-full min-h-[120px] text-base';
 
   return (
     <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-12">
       <QuestionSection title="Content information">
         <p className="text-muted-foreground mb-8">
-          The first three questions help us understand your situation and create an effective takedown request. 
-          Your answers will be used to identify specific policy violations and strengthen your case.
+          The first three questions help us understand your situation and create an effective
+          takedown request. Your answers will be used to identify specific policy violations and
+          strengthen your case.
         </p>
-        
+
         <div className="space-y-8">
           <div className="space-y-3">
-            <Label className="text-lg font-medium">
-              What type of content was shared?*
-            </Label>
+            <Label className="text-lg font-medium">What type of content was shared?*</Label>
             <div className="grid grid-cols-2 gap-3">
               <Controller
                 name="contentType"
@@ -259,15 +261,14 @@ export function InitialQuestions({ onComplete }: InitialQuestionsProps) {
             </div>
             {errors.contentType && (
               <p className="text-sm text-destructive">
-                Knowing the type of content helps us identify which platform policies have been violated and how to best support your request.
+                Knowing the type of content helps us identify which platform policies have been
+                violated and how to best support your request.
               </p>
             )}
           </div>
 
           <div className="space-y-3">
-            <Label className="text-lg font-medium">
-              How was the content shared?*
-            </Label>
+            <Label className="text-lg font-medium">How was the content shared?*</Label>
             <div className="grid grid-cols-2 gap-3">
               <Controller
                 name="contentContext"
@@ -291,15 +292,14 @@ export function InitialQuestions({ onComplete }: InitialQuestionsProps) {
             </div>
             {errors.contentContext && (
               <p className="text-sm text-destructive">
-                Understanding how the content was shared helps us address specific privacy violations in your takedown request.
+                Understanding how the content was shared helps us address specific privacy
+                violations in your takedown request.
               </p>
             )}
           </div>
 
           <div className="space-y-4">
-            <Label className="text-lg font-medium">
-              Where can the content be found?*
-            </Label>
+            <Label className="text-lg font-medium">Where can the content be found?*</Label>
             <div className="space-y-4">
               <div className="flex gap-4">
                 <label className="flex items-center">
@@ -325,13 +325,14 @@ export function InitialQuestions({ onComplete }: InitialQuestionsProps) {
               {contentLocationType === 'url' ? (
                 <div className="space-y-2">
                   <Input
-                    id="contentUrl"  
+                    id="contentUrl"
                     type="text"
                     {...register('contentUrl', {
                       required: 'Please provide the URL where the content can be found',
                       validate: {
-                        isValidUrl: (value) => isValidUrl(value||'') || 'Please enter a valid URL'
-                      }
+                        isValidUrl: (value) =>
+                          isValidUrl(value || '') || 'Please enter a valid URL',
+                      },
                     })}
                     placeholder="facebook.com/content or https://www.facebook.com/content"
                     className="bg-white focus:ring-accent focus:border-accent"
@@ -352,9 +353,9 @@ export function InitialQuestions({ onComplete }: InitialQuestionsProps) {
                     )}
                     <div className="flex-1">
                       <Textarea
-                        id="contentDescription"  
+                        id="contentDescription"
                         {...register('contentDescription', {
-                          required: 'Please describe where the content can be found'
+                          required: 'Please describe where the content can be found',
                         })}
                         placeholder="For example: 'The content appears in posts by the user @username' or 'The content is in an album titled...'"
                         className={textareaClasses}
@@ -475,7 +476,8 @@ export function InitialQuestions({ onComplete }: InitialQuestionsProps) {
             How is this affecting you?
           </Label>
           <p className="text-sm text-muted-foreground mb-2">
-            Explaining the impact helps convey the urgency of removal. Share only what you're comfortable with.
+            Explaining the impact helps convey the urgency of removal. Share only what you're
+            comfortable with.
           </p>
           <div className="flex items-start gap-3">
             {browserSupportsSpeechRecognition && (
@@ -502,10 +504,7 @@ export function InitialQuestions({ onComplete }: InitialQuestionsProps) {
       </QuestionSection>
 
       <div className="flex justify-end">
-        <Button 
-          type="submit" 
-          className="pill bg-primary text-white hover:opacity-90"
-        >
+        <Button type="submit" className="pill bg-primary text-white hover:opacity-90">
           Continue
         </Button>
       </div>

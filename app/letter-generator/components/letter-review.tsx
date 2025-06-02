@@ -68,20 +68,22 @@ export function LetterReview({
     platform?.contactEmail ||
     "Please check the platform's help centre for the appropriate contact email";
 
+  // Get content location from form state
+  const contentLocation =
+    formState.initialQuestions.contentLocationType === 'url'
+      ? formState.initialQuestions.contentUrl
+      : formState.initialQuestions.contentDescription;
+
+  // Create display version with replaced content location
+  const displayLetter = {
+    subject: letter.subject,
+    body: letter.body.replace(/\[Content Location\]/g, contentLocation || ''),
+    nextSteps: letter.nextSteps,
+  };
+
   const handleCopy = async () => {
     try {
-      const contentLocation =
-        formState.initialQuestions.contentLocationType === 'url'
-          ? formState.initialQuestions.contentUrl
-          : formState.initialQuestions.contentDescription;
-
-      const letterWithLocation = {
-        subject: letter.subject,
-        body: letter.body.replace(/\[Content Location\]/g, contentLocation || ''),
-      };
-
-      const fullText = `Subject: ${letterWithLocation.subject}\n\n${letterWithLocation.body}`;
-
+      const fullText = `Subject: ${displayLetter.subject}\n\n${displayLetter.body}`;
       await navigator.clipboard.writeText(fullText);
       setCopied(true);
       analytics.trackEvent(GA_EVENTS.TDLG_LETTER_COPIED, {
@@ -229,14 +231,14 @@ export function LetterReview({
             <div>
               <h4 className="text-lg font-medium mb-2">Subject line</h4>
               <div className="p-4 bg-white rounded-lg border border-border/50 select-none">
-                {letter.subject}
+                {displayLetter.subject}
               </div>
             </div>
 
             <div>
               <h4 className="text-lg font-medium mb-2">Message content</h4>
               <div className="p-4 bg-white rounded-lg border border-border/50 whitespace-pre-wrap select-none">
-                {letter.body}
+                {displayLetter.body}
               </div>
             </div>
           </div>
