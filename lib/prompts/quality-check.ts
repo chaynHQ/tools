@@ -26,7 +26,7 @@ export function generateLetterQualityCheckPrompt(letter: string, request: Letter
     reportingInfo.responseReceived ||
     reportingInfo.additionalStepsTaken;
 
-  return `You are an expert in content takedown requests and platform policy enforcement. Your task is to rigorously review a generated takedown letter against a set of strict quality standards and provide detailed, actionable feedback for improvement or confirm its readiness.
+  const prompt = `You are an expert in content takedown requests and platform policy enforcement. Your task is to rigorously review a generated takedown letter against a set of strict quality standards and provide detailed, actionable feedback for improvement or confirm its readiness.
 
 ORIGINAL LETTER TO BE CHECKED:
 ---START LETTER---
@@ -59,10 +59,7 @@ ${Object.entries(followUpInfo)
 ${
   relevantPolicies
     ? `
-PLATFORM POLICY CONTEXT (Policies available to the letter generator):
-Legal Basis:
-${relevantPolicies.legalBasis.map((basis) => `- ${basis.title} ${basis.section}`).join('\n')}
-
+Platform-Specific Policy Context for ${platformPolicy?.name}:
 Applicable Policies:
 ${relevantPolicies.contentPolicies
   .map((policy) => {
@@ -77,7 +74,7 @@ ${relevantPolicies.contentPolicies
     ) {
       return null;
     }
-    return `- ${policy.policy}`;
+    return `- ${policy.policy} (${policy.section})`;
   })
   .filter(Boolean)
   .join('\n')}
@@ -190,4 +187,6 @@ You must respond with a valid JSON object containing exactly these fields:
   }
 }
 `;
+  console.log(prompt);
+  return prompt;
 }

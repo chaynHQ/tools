@@ -31,7 +31,7 @@ export function generateLetterPrompt(request: LetterRequest) {
     reportingInfo.responseReceived ||
     reportingInfo.additionalStepsTaken;
 
-  return `You are an expert in content takedown requests and platform policy enforcement. Your role is to create a clear, factual, and compelling letter that requests the removal of ${request.initialQuestions.contentType} content in a context of ${request.initialQuestions.contentContext}, based on provided users inputs and platform policies.
+  const prompt = `You are an expert in content takedown requests and platform policy enforcement. Your role is to create a clear, factual, and compelling letter that requests the removal of ${request.initialQuestions.contentType} content in a context of ${request.initialQuestions.contentContext}, based on provided users inputs and platform policies.
  
 CRITICAL INSTRUCTIONS:
 1. Use ONLY the information provided in AVAILABLE INFORMATION - DO NOT invent or hallucinate additional details about the user's experience, previous correspondence, or platform actions.
@@ -83,11 +83,7 @@ ${Object.entries(followUpInfo)
 ${
   relevantPolicies
     ? `
-Platform-Specific Context for ${platformPolicy?.name}:
-
-Legal Basis:
-${relevantPolicies.legalBasis.map((basis) => `- ${basis.title} ${basis.section}`).join('\n')}
-
+Platform-Specific Policy Context for ${platformPolicy?.name}:
 Applicable Policies:
 ${relevantPolicies.contentPolicies
   .map((policy) => {
@@ -102,7 +98,7 @@ ${relevantPolicies.contentPolicies
     ) {
       return null;
     }
-    return `- ${policy.policy}`;
+    return `- ${policy.policy} (${policy.section})`;
   })
   .filter(Boolean)
   .join('\n')}
@@ -196,4 +192,7 @@ Remember:
 - Only include [Content Location] placeholder
 - Only include information that was provided
 - Keep the format simple and valid`;
+
+  console.log(prompt);
+  return prompt;
 }
