@@ -71,7 +71,7 @@ Additional Steps Taken: ${reportingInfo.additionalStepsTaken || 'Not provided'}`
 ${
   relevantPolicies
     ? `
-Platform-Specific Requirements:
+Platform-Specific Policy Context for ${platformPolicy?.name}:
 
 Applicable Policies:
 ${relevantPolicies
@@ -81,8 +81,7 @@ ${relevantPolicies
   Removal Criteria: ${policy.removalCriteria.join(', ')}
   Evidence Requirements: ${policy.evidenceRequirements.join(', ')}`,
   )
-  .join('\n')}
-`
+  .join('\n')}`
     : ''
 }
 
