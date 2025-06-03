@@ -1,60 +1,38 @@
+export interface LegalDocument {
+  reference: string;
+  title: string;
+  url: string;
+  accessTimestamp?: string;
+}
+
+export interface Policy {
+  reference: string;
+  policy: string;
+  documents: LegalDocument[];
+  removalCriteria: string[];
+  evidenceRequirements: string[];
+}
+
+export interface ContentType {
+  type: 'intimate' | 'personal' | 'private' | 'other';
+  label: string;
+  description: string;
+  policies: Policy[];
+}
+
+export interface ContentContext {
+  context: 'hacked' | 'impersonation' | 'relationship' | 'unknown' | 'other';
+  label: string;
+  description: string;
+  policies: Policy[];
+}
+
 export interface PlatformPolicy {
   name: string;
-  legalBasis: Array<{
-    reference: string;
-    title: string;
-    section: string;
-    url: string;
-    accessTimestamp?: string;
-  }>;
-  contentPolicies: {
-    intimate: Array<{
-      reference: string;
-      policy: string;
-      section: string;
-    }>;
-    personal: Array<{
-      reference: string;
-      policy: string;
-      section: string;
-    }>;
-    private: Array<{
-      reference: string;
-      policy: string;
-      section: string;
-    }>;
-    impersonation: Array<{
-      reference: string;
-      policy: string;
-      section: string;
-    }>;
-    hacked: Array<{
-      reference: string;
-      policy: string;
-      section: string;
-    }>;
-    general: Array<{
-      reference: string;
-      policy: string;
-      section: string;
-    }>;
-  };
-  removalCriteria: {
-    intimate: string[];
-    personal: string[];
-    private: string[];
-    impersonation: string[];
-    hacked: string[];
-    general: string[];
-  };
-  evidenceRequirements: {
-    intimate: string[];
-    personal: string[];
-    private: string[];
-    impersonation: string[];
-    hacked: string[];
-    general: string[];
-  };
+  legalDocuments: LegalDocument[];
+  contentTypes: ContentType[];
+  contentContexts: ContentContext[];
+  generalPolicies: Policy[];
   timeframes: {
     response: string;
     removal: string;
