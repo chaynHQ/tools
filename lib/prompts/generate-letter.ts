@@ -104,7 +104,7 @@ Timeframes:
 LETTER STRUCTURE (skip any sections that are not relevant):
 1. Introduction
    - Clear purpose
-   - Policy violations
+   - Concise summary of policy violations
    - Basic content identification
 
 2. Content Details
@@ -113,16 +113,15 @@ LETTER STRUCTURE (skip any sections that are not relevant):
    - Reference previous reports if any
 
 3. Evidence
-   - Include provided verification details
-   - Reference documentation
-   - Include ownership evidence
+   - Include provided details relevant to the policies evidence requirements
+   - Include ownership evidence if available
 
 4. Policy Violation
-   - Cite specific policies
-   - Detail violations
-   - Include impact statement
+   - Cite specific policies names/titles and the related document title (policy title: document title)
+   - Concisely state how content violates policies
 
 5. Request
+   - Include impact statement
    - Clear actions needed
    - Response expectations
    - Expected timeline
