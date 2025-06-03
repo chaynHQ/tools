@@ -5,7 +5,7 @@
  */
 export function parseJsonFromString(str: string) {
   if (!str || typeof str !== 'string') {
-    console.error("Input must be a non-empty string.");
+    console.error('Input must be a non-empty string.');
     return null;
   }
 
@@ -17,10 +17,9 @@ export function parseJsonFromString(str: string) {
 
   try {
     const jsonObject = JSON.parse(jsonString);
-    console.log("Parsed JSON object:", jsonObject);
     return jsonObject;
   } catch (error: any) {
-    console.error("Error parsing JSON string:", error.message);
+    console.error('Error parsing JSON string:', error.message);
     return null;
   }
 }

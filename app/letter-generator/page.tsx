@@ -57,7 +57,6 @@ export default function LetterGenerator() {
   const [generatedLetter, setGeneratedLetter] = useState<GeneratedLetter | null>(null);
   const [redactedLetter, setRedactedLetter] = useState<GeneratedLetter | null>(null);
   const [isRegenerating, setIsRegenerating] = useState(false);
-  console.log('LetterGenerator formState:', formState);
 
   // Scroll to top of main content when step changes
   useEffect(() => {
@@ -156,19 +155,12 @@ export default function LetterGenerator() {
   };
 
   const handleNext = (nextStep: Step, platformInfo?: PlatformInfo) => {
-    console.log('Next step:', nextStep);
-    console.log('platformInfo:', formState, platformInfo);
     // For custom platforms, skip removal process
     if (nextStep === 'removal-process' && platformInfo?.isCustom) {
       console.warn('Skipping removal process for custom platform');
       nextStep = 'initial-questions';
     }
-    console.log(
-      'Reporting details:',
-      formState.reportingInfo?.status === 'none-completed',
-      !formState.reportingInfo,
-      Object.keys(formState.reportingInfo || {}).length === 0,
-    );
+
     if (
       nextStep === 'reporting-details' &&
       (formState.reportingInfo?.status === 'none-completed' ||

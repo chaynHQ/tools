@@ -101,19 +101,15 @@ BANNED TERMS: The questions must not contain any banned terms or phrases:
 ${QUALITY_CHECK_CRITERIA.MAJOR.SENSITIVE_TERMS.map(({ term, replacement }) => `- "${term}" (use "${replacement}")`).join('\n')}
 
 CRITICAL RULES:
-1. DO NOT ask for information that has already been provided or does support the case
-2. DO NOT repeat questions about URLs if content location is already given
-3. DO NOT ask for timeline details if dates are already provided
-4. Focus ONLY on gaps in the provided information that are essential for the letter or request
-5. Questions should build upon existing information only where required, not duplicate it
-6. DO NOT ask for personal information like name, email, or contact details
-7. DO NOT ask for ANY form of official documentation or ID verification
-8. This is the ONLY opportunity to request information needed for the letter - if information is not collected here, it will not be included in the letter
-9. Focus on questions that help identify SPECIFIC policy violations and community standards breaches
-10. Prioritize questions that establish clear links between the content and platform policy violations
-11. Use a sensitive trauma-informed approach and language - avoid language like "evidence" and "proof"
-12. Return all text in British English (en_gb) NOT en_us
-13. If no additional information is needed, return an empty array. Remember, the user has already provided a lot of information, so only ask for what is absolutely essential or would significantly strengthen the case.
+1. Prioritize questions that help establish clear links between the content shared and SPECIFIC policy violations and community standards breaches.
+2. Questions should build upon existing information only where required for clarification essential to the request. Direct policy voilations should be the focus, not personal details or emotional language.
+3. DO NOT ask for information that has already been provided or does support the case. If missing information is not essential for the letter, do not ask for it again.
+4. DO NOT repeat questions about how to find the content or the content link/url, this has already been provided. DO NOT ask for timeline details if dates are already provided.
+5. Do NOT ask specifics on the provided impact statement if we can already summarise the impact based on the provided information. Never ask for sensitive information such as medical, financial or security details.
+6. DO NOT ask for personal information like name, email, or contact details, or ANY form of official documentation or ID verification.
+7. Use sensitive trauma-informed approach and language - avoid language like "evidence" and "proof" - see the provided BANNED TERMS for guidance.
+8. Return all text in British English (en_gb) NOT en_us
+9. Return a maximum of 4 questions. If no additional information is needed, return an empty array. Remember, the user has already provided a lot of information, so only ask for what is absolutely essential or would significantly strengthen the case.
 
 ALLOWED TOPICS:
 - Content description (without requesting sensitive details)
@@ -127,7 +123,7 @@ ALLOWED TOPICS:
 
 For each question, provide:
 - A clear, concise question (no more than 1 sentence)
-- A brief explanation of why this information helps (1-2 sentences)
+- A brief explanation of why this information supports the request (1-2 sentences)
 - A category: 'essential' (missing key info), 'verification' (proves ownership), or 'supporting' (strengthens case)
 
 Ensure the JSON is perfectly valid and can be parsed by \`JSON.parse()\` in JavaScript without any errors.
