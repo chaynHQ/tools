@@ -1,11 +1,10 @@
-"use client";
+'use client';
 
 import { usePrefillData } from '@/lib/dev/prefill';
+import { rollbar } from '@/lib/rollbar';
 import { FollowUpQuestion } from '@/types/questions';
-import { useRollbar } from '@rollbar/react';
 import { createContext, ReactNode, useContext, useEffect, useState } from 'react';
 import { IS_DEVELOPMENT } from '../constants/common';
-
 
 // Define types for our form data
 export interface PlatformInfo {
@@ -23,6 +22,10 @@ interface InitialQuestionsData {
   imageIdentification: string;
   contentType: 'intimate' | 'personal' | 'private' | 'other';
   contentContext: 'hacked' | 'impersonation' | 'relationship' | 'unknown' | 'other';
+  contentDescription?: string;
+  contentUrl?: string;
+  contentLocationType: 'url' | 'description';
+  // Additional fields for image identification
   imageUploadDate: string;
   imageTakenDate: string;
   ownershipEvidence: string;
@@ -68,9 +71,9 @@ const initialState: FormState = {
   reportingDetails: {},
   followUpData: {
     questions: [],
-    answers: {}
+    answers: {},
   },
-  completeFormData: null
+  completeFormData: null,
 };
 
 const FormContext = createContext<FormContextType | undefined>(undefined);
@@ -78,7 +81,7 @@ const FormContext = createContext<FormContextType | undefined>(undefined);
 export function FormProvider({ children }: { children: ReactNode }) {
   const [formState, setFormState] = useState<FormState>(initialState);
   const prefillHandler = usePrefillData();
-  const rollbar = useRollbar()
+
   // Add keyboard shortcut listener for development
   useEffect(() => {
     if (!IS_DEVELOPMENT || !prefillHandler) return;
@@ -86,10 +89,10 @@ export function FormProvider({ children }: { children: ReactNode }) {
     const handleKeyPress = (event: KeyboardEvent) => {
       const data = prefillHandler(event);
       if (data) {
-        setFormState(prevState => ({
+        setFormState((prevState) => ({
           ...prevState,
           ...data,
-          completeFormData: data
+          completeFormData: data,
         }));
         console.log('Development: Form pre-filled with test data');
       }
@@ -101,7 +104,7 @@ export function FormProvider({ children }: { children: ReactNode }) {
 
   const setPlatformInfo = (info: PlatformInfo) => {
     try {
-      setFormState(prev => ({
+      setFormState((prev) => ({
         ...prev,
         platformInfo: info,
       }));
@@ -113,7 +116,7 @@ export function FormProvider({ children }: { children: ReactNode }) {
 
   const setReportingInfo = (info: ReportingInfo) => {
     try {
-      setFormState(prev => ({
+      setFormState((prev) => ({
         ...prev,
         reportingInfo: info,
       }));
@@ -125,16 +128,16 @@ export function FormProvider({ children }: { children: ReactNode }) {
 
   const setInitialQuestions = (data: Partial<InitialQuestionsData>) => {
     try {
-      setFormState(prev => ({
+      setFormState((prev) => ({
         ...prev,
         initialQuestions: {
           ...prev.initialQuestions,
           ...data,
         },
       }));
-      rollbar.info('Initial questions set', { 
+      rollbar.info('Initial questions set', {
         contentType: data.contentType,
-        contentContext: data.contentContext 
+        contentContext: data.contentContext,
       });
     } catch (error) {
       rollbar.error('Error setting initial questions', { error });
@@ -143,7 +146,7 @@ export function FormProvider({ children }: { children: ReactNode }) {
 
   const setReportingDetails = (data: Partial<ReportingDetailsData>) => {
     try {
-      setFormState(prev => ({
+      setFormState((prev) => ({
         ...prev,
         reportingDetails: {
           ...prev.reportingDetails,
@@ -158,16 +161,16 @@ export function FormProvider({ children }: { children: ReactNode }) {
 
   const setFollowUpData = (questions: FollowUpQuestion[], answers: Record<string, string>) => {
     try {
-      setFormState(prev => ({
+      setFormState((prev) => ({
         ...prev,
         followUpData: {
           questions,
-          answers
+          answers,
         },
       }));
-      rollbar.info('Follow-up data set', { 
+      rollbar.info('Follow-up data set', {
         questionCount: questions.length,
-        answerCount: Object.keys(answers).length 
+        answerCount: Object.keys(answers).length,
       });
     } catch (error) {
       rollbar.error('Error setting follow-up data', { error });
@@ -176,26 +179,31 @@ export function FormProvider({ children }: { children: ReactNode }) {
 
   const updateCompleteFormData = () => {
     try {
-      setFormState(prev => {
+      setFormState((prev) => {
         const completeData = {
-          initialQuestions: prev.initialQuestions,
-          platformInfo: {
-            name: prev.platformInfo?.isCustom 
-              ? prev.platformInfo.customName 
-              : prev.platformInfo?.platformName,
-            isCustom: prev.platformInfo?.isCustom || false
+          initialQuestions: {
+            ...prev.initialQuestions,
+            imageIdentification:
+              prev.initialQuestions.contentLocationType === 'url'
+                ? prev.initialQuestions.contentUrl
+                : prev.initialQuestions.contentDescription,
           },
-          reportingDetails: Object.keys(prev.reportingDetails).length > 0 
-            ? prev.reportingDetails 
-            : undefined,
-          followUp: prev.followUpData.answers
+          platformInfo: {
+            name: prev.platformInfo?.isCustom
+              ? prev.platformInfo.customName
+              : prev.platformInfo?.platformName,
+            isCustom: prev.platformInfo?.isCustom || false,
+          },
+          reportingDetails:
+            Object.keys(prev.reportingDetails).length > 0 ? prev.reportingDetails : undefined,
+          followUp: prev.followUpData.answers,
         };
-        
+
         rollbar.info('Complete form data updated');
-        
+
         return {
           ...prev,
-          completeFormData: completeData
+          completeFormData: completeData,
         };
       });
     } catch (error) {
@@ -232,7 +240,6 @@ export function FormProvider({ children }: { children: ReactNode }) {
 
 export function useFormContext() {
   const context = useContext(FormContext);
-  const rollbar = useRollbar();
   if (context === undefined) {
     rollbar.error('useFormContext used outside of FormProvider');
     throw new Error('useFormContext must be used within a FormProvider');

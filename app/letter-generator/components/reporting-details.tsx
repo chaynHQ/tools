@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -7,17 +7,13 @@ import { toast } from '@/hooks/use-toast';
 import { analytics } from '@/lib/analytics';
 import { GA_EVENTS } from '@/lib/constants/analytics';
 import { useFormContext } from '@/lib/context/FormContext';
-import { clientConfig } from '@/lib/rollbar';
+import { rollbar } from '@/lib/rollbar';
 import { motion } from 'framer-motion';
 import { AlertCircle } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
-import Rollbar from 'rollbar';
 import { VoiceInput } from './voice-input';
-
-// Initialize Rollbar for client-side
-const rollbar = new Rollbar(clientConfig);
 
 // Common languages that might be used
 const SUPPORTED_LANGUAGES = [
@@ -51,13 +47,9 @@ export function ReportingDetails({ onComplete }: ReportingDetailsProps) {
   const [activeField, setActiveField] = useState<keyof ReportingDetailsForm | null>(null);
   const { register, handleSubmit, setValue, reset } = useForm<ReportingDetailsForm>();
   const { formState, setReportingDetails } = useFormContext();
-  
-  const {
-    transcript,
-    listening,
-    resetTranscript,
-    browserSupportsSpeechRecognition
-  } = useSpeechRecognition();
+
+  const { transcript, listening, resetTranscript, browserSupportsSpeechRecognition } =
+    useSpeechRecognition();
 
   // Set form values from context when component mounts
   useEffect(() => {
@@ -78,50 +70,51 @@ export function ReportingDetails({ onComplete }: ReportingDetailsProps) {
         SpeechRecognition.stopListening();
         resetTranscript();
         setActiveField(null);
-        
+
         // Track successful voice input completion
         analytics.trackEvent(GA_EVENTS.TDLG_VOICE_INPUT_USED, {
           field,
           success: true,
-          component: 'ReportingDetails'
+          component: 'ReportingDetails',
         });
       } else {
         setActiveField(field);
         resetTranscript();
         // Try to detect user's browser language, fallback to English
         const browserLang = navigator.language;
-        const supportedLang = SUPPORTED_LANGUAGES.find(lang => 
-          browserLang.toLowerCase().startsWith(lang.toLowerCase().split('-')[0])
-        ) || 'en-US';
-        
-        SpeechRecognition.startListening({ 
+        const supportedLang =
+          SUPPORTED_LANGUAGES.find((lang) =>
+            browserLang.toLowerCase().startsWith(lang.toLowerCase().split('-')[0]),
+          ) || 'en-US';
+
+        SpeechRecognition.startListening({
           continuous: true,
-          language: supportedLang
+          language: supportedLang,
         });
       }
     } catch (error) {
       rollbar.error('Error handling voice input', {
         error,
         component: 'ReportingDetails',
-        field
+        field,
       });
-      
+
       // Track failed voice input attempt
       analytics.trackEvent(GA_EVENTS.TDLG_VOICE_INPUT_USED, {
         field,
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error',
-        component: 'ReportingDetails'
+        component: 'ReportingDetails',
       });
-      
+
       toast({
-        title: "Voice input error",
-        description: "There was a problem with the voice input. Please try typing instead.",
-        variant: "destructive"
+        title: 'Voice input error',
+        description: 'There was a problem with the voice input. Please try typing instead.',
+        variant: 'destructive',
       });
     }
   };
-  
+
   // If no processes were completed, don't render anything
   if (formState.reportingInfo?.status === 'none-completed') {
     return null;
@@ -137,18 +130,22 @@ export function ReportingDetails({ onComplete }: ReportingDetailsProps) {
     } catch (error) {
       rollbar.error('Error submitting reporting details', {
         error,
-        component: 'ReportingDetails'
+        component: 'ReportingDetails',
       });
       toast({
-        title: "Error saving responses",
-        description: "There was a problem saving your responses. Please try again.",
-        variant: "destructive"
+        title: 'Error saving responses',
+        description: 'There was a problem saving your responses. Please try again.',
+        variant: 'destructive',
       });
     }
   };
 
-  const showStandardQuestions = ['standard-completed', 'both-completed'].includes(formState.reportingInfo?.status || '');
-  const showEscalatedQuestions = ['escalated-completed', 'both-completed'].includes(formState.reportingInfo?.status || '');
+  const showStandardQuestions = ['standard-completed', 'both-completed'].includes(
+    formState.reportingInfo?.status || '',
+  );
+  const showEscalatedQuestions = ['escalated-completed', 'both-completed'].includes(
+    formState.reportingInfo?.status || '',
+  );
 
   return (
     <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-8">
@@ -213,14 +210,15 @@ export function ReportingDetails({ onComplete }: ReportingDetailsProps) {
                   What steps did you take using the escalated support process?
                 </Label>
                 <p className="text-sm text-muted-foreground mb-2">
-                  Please describe the additional steps you took through the escalated support channels.
+                  Please describe the additional steps you took through the escalated support
+                  channels.
                 </p>
                 <div className="flex items-start gap-3">
                   {browserSupportsSpeechRecognition && (
                     <VoiceInput
                       isListening={listening && activeField === 'escalatedProcessDetails'}
                       onToggle={() => handleVoiceInput('escalatedProcessDetails')}
-                       className="mt-2"
+                      className="mt-2"
                     />
                   )}
                   <div className="flex-1">

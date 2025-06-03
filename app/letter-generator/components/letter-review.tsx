@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import {
   AlertDialog,
@@ -9,7 +9,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+} from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
@@ -18,17 +18,22 @@ import { analytics } from '@/lib/analytics';
 import { GA_EVENTS } from '@/lib/constants/analytics';
 import { useFormContext } from '@/lib/context/FormContext';
 import { platforms } from '@/lib/platforms';
-import { clientConfig } from '@/lib/rollbar';
+import { rollbar } from '@/lib/rollbar';
 import { GeneratedLetter } from '@/types/letter';
 import { motion } from 'framer-motion';
-import { AlertCircle, ArrowRight, CheckCircle2, Copy, MessageSquare, RefreshCw, ThumbsDown, ThumbsUp } from 'lucide-react';
+import {
+  AlertCircle,
+  ArrowRight,
+  CheckCircle2,
+  Copy,
+  MessageSquare,
+  RefreshCw,
+  ThumbsDown,
+  ThumbsUp,
+} from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
-import Rollbar from 'rollbar';
 import { QuestionSection } from './question-section';
-
-// Initialize Rollbar for client-side
-const rollbar = new Rollbar(clientConfig);
 
 interface LetterReviewProps {
   letter: GeneratedLetter;
@@ -43,7 +48,7 @@ export function LetterReview({
   redactedLetter,
   platformId,
   onRegenerateRequest,
-  onComplete
+  onComplete,
 }: LetterReviewProps) {
   const [showCompleteDialog, setShowCompleteDialog] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -52,36 +57,51 @@ export function LetterReview({
   const [consentToShare, setConsentToShare] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
-  const { resetForm } = useFormContext();
+  const { resetForm, formState } = useFormContext();
 
-  const platform = platforms.find(p => p.id === platformId);
-  const platformEmail = platform?.contactEmail || 'Please check the platform\'s help centre for the appropriate contact email';
+  const platform = platforms.find((p) => p.id === platformId);
+  const platformEmail =
+    platform?.contactEmail ||
+    "Please check the platform's help centre for the appropriate contact email";
+
+  // Get content location from form state
+  const contentLocation =
+    formState.initialQuestions.contentLocationType === 'url'
+      ? formState.initialQuestions.contentUrl
+      : formState.initialQuestions.contentDescription;
+
+  // Create display version with replaced content location
+  const displayLetter = {
+    subject: letter.subject,
+    body: letter.body.replace(/\[Content Location\]/g, contentLocation || ''),
+    nextSteps: letter.nextSteps,
+  };
 
   const handleCopy = async () => {
     try {
-      const fullText = `Subject: ${letter.subject}\n\n${letter.body}`;
+      const fullText = `Subject: ${displayLetter.subject}\n\n${displayLetter.body}`;
       await navigator.clipboard.writeText(fullText);
       setCopied(true);
       analytics.trackEvent(GA_EVENTS.TDLG_LETTER_COPIED, {
         has_placeholders: false,
-        length: fullText.length
+        length: fullText.length,
       });
       toast({
-        title: "Copied to clipboard",
-        description: "Your letter has been copied and is ready to paste into an email.",
+        title: 'Copied to clipboard',
+        description: 'Your letter has been copied and is ready to paste into an email.',
       });
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
       rollbar.error('Failed to copy letter to clipboard', {
         error: err,
         component: 'LetterReview',
-        platformId
+        platformId,
       });
       analytics.trackError('clipboard', 'Failed to copy to clipboard', 'LetterReview');
       toast({
-        title: "Unable to copy",
-        description: "Please try selecting and copying the text manually.",
-        variant: "destructive",
+        title: 'Unable to copy',
+        description: 'Please try selecting and copying the text manually.',
+        variant: 'destructive',
       });
     }
   };
@@ -89,36 +109,38 @@ export function LetterReview({
   const handleRegenerate = () => {
     try {
       analytics.trackEvent(GA_EVENTS.TDLG_LETTER_REGENERATED, {
-        platform: platform?.name || 'unknown'
+        platform: platform?.name || 'unknown',
       });
       onRegenerateRequest();
     } catch (error) {
       rollbar.error('Error handling letter regeneration', {
         error,
         component: 'LetterReview',
-        platformId
+        platformId,
       });
     }
   };
 
   const handleComplete = () => {
     try {
-      analytics.trackProcessCompletion(
-        Math.floor(Date.now() / 1000),
-        ['platform_selection', 'initial_questions', 'follow_up', 'letter_generation']
-      );
+      analytics.trackProcessCompletion(Math.floor(Date.now() / 1000), [
+        'platform_selection',
+        'initial_questions',
+        'follow_up',
+        'letter_generation',
+      ]);
       resetForm();
       onComplete();
     } catch (error) {
       rollbar.error('Error completing letter process', {
         error,
         component: 'LetterReview',
-        platformId
+        platformId,
       });
       toast({
-        title: "Error finishing process",
-        description: "There was a problem completing the process. Please try again.",
-        variant: "destructive"
+        title: 'Error finishing process',
+        description: 'There was a problem completing the process. Please try again.',
+        variant: 'destructive',
       });
     }
   };
@@ -129,11 +151,7 @@ export function LetterReview({
       setFeedbackError(null);
 
       if (!process.env.NEXT_PUBLIC_ZAPIER_WEBHOOK_URL) {
-        rollbar.error('Zapier webhook URL not configured', {
-          component: 'LetterReview',
-          platformId
-        });
-        throw new Error('Zapier webhook URL not configured');
+        throw new Error('Unable to submit feedback at this time');
       }
 
       const payload = {
@@ -141,14 +159,16 @@ export function LetterReview({
         feedbackRating: isUseful ? 'positive' : 'negative',
         ...(consentToShare && {
           redactedLetter: {
-            subject: redactedLetter.subject.replace(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g, '[EMAIL]')
+            subject: redactedLetter.subject
+              .replace(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g, '[EMAIL]')
               .replace(/\b(?:\d{1,3}\.){3}\d{1,3}\b/g, '[IP]')
               .replace(/\b\d{10,}\b/g, '[NUMBER]'),
-            body: redactedLetter.body.replace(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g, '[EMAIL]')
+            body: redactedLetter.body
+              .replace(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g, '[EMAIL]')
               .replace(/\b(?:\d{1,3}\.){3}\d{1,3}\b/g, '[IP]')
-              .replace(/\b\d{10,}\b/g, '[NUMBER]')
-          }
-        })
+              .replace(/\b\d{10,}\b/g, '[NUMBER]'),
+          },
+        }),
       };
 
       const response = await fetch('/api/feedback', {
@@ -156,7 +176,7 @@ export function LetterReview({
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payload),
       });
 
       if (!response.ok) {
@@ -166,13 +186,12 @@ export function LetterReview({
       setFeedbackSubmitted(true);
       analytics.trackEvent(GA_EVENTS.TDLG_LETTER_FEEDBACK_SUBMITTED, {
         rating: isUseful ? 'positive' : 'negative',
-        letterShared: consentToShare
+        letterShared: consentToShare,
       });
-      if (consentToShare) { analytics.trackEvent(GA_EVENTS.TDLG_LETTER_FEEDBACK_CONSENT_TO_SHARE)}
     } catch (error) {
       rollbar.error('Error submitting feedback', {
         error,
-        component: 'LetterReview'
+        component: 'LetterReview',
       });
       setFeedbackError('Unable to submit feedback. Please try again.');
     } finally {
@@ -193,8 +212,8 @@ export function LetterReview({
             <div>
               <p className="text-foreground font-medium">Before sending</p>
               <p className="text-sm">
-                Remember to add your full name and contact information at the end of the letter. 
-                For your privacy and security, we don't collect or store these personal details.
+                Remember to add your full name and contact information at the end of the letter. For
+                your privacy and security, we don't collect or store these personal details.
               </p>
             </div>
           </div>
@@ -202,54 +221,53 @@ export function LetterReview({
           <div className="space-y-4">
             <div>
               <h4 className="text-lg font-medium mb-2">Send email to</h4>
-              <div className="p-4 bg-white rounded-lg border border-border/50">
-                {platformEmail}
-              </div>
+              <div className="p-4 bg-white rounded-lg border border-border/50">{platformEmail}</div>
             </div>
 
             <div>
               <h4 className="text-lg font-medium mb-2">Subject line</h4>
               <div className="p-4 bg-white rounded-lg border border-border/50 select-none">
-                {letter.subject}
+                {displayLetter.subject}
               </div>
             </div>
 
             <div>
               <h4 className="text-lg font-medium mb-2">Message content</h4>
               <div className="p-4 bg-white rounded-lg border border-border/50 whitespace-pre-wrap select-none">
-                {letter.body}
+                {displayLetter.body}
               </div>
             </div>
           </div>
 
           <div className="p-6 bg-accent-light rounded-lg">
-              <div className="flex flex-col gap-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex-1">
-                    <h4 className="text-base mb-1">Copy your letter</h4>
-                    <p className="text-sm text-muted-foreground">
-                      Copy your letter, then paste it into an email. Don't forget to add your name at the end and include the subject line.
-                    </p>
-                  </div>
-                  <Button
-                    className="pill whitespace-nowrap bg-primary text-white hover:opacity-90 min-w-[120px] ml-6"
-                    onClick={handleCopy}
-                  >
-                    {copied ? (
-                      <>
-                        <CheckCircle2 className="w-4 h-4 mr-2" />
-                        Copied
-                      </>
-                    ) : (
-                      <>
-                        <Copy className="w-4 h-4 mr-2" />
-                        Copy letter
-                      </>
-                    )}
-                  </Button>
+            <div className="flex flex-col gap-4">
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <h4 className="text-base mb-1">Copy your letter</h4>
+                  <p className="text-sm text-muted-foreground">
+                    Copy your letter, then paste it into an email. Don't forget to add your name at
+                    the end and include the subject line.
+                  </p>
                 </div>
+                <Button
+                  className="pill whitespace-nowrap bg-primary text-white hover:opacity-90 min-w-[120px] ml-6"
+                  onClick={handleCopy}
+                >
+                  {copied ? (
+                    <>
+                      <CheckCircle2 className="w-4 h-4 mr-2" />
+                      Copied
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="w-4 h-4 mr-2" />
+                      Copy letter
+                    </>
+                  )}
+                </Button>
               </div>
             </div>
+          </div>
 
           <div className="flex flex-col gap-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -260,7 +278,8 @@ export function LetterReview({
                       <div>
                         <h4 className="text-base mb-1">Is this useful?</h4>
                         <p className="text-sm text-muted-foreground">
-                          Did this tool produce a letter that you think could be useful for your case?
+                          Did this tool produce a letter that you think could be useful for your
+                          case?
                         </p>
                       </div>
                       <div className="flex items-start space-x-2">
@@ -274,7 +293,8 @@ export function LetterReview({
                           htmlFor="consent"
                           className="text-sm text-muted-foreground leading-normal"
                         >
-                          I consent to sharing this letter with Chayn to help improve our Survivor AI
+                          I consent to sharing this letter with Chayn to help improve our Survivor
+                          AI
                         </Label>
                       </div>
                       <div className="flex gap-4">
@@ -308,14 +328,17 @@ export function LetterReview({
                     <div className="flex flex-col gap-2">
                       <h4 className="text-base font-medium">Your feedback has been submitted</h4>
                       <p className="text-sm text-muted-foreground">
-                        Thank you for your feedback. This tool is new and learning! By sharing your experience, you help us make this tool more supportive for others in similar situations. If you would like to provide more detailed feedback, please <Link 
-              href={process.env.NEXT_PUBLIC_TYPEFORM_FEEDBACK_URL || '#'} 
-              target="_blank"
-              onClick={() => analytics.trackFeedbackSubmission('typeform')}
-              className="underline underline-offset-2 font-medium hover:text-primary/90"
-            >
-              share your thoughts with us.
-            </Link> 
+                        Thank you for your feedback. This tool is new and learning! By sharing your
+                        experience, you help us make this tool more supportive for others in similar
+                        situations. If you would like to provide more detailed feedback, please{' '}
+                        <Link
+                          href={process.env.NEXT_PUBLIC_TYPEFORM_FEEDBACK_URL || '#'}
+                          target="_blank"
+                          onClick={() => analytics.trackFeedbackSubmission('typeform')}
+                          className="underline underline-offset-2 font-medium hover:text-primary/90"
+                        >
+                          share your thoughts with us.
+                        </Link>
                       </p>
                     </div>
                   )}
@@ -327,7 +350,8 @@ export function LetterReview({
                   <div>
                     <h4 className="text-base mb-1">Not quite right?</h4>
                     <p className="text-sm text-muted-foreground">
-                      Sometimes our AI doesn't get it quite right. You can try regenerating a different letter using the same information to see if you prefer it.
+                      Sometimes our AI doesn't get it quite right. You can try regenerating a
+                      different letter using the same information to see if you prefer it.
                     </p>
                     <Button
                       variant="outline"
@@ -341,26 +365,22 @@ export function LetterReview({
                 </div>
               </div>
             </div>
-
-         
           </div>
         </motion.div>
       </QuestionSection>
 
       <QuestionSection title="Next steps">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-        >
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
           <ul className="space-y-2">
             {letter.nextSteps.map((step, index) => (
-              <li key={index} className="flex items-start gap-3 p-3 bg-white rounded-lg border border-border/50">
+              <li
+                key={index}
+                className="flex items-start gap-3 p-3 bg-white rounded-lg border border-border/50"
+              >
                 <span className="w-6 h-6 rounded-full bg-accent-light flex items-center justify-center flex-shrink-0 text-sm font-medium">
                   {index + 1}
                 </span>
-                <p className="text-muted-foreground pt-0.5">
-                  {step}
-                </p>
+                <p className="text-muted-foreground pt-0.5">{step}</p>
               </li>
             ))}
           </ul>
@@ -369,19 +389,21 @@ export function LetterReview({
 
       <QuestionSection title="For more support">
         <p className="text-muted-foreground">
-          When intimate images are shared without our consent—what we often call image-based abuse—it can impact our wellbeing and sense of self. Chayn offers a{' '}
-          <Link 
+          When intimate images are shared without our consent—what we often call image-based
+          abuse—it can impact our wellbeing and sense of self. Chayn offers a{' '}
+          <Link
             onClick={() => {
               analytics.trackEvent(GA_EVENTS.TDLG_BLOOM_IBA_COURSE_LINK_CLICKED, {
                 source: 'letter_review',
-                platform: platform?.name || 'unknown'
+                platform: platform?.name || 'unknown',
               });
             }}
             href="https://bloom.chayn.co/courses/image-based-abuse-and-rebuilding-ourselves?utm_source=tools.chayn.co&utm_medium=referral&utm_campaign=tools.chayn.co-iba-referral"
             target="_blank"
             className="underline underline-offset-2 hover:text-primary/90"
           >
-            free, online course about recovering from image-based abuse on our healing platform Bloom
+            free, online course about recovering from image-based abuse on our healing platform
+            Bloom
           </Link>
           . It explores the emotional impacts and tools for rebuilding ourselves.
         </p>
@@ -394,9 +416,10 @@ export function LetterReview({
         <div>
           <p className="text-foreground font-medium mb-1">Help us improve our Survivor AI</p>
           <p className="text-muted-foreground text-sm">
-            This tool is new and learning! By sharing your experience, you help us make this tool more supportive for others in similar situations.{' '}
-            <Link 
-              href={process.env.NEXT_PUBLIC_TYPEFORM_FEEDBACK_URL || '#'} 
+            This tool is new and learning! By sharing your experience, you help us make this tool
+            more supportive for others in similar situations.{' '}
+            <Link
+              href={process.env.NEXT_PUBLIC_TYPEFORM_FEEDBACK_URL || '#'}
               target="_blank"
               onClick={() => analytics.trackFeedbackSubmission('typeform')}
               className="underline underline-offset-2 font-medium hover:text-primary/90"
@@ -422,17 +445,15 @@ export function LetterReview({
           <AlertDialogHeader>
             <AlertDialogTitle>Finish and exit?</AlertDialogTitle>
             <AlertDialogDescription>
-              For your privacy and security, all information you've provided will be cleared
-              when you leave this page. Make sure you've copied your letter if you need it.
+              For your privacy and security, all information you've provided will be cleared when
+              you leave this page. Make sure you've copied your letter if you need it.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel onClick={() => setShowCompleteDialog(false)}>
               Go back
             </AlertDialogCancel>
-            <AlertDialogAction onClick={handleComplete}>
-              Finish
-            </AlertDialogAction>
+            <AlertDialogAction onClick={handleComplete}>Finish</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

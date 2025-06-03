@@ -8,7 +8,6 @@ export default defineConfig({
     },
     video: false,
     screenshotOnRunFailure: false,
-    experimentalWebKitSupport: true,
-    defaultCommandTimeout: 10000,
+    experimentalWebKitSupport: true
   },
 });

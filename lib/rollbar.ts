@@ -1,11 +1,15 @@
 import Rollbar from 'rollbar';
 import { ENVIRONMENT } from './constants/common';
 
+const clientToken = process.env.NEXT_PUBLIC_ROLLBAR_CLIENT_TOKEN || undefined;
+const serverToken = process.env.ROLLBAR_SERVER_TOKEN || undefined;
+
 const baseConfig = {
   captureUncaught: true,
   captureUnhandledRejections: true,
   environment: ENVIRONMENT,
   captureIP: 'anonymize',
+  enabled: !!clientToken,
   payload: {
     environment: ENVIRONMENT,
     client: {
@@ -19,36 +23,49 @@ const baseConfig = {
 };
 
 export const clientConfig = {
-  accessToken: process.env.NEXT_PUBLIC_ROLLBAR_CLIENT_TOKEN,
+  accessToken: clientToken,
   ...baseConfig,
 };
 
 // Use this import for client side helper functions otherwise use the useRollbar hook in components
 export const rollbar = new Rollbar(clientConfig);
 
-// Never import the serverInstance into clientside code
+// Server-side Rollbar instance
 export const serverInstance = new Rollbar({
-  accessToken: process.env.ROLLBAR_SERVER_TOKEN,
   ...baseConfig,
+  accessToken: serverToken,
 });
 
-
 // Helper functions for error handling
-export function handleApiError(error: unknown, endpoint: string, context?: Record<string, unknown>) {
-  if (error instanceof Error) {    
+export function handleApiError(
+  error: unknown,
+  endpoint: string,
+  context?: Record<string, unknown>,
+) {
+  if (!serverToken) {
+    console.error('API Error:', { error, endpoint, context });
+  } else if (error instanceof Error) {
+    serverInstance.error('API Error', {
+      error,
+      endpoint,
+      context,
+      errorMessage: error.message,
+      errorStack: error.stack,
+    });
+  }
+
+  if (error instanceof Error) {
     if (error.message.includes('401') || error.message.includes('unauthorized')) {
       return {
         error: 'Authentication failed',
         status: 401,
-        message: error.message
       };
     }
-    
+
     if (error.message.includes('429') || error.message.includes('rate limit')) {
       return {
         error: 'Rate limit exceeded',
         status: 429,
-        message: error.message
       };
     }
 
@@ -63,4 +80,12 @@ export function handleApiError(error: unknown, endpoint: string, context?: Recor
     error: 'An unexpected error occurred',
     status: 500,
   };
+}
+
+export function logInfo(message: string, context?: Record<string, unknown>) {
+  if (clientToken) {
+    serverInstance.info(message, context);
+  } else {
+    console.info(message, context);
+  }
 }

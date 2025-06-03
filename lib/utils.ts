@@ -1,5 +1,6 @@
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
+import { rollbar } from './rollbar';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -25,11 +26,10 @@ export function parseAIJson(input: string) {
     try {
       return JSON.parse(trimmedInput);
     } catch (e) {
-      // If direct parsing fails, try to clean up the input
       console.log('Initial JSON parse failed, attempting cleanup...');
     }
 
-    // Remove any non-JSON text before the first {
+    // Remove any non-JSON text before the first { and after the last }
     const jsonStart = trimmedInput.indexOf('{');
     const jsonEnd = trimmedInput.lastIndexOf('}');
     if (jsonStart === -1 || jsonEnd === -1) {
@@ -39,16 +39,16 @@ export function parseAIJson(input: string) {
 
     // Clean up common issues
     const cleanedInput = jsonString
-      // Fix escaped quotes within strings
-      .replace(/:\s*"([^"\\]*(\\.[^"\\]*)*)"/g, (match) => {
-        return match.replace(/\\"/g, '"').replace(/"/g, '\\"');
-      })
+      // Fix newlines in strings
+      .replace(/\n/g, '\\n')
       // Remove any trailing commas before closing brackets
       .replace(/,(\s*[}\]])/g, '$1')
       // Ensure property names are quoted
       .replace(/([{,]\s*)(\w+)(\s*:)/g, '$1"$2"$3')
-      // Fix newlines in strings
-      .replace(/\n/g, '\\n');
+      // Fix unescaped quotes in strings
+      .replace(/"([^"\\]*(?:\\.[^"\\]*)*)"/g, (match) => {
+        return match.replace(/(?<!\\)"/g, '\\"');
+      });
 
     // Try to parse the cleaned JSON
     try {
@@ -58,12 +58,13 @@ export function parseAIJson(input: string) {
       throw new Error('Failed to parse AI response - the response format was invalid');
     }
   } catch (error) {
-    console.error("Error parsing or cleaning JSON:", error);
-    console.error("Original input:", input);
+    console.error('Error parsing or cleaning JSON:', error);
+    console.error('Original input:', input);
     throw error instanceof Error ? error : new Error('Failed to parse response as JSON');
   }
 }
 
+// URL validation and normalization
 export function normalizeUrl(url: string): string {
   try {
     // If the URL doesn't start with a protocol, add https://
@@ -75,7 +76,7 @@ export function normalizeUrl(url: string): string {
     const knownPlatforms = ['facebook.com', 'instagram.com', 'tiktok.com', 'onlyfans.com'];
     const urlObj = new URL(url);
     const domain = urlObj.hostname.replace(/^www\./i, '');
-    
+
     if (knownPlatforms.includes(domain) && !urlObj.hostname.startsWith('www.')) {
       urlObj.hostname = 'www.' + urlObj.hostname;
     }
@@ -102,5 +103,31 @@ export function isValidUrl(url: string): boolean {
     return true;
   } catch (error) {
     return false;
+  }
+}
+
+// Constants for retry functionality
+export const MAX_RETRIES = 3;
+export const RETRY_DELAY = 1000; // 1 second delay between retries
+
+// Generic retry function with delay
+export async function retryWithDelay<T>(
+  fn: () => Promise<T>,
+  retries: number = MAX_RETRIES,
+  delay: number = RETRY_DELAY,
+): Promise<T> {
+  try {
+    return await fn();
+  } catch (error) {
+    if (retries === 0) {
+      rollbar.error('Retry attempts exhausted', { error, maxRetries: MAX_RETRIES });
+      throw error;
+    }
+    await new Promise((resolve) => setTimeout(resolve, delay));
+    rollbar.info('Retrying operation', {
+      retriesLeft: retries - 1,
+      delay,
+    });
+    return retryWithDelay(fn, retries - 1, delay);
   }
 }
