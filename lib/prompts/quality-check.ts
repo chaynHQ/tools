@@ -135,7 +135,8 @@ You must respond with a valid JSON object containing exactly these fields:
   "issues": [
     {
       "type": "critical" | "minor",
-      "issue": "A precise description of the specific issue found, ideally referencing the instruction number or a clear example. For banned terms, state the term found. For policy issues, state the policy that was incorrectly referenced or missed."
+      "issue": "A precise description of the specific issue found. For banned terms, state the term found. For policy issues, state the policy that was incorrectly referenced or missed.",
+      "issueType: "The type of issue: hallucination, sensitive data, policy error, banned term, tone/style, structure/clarity, evidence/information, or subject line quality. Do not include specific examples of the issue, just the type.",
     }
   ],
   "improvedLetter": {

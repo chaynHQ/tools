@@ -2,6 +2,7 @@ import { AI_MODEL, AI_TEMPERATURE } from '@/lib/constants/common';
 import { generateFollowUpPrompt } from '@/lib/prompts/follow-up';
 import { handleApiError, serverInstance as rollbar } from '@/lib/rollbar';
 import { parseAIJson, retryWithDelay } from '@/lib/utils';
+import { sendToZapier } from '@/lib/zapier';
 import Anthropic from '@anthropic-ai/sdk';
 import { NextResponse } from 'next/server';
 
@@ -43,6 +44,21 @@ export async function POST(request: Request) {
     rollbar.info('FollowUpQuestions: Successfully generated follow-up questions', {
       questionCount: questions.length,
     });
+
+    // Send questions to Zapier if webhook URL is configured
+    if (process.env.NEXT_PUBLIC_ZAPIER_FOLLOWUP_WEBHOOK_URL) {
+      const zapierPayload = {
+        date: new Date().toISOString(),
+        Q1: questions[0]?.question || '',
+        Q2: questions[1]?.question || '',
+        Q3: questions[2]?.question || '',
+        Q4: questions[3]?.question || '',
+        Q5: questions[4]?.question || '',
+        Q6: questions[5]?.question || '',
+      };
+
+      await sendToZapier(process.env.NEXT_PUBLIC_ZAPIER_FOLLOWUP_WEBHOOK_URL, zapierPayload);
+    }
 
     return NextResponse.json(questions);
   } catch (error: any) {
