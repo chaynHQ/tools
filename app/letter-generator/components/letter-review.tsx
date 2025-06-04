@@ -208,7 +208,7 @@ export function LetterReview({
           className="space-y-6"
         >
           <div className="flex items-start gap-3 p-4 bg-accent-light rounded-lg text-muted-foreground mb-4">
-            <AlertCircle className="w-5 h-5 mt-0.5 flex-shrink-0" />
+            <AlertCircle className="w-5 h-5 mt-0.5 shrink-0" />
             <div>
               <p className="text-foreground font-medium">Before sending</p>
               <p className="text-sm">
@@ -319,7 +319,7 @@ export function LetterReview({
                       </div>
                       {feedbackError && (
                         <div className="flex items-start gap-2 text-destructive">
-                          <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                          <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
                           <p className="text-sm">{feedbackError}</p>
                         </div>
                       )}
@@ -377,7 +377,7 @@ export function LetterReview({
                 key={index}
                 className="flex items-start gap-3 p-3 bg-white rounded-lg border border-border/50"
               >
-                <span className="w-6 h-6 rounded-full bg-accent-light flex items-center justify-center flex-shrink-0 text-sm font-medium">
+                <span className="w-6 h-6 rounded-full bg-accent-light flex items-center justify-center shrink-0 text-sm font-medium">
                   {index + 1}
                 </span>
                 <p className="text-muted-foreground pt-0.5">{step}</p>
@@ -410,7 +410,7 @@ export function LetterReview({
       </QuestionSection>
 
       <div className="bg-accent-light/40 border border-accent/30 rounded-lg p-4 flex items-start gap-3">
-        <div className="bg-accent/20 p-1.5 rounded-full flex-shrink-0">
+        <div className="bg-accent/20 p-1.5 rounded-full shrink-0">
           <MessageSquare className="h-5 w-5 text-accent" />
         </div>
         <div>

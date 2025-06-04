@@ -47,7 +47,7 @@ export function RemovalProcess({ onComplete }: RemovalProcessProps) {
           key={index}
           className="flex items-start gap-3 py-2 pr-4"
         >
-          <div className="w-7 h-7 rounded-full bg-accent-light flex items-center justify-center flex-shrink-0 text-sm font-medium text-foreground">
+          <div className="w-7 h-7 rounded-full bg-accent-light flex items-center justify-center shrink-0 text-sm font-medium text-foreground">
             {index + 1}
           </div>
           <p className="text-sm text-muted-foreground pt-1">{step}</p>
@@ -179,7 +179,7 @@ export function RemovalProcess({ onComplete }: RemovalProcessProps) {
               className="bg-accent-light/50 rounded-xl p-4"
             >
               <div className="flex items-start gap-3 text-muted-foreground">
-                <AlertCircle className="w-5 h-5 mt-1 flex-shrink-0" />
+                <AlertCircle className="w-5 h-5 mt-1 shrink-0" />
                 <p>{getStatusMessage()?.message}</p>
               </div>
             </motion.div>

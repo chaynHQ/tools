@@ -4,8 +4,8 @@ import type { Metadata } from 'next';
 import { Merriweather, Open_Sans } from 'next/font/google';
 import Script from 'next/script';
 import 'regenerator-runtime/runtime'; // Ensure this import goes first otherwise you will get a runtime error
+import './app.css';
 import { ClientLayout } from './client-layout';
-import './globals.css';
 import { Providers } from './providers';
 
 const merriweather = Merriweather({
@@ -26,18 +26,20 @@ const openSans = Open_Sans({
 
 export const metadata: Metadata = {
   title: 'Survivor AI | Free AI-Powered Image Takedown Tool by Chayn',
-  description: 'Get free, confidential help removing non-consensual images online. Our AI-powered tool creates personalized takedown requests for major platforms, with step-by-step guidance and trauma-informed support.',
+  description:
+    'Get free, confidential help removing non-consensual images online. Our AI-powered tool creates personalized takedown requests for major platforms, with step-by-step guidance and trauma-informed support.',
   metadataBase: new URL('https://survivorai.chayn.co'),
   openGraph: {
     title: 'Survivor AI | Free AI-Powered Image Takedown Tool by Chayn',
-    description: 'Get free, confidential help removing non-consensual images online. Our AI-powered tool creates personalized takedown requests for major platforms, with step-by-step guidance and trauma-informed support.',
+    description:
+      'Get free, confidential help removing non-consensual images online. Our AI-powered tool creates personalized takedown requests for major platforms, with step-by-step guidance and trauma-informed support.',
     images: [
       {
         url: '/meta_image.png',
         width: 1200,
         height: 630,
-        alt: 'Survivor AI by Chayn'
-      }
+        alt: 'Survivor AI by Chayn',
+      },
     ],
     locale: 'en_US',
     type: 'website',
@@ -45,7 +47,8 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'Survivor AI | Free AI-Powered Image Takedown Tool by Chayn',
-    description: 'Get free, confidential help removing non-consensual images online. Our AI-powered tool creates personalized takedown requests for major platforms, with step-by-step guidance and trauma-informed support.',
+    description:
+      'Get free, confidential help removing non-consensual images online. Our AI-powered tool creates personalized takedown requests for major platforms, with step-by-step guidance and trauma-informed support.',
     images: ['/meta_image.png'],
   },
   robots: {
@@ -59,11 +62,7 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${merriweather.variable} ${openSans.variable}`}>
       <head>

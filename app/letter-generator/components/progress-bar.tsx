@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { motion } from 'framer-motion';
 import { useState } from 'react';
@@ -15,7 +15,7 @@ const stepNames = [
   'Reporting details',
   'Additional details',
   'Letter generation',
-  'Review and send'
+  'Review and send',
 ];
 
 export function ProgressBar({ currentStep, totalSteps }: ProgressBarProps) {
@@ -37,39 +37,43 @@ export function ProgressBar({ currentStep, totalSteps }: ProgressBarProps) {
           const stepNumber = index;
           const isCurrent = stepNumber === currentStep;
           const isPast = stepNumber < currentStep;
-          
+
           return (
-            <div 
+            <div
               key={index}
               className="relative z-10"
               onMouseEnter={() => setHoveredStep(stepNumber)}
               onMouseLeave={() => setHoveredStep(null)}
             >
-              <motion.div 
+              <motion.div
                 className={`
                   w-3 h-3 rounded-full border-2 transition-all duration-200
-                  ${isCurrent 
-                    ? 'bg-white border-accent ring-4 ring-accent/20 scale-125' 
-                    : isPast
-                      ? 'bg-accent border-accent'
-                      : 'bg-accent/40 border-accent/40'}
+                  ${
+                    isCurrent
+                      ? 'bg-white border-accent ring-4 ring-accent/20 scale-125'
+                      : isPast
+                        ? 'bg-accent border-accent'
+                        : 'bg-accent/40 border-accent/40'
+                  }
                 `}
               />
-              
+
               {hoveredStep === stepNumber && (
-                <motion.div 
+                <motion.div
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   className="absolute left-1/2 -translate-x-1/2 mt-2"
                 >
-                  <div 
+                  <div
                     className={`
-                      text-xs whitespace-nowrap px-2 py-1 rounded-md bg-white shadow-sm border
-                      ${isCurrent 
-                        ? 'text-foreground font-medium' 
-                        : isPast
-                          ? 'text-foreground'
-                          : 'text-muted-foreground'}
+                      text-xs whitespace-nowrap px-2 py-1 rounded-md bg-white shadow-xs border
+                      ${
+                        isCurrent
+                          ? 'text-foreground font-medium'
+                          : isPast
+                            ? 'text-foreground'
+                            : 'text-muted-foreground'
+                      }
                     `}
                   >
                     {name}

@@ -1,0 +1,84 @@
+@import 'tailwindcss';
+
+@theme {
+  --font-merriweather: 'Merriweather', serif;
+  --font-open-sans: 'OpenSans', serif;
+  --color-background: oklch(0.9512 0.0266 47.22); /* #FFEAE0 */
+  --color-foreground: oklch(0.2 0 0);
+
+  --color-card: oklch(0.9891 0.0157 78.38); /* #FFFAF2 */
+  --color-card-foreground: oklch(0.2 0 0);
+
+  --color-popover: oklch(0.9891 0.0157 78.38); /* #FFFAF2 */
+  --color-popover-foreground: oklch(0.2 0 0);
+
+  --color-primary: oklch(0.617 0.2309 18.08); /* #F0244D */
+  --color-primary-foreground: oklch(1 0 0);
+
+  --color-secondary: oklch(0.8562 0.083356 44.6789); /* #FFBFA3 */
+  --color-secondary-foreground: oklch(0.2 0 0);
+
+  --color-muted: oklch(0.9 0.03 30);
+  --color-muted-foreground: oklch(0.4 0 0);
+
+  --color-accent: oklch(0.8106 0.059 274.28); /* #B5BFE8 */
+  --color-accent-foreground: oklch(0.2 0 0);
+  --color-accent-green: oklch(0.9006 0.0273 140.18); /* #D5E3D2 */
+  --color-accent-blue: oklch(0.8106 0.059 274.28); /* #B5BFE8 */
+  --color-accent-light: oklch(0.9278 0.0303 275.6); /* #E1E6FC */
+  --color-accent-yellow: oklch(0.8434 0.0716 98.87); /* #D7CD97 */
+
+  /* Assuming destructive should still mirror primary if no specific hex is given */
+  --color-destructive: oklch(0.6461 0.2263 15.73); /* Derived from #F0244D */
+  --color-destructive-foreground: oklch(0.98 0 0);
+
+  --color-border: oklch(0.8562 0.083356 44.6789); /* #FFBFA3 */
+  --color-input: oklch(0.8562 0.083356 44.6789); /* #FFBFA3 */
+  --color-ring: oklch(0.8106 0.059 274.28); /* Tied to accent-blue #B5BFE8 */
+
+  --radius: 1rem;
+  --radius-full: 9999px;
+  --border:                               
+;
+}
+
+@layer utilities {
+  :root {
+    --primary: 347 97% 54%; /* #F0244D */
+    --secondary: 17 100% 82%; /* #FFBFA3 */
+    --background: 17 100% 94%; /* #FFEAE0 */
+    --neutral: 40 100% 97%; /* #FFFAF2 */
+    --accent-green: 114 20% 83%; /* #D5E3D2 */
+    --accent-blue: 229 57% 81%; /* #B5BFE8 */
+    --accent-light: 228 83% 94%; /* #E1E6FC */
+    --accent-yellow: 50 47% 71%; /* #D7CD97 */
+  }
+  .pill {
+    border-radius: 9999px;
+  }
+}
+
+@layer base {
+  * {
+    border: var(--color-border);
+  }
+  body {
+    background: var(--background);
+  }
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-merriweather);
+  }
+  p,
+  span,
+  div,
+  button,
+  input,
+  textarea {
+    font-family: var(--font-open-sans);
+  }
+}

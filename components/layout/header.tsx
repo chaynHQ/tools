@@ -1,13 +1,16 @@
-"use client";
+'use client';
 
 import Image from 'next/image';
 import Link from 'next/link';
 
 export function Header() {
   return (
-    <nav className="bg-neutral py-3 sm:py-4 px-4 sm:px-6 shadow-sm">
+    <nav className="bg-neutral py-3 sm:py-4 px-4 sm:px-6 shadow-xs">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-2 sm:gap-3 hover:opacity-90 transition-opacity">
+        <Link
+          href="/"
+          className="flex items-center gap-2 sm:gap-3 hover:opacity-90 transition-opacity"
+        >
           <Image
             src="/chayn_logo.png"
             alt="Chayn Logo"
