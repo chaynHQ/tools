@@ -2,6 +2,7 @@ import { AI_MODEL, AI_TEMPERATURE } from '@/lib/constants/common';
 import { generateLetterQualityCheckPrompt } from '@/lib/prompts/quality-check';
 import { handleApiError, serverInstance as rollbar } from '@/lib/rollbar';
 import { parseAIJson, retryWithDelay } from '@/lib/utils';
+import { sendToZapier } from '@/lib/zapier';
 import Anthropic from '@anthropic-ai/sdk';
 import { NextResponse } from 'next/server';
 
@@ -48,6 +49,34 @@ export async function POST(request: Request) {
     };
 
     const qualityCheckResult = await retryWithDelay(generateQualityCheck);
+
+    // Send critical issues to Zapier if webhook URL is configured
+    // if (qualityCheckResult.severity === 'critical' && process.env.NEXT_PUBLIC_ZAPIER_QUALITY_WEBHOOK_URL) {
+    if (process.env.NEXT_PUBLIC_ZAPIER_QUALITY_WEBHOOK_URL) {
+      const zapierPayload = {
+        date: new Date().toISOString(),
+        issue1: qualityCheckResult.issues[0]
+          ? `${qualityCheckResult.issues[0].type}: ${qualityCheckResult.issues[0].issueType}`
+          : '',
+        issue2: qualityCheckResult.issues[1]
+          ? `${qualityCheckResult.issues[1].type}: ${qualityCheckResult.issues[1].issueType}`
+          : '',
+        issue3: qualityCheckResult.issues[2]
+          ? `${qualityCheckResult.issues[2].type}: ${qualityCheckResult.issues[2].issueType}`
+          : '',
+        issue4: qualityCheckResult.issues[3]
+          ? `${qualityCheckResult.issues[3].type}: ${qualityCheckResult.issues[3].issueType}`
+          : '',
+        issue5: qualityCheckResult.issues[4]
+          ? `${qualityCheckResult.issues[4].type}: ${qualityCheckResult.issues[4].issueType}`
+          : '',
+        issue6: qualityCheckResult.issues[5]
+          ? `${qualityCheckResult.issues[5].type}: ${qualityCheckResult.issues[5].issueType}`
+          : '',
+      };
+
+      await sendToZapier(process.env.NEXT_PUBLIC_ZAPIER_QUALITY_WEBHOOK_URL, zapierPayload);
+    }
 
     rollbar.info('QualityCheckLetter: Successfully parsed quality check result', {
       qualityCheckResult,

@@ -9,6 +9,7 @@ const baseConfig = {
   captureUnhandledRejections: true,
   environment: ENVIRONMENT,
   captureIP: 'anonymize',
+  scrubTelemetryInputs: true,
   enabled: !!clientToken,
   payload: {
     environment: ENVIRONMENT,
