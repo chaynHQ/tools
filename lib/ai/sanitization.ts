@@ -1,29 +1,31 @@
+import { PLACEHOLDER_TYPES, PROMPT_INJECTION_PATTERNS, SENSITIVE_TERMS } from '../constants/ai';
 import { serverInstance as rollbar } from '../rollbar';
 
 // Store sanitized data mappings
 const sanitizationMap = new Map<string, Map<string, string>>();
 
-// Define placeholder types
-export const PLACEHOLDER_TYPES = {
-  CONTENT_LOCATION: '[CONTENT_LOCATION]',
-  EMAIL: '[EMAIL]',
-  PHONE: '[PHONE]',
-  REFERENCE: '[REFERENCE]',
-  DATE: '[DATE]',
-  IP: '[IP]',
-  ID: '[ID]',
-  USERNAME: '[USERNAME]',
-  URL: '[URL]',
-  PLATFORM: '[PLATFORM]',
-  CASE_NUMBER: '[CASE_NUMBER]',
-  ACCOUNT: '[ACCOUNT]',
-  LOCATION: '[LOCATION]',
-  NAME: '[NAME]',
-} as const;
-
-// Sanitize text to remove potential identifiers
+// Sanitize text to remove potential identifiers and prompt injection attempts
 export function sanitizeText(text: string): string {
   if (!text) return '';
+
+  // First check for prompt injection attempts
+  for (const pattern of PROMPT_INJECTION_PATTERNS) {
+    if (pattern.test(text)) {
+      rollbar.error('Potential prompt injection attempt detected', {
+        pattern: pattern.toString(),
+        text: text.substring(0, 100), // Log only first 100 chars
+      });
+      text = text.replace(pattern, PLACEHOLDER_TYPES.PROMPT_INJECTION);
+    }
+  }
+
+  // Validate input length
+  if (text.length > 10000) {
+    rollbar.warning('Input text exceeds maximum length', {
+      length: text.length,
+    });
+    text = text.substring(0, 10000);
+  }
 
   return (
     text
@@ -66,6 +68,8 @@ export function sanitizeText(text: string): string {
       )
       // Remove potential names (sequences of capitalized words)
       .replace(/\b(?:[A-Z][a-z]+(?:\s+[A-Z][a-z]+)+)\b/g, PLACEHOLDER_TYPES.NAME)
+      // Remove any remaining special characters that could be used for injection
+      .replace(/[^\w\s.,!?-]/g, '')
   );
 }
 
@@ -78,6 +82,14 @@ export function sanitizeFormData(data: Record<string, any>): Record<string, any>
 
   function processSanitization(value: any, isContentLocation: boolean = false): any {
     if (typeof value === 'string') {
+      // Validate string length
+      if (value.length > 10000) {
+        rollbar.warning('Input value exceeds maximum length', {
+          length: value.length,
+        });
+        value = value.substring(0, 10000);
+      }
+
       if (isContentLocation) {
         mappings.set(PLACEHOLDER_TYPES.CONTENT_LOCATION, value);
         return PLACEHOLDER_TYPES.CONTENT_LOCATION;
@@ -147,4 +159,29 @@ export function desanitizeLetter(text: string, formId: string): string {
 // Clean up sanitization mappings
 export function cleanupSanitizationMap(formId: string): void {
   sanitizationMap.delete(formId);
+}
+
+// Check for major issues that require regeneration
+export function hasCriticalQualityIssues(letter: { subject: string; body: string }): boolean {
+  // Check for hallucination patterns
+  const hasHallucinations = SENSITIVE_TERMS.some(
+    (pattern) =>
+      letter.subject.toLowerCase().includes(pattern.term.toLowerCase()) ||
+      letter.body.toLowerCase().includes(pattern.term.toLowerCase()),
+  );
+
+  // Check for sensitive terms
+  const hasEvidenceTerms = SENSITIVE_TERMS.some(
+    (pattern) =>
+      pattern.term.toLocaleLowerCase().includes(letter.subject) ||
+      pattern.term.toLocaleLowerCase().includes(letter.body),
+  );
+
+  const hasSensitiveTerms = SENSITIVE_TERMS.some(
+    (pattern) =>
+      letter.subject.toLowerCase().includes(pattern.term.toLowerCase()) ||
+      letter.body.toLowerCase().includes(pattern.term.toLowerCase()),
+  );
+
+  return hasHallucinations || hasSensitiveTerms || hasEvidenceTerms;
 }
