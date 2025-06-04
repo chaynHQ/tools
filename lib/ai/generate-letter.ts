@@ -1,8 +1,13 @@
 import { GeneratedLetter, LetterRequest } from '@/types/letter';
+import { MAX_RETRIES, RETRY_DELAY, STATIC_NEXT_STEPS } from '../constants/ai';
 import { serverInstance as rollbar } from '../rollbar';
 import { retryWithDelay } from '../utils';
-import { hasMajorIssues, MAX_RETRIES, RETRY_DELAY, STATIC_NEXT_STEPS } from './constants';
-import { cleanupSanitizationMap, desanitizeLetter, sanitizeFormData } from './sanitization';
+import {
+  cleanupSanitizationMap,
+  desanitizeLetter,
+  hasCriticalQualityIssues,
+  sanitizeFormData,
+} from './sanitization';
 
 interface GeneratedLetterResponse {
   originalLetter: GeneratedLetter;
@@ -64,7 +69,10 @@ export async function generateLetter(formData: LetterRequest): Promise<Generated
         });
 
         // If major issues found, retry generation unless on last attempt
-        if (qualityCheckResponse.severity === 'critical' || hasMajorIssues(originalLetter)) {
+        if (
+          qualityCheckResponse.severity === 'critical' ||
+          hasCriticalQualityIssues(originalLetter)
+        ) {
           rollbar.info('Major quality issues found', {
             attempt: attempts,
             issues: qualityCheckResponse.issues,

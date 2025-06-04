@@ -1,7 +1,7 @@
 import { FollowUpQuestion } from '@/types/questions';
+import { MAX_RETRIES, RETRY_DELAY } from '../constants/ai';
 import { serverInstance as rollbar } from '../rollbar';
 import { retryWithDelay } from '../utils';
-import { MAX_RETRIES, RETRY_DELAY } from './constants';
 import { cleanupSanitizationMap, sanitizeFormData } from './sanitization';
 
 export async function generateFollowUpQuestions(formData: any): Promise<FollowUpQuestion[]> {

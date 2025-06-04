@@ -1,8 +1,8 @@
 import { LetterRequest } from '@/types/letter';
+import { QUALITY_CHECK_CRITERIA } from '../constants/ai';
 import { getPlatformPolicy, getRelevantPolicies } from '../platform-policies';
 import { platforms } from '../platforms';
 import { serverInstance as rollbar } from '../rollbar';
-import { QUALITY_CHECK_CRITERIA } from './constants';
 
 export function generateFollowUpPrompt(request: LetterRequest) {
   rollbar.info('generateFollowUpPrompt: Generating follow-up questions prompt', {
