@@ -150,7 +150,7 @@ export function LetterReview({
       setIsSubmitting(true);
       setFeedbackError(null);
 
-      if (!process.env.NEXT_PUBLIC_ZAPIER_WEBHOOK_URL) {
+      if (!process.env.NEXT_PUBLIC_ZAPIER_FEEDBACK_WEBHOOK_URL) {
         throw new Error('Unable to submit feedback at this time');
       }
 
