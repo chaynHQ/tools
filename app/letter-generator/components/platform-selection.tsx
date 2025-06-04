@@ -201,7 +201,7 @@ export function PlatformSelection({ onComplete }: PlatformSelectionProps) {
                 className="bg-accent-yellow/30 border border-accent-yellow rounded-xl p-6"
               >
                 <div className="flex gap-3">
-                  <AlertTriangle className="h-5 w-5 flex-shrink-0 text-accent-yellow mt-1" />
+                  <AlertTriangle className="h-5 w-5 shrink-0 text-accent-yellow mt-1" />
                   <div className="space-y-2">
                     <h4 className="font-medium">Reminder about messaging platforms</h4>
                     <p className="text-muted-foreground text-sm">

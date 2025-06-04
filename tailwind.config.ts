@@ -1,7 +1,6 @@
 import type { Config } from 'tailwindcss';
 
 const config: Config = {
-  darkMode: ['class'],
   content: [
     './pages/**/*.{js,ts,jsx,tsx,mdx}',
     './components/**/*.{js,ts,jsx,tsx,mdx}',
@@ -14,43 +13,43 @@ const config: Config = {
         'open-sans': ['var(--font-open-sans)', 'sans-serif'],
       },
       colors: {
-        background: 'hsl(var(--background))',
-        foreground: 'hsl(var(--foreground))',
+        background: 'oklch(var(--color-background))',
+        foreground: 'oklch(var(--color-foreground))',
         primary: {
-          DEFAULT: 'hsl(var(--primary))',
-          foreground: 'hsl(var(--primary-foreground))',
+          DEFAULT: 'oklch(var(--color-primary))',
+          foreground: 'oklch(var(--color-primary-foreground))',
         },
         secondary: {
-          DEFAULT: 'hsl(var(--secondary))',
-          foreground: 'hsl(var(--secondary-foreground))',
+          DEFAULT: 'oklch(var(--color-secondary))',
+          foreground: 'oklch(var(--color-secondary-foreground))',
         },
         card: {
-          DEFAULT: 'hsl(var(--card))',
-          foreground: 'hsl(var(--card-foreground))',
+          DEFAULT: 'oklch(var(--color-neutral))',
+          foreground: 'oklch(var(--color-foreground))',
         },
         popover: {
-          DEFAULT: 'hsl(var(--popover))',
-          foreground: 'hsl(var(--popover-foreground))',
+          DEFAULT: 'oklch(var(--color-neutral))',
+          foreground: 'oklch(var(--color-foreground))',
         },
         muted: {
-          DEFAULT: 'hsl(var(--muted))',
-          foreground: 'hsl(var(--muted-foreground))',
+          DEFAULT: 'oklch(var(--color-muted))',
+          foreground: 'oklch(var(--color-muted-foreground))',
         },
         accent: {
-          DEFAULT: 'hsl(var(--accent))',
-          foreground: 'hsl(var(--accent-foreground))',
-          green: 'hsl(var(--accent-green))',
-          blue: 'hsl(var(--accent-blue))',
-          light: 'hsl(var(--accent-light))',
-          yellow: 'hsl(var(--accent-yellow))',
+          DEFAULT: 'oklch(var(--color-accent-blue))',
+          foreground: 'oklch(var(--color-foreground))',
+          green: 'oklch(var(--color-accent-green))',
+          blue: 'oklch(var(--color-accent-blue))',
+          light: 'oklch(var(--color-accent-light))',
+          yellow: 'oklch(var(--color-accent-yellow))',
         },
         destructive: {
-          DEFAULT: 'hsl(var(--destructive))',
-          foreground: 'hsl(var(--destructive-foreground))',
+          DEFAULT: 'oklch(var(--color-destructive))',
+          foreground: 'oklch(var(--color-destructive-foreground))',
         },
-        border: 'hsl(var(--border))',
-        input: 'hsl(var(--input))',
-        ring: 'hsl(var(--ring))',
+        border: 'oklch(var(--color-border))',
+        input: 'oklch(var(--color-input))',
+        ring: 'oklch(var(--color-ring))',
       },
       borderRadius: {
         lg: 'var(--radius)',
