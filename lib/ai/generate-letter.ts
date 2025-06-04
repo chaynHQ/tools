@@ -70,8 +70,8 @@ export async function generateLetter(formData: LetterRequest): Promise<Generated
             issues: qualityCheckResponse.issues,
           });
 
-          if (attempts === MAX_RETRIES && qualityCheckResponse.improvedLetter) {
-            // On final attempt, use improved letter if available
+          if (attempts === 2 && qualityCheckResponse.improvedLetter) {
+            // If this is the second attempt and we have an improved letter, use it
             letter = {
               subject: qualityCheckResponse.improvedLetter.subject || letter.subject,
               body: qualityCheckResponse.improvedLetter.body || letter.body,

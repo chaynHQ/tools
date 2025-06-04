@@ -71,29 +71,17 @@ Additional Steps Taken: ${reportingInfo.additionalStepsTaken || 'Not provided'}`
 ${
   relevantPolicies
     ? `
-Platform-Specific Requirements:
-The platform requires the following evidence for this type of content:
-${relevantPolicies.evidenceRequirements
-  .map((req) => {
-    // Only filter out requirements that match sensitive terms
-    const isSensitive = QUALITY_CHECK_CRITERIA.MAJOR.EVIDENCE_TERMS.some((term) => term.test(req));
-    return isSensitive ? null : `- ${req}`;
-  })
-  .filter(Boolean)
-  .join('\n')}
+Platform-Specific Policy Context for ${platformPolicy?.name}:
 
-Key removal criteria:
-${relevantPolicies.removalCriteria
-  .map((criteria) => {
-    // Only filter out criteria that match sensitive terms
-    const isSensitive = QUALITY_CHECK_CRITERIA.MAJOR.EVIDENCE_TERMS.some((term) =>
-      term.test(criteria),
-    );
-    return isSensitive ? null : `- ${criteria}`;
-  })
-  .filter(Boolean)
-  .join('\n')}
-`
+Applicable Policies:
+${relevantPolicies
+  .map(
+    (policy) => `- *${policy.policy}*
+  Documents: ${policy.documents.map((doc) => doc.title).join(', ')}
+  Removal Criteria: ${policy.removalCriteria.join(', ')}
+  Evidence Requirements: ${policy.evidenceRequirements.join(', ')}`,
+  )
+  .join('\n')}`
     : ''
 }
 
@@ -102,7 +90,7 @@ ${QUALITY_CHECK_CRITERIA.MAJOR.SENSITIVE_TERMS.map(({ term, replacement }) => `-
 
 CRITICAL RULES:
 1. Prioritize questions that help establish clear links between the content shared and SPECIFIC policy violations and community standards breaches.
-2. Questions should build upon existing information only where required for clarification essential to the request. Direct policy voilations should be the focus, not personal details or emotional language.
+2. Questions should build upon existing information only where required for clarification essential to the request. Direct policy violations should be the focus, not personal details or emotional language.
 3. DO NOT ask for information that has already been provided or does support the case. If missing information is not essential for the letter, do not ask for it again.
 4. DO NOT repeat questions about how to find the content or the content link/url, this has already been provided. DO NOT ask for timeline details if dates are already provided.
 5. Do NOT ask specifics on the provided impact statement if we can already summarise the impact based on the provided information. Never ask for sensitive information such as medical, financial or security details.
@@ -122,7 +110,7 @@ ALLOWED TOPICS:
 - Specific policy violations
 
 For each question, provide:
-- A clear, concise question (no more than 1 sentence)
+- A clear, concise question (max 20 words)
 - A brief explanation of why this information supports the request (1-2 sentences)
 - A category: 'essential' (missing key info), 'verification' (proves ownership), or 'supporting' (strengthens case)
 

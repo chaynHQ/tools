@@ -26,13 +26,12 @@ export function generateLetterQualityCheckPrompt(letter: string, request: Letter
     reportingInfo.responseReceived ||
     reportingInfo.additionalStepsTaken;
 
-  const prompt = `You are an expert in content takedown requests and platform policy enforcement. Your task is to rigorously review a generated takedown letter against a set of strict quality standards and provide detailed, actionable feedback for improvement or confirm its readiness.
+  return `You are an expert in content takedown requests and platform policy enforcement. Your task is to rigorously review a generated takedown letter against a set of strict quality standards and provide detailed, actionable feedback for improvement or confirm its readiness.
 
 ORIGINAL LETTER TO BE CHECKED:
 ---START LETTER---
 ${letter}
 ---END LETTER---
-
 
 AVAILABLE INFORMATION (The letter should ONLY use details explicitly provided in this section):
 Content Type: ${request.initialQuestions.contentType}
@@ -60,62 +59,20 @@ ${
   relevantPolicies
     ? `
 Platform-Specific Policy Context for ${platformPolicy?.name}:
+
 Applicable Policies:
-${relevantPolicies.contentPolicies
-  .map((policy) => {
-    // Filter out ID verification policies, matching generation prompt's filtering
-    if (
-      policy.policy.toLowerCase().includes('id verification') ||
-      policy.policy.toLowerCase().includes('identification') ||
-      policy.policy.includes('passport') ||
-      policy.policy.includes('license') ||
-      policy.policy.includes('proof of residence') ||
-      policy.policy.includes('government')
-    ) {
-      return null;
-    }
-    return `- ${policy.policy} (${policy.section})`;
-  })
-  .filter(Boolean)
+${relevantPolicies
+  .map(
+    (policy) => `- *${policy.policy}*
+  Documents: ${policy.documents.map((doc) => doc.title).join(', ')}
+  Removal Criteria: ${policy.removalCriteria.join(', ')}
+  Evidence Requirements: ${policy.evidenceRequirements.join(', ')}`,
+  )
   .join('\n')}
 
-Removal Requirements:
-${relevantPolicies.removalCriteria
-  .map((criteria) => {
-    // Filter out ID verification criteria, matching generation prompt's filtering
-    if (
-      criteria.toLowerCase().includes('id') ||
-      criteria.toLowerCase().includes('identification') ||
-      criteria.toLowerCase().includes('passport') ||
-      criteria.toLowerCase().includes('license') ||
-      criteria.toLowerCase().includes('proof of residence') ||
-      criteria.toLowerCase().includes('government')
-    ) {
-      return null;
-    }
-    return `- ${criteria}`;
-  })
-  .filter(Boolean)
-  .join('\n')}
-
-Evidence Requirements:
-${relevantPolicies.evidenceRequirements
-  .map((req) => {
-    // Filter out ID verification requirements, matching generation prompt's filtering
-    if (
-      req.toLowerCase().includes('id') ||
-      req.toLowerCase().includes('identification') ||
-      req.toLowerCase().includes('passport') ||
-      req.toLowerCase().includes('license') ||
-      req.toLowerCase().includes('proof of residence') ||
-      req.toLowerCase().includes('government')
-    ) {
-      return null;
-    }
-    return `- ${req}`;
-  })
-  .filter(Boolean)
-  .join('\n')}
+Timeframes:
+- Initial Response: ${platformPolicy?.timeframes.response}
+- Content Removal: ${platformPolicy?.timeframes.removal}
 `
     : ''
 }
@@ -187,6 +144,4 @@ You must respond with a valid JSON object containing exactly these fields:
   }
 }
 `;
-  console.log(prompt);
-  return prompt;
 }
