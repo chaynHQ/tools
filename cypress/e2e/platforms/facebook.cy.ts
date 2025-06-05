@@ -58,8 +58,8 @@ describe('Facebook Platform Flow', () => {
     fillFacebookReportingProcessDetails();
     cy.contains('Analysing your responses', { timeout: 30000 });
     cy.contains('Continue', { timeout: 30000 }).click();
-    cy.contains('Creating your personalised letter', { timeout: 40000 });
-    cy.contains('Your personalised letter', { timeout: 100000 }).should('be.visible');
+    cy.contains('Creating your letter', { timeout: 40000 });
+    cy.contains('Review and send', { timeout: 100000 }).should('be.visible');
     cy.contains('Subject line').should('be.visible');
     cy.contains('Message content').should('be.visible');
     cy.contains('records@facebook.com').should('be.visible');

@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import { motion } from 'framer-motion';
 
 interface SelectableCardProps {
   value: string;
@@ -11,18 +11,21 @@ interface SelectableCardProps {
   onClick: () => void;
 }
 
-export function SelectableCard({ value, label, description, selected, onClick }: SelectableCardProps) {
+export function SelectableCard({
+  value,
+  label,
+  description,
+  selected,
+  onClick,
+}: SelectableCardProps) {
   return (
     <motion.div
       whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
       onClick={onClick}
       className={cn(
-        "relative cursor-pointer rounded-lg p-3.5 transition-all duration-200",
-        "border",
-        selected 
-          ? "bg-accent-light border-accent shadow-md" 
-          : "bg-white border-border/50 hover:border-accent/30 hover:bg-neutral/10"
+        'relative cursor-pointer rounded-lg p-3.5 transition-all duration-200',
+        selected ? 'bg-accent-light border-accent shadow-md' : 'bg-white hover:bg-neutral/10',
       )}
     >
       <div className="space-y-1">
