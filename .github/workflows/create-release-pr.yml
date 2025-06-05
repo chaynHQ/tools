@@ -1,0 +1,135 @@
+name: Manage Production Release PR
+
+on:
+  push:
+    branches: [develop]
+
+jobs:
+  manage-release-pr:
+    name: Manage Production Release PR to main
+    runs-on: ubuntu-latest # ubuntu-24.04 is fine, latest is also common
+    permissions:
+      contents: read # Needed to compare commits
+      pull-requests: write # Needed to create, list, and update PRs
+    steps:
+      - name: Checkout actions/github-script
+        uses:
+          actions/checkout@v4 # Good practice to checkout if the script becomes complex or needs local files
+          # Not strictly necessary for this specific github-script if it's self-contained
+
+      - name: Create or Update Release Pull Request
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { repo, owner } = context.repo;
+            const baseBranch = 'main';
+            const headBranch = 'develop';
+            const prTitlePrefix = '🚀 Prepare Production Release';
+
+            // --- Helper function to generate the commit summary ---
+            async function getCommitSummary(github, owner, repo, base, head) {
+              let summary = `### 📝 Summary of Changes (from \`${head}\` to \`${base}\`)\n\n`;
+              summary += `*(Last updated: ${new Date().toUTCString()})*\n\n`;
+              try {
+                const compareResult = await github.rest.repos.compareCommitsWithBasehead({
+                  owner,
+                  repo,
+                  basehead: `${base}...${head}`, // Shows commits in head that are not in base
+                });
+
+                if (compareResult.status === 200) {
+                  const commits = compareResult.data.commits;
+                  if (commits && commits.length > 0) {
+                    summary += commits.map(commit => {
+                      const shortSha = commit.sha.substring(0, 7);
+                      const commitMessage = commit.commit.message.split('\n')[0];
+                      const commitUrl = commit.html_url;
+                      return `- [\`${shortSha}\`](${commitUrl}): ${commitMessage}`;
+                    }).join('\n');
+                  } else if (compareResult.data.status === 'identical') {
+                    summary += '✅ `develop` and `main` are identical. No new changes to deploy.';
+                  } else if (compareResult.data.status === 'behind') {
+                    summary += `⚠️ \`develop\` is **${compareResult.data.behind_by}** commit(s) behind \`main\`. Please rebase \`develop\` from \`main\` before releasing.`;
+                  } else { // Includes 'ahead' but no distinct commits shown (e.g. merge commits only, or other complex history)
+                    summary += 'ℹ️ No new unique user commits found, or `develop` may be complexly diverged. Review comparison manually.';
+                    if (compareResult.data.html_url) {
+                       summary += `\n   [View comparison on GitHub](${compareResult.data.html_url})`;
+                    }
+                  }
+                } else {
+                  summary += `⚠️ Could not retrieve commit summary (Status: ${compareResult.status}).`;
+                }
+              } catch (error) {
+                console.error("Error fetching commit comparison:", error);
+                summary += `❌ Error retrieving commit summary: ${error.message}`;
+                // Attempt to get a comparison URL even on error, if possible (though less likely)
+                try {
+                  const compareUrl = `https://github.com/${owner}/${repo}/compare/${base}...${head}`;
+                  summary += `\n   [Manually view comparison on GitHub](${compareUrl})`;
+                } catch (e) { /* ignore if this also fails */ }
+              }
+              return summary;
+            }
+
+            // 1. Find an existing open PR from develop to main
+            let existingPull = null;
+            const { data: openPulls } = await github.rest.pulls.list({
+              owner,
+              repo,
+              state: 'open',
+              base: baseBranch,
+              head: `${owner}:${headBranch}`, // Important for accuracy
+            });
+
+            if (openPulls.length > 0) {
+              existingPull = openPulls[0]; // Assume the first one is our target PR
+              console.log(`Found existing PR #${existingPull.number}.`);
+            }
+
+            // 2. Generate the commit summary
+            const commitSummaryContent = await getCommitSummary(github, owner, repo, baseBranch, headBranch);
+
+            // 3. Construct PR Body
+            const prBodyPreamble = [
+              `This Pull Request includes changes from \`${headBranch}\` to be released into \`${baseBranch}\`.`,
+              `**Important:** Merging this PR will trigger an automatic deployment to production.`,
+              ``,
+              `---`,
+            ].join('\n');
+
+            const prBodyFooter = [
+              ``,
+              `---`,
+              `This PR is automatically managed by the \`manage-release-pr.yml\` workflow.`,
+            ].join('\n');
+
+            const finalPrBody = `${prBodyPreamble}\n\n${commitSummaryContent}\n\n${prBodyFooter}`;
+
+            // 4. Create or Update PR
+            if (existingPull) {
+              console.log(`Updating PR #${existingPull.number} body.`);
+              await github.rest.pulls.update({
+                owner,
+                repo,
+                pull_number: existingPull.number,
+                body: finalPrBody,
+                // title: existingPull.title, // Generally, don't change the title unless necessary
+              });
+              console.log(`PR #${existingPull.number} updated successfully.`);
+              core.setOutput('pr_url', existingPull.html_url);
+            } else {
+              const creationDate = new Date().toISOString().split('T')[0];
+              const prTitle = `${prTitlePrefix} (Initiated: ${creationDate})`;
+              console.log(`Creating new PR with title: "${prTitle}"`);
+
+              const { data: newPull } = await github.rest.pulls.create({
+                owner,
+                repo,
+                title: prTitle,
+                head: headBranch,
+                base: baseBranch,
+                body: finalPrBody,
+              });
+              console.log(`New PR created: ${newPull.html_url}`);
+              core.setOutput('pr_url', newPull.html_url);
+            }
