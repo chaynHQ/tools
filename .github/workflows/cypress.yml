@@ -39,6 +39,7 @@ jobs:
       NEXT_PUBLIC_BASE_URL: https://tools-git-develop-chaynhq.vercel.app/
       NEXT_PUBLIC_GA_ID: ${{ secrets.NEXT_PUBLIC_GA_ID }}
       NEXT_PUBLIC_ROLLBAR_CLIENT_TOKEN: ${{ secrets.NEXT_PUBLIC_ROLLBAR_CLIENT_TOKEN }}
+      ROLLBAR_SERVER_TOKEN: ${{ secrets.NEXT_PUBLIC_ROLLBAR_SERVER_TOKEN }}
       ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
 
     steps:
