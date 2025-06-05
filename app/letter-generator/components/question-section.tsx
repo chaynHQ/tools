@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
 import { motion } from 'framer-motion';
 
 interface QuestionSectionProps {
-  title: string;
+  title?: string;
   children?: React.ReactNode;
 }
 
@@ -14,12 +14,8 @@ export function QuestionSection({ title, children }: QuestionSectionProps) {
       animate={{ opacity: 1, y: 0 }}
       className="space-y-6"
     >
-      <h3 className="text-xl font-medium mb-6">{title}</h3>
-      {children && (
-        <div className="space-y-8">
-          {children}
-        </div>
-      )}
+      {title && <h2 className="text-xl font-medium mb-6">{title}</h2>}
+      {children && <div className="space-y-8">{children}</div>}
     </motion.div>
   );
 }
