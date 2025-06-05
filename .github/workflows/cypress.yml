@@ -2,48 +2,57 @@ name: Cypress Tests
 
 on:
   push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+    branches: [develop, dependabot/**, '*test*']
 
 jobs:
+  # vercel will redeploy the develop/staging app on creating a PR to main
+  # wait for new deployment to complete before running tests
+  wait-for-vercel-deployment:
+    name: Wait for vercel deployment
+    runs-on: ubuntu-24.04
+    permissions:
+      deployments: read
+      statuses: read
+    outputs:
+      preview_url: ${{ steps.waitForVercelDeployment.outputs.url }}
+    steps:
+      - name: Wait for Vercel preview deployment to be ready
+        uses: patrickedqvist/wait-for-vercel-preview@v1.3.2
+        id: waitForVercelDeployment
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          max_timeout: 1000
+          check_interval: 5
+
   cypress-run:
+    name: Cypress e2e tests
+    needs: wait-for-vercel-deployment
     runs-on: ubuntu-latest
-    
+    permissions:
+      contents: read
+      checks: write
+      deployments: read
     env:
-      NEXT_PUBLIC_ENV: test
-      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      NEXT_PUBLIC_BASE_URL: https://tools-git-develop-chaynhq.vercel.app/
       NEXT_PUBLIC_GA_ID: ${{ secrets.NEXT_PUBLIC_GA_ID }}
       NEXT_PUBLIC_ROLLBAR_CLIENT_TOKEN: ${{ secrets.NEXT_PUBLIC_ROLLBAR_CLIENT_TOKEN }}
-      
+      ROLLBAR_SERVER_TOKEN: ${{ secrets.NEXT_PUBLIC_ROLLBAR_SERVER_TOKEN }}
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '18'
           cache: 'npm'
-          
-      - name: Install dependencies
-        run: npm ci
-        
-      - name: Install system dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y xvfb
-          
-      - name: Build Next.js app
-        run: npm run build
-        
-      - name: Start Next.js app and run Cypress tests
-        uses: cypress-io/github-action@v6
+
+      - name: Run cypress
+        uses: cypress-io/github-action@v6.7.16
         with:
-          start: npm start
-          wait-on: 'http://localhost:3000'
           browser: chrome
           config-file: cypress.config.ts
+          headed: false
           config: video=false
-        env:
-          CYPRESS_VERIFY_TIMEOUT: 100000
