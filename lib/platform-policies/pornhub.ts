@@ -2,28 +2,36 @@ import { ContentContext, ContentType, LegalDocument, PlatformPolicy } from './ty
 
 const legalDocuments: LegalDocument[] = [
   {
-    reference: 'OF-TOS',
-    title: 'Terms of Service',
-    url: 'https://onlyfans.com/terms',
+    reference: 'PH-TOS',
+    title: 'Pornhub Terms of Service',
+    url: 'https://www.pornhub.com/information/terms',
     accessTimestamp: '2025-06-06T00:00:00Z',
+    notes:
+      "The foundational legal agreement. It prohibits illegal content, requires all uploaders to be verified, and contains the platform's DMCA/copyright policy.",
   },
   {
-    reference: 'OF-AUP',
-    title: 'Acceptable Use Policy',
-    url: 'https://onlyfans.com/aup',
+    reference: 'PH-PP',
+    title: 'Pornhub Privacy Policy',
+    url: 'https://www.pornhub.com/information/privacy',
     accessTimestamp: '2025-06-06T00:00:00Z',
+    notes:
+      'Outlines data collection practices, including the personal information required for the mandatory Uploader Verification System. Relevant to doxing and privacy violations.',
   },
   {
-    reference: 'OF-PP',
-    title: 'Privacy Policy',
-    url: 'https://onlyfans.com/privacy',
+    reference: 'PH-CONTENT-POLICY',
+    title: 'Pornhub Trust and Safety Policy',
+    url: 'https://www.pornhub.com/information/trust-and-safety',
     accessTimestamp: '2025-06-06T00:00:00Z',
+    notes:
+      "Details the platform's core safety measures, including its zero-tolerance policy for illegal content, the Uploader Verification System, and the process for content removal.",
   },
   {
     reference: 'TAKE-IT-DOWN-ACT-2025',
     title: 'TAKE IT DOWN Act of 2025',
     url: 'https://www.congress.gov/bill/118th-congress/house-bill/7891',
     accessTimestamp: '2025-06-06T00:00:00Z',
+    notes:
+      'A U.S. federal law signed on May 19, 2025. It legally mandates that platforms like Pornhub remove non-consensual intimate imagery (NCII), including AI-generated deepfakes, within 48 hours of a valid report.',
   },
 ];
 
@@ -32,82 +40,124 @@ const contentTypes: ContentType[] = [
     type: 'intimate',
     label: 'Intimate images',
     description:
-      'Photos or videos of a private or sexual nature, including authentic and AI-generated media.',
+      'Photos or videos of a private or sexual nature. On Pornhub, this violation can simultaneously breach rules on consent, copyright, privacy, and AI.',
     policies: [
       {
-        reference: 'OF-AUP-NCSII',
+        reference: 'PH-POLICY-NCSII',
         policy:
-          "Strictly prohibits posting or sharing non-consensual intimate images (NCII), also known as 'revenge porn'. Consent can be withdrawn at any time, requiring content to be taken down.",
-        documents: [legalDocuments[1], legalDocuments[3]], // OF-AUP, TAKE-IT-DOWN-ACT-2025
+          'Maintains a zero-tolerance policy for non-consensual content. Provides a dedicated Content Removal Request Form for anyone to request the removal of content depicting them for any reason.',
+        documents: [legalDocuments[0], legalDocuments[2], legalDocuments[3]], // PH-TOS, PH-CONTENT-POLICY, TAKE-IT-DOWN-ACT-2025
         removalCriteria: [
-          'Content is sexually explicit and shared without the consent of all depicted individuals.',
-          'A depicted individual withdraws their prior consent.',
-          'Content is an AI-generated deepfake of a real person shared without their permission.',
-          'Content violates specific prohibitions in the AUP (e.g., incest, necrophilia, certain bodily fluids, extreme violence).',
+          'Content is identified as non-consensual.',
+          'A person depicted in the content requests its removal via the official form.',
+          'The uploader cannot provide proof of consent for all depicted individuals.',
         ],
         evidenceRequirements: [
           'URL(s) of the infringing content.',
-          'A description of the violation and evidence of non-consent.',
-          "For takedown requests, contact support and select 'Law Enforcement/Legal Matters' for non-consensual content or 'Reporting Stolen Content' for copyright claims.",
+          "Use the dedicated 'Content Removal Request Form' available on the site.",
+          'Provide information to identify yourself as the person in the video or as an authorized representative.',
         ],
       },
       {
-        reference: 'OF-AUP-AI',
-        policy: 'Permits the use of AI-generated content under strict conditions.',
-        documents: [legalDocuments[0], legalDocuments[1]], // OF-TOS, OF-AUP
+        reference: 'PH-TOS-COPYRIGHT',
+        policy:
+          "Prohibits copyright infringement. If an intimate video is stolen from another creator or posted without the owner's permission, it can be removed via a DMCA notice.",
+        documents: [legalDocuments[0]], // PH-TOS
         removalCriteria: [
-          'AI-generated content is not clearly and conspicuously labeled with a signifier like #ai or #AIGenerated.',
-          'AI-generated content does not feature the verified creator of the account.',
-          'Content is an AI deepfake that impersonates another real individual without their explicit consent.',
+          "Content is an original work posted without the copyright owner's permission.",
+        ],
+        evidenceRequirements: [
+          'A formal DMCA Takedown Notice submitted through the process outlined on the site.',
+          'Proof of original ownership of the content.',
+          'URL(s) of the infringing content.',
+        ],
+      },
+      {
+        reference: 'PH-POLICY-AI',
+        policy:
+          "Prohibits AI-generated 'deepfake' videos that impersonate real individuals without their explicit, documented consent.",
+        documents: [legalDocuments[0], legalDocuments[2]], // PH-TOS, PH-CONTENT-POLICY
+        removalCriteria: [
+          'Content is an AI-generated deepfake of an identifiable real person.',
+          'The depicted person has not provided explicit consent for the creation and distribution of the content.',
         ],
         evidenceRequirements: [
           'URL(s) of the content.',
-          'Description of the violation (e.g., unlabeled AI, impersonation).',
-          'Evidence of impersonation if applicable.',
+          'Evidence that the content is a deepfake and that the person depicted did not consent.',
+          'Reporting is done through the Content Removal Request Form.',
+        ],
+      },
+      {
+        reference: 'PH-TOS-PRIVACY',
+        policy:
+          'Prohibits the violation of privacy. Sharing intimate content without consent is a severe privacy violation.',
+        documents: [legalDocuments[0], legalDocuments[1]], // PH-TOS, PH-PP
+        removalCriteria: [
+          'Content consists of private media shared without consent.',
+          'The sharing violates a reasonable expectation of privacy.',
+        ],
+        evidenceRequirements: [
+          'URL(s) of the content.',
+          'Description of the privacy violation submitted via the Content Removal Request Form.',
         ],
       },
     ],
   },
   {
     type: 'personal',
-    label: 'Personal content',
-    description: 'Non-intimate photos or videos shared without permission for harassment.',
+    label: 'Personal content for harassment',
+    description:
+      'Non-intimate content is not a primary use case, but harassment in comments and messages is prohibited.',
     policies: [
       {
-        reference: 'OF-AUP-HARASSMENT',
+        reference: 'PH-TOS-HARASSMENT',
         policy:
-          'Prohibits using the platform to stalk, bully, abuse, harass, threaten, or intimidate anyone.',
-        documents: [legalDocuments[1]], // OF-AUP
+          'Prohibits harassment, threats, and hate speech in comments and other interactions on the platform.',
+        documents: [legalDocuments[0]], // PH-TOS
         removalCriteria: [
-          'Content or behavior constitutes targeted harassment or bullying.',
-          'Abusive or threatening language is used in posts or messages.',
+          'Comments or messages contain targeted harassment, abuse, or threats.',
+          'Content promotes hate speech against protected groups.',
         ],
         evidenceRequirements: [
-          'URL(s) of the content or user profile.',
-          'Screenshots of harassing messages.',
-          'Description of the abusive behavior.',
+          'URL(s) of the video where comments appear or the user profile sending messages.',
+          'Screenshots of the harassing comments or messages.',
+          'Use the reporting flag available on all videos and comments.',
         ],
       },
     ],
   },
   {
     type: 'private',
-    label: 'Private information',
-    description: 'Personal documents or identifying details (doxing).',
+    label: 'Private information (Doxing)',
+    description:
+      'Sharing personal documents or identifying details in video titles, descriptions, or comments. This is a form of harassment.',
     policies: [
       {
-        reference: 'OF-AUP-PRIVACY',
+        reference: 'PH-TOS-PRIVACY',
         policy:
-          "Prohibits violating others' privacy by sharing their private information without consent.",
-        documents: [legalDocuments[1]], // OF-AUP
+          'Prohibits the violation of privacy, including the unauthorized publication of personally identifiable information (doxing).',
+        documents: [legalDocuments[0], legalDocuments[1]], // PH-TOS, PH-PP
         removalCriteria: [
-          'Private information (e.g., address, phone number) is exposed without consent.',
-          'The information poses a privacy or security risk.',
+          'Content (video, comments, etc.) reveals private information without consent.',
+          'The information poses a privacy or security risk to an individual.',
         ],
         evidenceRequirements: [
           'URL(s) of the content containing private information.',
           'Description of the private information exposed.',
-          'Evidence that the information was shared without consent.',
+          'Reporting is done through the standard content removal process or flagging.',
+        ],
+      },
+      {
+        reference: 'PH-TOS-HARASSMENT',
+        policy:
+          'Prohibits harassment. Doxing is considered a form of harassment intended to intimidate and endanger.',
+        documents: [legalDocuments[0]], // PH-TOS
+        removalCriteria: [
+          'Private information is shared with the clear intent to incite harassment or cause fear.',
+        ],
+        evidenceRequirements: [
+          'URL(s) of the content.',
+          'Description of how the doxing is being used to harass or threaten.',
         ],
       },
     ],
@@ -118,22 +168,36 @@ const contentContexts: ContentContext[] = [
   {
     context: 'hacked',
     label: 'Account was compromised',
-    description: 'Content was accessed or posted without authorization.',
+    description:
+      'Content was accessed or posted without authorization. The primary goal is account recovery, followed by removal of any content posted by the unauthorized user.',
     policies: [
       {
-        reference: 'OF-TOS-SECURITY',
+        reference: 'PH-TOS-SECURITY',
         policy:
-          'Users are responsible for their account security. If compromised, users should immediately change their password and contact support.',
-        documents: [legalDocuments[0]], // OF-TOS
+          'Users are responsible for their account security. If an account is compromised, the user should contact support immediately to secure the account and report unauthorized activity.',
+        documents: [legalDocuments[0]], // PH-TOS
         removalCriteria: [
           'Evidence of unauthorized access or activity.',
-          'Account is posting spam or fraudulent content.',
-          'Legitimate owner is locked out of the account.',
+          'The account is being used to upload content that violates platform policies.',
+          'The legitimate owner is locked out of their account.',
         ],
         evidenceRequirements: [
-          'Contact OnlyFans support immediately at support@onlyfans.com.',
-          'Provide account details (username, email) and a description of the unauthorized activity.',
-          'Enable Two-Factor Authentication (2FA) to secure the account after recovery.',
+          'Contact Pornhub support with the account username and email.',
+          'Provide a description of the unauthorized activity.',
+          'Evidence of account ownership may be required for recovery.',
+        ],
+      },
+      {
+        reference: 'PH-TOS-CONTENT',
+        policy:
+          'All content, even that posted by an unauthorized user, must adhere to the Terms of Service and will be removed if it is found to be in violation.',
+        documents: [legalDocuments[0]], // PH-TOS
+        removalCriteria: [
+          'Content posted from the compromised account violates any rule (e.g., non-consensual, copyright infringement).',
+        ],
+        evidenceRequirements: [
+          'After recovering the account, report any violating content through the standard reporting channels (Content Removal Form, DMCA notice).',
+          'URL(s) of the content.',
         ],
       },
     ],
@@ -141,21 +205,50 @@ const contentContexts: ContentContext[] = [
   {
     context: 'impersonation',
     label: 'Someone is impersonating me',
-    description: 'An account is pretending to be you or another entity.',
+    description:
+      'An account is pretending to be you or another entity. This is a severe violation that often overlaps with copyright infringement and non-consensual content.',
     policies: [
       {
-        reference: 'OF-AUP-IMPERSONATION',
+        reference: 'PH-POLICY-IMPERSONATION',
         policy:
-          'Prohibits impersonating any person or entity. This is enforced through a mandatory and strict creator verification process.',
-        documents: [legalDocuments[1]], // OF-AUP
+          'Prohibits impersonation. This is primarily enforced through the mandatory Uploader Verification System, which requires all uploaders to prove their identity.',
+        documents: [legalDocuments[0], legalDocuments[2]], // PH-TOS, PH-CONTENT-POLICY
         removalCriteria: [
-          'An unverified account is impersonating a person or entity.',
-          'A verified account is found to have used fraudulent documents.',
-          "An account is using another person's likeness or content without permission (copyright infringement).",
+          'An account is found to be impersonating a real person.',
+          'An uploader is found to have used fraudulent documents during verification.',
+          'An account is proven to be operated by someone other than the verified individual.',
         ],
         evidenceRequirements: [
-          'All creators must pass a strict verification process, including submitting a government-issued ID and a live selfie.',
-          'To report impersonation, contact support and provide the URL of the impersonating profile and evidence of your own identity (e.g., a photo of your government ID).',
+          'All uploaders must be verified with government-issued ID.',
+          'To report impersonation, use the Content Removal Request Form.',
+          'Provide the URL of the impersonating content/profile and evidence of your own identity.',
+        ],
+      },
+      {
+        reference: 'PH-TOS-COPYRIGHT',
+        policy:
+          "Prohibits copyright infringement. Impersonation on Pornhub most often involves creating a fake account to upload another creator's stolen videos.",
+        documents: [legalDocuments[0]], // PH-TOS
+        removalCriteria: [
+          'The impersonating account is posting content to which you own the copyright.',
+        ],
+        evidenceRequirements: [
+          'File a formal DMCA Takedown Notice through the process outlined on the site.',
+          'Proof of original ownership of the content.',
+          "URL(s) of the infringing content on the impersonator's page.",
+        ],
+      },
+      {
+        reference: 'PH-POLICY-NCSII',
+        policy:
+          'Prohibits non-consensual content. An impersonating account could be used to upload NCII of the person being impersonated.',
+        documents: [legalDocuments[0], legalDocuments[2], legalDocuments[3]], // PH-TOS, PH-CONTENT-POLICY, TAKE-IT-DOWN-ACT-2025
+        removalCriteria: [
+          'The impersonating account has posted intimate content of you without your consent.',
+        ],
+        evidenceRequirements: [
+          'Use the Content Removal Request Form.',
+          'Provide the URL(s) of the content and evidence of your identity.',
         ],
       },
     ],
@@ -164,39 +257,38 @@ const contentContexts: ContentContext[] = [
 
 const generalPolicies = [
   {
-    reference: 'OF-TOS-CONTENT',
+    reference: 'PH-TOS-CONTENT',
     policy:
-      'Creators must own the rights to all content they post. Posting content owned by others without permission is a violation.',
-    documents: [legalDocuments[0]], // OF-TOS
+      'All content uploaded must be owned by the verified uploader or they must have explicit, documented rights from the copyright holder. Re-uploading content from other creators is prohibited.',
+    documents: [legalDocuments[0]], // PH-TOS
     removalCriteria: [
-      "Content violates OnlyFans' Terms of Service or Acceptable Use Policy.",
+      "Content violates Pornhub's Terms of Service.",
       "Content infringes on another person's copyright (DMCA).",
     ],
     evidenceRequirements: [
       'URL(s) of the infringing content.',
-      'Description of the violation.',
-      "For copyright claims, file a DMCA notice or use the 'Reporting Stolen Content' contact form.",
+      'For copyright claims, file a formal DMCA Takedown Notice through the process outlined on the site.',
+      'Evidence of original ownership of the content.',
     ],
   },
 ];
 
-export const onlyfansPolicy: PlatformPolicy = {
-  name: 'OnlyFans',
+export const pornhubPolicy: PlatformPolicy = {
+  name: 'Pornhub',
   legalDocuments,
   contentTypes,
   contentContexts,
   generalPolicies,
   timeframes: {
     response:
-      'Varies. Verification takes 24-72 hours. Routine law enforcement requests are processed within 14 days. Appeal reviews can take several days or weeks.',
+      'Varies. The platform aims to review reports from its dedicated removal form within 24-48 hours.',
     removal:
-      'For NCII, removal is mandated within 48 hours of a valid request under the TAKE IT DOWN Act. For other violations, removal occurs after a review confirms a violation, with no specific public timeframe guaranteed.',
+      'For NCII, removal is mandated within 48 hours of a valid request under the TAKE IT DOWN Act. For other confirmed violations, removal typically occurs promptly after review.',
   },
   appealProcess: [
-    'Decisions on content or account deactivation are communicated via email or account notification.',
-    "To appeal, the user must complete and submit the official 'Deactivation Appeal Form'.",
-    'Appeals must be filed within six months of the decision and include the account/content URL and detailed reasons why the content does not violate policies.',
-    'OnlyFans reviews the appeal and may request more information before making a decision.',
-    'For users in the EU, disputes may be eligible for referral to a certified out-of-court dispute settlement body under the Digital Services Act (DSA).',
+    'If content is removed or an account is terminated, a notification is typically sent via email.',
+    'Uploaders can appeal a decision by contacting support and providing the content URL and a reason for the appeal.',
+    'The appeal is reviewed by the Trust and Safety team.',
+    'The final decision is communicated back to the user via email.',
   ],
 };

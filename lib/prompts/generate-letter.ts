@@ -118,7 +118,7 @@ LETTER STRUCTURE (skip any sections that are not relevant):
 
 4. Policy Violation
    - Cite specific policies names/titles and the related document title (policy title: document title)
-   - Concisely state how content violates policies
+   - List specific policies names/titles without rephrasing or interpretation
 
 5. Request
    - Include impact statement

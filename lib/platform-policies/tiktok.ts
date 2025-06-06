@@ -6,24 +6,32 @@ const legalDocuments: LegalDocument[] = [
     title: 'Terms of Service',
     url: 'https://www.tiktok.com/legal/page/us/terms-of-service/en',
     accessTimestamp: '2025-06-06T00:00:00Z',
+    notes:
+      'The foundational legal agreement that requires users to comply with the Community Guidelines and outlines rules for content ownership and intellectual property (copyright).',
   },
   {
     reference: 'TT-CG',
     title: 'Community Guidelines',
     url: 'https://www.tiktok.com/community-guidelines/en/',
     accessTimestamp: '2025-06-06T00:00:00Z',
+    notes:
+      'A major update took effect on May 17, 2025. This is the core rulebook for all content and behavior, with specific, detailed sections on NCII, AI, harassment, privacy, and impersonation.',
   },
   {
     reference: 'TT-PP',
     title: 'Privacy Policy',
     url: 'https://www.tiktok.com/legal/page/us/privacy-policy/en',
     accessTimestamp: '2025-06-06T00:00:00Z',
+    notes:
+      'Governs how user data is collected and used. It is directly relevant to violations involving the exposure of private information (doxing).',
   },
   {
     reference: 'TAKE-IT-DOWN-ACT-2025',
     title: 'TAKE IT DOWN Act of 2025',
     url: 'https://www.congress.gov/bill/118th-congress/house-bill/7891',
     accessTimestamp: '2025-06-06T00:00:00Z',
+    notes:
+      'A U.S. federal law signed on May 19, 2025. It legally mandates that platforms like TikTok remove non-consensual intimate imagery (NCII), including AI-generated deepfakes, within 48 hours of a valid report.',
   },
 ];
 
@@ -32,7 +40,7 @@ const contentTypes: ContentType[] = [
     type: 'intimate',
     label: 'Intimate images',
     description:
-      'Photos or videos of a private or sexual nature, including authentic and AI-generated media.',
+      'Photos or videos of a private or sexual nature. This severe violation can simultaneously breach rules on consent, AI, harassment, privacy, and copyright.',
     policies: [
       {
         reference: 'TT-CG-NCSII',
@@ -47,28 +55,72 @@ const contentTypes: ContentType[] = [
         evidenceRequirements: [
           'Link to the video, content, or user profile.',
           'Description of the violation.',
-          'TikTok partners with StopNCII.org to help prevent the spread of intimate images by allowing potential victims to create a unique hash of their images.',
+          'TikTok partners with StopNCII.org to help prevent the spread of intimate images.',
         ],
       },
       {
         reference: 'TT-CG-AI',
-        policy: 'Requires creators to label realistic AI-generated content to prevent deception.',
+        policy:
+          'Prohibits using AI to create non-consensual intimate imagery. Requires labeling for other realistic AI content.',
         documents: [legalDocuments[1]], // TT-CG
         removalCriteria: [
-          "Content is realistic manipulated media that is not clearly disclosed using a label like 'AI-generated'.",
-          'AI-generated content violates other guidelines (e.g., creating a deepfake for harassment or NCII).',
+          'AI-generated content is used to create a deepfake for NCII.',
+          "Other realistic manipulated media is not clearly disclosed using a label like 'AI-generated'.",
         ],
         evidenceRequirements: [
           'Link to the video.',
-          'Description of how the content is misleading or violates policy.',
+          'Description of how the content is a deepfake or violates policy.',
+        ],
+      },
+      {
+        reference: 'TT-CG-HARASSMENT',
+        policy:
+          'Prohibits bullying and harassment. Sharing intimate images of someone without their consent is considered a form of severe harassment.',
+        documents: [legalDocuments[1]], // TT-CG
+        removalCriteria: [
+          'Content targets a private individual for abuse or degradation.',
+          'Content includes shaming material, such as non-consensual intimate imagery.',
+        ],
+        evidenceRequirements: [
+          'Link to the harassing content.',
+          'Description of the harassment and its targeted nature.',
+        ],
+      },
+      {
+        reference: 'TT-CG-PRIVACY',
+        policy:
+          "Prohibits violations of privacy. Sharing someone's private, intimate media without their consent is a fundamental breach of privacy.",
+        documents: [legalDocuments[1], legalDocuments[2]], // TT-CG, TT-PP
+        removalCriteria: [
+          'Content consists of private media shared without consent.',
+          'The sharing of the content violates a reasonable expectation of privacy.',
+        ],
+        evidenceRequirements: [
+          'Link to the content containing private media.',
+          'Description of the privacy violation.',
+        ],
+      },
+      {
+        reference: 'TT-TOS-IP',
+        policy:
+          'Prohibits copyright infringement. If the intimate image was created and owned by the victim or a photographer, its unauthorized posting is a copyright violation.',
+        documents: [legalDocuments[0]], // TT-TOS
+        removalCriteria: [
+          "Content is an original work (photo, video) posted without the copyright owner's permission.",
+        ],
+        evidenceRequirements: [
+          "A formal copyright infringement report submitted through TikTok's IP form.",
+          'Proof of original ownership of the content.',
+          'URL(s) of the infringing content.',
         ],
       },
     ],
   },
   {
     type: 'personal',
-    label: 'Personal content',
-    description: 'Non-intimate photos or videos shared without permission for harassment.',
+    label: 'Personal content for harassment',
+    description:
+      'Non-intimate photos, videos, or text shared to bully or harass someone. This can overlap with privacy violations if the content includes personal data.',
     policies: [
       {
         reference: 'TT-CG-HARASSMENT',
@@ -86,18 +138,33 @@ const contentTypes: ContentType[] = [
           'Screenshots of comments or messages if applicable.',
         ],
       },
+      {
+        reference: 'TT-CG-PRIVACY',
+        policy:
+          'Prohibits sharing personally identifiable information (PII) to harass someone. Harassing content often includes or leads to privacy violations.',
+        documents: [legalDocuments[1], legalDocuments[2]], // TT-CG, TT-PP
+        removalCriteria: [
+          'Content reveals private, personal, or identifying information to enable harassment.',
+          "Information is shared without the subject's consent.",
+        ],
+        evidenceRequirements: [
+          'Link to the content containing PII.',
+          'Description of how the information is being used to harass.',
+        ],
+      },
     ],
   },
   {
     type: 'private',
-    label: 'Private information',
-    description: 'Personal documents or identifying details (doxing).',
+    label: 'Private information (Doxing)',
+    description:
+      'Sharing personal documents, contact information, or other identifying details without consent. This is a form of harassment.',
     policies: [
       {
         reference: 'TT-CG-PRIVACY',
         policy:
           'Prohibits sharing personally identifiable information (PII) without consent, a practice known as doxing.',
-        documents: [legalDocuments[1]], // TT-CG
+        documents: [legalDocuments[1], legalDocuments[2]], // TT-CG, TT-PP
         removalCriteria: [
           'Content reveals private, personal, or identifying information (e.g., phone number, home address, non-public email).',
           "Information is shared without the subject's consent.",
@@ -109,6 +176,20 @@ const contentTypes: ContentType[] = [
           'Confirmation that the information was shared without consent.',
         ],
       },
+      {
+        reference: 'TT-CG-HARASSMENT',
+        policy:
+          'Prohibits bullying and harassment. Doxing is considered a form of severe harassment intended to intimidate, endanger, or silence an individual.',
+        documents: [legalDocuments[1]], // TT-CG
+        removalCriteria: [
+          'Content targets a private individual for abuse by exposing their private information.',
+          'The intent is to incite harassment or cause fear.',
+        ],
+        evidenceRequirements: [
+          'Link to the content.',
+          'Description of how the doxing is being used to harass or threaten.',
+        ],
+      },
     ],
   },
 ];
@@ -117,7 +198,8 @@ const contentContexts: ContentContext[] = [
   {
     context: 'hacked',
     label: 'Account was compromised',
-    description: 'Content was accessed or posted without authorization.',
+    description:
+      'Content was accessed or posted without authorization. The primary goal is account recovery, followed by removal of any content posted by the unauthorized user.',
     policies: [
       {
         reference: 'TT-HC-HACKED',
@@ -134,12 +216,27 @@ const contentContexts: ContentContext[] = [
           'If recovery fails, contact TikTok support directly through the feedback form with details of the compromise.',
         ],
       },
+      {
+        reference: 'TT-CG-ALL',
+        policy:
+          'All content must adhere to the Community Guidelines. Content posted from a hacked account is still subject to removal if it violates any rule.',
+        documents: [legalDocuments[1]], // TT-CG
+        removalCriteria: [
+          'Content posted by the unauthorized user violates any Community Guideline (e.g., spam, scams, harassment, NCII).',
+        ],
+        evidenceRequirements: [
+          'Once account access is restored, report the specific content through the standard in-app reporting flows.',
+          'Link to the violating content.',
+          'Identification of the specific Community Guideline violated.',
+        ],
+      },
     ],
   },
   {
     context: 'impersonation',
     label: 'Someone is impersonating me',
-    description: 'An account is pretending to be you or another entity.',
+    description:
+      'An account is pretending to be you or another entity. This is often a tool for other violations like harassment, fraud, or copyright infringement.',
     policies: [
       {
         reference: 'TT-CG-IMPERSONATION',
@@ -155,6 +252,33 @@ const contentContexts: ContentContext[] = [
           'Link to the impersonating profile.',
           'Evidence of your authentic identity (e.g., a photo of your government-issued ID).',
           'Description of how the account is impersonating you or your entity.',
+        ],
+      },
+      {
+        reference: 'TT-CG-HARASSMENT',
+        policy:
+          'Prohibits bullying and harassment. Impersonation is often used as a tool to harass the person being impersonated or to deceive and harass others.',
+        documents: [legalDocuments[1]], // TT-CG
+        removalCriteria: [
+          'The impersonating account is being used to send abusive messages or post harassing content.',
+        ],
+        evidenceRequirements: [
+          'Link to the impersonating account and the harassing content.',
+          'Description of the harassment.',
+        ],
+      },
+      {
+        reference: 'TT-TOS-IP',
+        policy:
+          'Prohibits copyright infringement. Impersonators often steal and re-upload the content of the person they are impersonating.',
+        documents: [legalDocuments[0]], // TT-TOS
+        removalCriteria: [
+          'The impersonating account is posting content to which you own the copyright.',
+        ],
+        evidenceRequirements: [
+          'A formal copyright infringement report.',
+          'Proof of original ownership of the content.',
+          "URL(s) of the infringing content on the impersonator's page.",
         ],
       },
     ],
