@@ -34,7 +34,7 @@ export function DisclaimerBanner() {
           <AlertCircle className="h-5 w-5 text-accent" />
         </div>
         <div className="text-sm">
-          <p className="text-foreground font-medium mb-1">This tool is still finding its feet :)</p>
+          <p className="text-foreground font-medium mb-1">This tool is still in development</p>
           <p className="text-muted-foreground">
             It's safe to use, but if you encounter anything confusing or that doesn't work as
             expected, please{' '}

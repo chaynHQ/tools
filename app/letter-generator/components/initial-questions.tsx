@@ -438,7 +438,7 @@ export function InitialQuestions({ onComplete }: InitialQuestionsProps) {
                 <Textarea
                   id="imageTakenDate"
                   {...register('imageTakenDate')}
-                  placeholder="For example: 'June 2023' or 'Around summer last year'"
+                  placeholder="For example: 'June 2023' or 'Summer last year'"
                   className={textareaClasses}
                   rows={2}
                   dir="auto"

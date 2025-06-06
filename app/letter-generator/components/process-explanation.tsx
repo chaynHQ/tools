@@ -32,30 +32,30 @@ export function ProcessExplanation({ onComplete }: { onComplete: () => void }) {
       icon: Globe,
       title: 'Select the platform',
       description:
-        "Choose where the content is hosted. We'll guide you through their specific removal process.",
+        "Choose where the content is hosted. We'll use their specific processes and policies to create the letter.",
     },
     {
       icon: FileText,
       title: 'Initial questions',
       description:
-        'Tell us about the content and any previous reporting attempts. Share only what you feel comfortable with.',
+        'Share details about the content and any past reporting attempts. Share only what you feel comfortable with.',
     },
     {
       icon: MessageCircle,
       title: 'Supporting questions',
       description:
-        "Based on your responses, we'll ask any additional questions that could strengthen your request.",
+        'To strengthen your request, we may ask some additional questions based on your answers.',
     },
     {
       icon: PenTool,
       title: 'Your letter is created',
       description:
-        "Our AI assistant crafts a professional letter aligned with the platform's policies.",
+        "Our AI helps create a professional letter, tailored to the platform's guidelines and your situation.",
     },
     {
       icon: Send,
       title: 'Review and send',
-      description: 'Review your letter, make any edits, and copy it to send to the platform.',
+      description: 'Review your letter and make any changes before sending it to the platform.',
     },
   ];
 

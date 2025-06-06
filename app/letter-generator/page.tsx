@@ -32,8 +32,8 @@ type Step =
 
 const stepTitles: Record<Step, string> = {
   'process-explanation': 'Building your takedown letter',
-  'platform-selection': 'Select a platform',
-  'removal-process': 'Review removal process',
+  'platform-selection': 'Select the platform',
+  'removal-process': 'Previous removal attempts',
   'initial-questions': 'Initial content questions',
   'reporting-details': 'Previous reporting details',
   'follow-up': 'Supporting questions',
@@ -43,17 +43,17 @@ const stepTitles: Record<Step, string> = {
 
 const stepDescriptions: Record<Step, string> = {
   'process-explanation': `We'll guide you through the process of creating an effective takedown request letter.`,
-  'platform-selection': 'Select the platform where the content is hosted',
-  'removal-process': 'Review available reporting processes',
+  'platform-selection': `Select the platform where the content is hosted. We'll use their specific content removal processes and related policies to create the letter.`,
+  'removal-process': `There are various ways to seek content removal, from directly using platform reporting processes to creating this formal takedown letter. Sharing your journey so far helps us build a more effective letter.`,
   'initial-questions':
-    'These questions help us understand your situation and create an effective takedown request. Your answers will be used to identify specific policy violations and strengthen your case.',
+    'These questions help us understand your situation and create an effective takedown request letter. Your answers will be used to identify specific policy violations to strengthen the letter.',
   'reporting-details':
     'Provide more information about your previous attempts to report this content and any communication with the platform.',
   'follow-up':
-    'These questions highlight any additional details that may strengthen your request. These are optional but may help us create a more effective letter.',
+    "Based on your previous responses, we've generated a few questions specific to your situation. Answering these questions may help us create a more complete letter, but only share what feels comfortable for you.",
   generation: 'Creating a professionally-written letter based on your responses',
   review:
-    'Review your personalised letter and prepare to send it to the platform email address provided',
+    'Take your time to review your personalised letter and prepare to send it to the platform email address provided',
 };
 
 export default function LetterGenerator() {
@@ -155,7 +155,7 @@ export default function LetterGenerator() {
   };
 
   const handleBack = () => {
-    if (currentStep === 'platform-selection') {
+    if (currentStep === 'process-explanation') {
       router.push('/');
     } else {
       const stepOrder = getStepOrder();
@@ -215,21 +215,25 @@ export default function LetterGenerator() {
 
   return (
     <main className="flex-1">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-12">
+      <div className="max-w-5xl mx-auto py-2">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-neutral rounded-2xl p-6 sm:p-8 letter-generator-content"
+          className="bg-neutral rounded-2xl p-2 lg:px-10 letter-generator-content"
         >
           <div className="space-y-6 sm:space-y-8">
             {currentStep !== 'process-explanation' && (
-              <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-8">
-                <Button variant="ghost" className="pill -ml-2 self-start\" onClick={handleBack}>
+              <div className="flex flex-col gap-4 sm:gap-8">
+                <Button
+                  variant="ghost"
+                  className="pill mr-auto -ml-2 self-start\"
+                  onClick={handleBack}
+                >
                   <ArrowLeft className="w-4 h-4 mr-2" />
                   Back
                 </Button>
 
-                <div className="hidden sm:block flex-1">
+                <div>
                   <ProgressBar currentStep={getCurrentStepNumber()} totalSteps={getTotalSteps()} />
                 </div>
               </div>
@@ -243,7 +247,7 @@ export default function LetterGenerator() {
             )}
 
             <div className="flex flex-col items-start">
-              <h2 className="text-2xl sm:text-3xl mb-2">{stepTitles[currentStep]}</h2>
+              <h2 className="text-2xl sm:text-3xl mb-4">{stepTitles[currentStep]}</h2>
               <p className="text-muted-foreground">{stepDescriptions[currentStep]} </p>
             </div>
 

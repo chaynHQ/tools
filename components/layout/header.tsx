@@ -55,7 +55,7 @@ export function Header() {
               rel="noopener noreferrer"
               onClick={handleResourcesClick}
             >
-              <Button variant="ghost" className="pill hover:bg-background">
+              <Button variant="ghost" className="pill hidden sm:flex hover:bg-background">
                 Chayn resources
                 <ExternalLink className="w-4 h-4 ml-2 text-primary" />
               </Button>
