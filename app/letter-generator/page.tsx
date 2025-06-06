@@ -243,7 +243,7 @@ export default function LetterGenerator() {
             )}
 
             <div className="flex flex-col items-start">
-              <h1 className="text-2xl sm:text-3xl mb-2">{stepTitles[currentStep]}</h1>
+              <h2 className="text-2xl sm:text-3xl mb-2">{stepTitles[currentStep]}</h2>
               <p className="text-muted-foreground">{stepDescriptions[currentStep]} </p>
             </div>
 

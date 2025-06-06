@@ -1,6 +1,8 @@
 function startInstagramFlow() {
   cy.visit('/');
   cy.contains('Start your request').click();
+  cy.get('h2').contains('Building your takedown letter');
+  cy.contains('Start your request').click();
   cy.get('h3').contains('Instagram').click();
   cy.contains('Continue').click();
   cy.log('Started Instagram flow');
