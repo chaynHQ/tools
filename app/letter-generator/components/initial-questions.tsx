@@ -499,8 +499,8 @@ export function InitialQuestions({ onComplete }: InitialQuestionsProps) {
             How is this affecting you?
           </Label>
           <p className="text-sm text-muted-foreground mb-2">
-            Explaining the impact helps convey the urgency of removal. Share only what you're
-            comfortable with.
+            Explaining the impact helps convey the urgency of removal. To protect your privacy, we
+            may help summarise this for the final letter.
           </p>
           <div className="flex items-start gap-3">
             {browserSupportsSpeechRecognition && (

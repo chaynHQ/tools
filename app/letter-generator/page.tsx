@@ -46,7 +46,7 @@ const stepDescriptions: Record<Step, string> = {
   'platform-selection': `Select the platform where the content is hosted. We'll use their specific content removal processes and related policies to create the letter.`,
   'removal-process': `There are various ways to seek content removal, from directly using platform reporting processes to creating this formal takedown letter. Sharing your journey so far helps us build a more effective letter.`,
   'initial-questions':
-    'These questions help us understand your situation and create an effective takedown request letter. Your answers will be used to identify specific policy violations to strengthen the letter.',
+    'These questions help us understand your situation and create an effective takedown request letter. Your answers will be used to identify specific policy violations and start building your letter.',
   'reporting-details':
     'Provide more information about your previous attempts to report this content and any communication with the platform.',
   'follow-up':
