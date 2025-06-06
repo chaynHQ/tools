@@ -212,8 +212,8 @@ export function LetterReview({
             <div>
               <p className="text-foreground font-medium">Before sending</p>
               <p className="text-sm">
-                Remember to add your full name and contact information at the end of the letter. For
-                your privacy and security, we don't collect or store these personal details.
+                Remember to add your full name at the end of the letter. For your privacy and
+                security, we don't collect personal details.
               </p>
             </div>
           </div>
@@ -243,8 +243,8 @@ export function LetterReview({
                 <div className="flex-1">
                   <h4 className="text-base mb-1">Copy your letter</h4>
                   <p className="text-sm text-muted-foreground">
-                    Copy your letter, then paste it into an email. Don't forget to add your name at
-                    the end and include the subject line.
+                    Copy and paste your letter into an email. Before sending, add your name at the
+                    end of the letter and ensure the subject line is included.
                   </p>
                 </div>
                 <Button

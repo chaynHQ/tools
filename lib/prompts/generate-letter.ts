@@ -51,7 +51,7 @@ CRITICAL INSTRUCTIONS:
     - For URLs: "The content can be found at [Content Location]"
     - For descriptions: "The content can be found at the following location: [Content Location]"
 15. Impact statements should be summarised carefully to ensure:
-    - Summaries are factual and based on the provided information.
+    - Summaries are factual and based on the provided information. Do not invent or exaggerate the impact.
     - Summaries accurately reflect the user's description of the impact and are validating, do not understate or overstate the impact.
     - Sensitive information is excluded to protect user privacy - exclude specific details about health, security, or personal circumstances and instead use a summary statement.
     - Example summary statements: "This is causing significant emotional distress and anxiety.", "This is negatively affecting my mental wellbeing.", "This is impacting my personal safety and security.", "This is causing damage to my reputation.", "This is affecting my professional life/job security."
