@@ -3,6 +3,7 @@ export interface LegalDocument {
   title: string;
   url: string;
   accessTimestamp?: string;
+  notes?: string;
 }
 
 export interface Policy {

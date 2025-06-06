@@ -12,12 +12,11 @@ import { rollbar } from '@/lib/rollbar';
 import { FollowUpQuestion } from '@/types/questions';
 import { AnimatePresence, motion } from 'framer-motion';
 import { AlertCircle, Loader2 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
 import { VoiceInput } from './voice-input';
 
-// Common languages that might be used
 const SUPPORTED_LANGUAGES = [
   'en-US',
   'es-ES',
@@ -58,16 +57,16 @@ export function FollowUpQuestions({
   const { toast } = useToast();
   const { formState, setFollowUpData } = useFormContext();
   const hasQuestionsInContext = formState.followUpData.questions.length > 0;
+  const initializationRef = useRef(false);
 
   const { transcript, listening, resetTranscript, browserSupportsSpeechRecognition } =
     useSpeechRecognition();
 
-  // Initialize questions from context or fetch new ones
   useEffect(() => {
-    if (hasInitialized || !initialData || isLoading) return;
+    if (initializationRef.current || !initialData || isLoading) return;
+    initializationRef.current = true;
 
     const initializeQuestions = async () => {
-      // Use cached questions if available
       if (hasQuestionsInContext) {
         setFollowUpQuestions(formState.followUpData.questions);
         setIsLoading(false);
@@ -123,17 +122,15 @@ export function FollowUpQuestions({
     setFollowUpData,
     savedData,
     toast,
-    hasInitialized,
+    isLoading,
   ]);
 
-  // Reset form with saved data when available
   useEffect(() => {
     if (savedData && Object.keys(savedData).length > 0) {
       reset(savedData);
     }
   }, [savedData, reset]);
 
-  // Update field value when speech transcript changes
   useEffect(() => {
     if (transcript && activeField) {
       setValue(activeField, transcript);
