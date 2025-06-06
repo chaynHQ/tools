@@ -105,27 +105,26 @@ LETTER STRUCTURE (skip any sections that are not relevant):
 1. Introduction
    - Clear purpose
    - Concise summary of policy violations
-   - Basic content identification
 
 2. Content Details
+   - Basic content identification
    - Use [Content Location] placeholder
    - Include timeline information
-   - Reference previous reports if any
 
-3. Evidence
-   - Include provided details relevant to the policies evidence requirements
-   - Include ownership evidence if available
-
-4. Policy Violation
+3. Policy Violation
    - Cite specific policies names/titles and the related document title (policy title: document title)
    - List specific policies names/titles without rephrasing or interpretation
 
+4. Evidence
+   - Include provided details relevant to the policies evidence requirements
+   - Include ownership evidence if available
+   - Reference previous reports if any
+
 5. Request
    - Include impact statement
-   - Clear actions needed
-   - Response expectations
-   - Expected timeline
-   - Next steps
+   - Clear actions and next steps
+   - Response and timeline expectations
+
 
 RESPONSE FORMAT:
 You must respond with a valid JSON object containing exactly two fields:
