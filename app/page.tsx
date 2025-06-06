@@ -4,7 +4,7 @@ import { analytics } from '@/lib/analytics';
 import { GA_EVENTS } from '@/lib/constants/analytics';
 import { useFormContext } from '@/lib/context/FormContext';
 import { motion } from 'framer-motion';
-import { ArrowRight, ShieldCheck, Lock, Heart } from 'lucide-react';
+import { ArrowRight, Heart, Lock, ShieldCheck } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect } from 'react';
@@ -25,15 +25,16 @@ export default function Home() {
     <>
       <div className="bg-neutral rounded-2xl p-4 sm:p-8 md:p-12 md:pb-0">
         <div className="flex flex-col md:flex-row items-center gap-8 md:gap-12">
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="flex-1 max-w-2xl"
           >
             <h1 className="text-3xl sm:text-4xl md:text-4xl mb-5">Welcome to our Survivor AI</h1>
             <p className="text-lg mb-8 text-muted-foreground">
-              Discovering your content shared without consent can feel overwhelming. We're here to guide you through creating 
-              an effective image takedown request letter, with clear, actionable steps at your own pace.
+              Discovering your content shared without consent can feel overwhelming. We're here to
+              guide you through creating an effective image takedown request letter, with clear,
+              actionable steps at your own pace.
             </p>
             <Link
               href="/letter-generator"
@@ -44,7 +45,7 @@ export default function Home() {
               <ArrowRight className="w-4 h-4 ml-2" />
             </Link>
           </motion.div>
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             className="shrink-0 w-[80%] sm:w-[60%] md:w-[300px] lg:w-[400px] mx-auto md:mx-0"
@@ -65,25 +66,28 @@ export default function Home() {
         {[
           {
             icon: Heart,
-            title: "Supportive guidance",
-            description: "We'll ask only necessary questions about your situation to create a professionally-written takedown request letter.",
-            bgColor: "bg-secondary/20",
-            iconColor: "text-secondary"
+            title: 'Supportive guidance',
+            description:
+              "We'll ask only necessary questions about your situation to create a professionally-written takedown request letter.",
+            bgColor: 'bg-secondary/20',
+            iconColor: 'text-secondary',
           },
           {
             icon: ShieldCheck,
-            title: "AI-powered assistance",
-            description: "Our AI technology helps craft personalised, effective letters based on your responses.",
-            bgColor: "bg-accent-green/20",
-            iconColor: "text-accent-green"
+            title: 'AI-powered assistance',
+            description:
+              'Our AI gently supports you in crafting a tailored, impactful letter, using the information you share.',
+            bgColor: 'bg-accent-green/20',
+            iconColor: 'text-accent-green',
           },
           {
             icon: Lock,
-            title: "Private and secure",
-            description: "We don't store or access any information you share, it is only used to create your personalised takedown letter request.",
-            bgColor: "bg-accent-blue/20",
-            iconColor: "text-accent-blue"
-          }
+            title: 'Private and secure',
+            description:
+              "We don't store or access any information you share, it is only used to create your personalised takedown letter request.",
+            bgColor: 'bg-accent-blue/20',
+            iconColor: 'text-accent-blue',
+          },
         ].map((feature, index) => (
           <motion.div
             key={index}
@@ -92,13 +96,17 @@ export default function Home() {
             transition={{ delay: index * 0.1 }}
             className="bg-white rounded-xl p-6 relative overflow-hidden group hover:shadow-md transition-shadow"
           >
-            <div className={`absolute top-0 right-0 w-24 h-24 -mr-8 -mt-8 ${feature.bgColor} rounded-full transition-transform group-hover:scale-110`} />
-            
+            <div
+              className={`absolute top-0 right-0 w-24 h-24 -mr-8 -mt-8 ${feature.bgColor} rounded-full transition-transform group-hover:scale-110`}
+            />
+
             <div className="relative space-y-4">
-              <div className={`w-12 h-12 rounded-lg ${feature.bgColor} flex items-center justify-center`}>
+              <div
+                className={`w-12 h-12 rounded-lg ${feature.bgColor} flex items-center justify-center`}
+              >
                 {<feature.icon className={`w-6 h-6 ${feature.iconColor}`} />}
               </div>
-              
+
               <div className="space-y-2">
                 <h3 className="text-lg font-medium">{feature.title}</h3>
                 <p className="text-muted-foreground">{feature.description}</p>

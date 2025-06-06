@@ -9,21 +9,21 @@ interface ProgressBarProps {
 }
 
 const stepNames = [
-  'Select a platform',
-  'Review removal process',
-  'Content information',
+  'Select the platform',
+  'Previous removal attempts',
+  'Initial content questions',
   'Reporting details',
-  'Additional details',
+  'Supporting questions',
   'Letter generation',
   'Review and send',
 ];
 
 export function ProgressBar({ currentStep, totalSteps }: ProgressBarProps) {
-  const progress = ((currentStep + 1) / totalSteps) * 100;
+  const progress = (currentStep / totalSteps) * 100;
   const [hoveredStep, setHoveredStep] = useState<number | null>(null);
 
   return (
-    <div className="w-full max-w-[800px]">
+    <div className="w-full max-w-[800px] m-auto my-4 mb-6">
       <div className="relative flex items-center justify-between">
         <div className="absolute left-0 right-0 h-1 bg-muted/50" />
         <motion.div
@@ -35,7 +35,7 @@ export function ProgressBar({ currentStep, totalSteps }: ProgressBarProps) {
 
         {stepNames.slice(0, totalSteps).map((name, index) => {
           const stepNumber = index;
-          const isCurrent = stepNumber === currentStep;
+          const isCurrent = stepNumber === currentStep - 1;
           const isPast = stepNumber < currentStep;
 
           return (
@@ -47,13 +47,13 @@ export function ProgressBar({ currentStep, totalSteps }: ProgressBarProps) {
             >
               <motion.div
                 className={`
-                  w-3 h-3 rounded-full border-2 transition-all duration-200
+                  w-3 h-3 rounded-full transition-all duration-200
                   ${
                     isCurrent
-                      ? 'bg-white border-accent ring-4 ring-accent/20 scale-125'
+                      ? 'bg-white ring-4 ring-accent/20 scale-125'
                       : isPast
-                        ? 'bg-accent border-accent'
-                        : 'bg-accent/40 border-accent/40'
+                        ? 'bg-accent'
+                        : 'bg-accent/40'
                   }
                 `}
               />
@@ -66,7 +66,7 @@ export function ProgressBar({ currentStep, totalSteps }: ProgressBarProps) {
                 >
                   <div
                     className={`
-                      text-xs whitespace-nowrap px-2 py-1 rounded-md bg-white shadow-xs border
+                      text-xs whitespace-nowrap px-2 py-1 rounded-md bg-white shadow-xs
                       ${
                         isCurrent
                           ? 'text-foreground font-medium'

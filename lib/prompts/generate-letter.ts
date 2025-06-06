@@ -51,7 +51,7 @@ CRITICAL INSTRUCTIONS:
     - For URLs: "The content can be found at [Content Location]"
     - For descriptions: "The content can be found at the following location: [Content Location]"
 15. Impact statements should be summarised carefully to ensure:
-    - Summaries are factual and based on the provided information.
+    - Summaries are factual and based on the provided information. Do not invent or exaggerate the impact.
     - Summaries accurately reflect the user's description of the impact and are validating, do not understate or overstate the impact.
     - Sensitive information is excluded to protect user privacy - exclude specific details about health, security, or personal circumstances and instead use a summary statement.
     - Example summary statements: "This is causing significant emotional distress and anxiety.", "This is negatively affecting my mental wellbeing.", "This is impacting my personal safety and security.", "This is causing damage to my reputation.", "This is affecting my professional life/job security."
@@ -105,27 +105,26 @@ LETTER STRUCTURE (skip any sections that are not relevant):
 1. Introduction
    - Clear purpose
    - Concise summary of policy violations
-   - Basic content identification
 
 2. Content Details
+   - Basic content identification
    - Use [Content Location] placeholder
    - Include timeline information
-   - Reference previous reports if any
 
-3. Evidence
-   - Include provided details relevant to the policies evidence requirements
-   - Include ownership evidence if available
-
-4. Policy Violation
+3. Policy Violation
    - Cite specific policies names/titles and the related document title (policy title: document title)
    - List specific policies names/titles without rephrasing or interpretation
 
+4. Evidence
+   - Include provided details relevant to the policies evidence requirements
+   - Include ownership evidence if available
+   - Reference previous reports if any
+
 5. Request
    - Include impact statement
-   - Clear actions needed
-   - Response expectations
-   - Expected timeline
-   - Next steps
+   - Clear actions and next steps
+   - Response and timeline expectations
+
 
 RESPONSE FORMAT:
 You must respond with a valid JSON object containing exactly two fields:
