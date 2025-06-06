@@ -58,9 +58,10 @@ ${Object.entries(followUpInfo)
 ${
   relevantPolicies
     ? `
-Platform-Specific Policy Context for ${platformPolicy?.name}:
 
-Applicable Policies:
+PLATFORM POLICY CONTEXT:
+Platform-Specific polices Context for ${platformPolicy?.name} likely applicable to this letter:
+
 ${relevantPolicies
   .map(
     (policy) => `- *${policy.policy}*
@@ -85,6 +86,7 @@ These issues indicate fundamental failures in adhering to core instructions and 
 1.  **Hallucination of Information**: The letter includes *any* details not provided in the "AVAILABLE INFORMATION" section.
     * **NOT examples of Hallucination**:
         * Slightly rephrased or summarized versions of provided information (e.g., "2023-01-01" can be rephrased to "1st Jan 2023".
+        * References to TAKE IT DOWN Act of 2025 - this is a valid reference if included in the "PLATFORM POLICY CONTEXT".
     * **Examples of Hallucination**:
         * References to unprovided previous correspondence (e.g., "our phone call last Tuesday").
         * Claims about user requests or conversations not documented.
@@ -94,7 +96,7 @@ These issues indicate fundamental failures in adhering to core instructions and 
     * **Examples**: Specific health conditions, precise addresses, full names of third parties not involved, highly detailed security incidents that go beyond summarizing impact.
     * This also includes overly emotional, graphic, or traumatic language not directly sourced from the *summarized* "Impact Statement" provided.
 3.  **Incorrect Policy Application or Reference**: The letter fundamentally misunderstands or misrepresents platform policies.
-    * References policy *codes* (e.g., "FB-TOS", "TT-CG-Integrity") instead of their full titles and sections as provided in "PLATFORM POLICY CONTEXT."
+    * References policy *codes* (e.g., "FB-TOS", "TT-CG-Integrity") instead of their full titles and documents as provided in "PLATFORM POLICY CONTEXT."
     * Mentions policies that are explicitly related to ID verification, government IDs, passports, licenses, proof of residence, or any official documentation.
     * Fails to clearly identify or emphasize *which specific* community standards or policies from "PLATFORM POLICY CONTEXT" have been violated.
     * Makes assumptions about content violations without clear alignment to provided policy context.

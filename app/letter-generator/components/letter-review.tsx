@@ -201,13 +201,13 @@ export function LetterReview({
 
   return (
     <div className="space-y-8">
-      <QuestionSection title="Your personalised letter">
+      <QuestionSection>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="space-y-6"
         >
-          <div className="flex items-start gap-3 p-4 bg-accent-light rounded-lg text-muted-foreground mb-4">
+          <div className="flex items-start gap-3 p-4 bg-accent-light/60 rounded-lg text-muted-foreground mb-4">
             <AlertCircle className="w-5 h-5 mt-0.5 shrink-0" />
             <div>
               <p className="text-foreground font-medium">Before sending</p>
@@ -221,19 +221,17 @@ export function LetterReview({
           <div className="space-y-4">
             <div>
               <h4 className="text-lg font-medium mb-2">Send email to</h4>
-              <div className="p-4 bg-white rounded-lg border border-border/50">{platformEmail}</div>
+              <div className="p-4 bg-white rounded-lg">{platformEmail}</div>
             </div>
 
             <div>
               <h4 className="text-lg font-medium mb-2">Subject line</h4>
-              <div className="p-4 bg-white rounded-lg border border-border/50 select-none">
-                {displayLetter.subject}
-              </div>
+              <div className="p-4 bg-white rounded-lg select-none">{displayLetter.subject}</div>
             </div>
 
             <div>
               <h4 className="text-lg font-medium mb-2">Message content</h4>
-              <div className="p-4 bg-white rounded-lg border border-border/50 whitespace-pre-wrap select-none">
+              <div className="p-4 bg-white rounded-lg whitespace-pre-wrap select-none">
                 {displayLetter.body}
               </div>
             </div>
@@ -271,7 +269,7 @@ export function LetterReview({
 
           <div className="flex flex-col gap-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="p-6 bg-white rounded-lg border border-border/50">
+              <div className="p-6 bg-white rounded-lg">
                 <div className="flex flex-col gap-4">
                   {!feedbackSubmitted ? (
                     <>
@@ -300,7 +298,7 @@ export function LetterReview({
                       <div className="flex gap-4">
                         <Button
                           variant="outline"
-                          className="flex-1 bg-white hover:bg-accent-light/20"
+                          className="flex-1 bg-white hover:bg-secondary/50"
                           onClick={() => submitFeedback(true)}
                           disabled={isSubmitting || !!feedbackError}
                         >
@@ -309,7 +307,7 @@ export function LetterReview({
                         </Button>
                         <Button
                           variant="outline"
-                          className="flex-1 bg-white hover:bg-accent-light/20"
+                          className="flex-1 bg-white hover:bg-secondary/50"
                           onClick={() => submitFeedback(false)}
                           disabled={isSubmitting || !!feedbackError}
                         >
@@ -345,7 +343,7 @@ export function LetterReview({
                 </div>
               </div>
 
-              <div className="p-6 bg-white rounded-lg border border-border/50">
+              <div className="p-6 bg-white rounded-lg">
                 <div className="flex flex-col gap-4">
                   <div>
                     <h4 className="text-base mb-1">Not quite right?</h4>
@@ -355,7 +353,7 @@ export function LetterReview({
                     </p>
                     <Button
                       variant="outline"
-                      className="pill bg-white mt-4 hover:bg-accent-light/20"
+                      className="pill bg-white mt-4 hover:bg-secondary/50"
                       onClick={handleRegenerate}
                     >
                       <RefreshCw className="w-4 h-4 mr-2" />
@@ -373,14 +371,11 @@ export function LetterReview({
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
           <ul className="space-y-2">
             {letter.nextSteps.map((step, index) => (
-              <li
-                key={index}
-                className="flex items-start gap-3 p-3 bg-white rounded-lg border border-border/50"
-              >
+              <li key={index} className="flex items-start gap-3 p-4 bg-white rounded-lg">
                 <span className="w-6 h-6 rounded-full bg-accent-light flex items-center justify-center shrink-0 text-sm font-medium">
                   {index + 1}
                 </span>
-                <p className="text-muted-foreground pt-0.5">{step}</p>
+                <p className="text-muted-foreground">{step}</p>
               </li>
             ))}
           </ul>
@@ -400,7 +395,7 @@ export function LetterReview({
             }}
             href="https://bloom.chayn.co/courses/image-based-abuse-and-rebuilding-ourselves?utm_source=tools.chayn.co&utm_medium=referral&utm_campaign=tools.chayn.co-iba-referral"
             target="_blank"
-            className="underline underline-offset-2 hover:text-primary/90"
+            className="underline underline-offset-2 hover:text-primary/80"
           >
             free, online course about recovering from image-based abuse on our healing platform
             Bloom

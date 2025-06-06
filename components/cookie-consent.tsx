@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { Button } from '@/components/ui/button';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -22,7 +22,7 @@ export function CookieConsent() {
     // Initialize GA only after consent
     if (typeof window !== 'undefined' && window.gtag) {
       window.gtag('consent', 'update', {
-        analytics_storage: 'granted'
+        analytics_storage: 'granted',
       });
     }
   };
@@ -33,7 +33,7 @@ export function CookieConsent() {
     // Disable GA if declined
     if (typeof window !== 'undefined' && window.gtag) {
       window.gtag('consent', 'update', {
-        analytics_storage: 'denied'
+        analytics_storage: 'denied',
       });
     }
   };
@@ -46,25 +46,25 @@ export function CookieConsent() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: 20 }}
-        className="fixed bottom-0 left-0 right-0 bg-white border-t border-border/50 shadow-lg z-50"
+        className="fixed bottom-0 left-0 right-0 bg-white shadow-lg z-50"
       >
         <div className="max-w-7xl mx-auto p-4 sm:p-6">
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
             <div className="flex-1">
               <p className="text-sm text-muted-foreground">
-                We use cookies to analyze site usage and improve our service. You can read more about how we use cookies in our{' '}
-                <Link href="/cookie-policy" className="underline underline-offset-2 hover:text-foreground">
+                We use cookies to analyze site usage and improve our service. You can read more
+                about how we use cookies in our{' '}
+                <Link
+                  href="/cookie-policy"
+                  className="underline underline-offset-2 hover:text-foreground"
+                >
                   Cookie Policy
                 </Link>
                 .
               </p>
             </div>
             <div className="flex items-center gap-3 w-full sm:w-auto">
-              <Button
-                variant="outline"
-                className="flex-1 sm:flex-none"
-                onClick={handleDecline}
-              >
+              <Button variant="outline" className="flex-1 sm:flex-none" onClick={handleDecline}>
                 Decline
               </Button>
               <Button

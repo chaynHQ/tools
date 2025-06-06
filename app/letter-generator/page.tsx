@@ -15,11 +15,13 @@ import { FollowUpQuestions } from './components/follow-up-questions';
 import { InitialQuestions } from './components/initial-questions';
 import { LetterReview } from './components/letter-review';
 import { PlatformSelection } from './components/platform-selection';
+import { ProcessExplanation } from './components/process-explanation';
 import { ProgressBar } from './components/progress-bar';
 import { RemovalProcess } from './components/removal-process';
 import { ReportingDetails } from './components/reporting-details';
 
 type Step =
+  | 'process-explanation'
   | 'platform-selection'
   | 'removal-process'
   | 'initial-questions'
@@ -29,28 +31,34 @@ type Step =
   | 'review';
 
 const stepTitles: Record<Step, string> = {
+  'process-explanation': 'Building your takedown letter',
   'platform-selection': 'Select a platform',
   'removal-process': 'Review removal process',
-  'initial-questions': 'Tell us about the content',
+  'initial-questions': 'Initial content questions',
   'reporting-details': 'Previous reporting details',
-  'follow-up': 'Additional details',
+  'follow-up': 'Supporting questions',
   generation: 'Creating your letter',
   review: 'Review and send',
 };
 
 const stepDescriptions: Record<Step, string> = {
+  'process-explanation': `We'll guide you through the process of creating an effective takedown request letter.`,
   'platform-selection': 'Select the platform where the content is hosted',
   'removal-process': 'Review available reporting processes',
-  'initial-questions': 'Please share key details about the content',
-  'reporting-details': 'Tell us about your previous attempts to report this content',
-  'follow-up': 'Provide any additional details to strengthen your request',
+  'initial-questions':
+    'These questions help us understand your situation and create an effective takedown request. Your answers will be used to identify specific policy violations and strengthen your case.',
+  'reporting-details':
+    'Provide more information about your previous attempts to report this content and any communication with the platform.',
+  'follow-up':
+    'These questions highlight any additional details that may strengthen your request. These are optional but may help us create a more effective letter.',
   generation: 'Creating a professionally-written letter based on your responses',
-  review: 'Review your letter and prepare to send it',
+  review:
+    'Review your personalised letter and prepare to send it to the platform email address provided',
 };
 
 export default function LetterGenerator() {
   const router = useRouter();
-  const [currentStep, setCurrentStep] = useState<Step>('platform-selection');
+  const [currentStep, setCurrentStep] = useState<Step>('process-explanation');
   const [isLoading, setIsLoading] = useState(false);
   const { formState, updateCompleteFormData } = useFormContext();
   const [hasGeneratedLetter, setHasGeneratedLetter] = useState(false);
@@ -102,11 +110,19 @@ export default function LetterGenerator() {
   const getStepOrder = (): Step[] => {
     // Skip removal process for custom platforms
     if (formState.platformInfo?.isCustom) {
-      return ['platform-selection', 'initial-questions', 'follow-up', 'generation', 'review'];
+      return [
+        'process-explanation',
+        'platform-selection',
+        'initial-questions',
+        'follow-up',
+        'generation',
+        'review',
+      ];
     }
 
     return formState.reportingInfo?.status === 'none-completed'
       ? [
+          'process-explanation',
           'platform-selection',
           'removal-process',
           'initial-questions',
@@ -115,6 +131,7 @@ export default function LetterGenerator() {
           'review',
         ]
       : [
+          'process-explanation',
           'platform-selection',
           'removal-process',
           'initial-questions',
@@ -132,9 +149,9 @@ export default function LetterGenerator() {
 
   const getTotalSteps = () => {
     if (formState.platformInfo?.isCustom) {
-      return 5; // Skip removal process for custom platforms
+      return 6; // Skip removal process for custom platforms
     }
-    return formState.reportingInfo?.status === 'none-completed' ? 6 : 7;
+    return formState.reportingInfo?.status === 'none-completed' ? 7 : 8;
   };
 
   const handleBack = () => {
@@ -205,9 +222,9 @@ export default function LetterGenerator() {
           className="bg-neutral rounded-2xl p-6 sm:p-8 letter-generator-content"
         >
           <div className="space-y-6 sm:space-y-8">
-            {currentStep !== 'platform-selection' && (
+            {currentStep !== 'process-explanation' && (
               <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-8">
-                <Button variant="ghost" className="pill -ml-2 self-start" onClick={handleBack}>
+                <Button variant="ghost" className="pill -ml-2 self-start\" onClick={handleBack}>
                   <ArrowLeft className="w-4 h-4 mr-2" />
                   Back
                 </Button>
@@ -218,7 +235,7 @@ export default function LetterGenerator() {
               </div>
             )}
 
-            {currentStep === 'platform-selection' && (
+            {currentStep === 'process-explanation' && (
               <Button variant="ghost" className="pill -ml-2" onClick={handleBack}>
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Back
@@ -226,12 +243,13 @@ export default function LetterGenerator() {
             )}
 
             <div className="flex flex-col items-start">
-              <h1 className="text-2xl sm:text-3xl mb-2">{stepTitles[currentStep]}</h1>
-              <p className="text-muted-foreground">
-                {stepDescriptions[currentStep]}{' '}
-                {platformName && currentStep !== 'platform-selection' ? `for ${platformName}` : ''}
-              </p>
+              <h2 className="text-2xl sm:text-3xl mb-2">{stepTitles[currentStep]}</h2>
+              <p className="text-muted-foreground">{stepDescriptions[currentStep]} </p>
             </div>
+
+            {currentStep === 'process-explanation' && (
+              <ProcessExplanation onComplete={() => handleNext('platform-selection')} />
+            )}
 
             {currentStep === 'platform-selection' && (
               <PlatformSelection
@@ -269,12 +287,10 @@ export default function LetterGenerator() {
 
             {(currentStep === 'generation' || isRegenerating) && !generatedLetter && (
               <div className="flex flex-col items-center justify-center py-8 sm:py-12">
-                <div className="bg-accent-light/30 rounded-xl p-6 max-w-xl text-center">
+                <div className="bg-accent-light/50 rounded-xl p-6 max-w-xl text-center">
                   <Loader2 className="w-8 h-8 mx-auto mb-4 animate-spin text-primary" />
                   <h3 className="text-lg font-medium mb-2">
-                    {isRegenerating
-                      ? 'Regenerating your letter'
-                      : 'Creating your personalised letter'}
+                    {isRegenerating ? 'Regenerating your letter' : 'Creating your letter'}
                   </h3>
                   <p className="text-muted-foreground">
                     We're using AI to craft a professionally-written takedown request based on your

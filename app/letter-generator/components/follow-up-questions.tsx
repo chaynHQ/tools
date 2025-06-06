@@ -12,12 +12,11 @@ import { rollbar } from '@/lib/rollbar';
 import { FollowUpQuestion } from '@/types/questions';
 import { AnimatePresence, motion } from 'framer-motion';
 import { AlertCircle, Loader2 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
 import { VoiceInput } from './voice-input';
 
-// Common languages that might be used
 const SUPPORTED_LANGUAGES = [
   'en-US',
   'es-ES',
@@ -58,16 +57,16 @@ export function FollowUpQuestions({
   const { toast } = useToast();
   const { formState, setFollowUpData } = useFormContext();
   const hasQuestionsInContext = formState.followUpData.questions.length > 0;
+  const initializationRef = useRef(false);
 
   const { transcript, listening, resetTranscript, browserSupportsSpeechRecognition } =
     useSpeechRecognition();
 
-  // Initialize questions from context or fetch new ones
   useEffect(() => {
-    if (hasInitialized || !initialData || isLoading) return;
+    if (initializationRef.current || !initialData || isLoading) return;
+    initializationRef.current = true;
 
     const initializeQuestions = async () => {
-      // Use cached questions if available
       if (hasQuestionsInContext) {
         setFollowUpQuestions(formState.followUpData.questions);
         setIsLoading(false);
@@ -123,17 +122,15 @@ export function FollowUpQuestions({
     setFollowUpData,
     savedData,
     toast,
-    hasInitialized,
+    isLoading,
   ]);
 
-  // Reset form with saved data when available
   useEffect(() => {
     if (savedData && Object.keys(savedData).length > 0) {
       reset(savedData);
     }
   }, [savedData, reset]);
 
-  // Update field value when speech transcript changes
   useEffect(() => {
     if (transcript && activeField) {
       setValue(activeField, transcript);
@@ -217,11 +214,11 @@ export function FollowUpQuestions({
   if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center py-12">
-        <div className="bg-accent-light/30 rounded-xl p-6 max-w-xl text-center">
+        <div className="bg-accent-light/50 rounded-xl p-6 max-w-xl text-center">
           <Loader2 className="w-8 h-8 mx-auto mb-4 animate-spin text-primary" />
           <h3 className="text-lg font-medium mb-2">Analysing your responses</h3>
           <p className="text-muted-foreground">
-            We're using AI to analyse your responses and generate relevant follow-up questions to
+            We're using AI to analyse your responses and generate relevant supporting questions to
             help strengthen your takedown request.
           </p>
         </div>
@@ -234,7 +231,7 @@ export function FollowUpQuestions({
       <div className="flex flex-col items-center justify-center py-12">
         <div className="bg-accent-light/50 rounded-xl p-6 max-w-xl text-center">
           <AlertCircle className="w-8 h-8 mx-auto mb-4 text-primary" />
-          <h3 className="text-lg font-medium mb-2">Unable to generate follow-up questions</h3>
+          <h3 className="text-lg font-medium mb-2">Unable to generate supporting questions</h3>
           <p className="text-muted-foreground mb-6">
             We're having trouble connecting to our AI service. You can proceed with generating your
             letter.
@@ -271,8 +268,6 @@ export function FollowUpQuestions({
 
   return (
     <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-8">
-      <h3 className="text-xl font-medium">Additional information</h3>
-
       <div className="space-y-8">
         <AnimatePresence initial={false}>
           {followUpQuestions.map((question) => (
@@ -281,7 +276,7 @@ export function FollowUpQuestions({
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
-              className="space-y-2"
+              className="space-y-4"
             >
               <div className="space-y-2">
                 <Label htmlFor={question.id} className="text-lg font-medium">

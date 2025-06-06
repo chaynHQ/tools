@@ -10,6 +10,7 @@ import { GA_EVENTS } from '@/lib/constants/analytics';
 import { useFormContext } from '@/lib/context/FormContext';
 import { rollbar } from '@/lib/rollbar';
 import { isValidUrl } from '@/lib/utils';
+import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
@@ -150,7 +151,6 @@ export function InitialQuestions({ onComplete }: InitialQuestionsProps) {
         resetTranscript();
         setActiveField(null);
 
-        // Track successful voice input completion
         analytics.trackEvent(GA_EVENTS.TDLG_VOICE_INPUT_USED, {
           field,
           success: true,
@@ -159,7 +159,6 @@ export function InitialQuestions({ onComplete }: InitialQuestionsProps) {
       } else {
         setActiveField(field);
         resetTranscript();
-        // Try to detect user's browser language, fallback to English
         const browserLang = navigator.language;
         const supportedLang =
           SUPPORTED_LANGUAGES.find((lang) =>
@@ -178,7 +177,6 @@ export function InitialQuestions({ onComplete }: InitialQuestionsProps) {
         field,
       });
 
-      // Track failed voice input attempt
       analytics.trackEvent(GA_EVENTS.TDLG_VOICE_INPUT_USED, {
         field,
         success: false,
@@ -198,11 +196,9 @@ export function InitialQuestions({ onComplete }: InitialQuestionsProps) {
     try {
       analytics.trackEvent(GA_EVENTS.TDLG_INITIAL_QUESTIONS_CONTINUE_CLICKED);
 
-      // Create imageIdentification from either URL or description
       const imageIdentification =
         data.contentLocationType === 'url' ? data.contentUrl : data.contentDescription;
 
-      // Create clean data object with single content location field
       const cleanData = {
         contentType: data.contentType,
         contentContext: data.contentContext,
@@ -238,156 +234,163 @@ export function InitialQuestions({ onComplete }: InitialQuestionsProps) {
 
   return (
     <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-12">
-      <QuestionSection title="Content information">
-        <p className="text-muted-foreground mb-8">
-          The first three questions help us understand your situation and create an effective
-          takedown request. Your answers will be used to identify specific policy violations and
-          strengthen your case.
-        </p>
-
-        <div className="space-y-8">
-          <div className="space-y-3">
-            <Label className="text-lg font-medium">What type of content was shared?*</Label>
-            <div className="grid grid-cols-2 gap-3">
-              <Controller
-                name="contentType"
-                control={control}
-                rules={{ required: true }}
-                render={({ field }) => (
-                  <>
-                    {contentTypes.map((type) => (
-                      <SelectableCard
-                        key={type.value}
-                        value={type.value}
-                        label={type.label}
-                        description={type.description}
-                        selected={field.value === type.value}
-                        onClick={() => field.onChange(type.value)}
-                      />
-                    ))}
-                  </>
-                )}
-              />
-            </div>
-            {errors.contentType && (
-              <p className="text-sm text-destructive">
-                Knowing the type of content helps us identify which platform policies have been
-                violated and how to best support your request.
-              </p>
-            )}
-          </div>
-
-          <div className="space-y-3">
-            <Label className="text-lg font-medium">How was the content shared?*</Label>
-            <div className="grid grid-cols-2 gap-3">
-              <Controller
-                name="contentContext"
-                control={control}
-                rules={{ required: true }}
-                render={({ field }) => (
-                  <>
-                    {contentContexts.map((context) => (
-                      <SelectableCard
-                        key={context.value}
-                        value={context.value}
-                        label={context.label}
-                        description={context.description}
-                        selected={field.value === context.value}
-                        onClick={() => field.onChange(context.value)}
-                      />
-                    ))}
-                  </>
-                )}
-              />
-            </div>
-            {errors.contentContext && (
-              <p className="text-sm text-destructive">
-                Understanding how the content was shared helps us address specific privacy
-                violations in your takedown request.
-              </p>
-            )}
-          </div>
-
-          <div className="space-y-4">
-            <Label className="text-lg font-medium">Where can the content be found?*</Label>
-            <div className="space-y-4">
-              <div className="flex gap-4">
-                <label className="flex items-center">
-                  <input
-                    type="radio"
-                    {...register('contentLocationType')}
-                    value="url"
-                    className="mr-2"
-                  />
-                  I have the URL
-                </label>
-                <label className="flex items-center">
-                  <input
-                    type="radio"
-                    {...register('contentLocationType')}
-                    value="description"
-                    className="mr-2"
-                  />
-                  I need to describe the location
-                </label>
+      <QuestionSection>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="space-y-8"
+        >
+          <div className="space-y-8">
+            <div className="space-y-3">
+              <Label className="text-lg font-medium">What type of content was shared?*</Label>
+              <div className="grid grid-cols-2 gap-3 mt-4">
+                <Controller
+                  name="contentType"
+                  control={control}
+                  rules={{ required: true }}
+                  render={({ field }) => (
+                    <>
+                      {contentTypes.map((type) => (
+                        <SelectableCard
+                          key={type.value}
+                          value={type.value}
+                          label={type.label}
+                          description={type.description}
+                          selected={field.value === type.value}
+                          onClick={() => field.onChange(type.value)}
+                        />
+                      ))}
+                    </>
+                  )}
+                />
               </div>
-
-              {contentLocationType === 'url' ? (
-                <div className="space-y-2">
-                  <Input
-                    id="contentUrl"
-                    type="text"
-                    {...register('contentUrl', {
-                      required: 'Please provide the URL where the content can be found',
-                      validate: {
-                        isValidUrl: (value) =>
-                          isValidUrl(value || '') || 'Please enter a valid URL',
-                      },
-                    })}
-                    placeholder="facebook.com/content or https://www.facebook.com/content"
-                    className="bg-white focus:ring-accent focus:border-accent"
-                  />
-                  {errors.contentUrl && (
-                    <p className="text-sm text-destructive">{errors.contentUrl.message}</p>
-                  )}
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  <div className="flex items-start gap-3">
-                    {browserSupportsSpeechRecognition && (
-                      <VoiceInput
-                        isListening={listening && activeField === 'contentDescription'}
-                        onToggle={() => handleVoiceInput('contentDescription')}
-                        className="mt-2"
-                      />
-                    )}
-                    <div className="flex-1">
-                      <Textarea
-                        id="contentDescription"
-                        {...register('contentDescription', {
-                          required: 'Please describe where the content can be found',
-                        })}
-                        placeholder="For example: 'The content appears in posts by the user @username' or 'The content is in an album titled...'"
-                        className={textareaClasses}
-                        rows={4}
-                        dir="auto"
-                        lang={navigator.language}
-                        spellCheck="false"
-                      />
-                    </div>
-                  </div>
-                  {errors.contentDescription && (
-                    <p className="text-sm text-destructive">{errors.contentDescription.message}</p>
-                  )}
-                </div>
+              {errors.contentType && (
+                <p className="text-sm text-destructive">
+                  Knowing the type of content helps us identify which platform policies have been
+                  violated and how to best support your request.
+                </p>
               )}
             </div>
+
+            <div className="space-y-3">
+              <Label className="text-lg font-medium">How was the content shared?*</Label>
+              <div className="grid grid-cols-2 gap-3 mt-4">
+                <Controller
+                  name="contentContext"
+                  control={control}
+                  rules={{ required: true }}
+                  render={({ field }) => (
+                    <>
+                      {contentContexts.map((context) => (
+                        <SelectableCard
+                          key={context.value}
+                          value={context.value}
+                          label={context.label}
+                          description={context.description}
+                          selected={field.value === context.value}
+                          onClick={() => field.onChange(context.value)}
+                        />
+                      ))}
+                    </>
+                  )}
+                />
+              </div>
+              {errors.contentContext && (
+                <p className="text-sm text-destructive">
+                  Understanding how the content was shared helps us address specific privacy
+                  violations in your takedown request.
+                </p>
+              )}
+            </div>
+
+            <div className="space-y-4">
+              <Label className="text-lg font-medium">Where can the content be found?*</Label>
+              <div className="space-y-4 mt-4">
+                <div className="flex gap-4">
+                  <label className="flex items-center">
+                    <input
+                      type="radio"
+                      {...register('contentLocationType')}
+                      value="url"
+                      className="mr-2"
+                    />
+                    I have the URL
+                  </label>
+                  <label className="flex items-center">
+                    <input
+                      type="radio"
+                      {...register('contentLocationType')}
+                      value="description"
+                      className="mr-2"
+                    />
+                    I need to describe the location
+                  </label>
+                </div>
+
+                {contentLocationType === 'url' ? (
+                  <div className="space-y-2">
+                    <Input
+                      id="contentUrl"
+                      type="text"
+                      {...register('contentUrl', {
+                        required: 'Please provide the URL where the content can be found',
+                        validate: {
+                          isValidUrl: (value) =>
+                            isValidUrl(value || '') || 'Please enter a valid URL',
+                        },
+                      })}
+                      placeholder="facebook.com/content or https://www.facebook.com/content"
+                      className="bg-white focus:ring-accent focus:border-accent"
+                    />
+                    {errors.contentUrl && (
+                      <p className="text-sm text-destructive">{errors.contentUrl.message}</p>
+                    )}
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <div className="flex items-start gap-3">
+                      {browserSupportsSpeechRecognition && (
+                        <VoiceInput
+                          isListening={listening && activeField === 'contentDescription'}
+                          onToggle={() => handleVoiceInput('contentDescription')}
+                          className="mt-2"
+                        />
+                      )}
+                      <div className="flex-1">
+                        <Textarea
+                          id="contentDescription"
+                          {...register('contentDescription', {
+                            required: 'Please describe where the content can be found',
+                          })}
+                          placeholder="For example: 'The content appears in posts by the user @username' or 'The content is in an album titled...'"
+                          className={textareaClasses}
+                          rows={4}
+                          dir="auto"
+                          lang={navigator.language}
+                          spellCheck="false"
+                        />
+                      </div>
+                    </div>
+                    {errors.contentDescription && (
+                      <p className="text-sm text-destructive">
+                        {errors.contentDescription.message}
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
-        </div>
+        </motion.div>
       </QuestionSection>
 
-      <QuestionSection title="Timeline">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <QuestionSection>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="grid grid-cols-1 md:grid-cols-2 gap-6"
+        >
           <div className="space-y-2">
             <Label htmlFor="imageUploadDate" className="text-lg font-medium">
               When was the content uploaded?
@@ -445,11 +448,16 @@ export function InitialQuestions({ onComplete }: InitialQuestionsProps) {
               </div>
             </div>
           </div>
-        </div>
+        </motion.div>
       </QuestionSection>
 
-      <QuestionSection title="Verification">
-        <div className="space-y-2">
+      <QuestionSection>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="space-y-2"
+        >
           <Label htmlFor="ownershipEvidence" className="text-lg font-medium">
             How can you verify this content is of you?
           </Label>
@@ -477,11 +485,16 @@ export function InitialQuestions({ onComplete }: InitialQuestionsProps) {
               />
             </div>
           </div>
-        </div>
+        </motion.div>
       </QuestionSection>
 
-      <QuestionSection title="Impact">
-        <div className="space-y-2">
+      <QuestionSection>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="space-y-2"
+        >
           <Label htmlFor="impactStatement" className="text-lg font-medium">
             How is this affecting you?
           </Label>
@@ -510,14 +523,19 @@ export function InitialQuestions({ onComplete }: InitialQuestionsProps) {
               />
             </div>
           </div>
-        </div>
+        </motion.div>
       </QuestionSection>
 
-      <div className="flex justify-end">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.4 }}
+        className="flex justify-end"
+      >
         <Button type="submit" className="pill bg-primary text-white hover:opacity-90">
           Continue
         </Button>
-      </div>
+      </motion.div>
     </form>
   );
 }
