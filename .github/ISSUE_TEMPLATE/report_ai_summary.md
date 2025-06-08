@@ -1,15 +1,25 @@
 ---
-name: Report AI Summary Results
-about: Report AI Summary Results
+name: Report Problematic AI Summary Results
+about: Report Problematic AI Summary Results
 title: ''
 labels: ''
 assignees: ''
 ---
 
-### Share the AI summary results
+Chayn values your feedback and helps us improve. Thank you for submitting!
 
-### Explain what is wrong with the AI summary
+### Which part of the output felt off to you? (Required)
 
-Is it incorrect, poorly formatted, off-topic, etc.?
+Paste the excerpt or describe in own words.
 
-### Ideas for how it can be improved? (Optional)
+### Select why this output felt off (Required)
+
+Select one or more options:
+
+- [ ] Incorrect tone used
+- [ ] Poorly formatted
+- [ ] Made incorrect assumptions about your situation
+- [ ] Incorrect facts or citations used
+- [ ] Other - Please explain:
+
+### Share the generated letter (Optional)
