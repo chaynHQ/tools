@@ -46,7 +46,7 @@ export async function POST(request: Request) {
     });
 
     // Send questions to Zapier if webhook URL is configured
-    if (process.env.NEXT_PUBLIC_ZAPIER_FOLLOWUP_WEBHOOK_URL) {
+    if (process.env.ZAPIER_FOLLOWUP_WEBHOOK_URL) {
       const zapierPayload = {
         date: new Date().toISOString(),
         Q1: questions[0]?.question || '',
@@ -57,7 +57,7 @@ export async function POST(request: Request) {
         Q6: questions[5]?.question || '',
       };
 
-      await sendToZapier(process.env.NEXT_PUBLIC_ZAPIER_FOLLOWUP_WEBHOOK_URL, zapierPayload);
+      await sendToZapier(process.env.ZAPIER_FOLLOWUP_WEBHOOK_URL, zapierPayload);
     }
 
     return NextResponse.json(questions);
