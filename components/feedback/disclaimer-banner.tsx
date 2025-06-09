@@ -39,7 +39,7 @@ export function DisclaimerBanner() {
             It's safe to use, but if you encounter anything confusing or that doesn't work as
             expected, please{' '}
             <Link
-              href={process.env.NEXT_PUBLIC_TYPEFORM_FEEDBACK_URL || '#'}
+              href={process.env.TYPEFORM_FEEDBACK_URL || '#'}
               target="_blank"
               onClick={handleFeedbackClick}
               className="text-muted-foreground underline underline-offset-2 font-medium"

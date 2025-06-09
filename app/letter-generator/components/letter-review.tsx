@@ -17,6 +17,7 @@ import { useToast } from '@/hooks/use-toast';
 import { analytics } from '@/lib/analytics';
 import { GA_EVENTS } from '@/lib/constants/analytics';
 import { useFormContext } from '@/lib/context/FormContext';
+import { sendDevDataToZapier } from '@/lib/dev/data-collection';
 import { platforms } from '@/lib/platforms';
 import { rollbar } from '@/lib/rollbar';
 import { GeneratedLetter } from '@/types/letter';
@@ -32,7 +33,7 @@ import {
   ThumbsUp,
 } from 'lucide-react';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { QuestionSection } from './question-section';
 
 interface LetterReviewProps {
@@ -56,6 +57,9 @@ export function LetterReview({
   const [feedbackError, setFeedbackError] = useState<string | null>(null);
   const [consentToShare, setConsentToShare] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [devDataSent, setDevDataSent] = useState(false);
+  const [sessionId, setSessionId] = useState<string>('');
+  const [processStartTime] = useState(() => Date.now());
   const { toast } = useToast();
   const { resetForm, formState } = useFormContext();
 
@@ -76,6 +80,45 @@ export function LetterReview({
     body: letter.body.replace(/\[Content Location\]/g, contentLocation || ''),
     nextSteps: letter.nextSteps,
   };
+
+  // Send development data to Zapier when letter is first displayed
+  useEffect(() => {
+    if (!devDataSent && letter && formState.completeFormData) {
+      const sendData = async () => {
+        try {
+          const completionTime = Math.floor((Date.now() - processStartTime) / 1000);
+          const generatedSessionId = `dev_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`;
+
+          const success = await sendDevDataToZapier({
+            formData: {
+              platformInfo: formState.platformInfo,
+              reportingInfo: formState.reportingInfo,
+              initialQuestions: formState.initialQuestions,
+              reportingDetails: formState.reportingDetails,
+              followUpData: formState.followUpData,
+              completeFormData: formState.completeFormData,
+            },
+            generatedLetter: letter,
+            sessionId: generatedSessionId,
+            completionTimeSeconds: completionTime,
+          });
+
+          if (success) {
+            setDevDataSent(true);
+            setSessionId(generatedSessionId);
+            console.log(
+              'Development data collection: Data sent successfully with session ID:',
+              generatedSessionId,
+            );
+          }
+        } catch (error) {
+          console.error('Development data collection: Failed to send data', error);
+        }
+      };
+
+      sendData();
+    }
+  }, [letter, formState, devDataSent, processStartTime]);
 
   const handleCopy = async () => {
     try {
@@ -150,10 +193,6 @@ export function LetterReview({
       setIsSubmitting(true);
       setFeedbackError(null);
 
-      if (!process.env.NEXT_PUBLIC_ZAPIER_FEEDBACK_WEBHOOK_URL) {
-        throw new Error('Unable to submit feedback at this time');
-      }
-
       const payload = {
         date: new Date().toISOString(),
         feedbackRating: isUseful ? 'positive' : 'negative',
@@ -199,6 +238,22 @@ export function LetterReview({
     }
   };
 
+  const copySessionId = async () => {
+    try {
+      await navigator.clipboard.writeText(sessionId);
+      toast({
+        title: 'Session ID copied',
+        description: 'The session ID has been copied to your clipboard.',
+      });
+    } catch (err) {
+      toast({
+        title: 'Unable to copy',
+        description: 'Please select and copy the session ID manually.',
+        variant: 'destructive',
+      });
+    }
+  };
+
   return (
     <div className="space-y-8">
       <QuestionSection>
@@ -217,6 +272,54 @@ export function LetterReview({
               </p>
             </div>
           </div>
+
+          {/* Development data collection indicator */}
+          {process.env.NEXT_PUBLIC_ENV === 'development' && (
+            <div className="bg-blue-50 border-2 border-blue-300 rounded-lg p-4 mb-6">
+              <div className="flex items-start gap-3">
+                <CheckCircle2 className="w-6 h-6 mt-0.5 shrink-0 text-blue-600" />
+                <div className="flex-1">
+                  <h4 className="font-semibold text-blue-900 text-lg mb-2">Development Mode</h4>
+                  <p className="text-blue-800 mb-3">
+                    Your form data and generated letter have been stored to help us improve our
+                    tool.
+                  </p>
+                  {sessionId && (
+                    <div className="bg-white border border-blue-200 rounded-lg p-3">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-medium text-blue-900 mb-1">Your Session ID:</p>
+                          <code className="text-lg font-mono bg-blue-100 px-3 py-2 rounded border text-blue-900 font-bold tracking-wider">
+                            {sessionId}
+                          </code>
+                        </div>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={copySessionId}
+                          className="ml-3 border-blue-300 text-blue-700 hover:bg-blue-50"
+                        >
+                          <Copy className="w-4 h-4 mr-1" />
+                          Copy
+                        </Button>
+                      </div>
+                      <p className="text-xs text-blue-600 mt-2">
+                        Save this ID to reference your submission in our development records.
+                      </p>
+                    </div>
+                  )}
+                  {!sessionId && devDataSent && (
+                    <p className="text-blue-700 text-sm">
+                      Data sent successfully. Session ID will appear shortly.
+                    </p>
+                  )}
+                  {!devDataSent && (
+                    <p className="text-blue-700 text-sm">Sending data to development system...</p>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
 
           <div className="space-y-4">
             <div>
@@ -330,7 +433,7 @@ export function LetterReview({
                         experience, you help us make this tool more supportive for others in similar
                         situations. If you would like to provide more detailed feedback, please{' '}
                         <Link
-                          href={process.env.NEXT_PUBLIC_TYPEFORM_FEEDBACK_URL || '#'}
+                          href={process.env.TYPEFORM_FEEDBACK_URL || '#'}
                           target="_blank"
                           onClick={() => analytics.trackFeedbackSubmission('typeform')}
                           className="underline underline-offset-2 font-medium hover:text-primary/90"
@@ -414,7 +517,7 @@ export function LetterReview({
             This tool is new and learning! By sharing your experience, you help us make this tool
             more supportive for others in similar situations.{' '}
             <Link
-              href={process.env.NEXT_PUBLIC_TYPEFORM_FEEDBACK_URL || '#'}
+              href={process.env.TYPEFORM_FEEDBACK_URL || '#'}
               target="_blank"
               onClick={() => analytics.trackFeedbackSubmission('typeform')}
               className="underline underline-offset-2 font-medium hover:text-primary/90"
