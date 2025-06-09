@@ -5,12 +5,12 @@ import { NextResponse } from 'next/server';
 export async function POST(request: Request) {
   rollbar.info('feedback: Received feedback submission');
   try {
-    if (!process.env.NEXT_PUBLIC_ZAPIER_FEEDBACK_WEBHOOK_URL) {
+    if (!process.env.ZAPIER_FEEDBACK_WEBHOOK_URL) {
       return NextResponse.json({ error: 'Zapier webhook URL not configured' }, { status: 500 });
     }
 
     const body = await request.json();
-    await sendToZapier(process.env.NEXT_PUBLIC_ZAPIER_FEEDBACK_WEBHOOK_URL, body);
+    await sendToZapier(process.env.ZAPIER_FEEDBACK_WEBHOOK_URL, body);
 
     return NextResponse.json({ success: true });
   } catch (error: any) {

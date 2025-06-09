@@ -51,8 +51,8 @@ export async function POST(request: Request) {
     const qualityCheckResult = await retryWithDelay(generateQualityCheck);
 
     // Send critical issues to Zapier if webhook URL is configured
-    // if (qualityCheckResult.severity === 'critical' && process.env.NEXT_PUBLIC_ZAPIER_QUALITY_WEBHOOK_URL) {
-    if (process.env.NEXT_PUBLIC_ZAPIER_QUALITY_WEBHOOK_URL) {
+    // if (qualityCheckResult.severity === 'critical' && process.env.ZAPIER_QUALITY_WEBHOOK_URL) {
+    if (process.env.ZAPIER_QUALITY_WEBHOOK_URL) {
       const zapierPayload = {
         date: new Date().toISOString(),
         issue1: qualityCheckResult.issues[0]
@@ -75,7 +75,7 @@ export async function POST(request: Request) {
           : '',
       };
 
-      await sendToZapier(process.env.NEXT_PUBLIC_ZAPIER_QUALITY_WEBHOOK_URL, zapierPayload);
+      await sendToZapier(process.env.ZAPIER_QUALITY_WEBHOOK_URL, zapierPayload);
     }
 
     rollbar.info('QualityCheckLetter: Successfully parsed quality check result', {
