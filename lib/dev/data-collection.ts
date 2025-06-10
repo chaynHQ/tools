@@ -1,3 +1,4 @@
+import { randomBytes } from 'crypto';
 import { IS_DEVELOPMENT } from '../constants/common';
 import { rollbar } from '../rollbar';
 
@@ -48,8 +49,7 @@ export async function sendDevDataToZapier(payload: DevDataCollectionPayload): Pr
   }
 }
 
-function generateSessionId(): string {
-  return `dev_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`;
+export function generateSessionId(): string {
+  // Generate a timestamp for session code
+  return randomBytes(6).toString('hex'); // Generate a secure random string
 }
-
-export { IS_DEVELOPMENT };

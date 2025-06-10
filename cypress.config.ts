@@ -1,4 +1,6 @@
 import { defineConfig } from 'cypress';
+import * as dotenv from 'dotenv';
+dotenv.config(); // <-- This loads .env into process.env
 
 export default defineConfig({
   e2e: {
@@ -9,5 +11,6 @@ export default defineConfig({
     video: false,
     screenshotOnRunFailure: false,
     experimentalWebKitSupport: true,
+    requestTimeout: 10000,
   },
 });

@@ -1,6 +1,9 @@
 describe('Tiktok Platform Flow', () => {
   before(() => {
     cy.visit('/');
+
+    // Dismiss development warning if it appears
+    cy.dismissDevWarning();
   });
 
   it('starts the request and navigates to the letter generator', () => {

@@ -60,15 +60,9 @@ export function DevelopmentWarning() {
             <div className="bg-amber-100 p-2 rounded-full">
               <AlertTriangle className="h-5 w-5 text-amber-600" />
             </div>
-            <DialogTitle className="text-lg">
-              Development Version - Data Collection Notice
-            </DialogTitle>
+            <DialogTitle className="text-lg">Testing mode - remember we save data</DialogTitle>
           </div>
           <div className="text-left space-y-4 text-sm">
-            <p className="font-medium text-foreground">
-              You're currently using the development version of our Survivor AI tool.
-            </p>
-
             <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
               <p className="font-medium text-amber-800 mb-2">What this means:</p>
               <ul className="text-amber-700 space-y-1 text-xs">
@@ -82,14 +76,12 @@ export function DevelopmentWarning() {
             <div className="bg-green-50 border border-green-200 rounded-lg p-3">
               <p className="font-medium text-green-800 mb-1">Want complete privacy?</p>
               <p className="text-green-700 text-xs">
-                Use our production site at <span className="font-mono">tools.chayn.co</span> where
-                no data is stored or collected.
+                Use our user-facing site at tools.chayn.co where no data is stored.
+              </p>
+              <p className="text-green-700 text-xs mt-2">
+                By continuing, you consent to data collection for development purposes only.
               </p>
             </div>
-
-            <p className="text-xs text-muted-foreground">
-              By continuing, you consent to data collection for development purposes only.
-            </p>
           </div>
         </DialogHeader>
         <DialogFooter className="flex-col sm:flex-row gap-2">
@@ -98,14 +90,13 @@ export function DevelopmentWarning() {
             onClick={handleGoToProduction}
             className="w-full sm:w-auto border-green-300 text-green-700 hover:bg-green-50"
           >
-            <ExternalLink className="w-4 h-4 mr-2" />
-            Use Production Site (Private)
+            <ExternalLink className="w-4 h-4 mr-2" />I prefer privacy
           </Button>
           <Button
             onClick={handleAcknowledge}
             className="w-full sm:w-auto bg-primary text-white hover:opacity-90"
           >
-            Continue with Development
+            Happy to help
           </Button>
         </DialogFooter>
       </DialogContent>
