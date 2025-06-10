@@ -1,6 +1,8 @@
 describe('Other Platform Flow', () => {
   before(() => {
     cy.visit('/');
+    // Dismiss development warning if it appears
+    cy.dismissDevWarning();
   });
 
   it('completes flow for Other Platforms', () => {

@@ -17,7 +17,7 @@ import { useToast } from '@/hooks/use-toast';
 import { analytics } from '@/lib/analytics';
 import { GA_EVENTS } from '@/lib/constants/analytics';
 import { useFormContext } from '@/lib/context/FormContext';
-import { sendDevDataToZapier } from '@/lib/dev/data-collection';
+import { generateSessionId, sendDevDataToZapier } from '@/lib/dev/data-collection';
 import { platforms } from '@/lib/platforms';
 import { rollbar } from '@/lib/rollbar';
 import { GeneratedLetter } from '@/types/letter';
@@ -87,7 +87,7 @@ export function LetterReview({
       const sendData = async () => {
         try {
           const completionTime = Math.floor((Date.now() - processStartTime) / 1000);
-          const generatedSessionId = `dev_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`;
+          const generatedSessionId = generateSessionId();
 
           const success = await sendDevDataToZapier({
             formData: {
@@ -262,6 +262,36 @@ export function LetterReview({
           animate={{ opacity: 1, y: 0 }}
           className="space-y-6"
         >
+          {/* Development data collection indicator */}
+          {process.env.NEXT_PUBLIC_ENV === 'development' && (
+            <div className="flex items-start gap-3 p-4 bg-accent-light/60 rounded-lg text-muted-foreground mb-4">
+              <AlertCircle className="w-5 h-5 mt-0.5 shrink-0" />
+              <div>
+                <p className="text-foreground font-medium">Testing mode</p>
+                <p className="text-sm">Copy this ID to quote it when giving us feedback</p>
+                {sessionId && (
+                  <div className="mt-3 flex items-center gap-3">
+                    <code className="text-lg font-mono bg-white px-4 py-2 rounded border text-foreground font-bold tracking-widest">
+                      {sessionId}
+                    </code>
+                    <Button variant="outline" size="sm" onClick={copySessionId} className="text-xs">
+                      <Copy className="w-3 h-3 mr-1" />
+                      Copy
+                    </Button>
+                  </div>
+                )}
+                {!sessionId && devDataSent && (
+                  <p className="text-muted-foreground text-sm mt-2">
+                    Session ID will appear shortly.
+                  </p>
+                )}
+                {!devDataSent && (
+                  <p className="text-muted-foreground text-sm mt-2">Generating session ID...</p>
+                )}
+              </div>
+            </div>
+          )}
+
           <div className="flex items-start gap-3 p-4 bg-accent-light/60 rounded-lg text-muted-foreground mb-4">
             <AlertCircle className="w-5 h-5 mt-0.5 shrink-0" />
             <div>
@@ -272,54 +302,6 @@ export function LetterReview({
               </p>
             </div>
           </div>
-
-          {/* Development data collection indicator */}
-          {process.env.NEXT_PUBLIC_ENV === 'development' && (
-            <div className="bg-blue-50 border-2 border-blue-300 rounded-lg p-4 mb-6">
-              <div className="flex items-start gap-3">
-                <CheckCircle2 className="w-6 h-6 mt-0.5 shrink-0 text-blue-600" />
-                <div className="flex-1">
-                  <h4 className="font-semibold text-blue-900 text-lg mb-2">Development Mode</h4>
-                  <p className="text-blue-800 mb-3">
-                    Your form data and generated letter have been stored to help us improve our
-                    tool.
-                  </p>
-                  {sessionId && (
-                    <div className="bg-white border border-blue-200 rounded-lg p-3">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="text-sm font-medium text-blue-900 mb-1">Your Session ID:</p>
-                          <code className="text-lg font-mono bg-blue-100 px-3 py-2 rounded border text-blue-900 font-bold tracking-wider">
-                            {sessionId}
-                          </code>
-                        </div>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={copySessionId}
-                          className="ml-3 border-blue-300 text-blue-700 hover:bg-blue-50"
-                        >
-                          <Copy className="w-4 h-4 mr-1" />
-                          Copy
-                        </Button>
-                      </div>
-                      <p className="text-xs text-blue-600 mt-2">
-                        Save this ID to reference your submission in our development records.
-                      </p>
-                    </div>
-                  )}
-                  {!sessionId && devDataSent && (
-                    <p className="text-blue-700 text-sm">
-                      Data sent successfully. Session ID will appear shortly.
-                    </p>
-                  )}
-                  {!devDataSent && (
-                    <p className="text-blue-700 text-sm">Sending data to development system...</p>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
 
           <div className="space-y-4">
             <div>
