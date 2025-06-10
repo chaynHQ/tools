@@ -16,6 +16,7 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { analytics } from '@/lib/analytics';
 import { GA_EVENTS } from '@/lib/constants/analytics';
+import { IS_DEVELOPMENT } from '@/lib/constants/common';
 import { useFormContext } from '@/lib/context/FormContext';
 import { generateSessionId, sendDevDataToZapier } from '@/lib/dev/data-collection';
 import { platforms } from '@/lib/platforms';
@@ -263,7 +264,7 @@ export function LetterReview({
           className="space-y-6"
         >
           {/* Development data collection indicator */}
-          {process.env.NEXT_PUBLIC_ENV === 'development' && (
+          {IS_DEVELOPMENT && (
             <div className="flex items-start gap-3 p-4 bg-accent-light/60 rounded-lg text-muted-foreground mb-4">
               <AlertCircle className="w-5 h-5 mt-0.5 shrink-0" />
               <div>
