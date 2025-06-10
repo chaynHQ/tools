@@ -9,7 +9,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { analytics } from '@/lib/analytics';
-import { IS_DEVELOPMENT } from '@/lib/constants/common';
+import { IS_DEVELOPMENT, IS_PREVIEW } from '@/lib/constants/common';
 import { AlertTriangle, ExternalLink } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
@@ -18,7 +18,7 @@ export function DevelopmentWarning() {
 
   useEffect(() => {
     // Only show in development environment
-    if (!IS_DEVELOPMENT) return;
+    if (!IS_DEVELOPMENT && !IS_PREVIEW) return;
 
     // Check if user has already seen the warning
     const hasSeenWarning = localStorage.getItem('dev-warning-acknowledged');
@@ -48,7 +48,7 @@ export function DevelopmentWarning() {
     window.open('https://tools.chayn.co', '_blank');
   };
 
-  if (!IS_DEVELOPMENT || !showWarning) {
+  if ((!IS_DEVELOPMENT && !IS_PREVIEW) || !showWarning) {
     return null;
   }
 
