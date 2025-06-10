@@ -1,5 +1,5 @@
 import { randomBytes } from 'crypto';
-import { IS_DEVELOPMENT } from '../constants/common';
+import { IS_DEVELOPMENT, IS_PREVIEW } from '../constants/common';
 import { rollbar } from '../rollbar';
 
 interface DevDataCollectionPayload {
@@ -11,7 +11,7 @@ interface DevDataCollectionPayload {
 
 export async function sendDevDataToZapier(payload: DevDataCollectionPayload): Promise<boolean> {
   // Only send data in development environment
-  if (!IS_DEVELOPMENT) {
+  if (!IS_DEVELOPMENT && !IS_PREVIEW) {
     return false;
   }
 

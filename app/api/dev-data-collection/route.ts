@@ -1,3 +1,4 @@
+import { IS_DEVELOPMENT, IS_PREVIEW } from '@/lib/constants/common';
 import { handleApiError, serverInstance as rollbar } from '@/lib/rollbar';
 import { sendToZapier } from '@/lib/zapier';
 import { NextResponse } from 'next/server';
@@ -7,7 +8,7 @@ export async function POST(request: Request) {
 
   try {
     // Only allow in development environment
-    if (process.env.NEXT_PUBLIC_ENV !== 'development') {
+    if (!IS_DEVELOPMENT && !IS_PREVIEW) {
       rollbar.warning('dev-data-collection: Attempted to use in non-development environment');
       return NextResponse.json(
         { error: 'This endpoint is only available in development' },
