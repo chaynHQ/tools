@@ -112,33 +112,24 @@ export function ProcessExplanation({ onComplete }: { onComplete: () => void }) {
         <CollapsibleContent>
           <div className="px-6 pb-6 space-y-4">
             <div className="space-y-2 text-sm text-muted-foreground">
-              <p>
-                We use{' '}
-                <Link
-                  href="https://www.anthropic.com/legal/privacy"
-                  target="_blank"
-                  className="underline underline-offset-2 hover:text-primary/90"
-                >
-                  Anthropic's privacy-first AI
-                </Link>{' '}
-                to help create your letter. Your data is:
-              </p>
+              <p>We use Anthropic's privacy-first AI to help create your letter. Your data is:</p>
               <ul className="list-disc pl-4 space-y-1">
                 <li>Anonymised where possible before being sent to AI prompts</li>
-                <li>
-                  Never used to train AI models (
-                  <Link
-                    href="https://www.anthropic.com/legal/model-training-notice"
-                    target="_blank"
-                    className="underline underline-offset-2 hover:text-primary/90"
-                  >
-                    learn more
-                  </Link>
-                  )
-                </li>
+                <li>Never used to train AI models </li>
                 <li>Only stored by Anthropic for 30 days</li>
                 <li>Only stored by Chayn if you choose to share your letter for feedback</li>
                 <li>Your choice. Only share what you are comfortable with sharing</li>
+                <li>
+                  Visit our{' '}
+                  <Link
+                    href="https://www.notion.so/chayn/Transparency-Hub-207b1101e64f80d6a02bdc0b122f472f"
+                    target="_blank"
+                    className="underline underline-offset-2 hover:text-primary/90"
+                  >
+                    transparency hub
+                  </Link>{' '}
+                  to learn more about our safety and privacy commitments
+                </li>
               </ul>
             </div>
           </div>
