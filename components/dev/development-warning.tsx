@@ -11,6 +11,7 @@ import {
 import { analytics } from '@/lib/analytics';
 import { IS_DEVELOPMENT, IS_PREVIEW } from '@/lib/constants/common';
 import { AlertTriangle, ExternalLink } from 'lucide-react';
+import Link from 'next/link';
 import { useEffect, useState } from 'react';
 
 export function DevelopmentWarning() {
@@ -76,7 +77,15 @@ export function DevelopmentWarning() {
             <div className="bg-green-50 border border-green-200 rounded-lg p-3">
               <p className="font-medium text-green-800 mb-1">Want complete privacy?</p>
               <p className="text-green-700 text-xs">
-                Use our user-facing site at tools.chayn.co where no data is stored.
+                Use our user-facing site at{' '}
+                <Link
+                  href="https://tools.chayn.co"
+                  target="_blank"
+                  className="underline underline-offset-2 hover:text-primary/90"
+                >
+                  tools.chayn.co{' '}
+                </Link>{' '}
+                where no data is stored.
               </p>
               <p className="text-green-700 text-xs mt-2">
                 By continuing, you consent to data collection for development purposes only.
