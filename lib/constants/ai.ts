@@ -1,4 +1,4 @@
-export const MAX_RETRIES = 3;
+export const MAX_RETRIES = 2;
 export const RETRY_DELAY = 1000; // 1 second delay between retries
 
 // Static next steps that will be used for all letters
