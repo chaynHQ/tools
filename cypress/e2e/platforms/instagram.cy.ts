@@ -1,5 +1,7 @@
 function startInstagramFlow() {
   cy.visit('/');
+  // Dismiss development warning if it appears
+  cy.dismissDevWarning();
   cy.contains('Start your request').click();
   cy.get('h2').contains('Building your takedown letter');
   cy.contains('Start your request').click();

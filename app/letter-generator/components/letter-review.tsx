@@ -16,7 +16,9 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { analytics } from '@/lib/analytics';
 import { GA_EVENTS } from '@/lib/constants/analytics';
+import { IS_DEVELOPMENT, IS_PREVIEW } from '@/lib/constants/common';
 import { useFormContext } from '@/lib/context/FormContext';
+import { generateSessionId, sendDevDataToZapier } from '@/lib/dev/data-collection';
 import { platforms } from '@/lib/platforms';
 import { rollbar } from '@/lib/rollbar';
 import { GeneratedLetter } from '@/types/letter';
@@ -32,7 +34,7 @@ import {
   ThumbsUp,
 } from 'lucide-react';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { QuestionSection } from './question-section';
 
 interface LetterReviewProps {
@@ -56,6 +58,9 @@ export function LetterReview({
   const [feedbackError, setFeedbackError] = useState<string | null>(null);
   const [consentToShare, setConsentToShare] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [devDataSent, setDevDataSent] = useState(false);
+  const [sessionId, setSessionId] = useState<string>('');
+  const [processStartTime] = useState(() => Date.now());
   const { toast } = useToast();
   const { resetForm, formState } = useFormContext();
 
@@ -76,6 +81,45 @@ export function LetterReview({
     body: letter.body.replace(/\[Content Location\]/g, contentLocation || ''),
     nextSteps: letter.nextSteps,
   };
+
+  // Send development data to Zapier when letter is first displayed
+  useEffect(() => {
+    if (!devDataSent && letter && formState.completeFormData) {
+      const sendData = async () => {
+        try {
+          const completionTime = Math.floor((Date.now() - processStartTime) / 1000);
+          const generatedSessionId = generateSessionId();
+
+          const success = await sendDevDataToZapier({
+            formData: {
+              platformInfo: formState.platformInfo,
+              reportingInfo: formState.reportingInfo,
+              initialQuestions: formState.initialQuestions,
+              reportingDetails: formState.reportingDetails,
+              followUpData: formState.followUpData,
+              completeFormData: formState.completeFormData,
+            },
+            generatedLetter: letter,
+            sessionId: generatedSessionId,
+            completionTimeSeconds: completionTime,
+          });
+
+          if (success) {
+            setDevDataSent(true);
+            setSessionId(generatedSessionId);
+            console.log(
+              'Development data collection: Data sent successfully with session ID:',
+              generatedSessionId,
+            );
+          }
+        } catch (error) {
+          console.error('Development data collection: Failed to send data', error);
+        }
+      };
+
+      sendData();
+    }
+  }, [letter, formState, devDataSent, processStartTime]);
 
   const handleCopy = async () => {
     try {
@@ -150,10 +194,6 @@ export function LetterReview({
       setIsSubmitting(true);
       setFeedbackError(null);
 
-      if (!process.env.NEXT_PUBLIC_ZAPIER_FEEDBACK_WEBHOOK_URL) {
-        throw new Error('Unable to submit feedback at this time');
-      }
-
       const payload = {
         date: new Date().toISOString(),
         feedbackRating: isUseful ? 'positive' : 'negative',
@@ -199,6 +239,22 @@ export function LetterReview({
     }
   };
 
+  const copySessionId = async () => {
+    try {
+      await navigator.clipboard.writeText(sessionId);
+      toast({
+        title: 'Session ID copied',
+        description: 'The session ID has been copied to your clipboard.',
+      });
+    } catch (err) {
+      toast({
+        title: 'Unable to copy',
+        description: 'Please select and copy the session ID manually.',
+        variant: 'destructive',
+      });
+    }
+  };
+
   return (
     <div className="space-y-8">
       <QuestionSection>
@@ -207,6 +263,36 @@ export function LetterReview({
           animate={{ opacity: 1, y: 0 }}
           className="space-y-6"
         >
+          {/* Development data collection indicator */}
+          {(IS_DEVELOPMENT || IS_PREVIEW) && (
+            <div className="flex items-start gap-3 p-4 bg-accent-light/60 rounded-lg text-muted-foreground mb-4">
+              <AlertCircle className="w-5 h-5 mt-0.5 shrink-0" />
+              <div>
+                <p className="text-foreground font-medium">Testing mode</p>
+                <p className="text-sm">Copy this ID to quote it when giving us feedback</p>
+                {sessionId && (
+                  <div className="mt-3 flex items-center gap-3">
+                    <code className="text-lg font-mono bg-white px-4 py-2 rounded border text-foreground font-bold tracking-widest">
+                      {sessionId}
+                    </code>
+                    <Button variant="outline" size="sm" onClick={copySessionId} className="text-xs">
+                      <Copy className="w-3 h-3 mr-1" />
+                      Copy
+                    </Button>
+                  </div>
+                )}
+                {!sessionId && devDataSent && (
+                  <p className="text-muted-foreground text-sm mt-2">
+                    Session ID will appear shortly.
+                  </p>
+                )}
+                {!devDataSent && (
+                  <p className="text-muted-foreground text-sm mt-2">Generating session ID...</p>
+                )}
+              </div>
+            </div>
+          )}
+
           <div className="flex items-start gap-3 p-4 bg-accent-light/60 rounded-lg text-muted-foreground mb-4">
             <AlertCircle className="w-5 h-5 mt-0.5 shrink-0" />
             <div>
@@ -330,7 +416,7 @@ export function LetterReview({
                         experience, you help us make this tool more supportive for others in similar
                         situations. If you would like to provide more detailed feedback, please{' '}
                         <Link
-                          href={process.env.NEXT_PUBLIC_TYPEFORM_FEEDBACK_URL || '#'}
+                          href={process.env.TYPEFORM_FEEDBACK_URL || '#'}
                           target="_blank"
                           onClick={() => analytics.trackFeedbackSubmission('typeform')}
                           className="underline underline-offset-2 font-medium hover:text-primary/90"
@@ -414,7 +500,7 @@ export function LetterReview({
             This tool is new and learning! By sharing your experience, you help us make this tool
             more supportive for others in similar situations.{' '}
             <Link
-              href={process.env.NEXT_PUBLIC_TYPEFORM_FEEDBACK_URL || '#'}
+              href={process.env.TYPEFORM_FEEDBACK_URL || '#'}
               target="_blank"
               onClick={() => analytics.trackFeedbackSubmission('typeform')}
               className="underline underline-offset-2 font-medium hover:text-primary/90"
