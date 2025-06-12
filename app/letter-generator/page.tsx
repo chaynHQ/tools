@@ -299,7 +299,7 @@ export default function LetterGenerator() {
                   <p className="text-muted-foreground">
                     We're using AI to craft a professionally-written takedown request based on your
                     responses, ensuring it aligns with {platformName}'s content policies and removal
-                    processes.
+                    processes. <strong>This can take up to a minute.</strong>
                   </p>
                 </div>
               </div>

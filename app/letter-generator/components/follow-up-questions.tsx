@@ -219,7 +219,7 @@ export function FollowUpQuestions({
           <h3 className="text-lg font-medium mb-2">Analysing your responses</h3>
           <p className="text-muted-foreground">
             We're using AI to analyse your responses and generate relevant supporting questions to
-            help strengthen your takedown request.
+            help strengthen your takedown request. <strong>This can take up to a minute</strong>
           </p>
         </div>
       </div>
