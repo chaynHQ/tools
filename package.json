@@ -75,15 +75,15 @@
   },
   "devDependencies": {
     "@types/react-speech-recognition": "^3.9.6",
-    "@typescript-eslint/eslint-plugin": "^8.33.1",
+    "@typescript-eslint/eslint-plugin": "^8.34.0",
     "@typescript-eslint/parser": "^8.33.1",
     "cypress": "^14.4.1",
     "dotenv": "^16.5.0",
     "eslint-config-prettier": "^10.1.5",
     "husky": "^9.1.7",
-    "lint-staged": "^16.1.0",
+    "lint-staged": "^16.1.2",
     "prettier": "^3.5.3",
-    "vitest": "^3.2.2"
+    "vitest": "^3.2.3"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
