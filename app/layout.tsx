@@ -39,7 +39,7 @@ export const metadata: Metadata = {
     siteName: 'Survivor AI',
     images: [
       {
-        url: '/meta_image.png',
+        url: '/header_image.png',
         width: 1200,
         height: 630,
         alt: 'Survivor AI by Chayn',
@@ -50,7 +50,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    images: ['/meta_image.png'],
+    images: ['/header_image.png'],
     creator: '@ChaynHQ',
     creatorId: '1976769696',
   },
