@@ -24,15 +24,19 @@ const openSans = Open_Sans({
   preload: true,
 });
 
+const BASE_URL = 'https://tools.chayn.co';
+
 export const metadata: Metadata = {
+  metadataBase: new URL(BASE_URL),
   title: 'Survivor AI | Free AI-Powered Image Takedown Tool by Chayn',
   description:
     'Get free, confidential help removing non-consensual images online. Our AI-powered tool creates personalized takedown requests for major platforms, with step-by-step guidance and trauma-informed support.',
-  metadataBase: new URL('https://survivorai.chayn.co'),
+  applicationName: 'Survivor AI',
+  creator: 'Chayn',
+  publisher: 'Chayn',
   openGraph: {
-    title: 'Survivor AI | Free AI-Powered Image Takedown Tool by Chayn',
-    description:
-      'Get free, confidential help removing non-consensual images online. Our AI-powered tool creates personalized takedown requests for major platforms, with step-by-step guidance and trauma-informed support.',
+    url: BASE_URL,
+    siteName: 'Survivor AI',
     images: [
       {
         url: '/meta_image.png',
@@ -46,10 +50,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Survivor AI | Free AI-Powered Image Takedown Tool by Chayn',
-    description:
-      'Get free, confidential help removing non-consensual images online. Our AI-powered tool creates personalized takedown requests for major platforms, with step-by-step guidance and trauma-informed support.',
     images: ['/meta_image.png'],
+    creator: '@ChaynHQ',
+    creatorId: '1976769696',
   },
   robots: {
     index: IS_PRODUCTION,
