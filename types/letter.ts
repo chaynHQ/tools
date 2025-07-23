@@ -27,5 +27,5 @@ export interface LetterRequest {
 export interface GeneratedLetter {
   subject: string;
   body: string;
-  nextSteps: string[];
+  nextSteps?: string[];
 }

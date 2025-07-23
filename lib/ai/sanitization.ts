@@ -1,4 +1,4 @@
-import { PLACEHOLDER_TYPES, PROMPT_INJECTION_PATTERNS, SENSITIVE_TERMS } from '../constants/ai';
+import { PLACEHOLDER_TYPES, PROMPT_INJECTION_PATTERNS } from '../constants/ai';
 import { serverInstance as rollbar } from '../rollbar';
 
 // Store sanitized data mappings
@@ -159,29 +159,4 @@ export function desanitizeLetter(text: string, formId: string): string {
 // Clean up sanitization mappings
 export function cleanupSanitizationMap(formId: string): void {
   sanitizationMap.delete(formId);
-}
-
-// Check for major issues that require regeneration
-export function hasCriticalQualityIssues(letter: { subject: string; body: string }): boolean {
-  // Check for hallucination patterns
-  const hasHallucinations = SENSITIVE_TERMS.some(
-    (pattern) =>
-      letter.subject.toLowerCase().includes(pattern.term.toLowerCase()) ||
-      letter.body.toLowerCase().includes(pattern.term.toLowerCase()),
-  );
-
-  // Check for sensitive terms
-  const hasEvidenceTerms = SENSITIVE_TERMS.some(
-    (pattern) =>
-      pattern.term.toLocaleLowerCase().includes(letter.subject) ||
-      pattern.term.toLocaleLowerCase().includes(letter.body),
-  );
-
-  const hasSensitiveTerms = SENSITIVE_TERMS.some(
-    (pattern) =>
-      letter.subject.toLowerCase().includes(pattern.term.toLowerCase()) ||
-      letter.body.toLowerCase().includes(pattern.term.toLowerCase()),
-  );
-
-  return hasHallucinations || hasSensitiveTerms || hasEvidenceTerms;
 }

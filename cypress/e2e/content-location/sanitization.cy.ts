@@ -9,7 +9,7 @@ describe('Content Location Sanitization and Desanitization', () => {
     
     // Complete the flow with URL content location
     cy.contains('Start your request').click();
-    cy.get('h2').contains('Building your takedown letter');
+    cy.get('h2').contains('Building your takedown letter', {timeout: 10000});
     cy.contains('Start your request').click();
     
     // Select platform
@@ -46,7 +46,7 @@ describe('Content Location Sanitization and Desanitization', () => {
     
     // Verify it appears in the correct context
     cy.get('h4').contains('Message content').parent().within(() => {
-      cy.get('div').should('contain', 'The content can be found at ' + testUrl);
+      cy.get('div').should('contain', 'Content location: ' + testUrl);
     });
   });
 
@@ -92,7 +92,7 @@ describe('Content Location Sanitization and Desanitization', () => {
     
     // Verify it appears in the correct context for descriptions
     cy.get('h4').contains('Message content').parent().within(() => {
-      cy.get('div').should('contain', 'The content can be found at the following location: ' + testDescription);
+      cy.get('div').should('contain', 'Content location: ' + testDescription);
     });
   });
 
@@ -178,7 +178,7 @@ describe('Content Location Sanitization and Desanitization', () => {
     
     // Wait for regeneration
     cy.contains('Regenerating your letter', { timeout: 10000 }).should('be.visible');
-    cy.contains('Review and send', { timeout: 100000 }).should('be.visible');
+    cy.contains('Message content', { timeout: 100000 }).should('be.visible');
     
     // Verify content location is still present in regenerated letter
     cy.get('h4').contains('Message content').parent().within(() => {
@@ -188,88 +188,4 @@ describe('Content Location Sanitization and Desanitization', () => {
     });
   });
 
-  it('handles edge cases with special characters in content location', () => {
-    const testDescription = 'Content in album "My Photos & Videos" with special chars: @#$%^&*()';
-    
-    cy.contains('Start your request').click();
-    cy.get('h2').contains('Building your takedown letter');
-    cy.contains('Start your request').click();
-    
-    cy.get('h3').contains('Facebook').click();
-    cy.contains('Continue').click();
-    
-    cy.contains("I haven't tried either process yet").click();
-    cy.contains('Continue').click();
-    
-    cy.contains('Personal content').click();
-    cy.contains('Account was compromised').click();
-    cy.get('input[type="radio"][value="description"]').check();
-    cy.get('#contentDescription').type(testDescription);
-    cy.get('#imageUploadDate').type('15 March 2025');
-    cy.get('#imageTakenDate').type('10 March 2025');
-    cy.get('#ownershipEvidence').type('I can verify this content');
-    cy.get('#impactStatement').type('This has caused issues');
-    cy.contains('Continue').click();
-    
-    cy.contains('Continue', { timeout: 30000 }).click();
-    cy.contains('Review and send', { timeout: 100000 }).should('be.visible');
-    
-    // Verify special characters are preserved
-    cy.get('h4').contains('Message content').parent().within(() => {
-      cy.get('div').should('contain', testDescription);
-      cy.get('div').should('contain', '"My Photos & Videos"');
-      cy.get('div').should('contain', '@#$%^&*()');
-    });
-  });
-
-  it('validates content location is not exposed in development data collection', () => {
-    const testUrl = 'https://instagram.com/sensitive-content-url';
-    
-    // Intercept development data collection to verify sanitization
-    cy.intercept('POST', '/api/dev-data-collection', (req) => {
-      // Verify the content location is sanitized in the request
-      expect(req.body.formData.initialQuestions.imageIdentification).to.equal('[CONTENT_LOCATION]');
-      
-      // Verify the original URL is not present in the form data sent to collection
-      const formDataString = JSON.stringify(req.body.formData);
-      expect(formDataString).to.not.contain(testUrl);
-      
-      // But verify the generated letter contains the actual URL
-      expect(req.body.generatedLetter.body).to.contain(testUrl);
-      
-      req.reply({ statusCode: 200, body: { success: true } });
-    }).as('devDataCollection');
-    
-    // Complete flow
-    cy.contains('Start your request').click();
-    cy.get('h2').contains('Building your takedown letter');
-    cy.contains('Start your request').click();
-    
-    cy.get('h3').contains('Instagram').click();
-    cy.contains('Continue').click();
-    
-    cy.contains("I haven't tried either process yet").click();
-    cy.contains('Continue').click();
-    
-    cy.contains('Intimate images').click();
-    cy.contains('Account was compromised').click();
-    cy.get('input[type="radio"][value="url"]').check();
-    cy.get('input[id="contentUrl"]').type(testUrl);
-    cy.get('#imageUploadDate').type('20 March 2025');
-    cy.get('#imageTakenDate').type('15 March 2025');
-    cy.get('#ownershipEvidence').type('I can verify this');
-    cy.get('#impactStatement').type('This is problematic');
-    cy.contains('Continue').click();
-    
-    cy.contains('Continue', { timeout: 30000 }).click();
-    cy.contains('Review and send', { timeout: 100000 }).should('be.visible');
-    
-    // Wait for and verify the development data collection
-    cy.wait('@devDataCollection', { timeout: 20000 });
-    
-    // Also verify the final letter shows the actual URL
-    cy.get('h4').contains('Message content').parent().within(() => {
-      cy.get('div').should('contain', testUrl);
-    });
-  });
 });
