@@ -1,16 +1,12 @@
 import { GeneratedLetter, LetterRequest } from '@/types/letter';
 import { MAX_RETRIES, RETRY_DELAY, STATIC_NEXT_STEPS } from '../constants/ai';
+import { QualityCheckResponse } from '../prompts/quality-check';
 import { serverInstance as rollbar } from '../rollbar';
 import { retryWithDelay } from '../utils';
-import {
-  cleanupSanitizationMap,
-  desanitizeLetter,
-  hasCriticalQualityIssues,
-  sanitizeFormData,
-} from './sanitization';
+import { cleanupSanitizationMap, desanitizeLetter, sanitizeFormData } from './sanitization';
 
 interface GeneratedLetterResponse {
-  originalLetter: GeneratedLetter;
+  redactedLetter: GeneratedLetter;
   finalLetter: GeneratedLetter;
 }
 
@@ -31,7 +27,7 @@ export async function generateLetter(formData: LetterRequest): Promise<Generated
         hasFollowUp: !!sanitizedData.followUp,
       });
 
-      const response = await retryWithDelay(async () => {
+      const response: { subject: string; body: string } = await retryWithDelay(async () => {
         const res = await fetch('/api/generate-letter', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -46,109 +42,50 @@ export async function generateLetter(formData: LetterRequest): Promise<Generated
         return res.json();
       });
 
-      let letter = response;
-      const originalLetter = { ...letter };
+      let improvedLetter;
+      const originalLetter = response;
 
       // Perform quality check
-      try {
-        const qualityCheckResponse = await retryWithDelay(async () => {
-          const res = await fetch('/api/quality-check-letter', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              letter: originalLetter,
-              formData: sanitizedData,
-            }),
-          });
-
-          if (!res.ok) {
-            throw new Error('Quality check request failed');
-          }
-
-          return res.json();
+      const qualityCheckResponse: QualityCheckResponse = await retryWithDelay(async () => {
+        const res = await fetch('/api/quality-check-letter', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            letter: originalLetter,
+            formData: sanitizedData,
+          }),
         });
 
-        // If major issues found, retry generation unless on last attempt
-        if (
-          qualityCheckResponse.severity === 'critical' ||
-          hasCriticalQualityIssues(originalLetter)
-        ) {
-          rollbar.info('Major quality issues found', {
-            attempt: attempts,
-            issues: qualityCheckResponse.issues,
-          });
-
-          if (attempts === 2 && qualityCheckResponse.improvedLetter) {
-            // If this is the second attempt and we have an improved letter, use it
-            letter = {
-              subject: qualityCheckResponse.improvedLetter.subject || letter.subject,
-              body: qualityCheckResponse.improvedLetter.body || letter.body,
-              nextSteps: STATIC_NEXT_STEPS,
-            };
-
-            // Desanitize and return the final attempt
-            const desanitizedLetter = {
-              subject: desanitizeLetter(letter.subject, sanitizedData.formId),
-              body: desanitizeLetter(letter.body, sanitizedData.formId),
-              nextSteps: STATIC_NEXT_STEPS,
-            };
-
-            cleanupSanitizationMap(sanitizedData.formId);
-
-            return {
-              originalLetter,
-              finalLetter: desanitizedLetter,
-            };
-          }
-
-          // Not final attempt, continue to next try
-          continue;
+        if (!res.ok) {
+          throw new Error('Quality check request failed');
         }
 
-        // No major issues - check for minor issues
-        if (qualityCheckResponse.severity === 'minor' && qualityCheckResponse.improvedLetter) {
-          letter = {
-            subject: qualityCheckResponse.improvedLetter.subject || letter.subject,
-            body: qualityCheckResponse.improvedLetter.body || letter.body,
-            nextSteps: STATIC_NEXT_STEPS,
-          };
-        }
+        return res.json();
+      });
 
-        // Desanitize and return the successful letter
-        const desanitizedLetter = {
-          subject: desanitizeLetter(letter.subject, sanitizedData.formId),
-          body: desanitizeLetter(letter.body, sanitizedData.formId),
-          nextSteps: STATIC_NEXT_STEPS,
-        };
-
-        cleanupSanitizationMap(sanitizedData.formId);
-
-        rollbar.info('Letter generated successfully', {
-          attempt: attempts,
-          letterLength: letter.body.length,
-          hadMinorIssues: qualityCheckResponse.severity === 'minor',
-        });
-
-        return {
-          originalLetter,
-          finalLetter: desanitizedLetter,
-        };
-      } catch (error) {
-        rollbar.error('Error during quality check', { error });
-        // On quality check error, return original letter
-        const desanitizedLetter = {
-          subject: desanitizeLetter(letter.subject, sanitizedData.formId),
-          body: desanitizeLetter(letter.body, sanitizedData.formId),
-          nextSteps: STATIC_NEXT_STEPS,
-        };
-
-        cleanupSanitizationMap(sanitizedData.formId);
-
-        return {
-          originalLetter,
-          finalLetter: desanitizedLetter,
+      // If major issues found, retry generation unless on last attempt
+      if (qualityCheckResponse.issues?.length > 0 && qualityCheckResponse.improvedLetter) {
+        // If this is the second attempt and we have an improved letter, use it
+        improvedLetter = {
+          subject: qualityCheckResponse.improvedLetter.subject,
+          body: qualityCheckResponse.improvedLetter.body,
         };
       }
+      const letter = improvedLetter || originalLetter
+
+      // Desanitize and return the final attempt
+      const desanitizedLetter = {
+        subject: desanitizeLetter(letter.subject, sanitizedData.formId),
+        body: desanitizeLetter(letter.body, sanitizedData.formId),
+        nextSteps: STATIC_NEXT_STEPS,
+      };
+
+      cleanupSanitizationMap(sanitizedData.formId);
+
+      return {
+        redactedLetter: letter,
+        finalLetter: desanitizedLetter,
+      };
     } catch (error) {
       if (attempts === MAX_RETRIES) {
         rollbar.error('Error generating letter on final attempt', {

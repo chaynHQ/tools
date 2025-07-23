@@ -82,7 +82,7 @@ export default function LetterGenerator() {
       setIsLoading(true);
       const letters = await generateLetter(formState.completeFormData);
       setGeneratedLetter(letters.finalLetter);
-      setRedactedLetter(letters.originalLetter);
+      setRedactedLetter(letters.redactedLetter);
       setHasGeneratedLetter(true);
 
       analytics.trackEvent(GA_EVENTS.TDLG_LETTER_GENERATED, {

@@ -18,5 +18,17 @@ declare namespace Cypress {
      * Checks all expected text and buttons are present.
      */
     verifyDevWarningContent(): Chainable<Element>;
+
+    /**
+     * Verifies that content location appears correctly in the generated letter.
+     * Checks that placeholders are replaced and format is correct.
+     */
+    verifyContentLocationInLetter(expectedLocation: string, locationType: 'url' | 'description'): Chainable<Element>;
+
+    /**
+     * Fills out a basic letter generation form with the specified parameters.
+     * Useful for setting up tests that focus on specific functionality.
+     */
+    fillBasicLetterForm(platform: string, contentLocation: string, locationType: 'url' | 'description'): Chainable<Element>;
   }
 }

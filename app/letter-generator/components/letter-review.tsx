@@ -71,9 +71,10 @@ export function LetterReview({
 
   // Get content location from form state
   const contentLocation =
-    formState.initialQuestions.contentLocationType === 'url'
+    formState.initialQuestions.imageIdentification ||
+    (formState.initialQuestions.contentLocationType === 'url'
       ? formState.initialQuestions.contentUrl
-      : formState.initialQuestions.contentDescription;
+      : formState.initialQuestions.contentDescription);
 
   // Create display version with replaced content location
   const displayLetter = {
@@ -456,7 +457,7 @@ export function LetterReview({
       <QuestionSection title="Next steps">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
           <ul className="space-y-2">
-            {letter.nextSteps.map((step, index) => (
+            {letter.nextSteps?.map((step, index) => (
               <li key={index} className="flex items-start gap-3 p-4 bg-white rounded-lg">
                 <span className="w-6 h-6 rounded-full bg-accent-light flex items-center justify-center shrink-0 text-sm font-medium">
                   {index + 1}

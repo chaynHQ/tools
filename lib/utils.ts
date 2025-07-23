@@ -54,6 +54,7 @@ export function parseAIJson(input: string) {
     try {
       return JSON.parse(cleanedInput);
     } catch (e) {
+      console.log(input)
       console.error('Failed to parse cleaned JSON:', cleanedInput);
       throw new Error('Failed to parse AI response - the response format was invalid');
     }

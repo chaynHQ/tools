@@ -28,7 +28,7 @@ export async function POST(request: Request) {
     }
 
     const generateQualityCheck = async () => {
-      const content = generateLetterQualityCheckPrompt(JSON.stringify(letter), formData);
+      const content = generateLetterQualityCheckPrompt(letter, formData);
       const response = await anthropic.messages.create({
         model: AI_MODEL,
         max_tokens: 4000,

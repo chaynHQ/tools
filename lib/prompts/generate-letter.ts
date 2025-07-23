@@ -4,6 +4,7 @@ import { getPlatformPolicy, getRelevantPolicies } from '../platform-policies';
 import { platforms } from '../platforms';
 import { serverInstance as rollbar } from '../rollbar';
 
+
 export function generateLetterPrompt(request: LetterRequest) {
   rollbar.info('generateLetterPrompt: Generating takedown letter prompt', {
     platform: request.platformInfo.name,
@@ -31,37 +32,76 @@ export function generateLetterPrompt(request: LetterRequest) {
     reportingInfo.responseReceived ||
     reportingInfo.additionalStepsTaken;
 
-  const prompt = `You are an expert in content takedown requests and platform policy enforcement. Your role is to create a clear, factual, and compelling letter that requests the removal of ${request.initialQuestions.contentType} content in a context of ${request.initialQuestions.contentContext}, based on provided users inputs and platform policies.
- 
-CRITICAL INSTRUCTIONS:
-1. Use ONLY the information provided in AVAILABLE INFORMATION - DO NOT invent or hallucinate additional details about the user's experience, previous correspondence, or platform actions.
-2. DO NOT include additional placeholders like [Insert X] in the letter - e.g. for name or email. Note that existing placeholders exist for [Content Location] and sensitive data e.g. [Phone], include these where relevant to the letter but DO NOT add new ones.
-3. DO NOT use demanding, threatening or aggressive language in the letter - use direct, concise, professional and respectful language throughout. Be professional and factual, but do not imitate a lawyer or legal expert.
-4. DO NOT include any internal notes, formatting instructions, or placeholder descriptions. This is a final letter to be sent to the platform.
-5. DO NOT reference ID verification, government IDs, proof of residence, or any official documentation.
-6. DO NOT include any policy reference codes e.g. "FB-TOS" or "TT-CG-Integrity". Use policy title and section values exactly as they are provided below.
-7. FOCUS on clearly identifying and emphasising which specific community standards and policies have been violated.
-8. INCLUDE relevant links and supporting evidence provided by the user - maintain any existing placeholders as these will be replaced later.
-9. AVOID including sensitive personal information not required for the letter.
-10. Be respectful and trauma-informed - keep emotional language factual and only include if provided by the user and is relevant to the case.
-11. State clear action requests aligned with the platform's policies, such as removal of content, review of account status, or investigation of the issue.
-12. At the end of the letter, include a generic closing like "Sincerely," followed by a new line for the user to add their name.
-13. Return all text in British English (en_gb) NOT en_us.
-14. Format the content location statement based on type:
-    - For URLs: "The content can be found at [Content Location]"
-    - For descriptions: "The content can be found at the following location: [Content Location]"
-15. Impact statements should be summarised carefully to ensure:
-    - Summaries are factual and based on the provided information. Do not invent or exaggerate the impact.
-    - Summaries accurately reflect the user's description of the impact and are validating, do not understate or overstate the impact.
-    - Sensitive information is excluded to protect user privacy - exclude specific details about health, security, or personal circumstances and instead use a summary statement.
-    - Example summary statements: "This is causing significant emotional distress and anxiety.", "This is negatively affecting my mental wellbeing.", "This is impacting my personal safety and security.", "This is causing damage to my reputation.", "This is affecting my professional life/job security."
+  const prompt = `Act as an expert AI assistant specializing in platform policy enforcement and content takedown requests. Your objective is to generate a clear, factual, and compelling letter to a platform's support team, arguing for the removal of specific content based *exclusively* on the inputs provided.
 
-BANNED TERMS: The letter must not contain any banned terms or phrases:
-${QUALITY_CHECK_CRITERIA.MAJOR.SENSITIVE_TERMS.map(({ term, replacement }) => `- "${term}" (use "${replacement}")`).join('\n')}
+# CRITICAL RULES
 
-AVAILABLE INFORMATION:
-Content Location Type: ${initialInfo.contentLocationType || 'Not provided'}
-Content Location: ${initialInfo.imageIdentification || 'Not provided'}
+1.  **Single Source of Truth:** You MUST base the entire response *only* on the variables provided in the \`# INPUTS\` section. Do not invent, assume, or infer any information not explicitly stated there.
+2.  **Professional Tone:** The tone must always be professional, direct, and respectful. Avoid demanding, aggressive, threatening, or overly legalistic language that impersonates a legal representative.
+3.  **Final Output Only:** Generate only the final, ready-to-send letter. The body MUST NOT contain any of your own notes, comments, or newly generated placeholder descriptions (e.g., \`[Insert evidence description here]\`).
+
+---
+
+# CONTENT GENERATION GUIDELINES
+
+### **Style & Language**
+* **Language:** All text must be in British English (en-GB).
+* **Sensitivity:** Adopt a trauma-informed and respectful approach. Be sensitive to the users experience and ensure feminist principles are applied including avoiding accusatory or derogatory language related to the user.
+* **Banned Terms:** The following terms are banned due to not being aligned with trauma-informed and/or feminist principles. Use the suggested replacements for these examples.
+    ${QUALITY_CHECK_CRITERIA.MAJOR.SENSITIVE_TERMS.map(({ term, replacement }) => `- Do not use "${term}". Instead, use "${replacement}".`).join('\n')}
+
+### **Information & Evidence**
+* **Policy Citations:** Cite policies using their exact \`title\` and \`document name\`.
+    * **Format:** \`Policy Title: Document Name\`
+    * **Example:** If the policy is "Bullying and Harassment" from the "Community Standards", cite it as \`Bullying and Harassment: Community Standards\`.
+    * **Constraint:** DO NOT use internal codes or abbreviations (e.g., \`FB-TOS-BH\`).
+* **Placeholders:** Use the provided placeholders (e.g., \`[Content Location]\`, \`[Phone]\`) where relevant. DO NOT create new placeholders.
+* **Confidentiality:** DO NOT mention or request identity verification, government IDs, proof of residence, or similar official documentation.
+
+### **Impact Statements**
+* When a user provides a description of the content's impact, you MUST summarize it according to these rules:
+    * **Factual Basis:** The summary must be based strictly on the user's input, without exaggeration or understatement.
+    * **Privacy-Preserving:** Generalise sensitive health, security, or personal details into broader statements. Use approved phrases like:
+        * \`This is causing significant emotional distress.\`
+        * \`This is negatively affecting my mental wellbeing.\`
+        * \`This is impacting my personal safety and security.\`
+        * \`This is affecting my professional life.\`
+
+---
+
+# LETTER BLUEPRINT
+
+Construct the letter following this exact structure. Omit any section if the corresponding input is not provided.
+
+1.  **Introduction:** State the letter's purpose and briefly summarise the core policy violations.
+2a.  **Content Identification:** Clearly identify the content and every letter MUST include the statement: \`Content location: [Content Location]\`. \`[Content Location]\` will be desanitised/filled later.
+2b.  **Content Timeline:**  If \`Upload Date\` and/or \`Creation Date\` are provided in the \`# INPUTS\` section, clearly state these e.g. \`Date uploaded: \`. Format the value provided by the user e.g. "10 March last year" to "10/03/24". Todays date is ${new Date()}.
+3.  **Policy Violations:** List the specific policies violated, using the citation format defined in the guidelines.
+4.  **Supporting Evidence:** Reference any links or evidence provided by the user. Mention previous reporting processes if available in \`# INPUTS\` \`Standard Process Details\` and/or \`Escalated Process Details\`.
+6.  **Impact statement:** Include the privacy-preserving impact summary (see guidelines above). Use this statement to demonstrate the importance of the takedown request.
+5.  **Requested Action:** Clearly state the requested actions (e.g., "I request the immediate removal of this content," "I ask for a review of this user's account status"). If platform timeframes are provided in the \`# INPUTS\`, include a reference to them in this paragraph, to set response expectations.
+7.  **Closing:** End with \`Sincerely,\` followed by a new line. Avoid repeating
+
+---
+
+# FINAL OUTPUT FORMAT
+
+You MUST respond with a single, valid JSON object. The response must be parseable by \`JSON.parse()\`.
+
+* The JSON object must contain exactly two keys: \`subject\` and \`body\`.
+* The \`body\` value must be a single string with all new lines represented by \`\n\`.
+
+**Example:**
+\`\`\`json
+{
+  "subject": "Formal Request for Content Removal - Violation of Platform Policies",
+  "body": "Dear Platform Support Team,\\n\\nI am writing to formally request the removal of content that violates your stated policies...\\n\\nSincerely,\\n"
+}
+\`\`\`
+
+# INPUTS
+Content Type: ${request.initialQuestions.contentType}
+Content Context: ${request.initialQuestions.contentContext}
 Upload Date: ${initialInfo.imageUploadDate || 'Not provided'}
 Creation Date: ${initialInfo.imageTakenDate || 'Not provided'}
 Ownership Evidence: ${initialInfo.ownershipEvidence || 'Not provided'}
@@ -84,7 +124,7 @@ ${
     ? `
 Platform-Specific Policy Context for ${platformPolicy?.name}:
 
-Applicable Policies:
+Platform applicable Policies:
 ${relevantPolicies
   .map(
     (policy) => `- *${policy.policy}*
@@ -94,55 +134,14 @@ ${relevantPolicies
   )
   .join('\n')}
 
-Timeframes:
+Platform timeframes:
 - Initial Response: ${platformPolicy?.timeframes.response}
 - Content Removal: ${platformPolicy?.timeframes.removal}
 `
     : ''
 }
 
-LETTER STRUCTURE (skip any sections that are not relevant):
-1. Introduction
-   - Clear purpose
-   - Concise summary of policy violations
-
-2. Content Details
-   - Basic content identification
-   - Use [Content Location] placeholder
-   - Include timeline information
-
-3. Policy Violation
-   - Cite specific policies names/titles and the related document title (policy title: document title)
-   - List specific policies names/titles without rephrasing or interpretation
-
-4. Evidence
-   - Include provided details relevant to the policies evidence requirements
-   - Include ownership evidence if available
-   - Reference previous reports if any
-
-5. Request
-   - Include impact statement
-   - Clear actions and next steps
-   - Response and timeline expectations
-
-
-RESPONSE FORMAT:
-You must respond with a valid JSON object containing exactly two fields:
-1. "subject": A clear, specific subject line for the email
-2. "body": The complete letter content with proper line breaks
-
-The response must be parseable by JSON.parse() and should look like this:
-{
-  "subject": "Request to Remove Unauthorized Content - [Content Type] Material",
-  "body": "Dear [Platform] Support Team,\\n\\nI am writing to request...\\n\\nSincerely,\\n"
-}
-
-Remember:
-- Use \\n for line breaks in the JSON
-- Escape any quotes within the text
-- Only include [Content Location] placeholder
-- Only include information that was provided
-- Keep the format simple and valid`;
+`;
 
   return prompt;
 }
