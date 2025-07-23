@@ -186,7 +186,8 @@ export function FormProvider({ children }: { children: ReactNode }) {
             imageIdentification: prev.initialQuestions.imageIdentification ||
               (prev.initialQuestions.contentLocationType === 'url'
                 ? prev.initialQuestions.contentUrl
-                : prev.initialQuestions.contentDescription),
+                : prev.initialQuestions.contentDescription) ||
+              '[Content location not provided]',
           },
           platformInfo: {
             name: prev.platformInfo?.isCustom
@@ -198,6 +199,12 @@ export function FormProvider({ children }: { children: ReactNode }) {
             Object.keys(prev.reportingDetails).length > 0 ? prev.reportingDetails : undefined,
           followUp: prev.followUpData.answers,
         };
+
+        rollbar.info('Complete form data updated', {
+          hasImageIdentification: !!completeData.initialQuestions.imageIdentification,
+          imageIdentificationValue: completeData.initialQuestions.imageIdentification,
+          contentLocationType: prev.initialQuestions.contentLocationType,
+        });
 
         rollbar.info('Complete form data updated');
 

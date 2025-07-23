@@ -148,6 +148,15 @@ export function desanitizeLetter(text: string, formId: string): string {
   // Sort mappings by length (longest first) to handle nested placeholders correctly
   const sortedMappings = Array.from(mappings.entries()).sort(([a], [b]) => b.length - a.length);
 
+  // Debug logging to help identify the issue
+  rollbar.info('Desanitizing letter', {
+    formId,
+    mappingsCount: mappings.size,
+    hasContentLocation: mappings.has(PLACEHOLDER_TYPES.CONTENT_LOCATION),
+    contentLocationValue: mappings.get(PLACEHOLDER_TYPES.CONTENT_LOCATION),
+    textContainsPlaceholder: text.includes(PLACEHOLDER_TYPES.CONTENT_LOCATION),
+  });
+
   for (const [placeholder, original] of sortedMappings) {
     const regex = new RegExp(placeholder.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
     desanitizedText = desanitizedText.replace(regex, original);
