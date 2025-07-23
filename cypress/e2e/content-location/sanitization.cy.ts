@@ -9,6 +9,7 @@ describe('Content Location Sanitization and Desanitization', () => {
     
     // Complete the flow with URL content location
     cy.contains('Start your request').click();
+    cy.get('h2').contains('Building your takedown letter');
     cy.contains('Start your request').click();
     
     // Select platform
@@ -54,6 +55,7 @@ describe('Content Location Sanitization and Desanitization', () => {
     
     // Complete the flow with description content location
     cy.contains('Start your request').click();
+    cy.get('h2').contains('Building your takedown letter');
     cy.contains('Start your request').click();
     
     // Select platform
@@ -99,6 +101,7 @@ describe('Content Location Sanitization and Desanitization', () => {
     
     // Complete the flow with custom platform
     cy.contains('Start your request').click();
+    cy.get('h2').contains('Building your takedown letter');
     cy.contains('Start your request').click();
     
     // Select other platform
@@ -136,6 +139,7 @@ describe('Content Location Sanitization and Desanitization', () => {
     
     // Complete initial flow
     cy.contains('Start your request').click();
+    cy.get('h2').contains('Building your takedown letter');
     cy.contains('Start your request').click();
     
     cy.get('h3').contains('TikTok').click();
@@ -188,6 +192,7 @@ describe('Content Location Sanitization and Desanitization', () => {
     const testDescription = 'Content in album "My Photos & Videos" with special chars: @#$%^&*()';
     
     cy.contains('Start your request').click();
+    cy.get('h2').contains('Building your takedown letter');
     cy.contains('Start your request').click();
     
     cy.get('h3').contains('Facebook').click();
@@ -237,6 +242,7 @@ describe('Content Location Sanitization and Desanitization', () => {
     
     // Complete flow
     cy.contains('Start your request').click();
+    cy.get('h2').contains('Building your takedown letter');
     cy.contains('Start your request').click();
     
     cy.get('h3').contains('Instagram').click();

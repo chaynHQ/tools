@@ -81,6 +81,7 @@ Cypress.Commands.add('verifyContentLocationInLetter', (expectedLocation: string,
 Cypress.Commands.add('fillBasicLetterForm', (platform: string, contentLocation: string, locationType: 'url' | 'description') => {
   // Start the process
   cy.contains('Start your request').click();
+  cy.get('h2').contains('Building your takedown letter');
   cy.contains('Start your request').click();
   
   // Select platform
