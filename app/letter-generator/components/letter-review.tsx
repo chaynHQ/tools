@@ -71,9 +71,10 @@ export function LetterReview({
 
   // Get content location from form state
   const contentLocation =
-    formState.initialQuestions.contentLocationType === 'url'
+    formState.initialQuestions.imageIdentification ||
+    (formState.initialQuestions.contentLocationType === 'url'
       ? formState.initialQuestions.contentUrl
-      : formState.initialQuestions.contentDescription;
+      : formState.initialQuestions.contentDescription);
 
   // Create display version with replaced content location
   const displayLetter = {

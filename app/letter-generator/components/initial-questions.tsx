@@ -200,6 +200,9 @@ export function InitialQuestions({ onComplete }: InitialQuestionsProps) {
         data.contentLocationType === 'url' ? data.contentUrl : data.contentDescription;
 
       const cleanData = {
+        contentLocationType: data.contentLocationType,
+        contentUrl: data.contentUrl,
+        contentDescription: data.contentDescription,
         contentType: data.contentType,
         contentContext: data.contentContext,
         imageIdentification,

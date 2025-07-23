@@ -183,10 +183,10 @@ export function FormProvider({ children }: { children: ReactNode }) {
         const completeData = {
           initialQuestions: {
             ...prev.initialQuestions,
-            imageIdentification:
-              prev.initialQuestions.contentLocationType === 'url'
+            imageIdentification: prev.initialQuestions.imageIdentification ||
+              (prev.initialQuestions.contentLocationType === 'url'
                 ? prev.initialQuestions.contentUrl
-                : prev.initialQuestions.contentDescription,
+                : prev.initialQuestions.contentDescription),
           },
           platformInfo: {
             name: prev.platformInfo?.isCustom

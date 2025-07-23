@@ -117,7 +117,7 @@ export function sanitizeFormData(data: Record<string, any>): Record<string, any>
       for (const [key, val] of Object.entries(value)) {
         result[key] = processSanitization(
           val,
-          key === 'contentUrl' || key === 'contentDescription',
+          key === 'contentUrl' || key === 'contentDescription' || key === 'imageIdentification',
         );
       }
       return result;
@@ -128,7 +128,7 @@ export function sanitizeFormData(data: Record<string, any>): Record<string, any>
   for (const [key, value] of Object.entries(data)) {
     sanitized[key] = processSanitization(
       value,
-      key === 'contentUrl' || key === 'contentDescription',
+      key === 'contentUrl' || key === 'contentDescription' || key === 'imageIdentification',
     );
   }
 
