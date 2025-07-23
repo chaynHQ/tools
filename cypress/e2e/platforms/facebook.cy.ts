@@ -54,10 +54,16 @@ function fillFacebookReportingProcessDetails() {
 
 describe('Facebook Platform Flow', () => {
   it('waits for AI follow-up and generates the letter', () => {
+    const testUrl = 'https://facebook.com/harmful-post-123';
+    
     startFacebookFlow();
     selectFacebookReportingStatus();
     selectFacebookContentTypeAndContext();
-    fillFacebookContentLocationAndDates();
+    cy.get('input[type="radio"][value="url"]').check();
+    cy.get('input[id="contentUrl"]').type(testUrl);
+    cy.get('#imageUploadDate').type('1 March 2025');
+    cy.get('#imageTakenDate').type('15 February 2025');
+    cy.log('Filled Facebook content location and dates');
     fillFacebookVerificationAndImpact();
     fillFacebookReportingProcessDetails();
     cy.contains('Analysing your responses', { timeout: 30000 });
@@ -67,5 +73,8 @@ describe('Facebook Platform Flow', () => {
     cy.contains('Subject line').should('be.visible');
     cy.contains('Message content').should('be.visible');
     cy.contains('records@facebook.com').should('be.visible');
+    
+    // Verify content location is properly restored in the letter
+    cy.verifyContentLocationInLetter(testUrl, 'url');
   });
 });

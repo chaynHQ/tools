@@ -49,10 +49,16 @@ function fillInstagramReportingProcessDetails() {
 
 describe('Instagram Platform Flow', () => {
   it('fills out instagram flow', () => {
+    const testUrl = 'https://instagram.com/harmful-post-123';
+    
     startInstagramFlow();
     selectInstagramReportingStatus();
     selectInstagramContentTypeAndContext();
-    fillInstagramContentLocationAndDates();
+    cy.get('input[type="radio"][value="url"]').check();
+    cy.get('input[id="contentUrl"]').type(testUrl);
+    cy.get('#imageUploadDate').type('1 March 2025');
+    cy.get('#imageTakenDate').type('15 February 2025');
+    cy.log('Filled Instagram content location and dates');
     fillInstagramVerificationAndImpact();
     fillInstagramReportingProcessDetails();
     cy.contains('Analysing your responses', { timeout: 30000 });
@@ -61,5 +67,8 @@ describe('Instagram Platform Flow', () => {
     cy.contains('Review and send', { timeout: 100000 }).should('be.visible');
     cy.contains('Subject line').should('be.visible');
     cy.contains('Message content').should('be.visible');
+    
+    // Verify content location is properly restored in the letter
+    cy.verifyContentLocationInLetter(testUrl, 'url');
   });
 });
