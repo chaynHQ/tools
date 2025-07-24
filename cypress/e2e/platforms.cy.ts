@@ -147,10 +147,8 @@ describe('Platform Tests', () => {
   }
 
   function selectReportingStatus(status: string) {
-    if (status !== "I haven't tried either process yet") {
-      cy.contains(status).click();
-      cy.contains('Continue').click();
-    }
+    cy.contains(status).click();
+    cy.contains('Continue').click();
   }
 
   function fillInitialQuestions(data: any) {
