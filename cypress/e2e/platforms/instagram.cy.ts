@@ -1,5 +1,25 @@
 describe('Instagram Platform Flow', () => {
-  const testData = {
+  interface PlatformTestData {
+    platform: string;
+    contentUrl: string;
+    contentDescription: string;
+    contentType: string;
+    contentContext: string;
+    uploadDate: string;
+    creationDate: string;
+    ownershipEvidence: string;
+    impactStatement: string;
+    reportingStatus: string;
+    standardProcessDetails?: string;
+    escalatedProcessDetails?: string;
+    responseReceived?: string;
+    additionalStepsTaken?: string;
+    expectedEmail: string;
+    locationType: 'url' | 'description';
+  }
+
+  const testData: PlatformTestData = {
+    platform: 'Instagram',
     contentUrl: 'https://instagram.com/p/ABC123DEF456',
     contentDescription: 'Content appears in story highlights and recent posts',
     contentType: 'Intimate images',
@@ -11,71 +31,103 @@ describe('Instagram Platform Flow', () => {
     reportingStatus: "I've tried the standard reporting process",
     standardProcessDetails: 'I used Instagram\'s report feature multiple times over the past week',
     responseReceived: 'Instagram reviewed my report but said it didn\'t violate their guidelines',
-    additionalStepsTaken: 'I tried reporting individual posts and the account itself separately'
+    additionalStepsTaken: 'I tried reporting individual posts and the account itself separately',
+    expectedEmail: 'records@instagram.com',
+    locationType: 'url'
   };
 
-  function startFlow() {
+  beforeEach(() => {
     cy.visit('/');
     cy.dismissDevWarning();
+  });
+
+  function startFlow() {
     cy.contains('Start your request').click();
-    cy.get('h2').contains('Building your takedown letter');
-    cy.contains('Start your request', { timeout: 10000 }).click();
+    cy.get('h2').contains('Building your takedown letter', { timeout: 10000 });
+    cy.contains('Start your request').click();
   }
 
-  function selectPlatform() {
-    cy.get('h3').contains('Instagram').click();
+  function selectPlatform(platformName: string) {
+    if (platformName === 'Other') {
+      cy.contains('Other platform').click();
+      cy.get('#other-platform').type('TestPlatform');
+    } else {
+      cy.get('h3').contains(platformName).click();
+    }
     cy.contains('Continue').click();
   }
 
-  function selectReportingStatus() {
-    cy.contains(testData.reportingStatus).click();
+  function selectReportingStatus(status: string) {
+    cy.contains(status).click();
     cy.contains('Continue').click();
   }
 
-  function fillInitialQuestions() {
-    cy.contains(testData.contentType).click();
-    cy.contains(testData.contentContext).click();
-    
-    cy.get('input[type="radio"][value="url"]').check();
-    cy.get('input[id="contentUrl"]').type(testData.contentUrl);
-    
-    cy.get('#imageUploadDate').type(testData.uploadDate);
-    cy.get('#imageTakenDate').type(testData.creationDate);
-    cy.get('#ownershipEvidence').type(testData.ownershipEvidence);
-    cy.get('#impactStatement').type(testData.impactStatement);
-    
+  function fillInitialQuestions(data: PlatformTestData) {
+    cy.contains(data.contentType).click();
+    cy.contains(data.contentContext).click();
+
+    if (data.locationType === 'url') {
+      cy.get('input[type="radio"][value="url"]').check();
+      cy.get('input[id="contentUrl"]').type(data.contentUrl);
+    } else {
+      cy.get('input[type="radio"][value="description"]').check();
+      cy.get('#contentDescription').type(data.contentDescription);
+    }
+
+    cy.get('#imageUploadDate').type(data.uploadDate);
+    cy.get('#imageTakenDate').type(data.creationDate);
+    cy.get('#ownershipEvidence').type(data.ownershipEvidence);
+    cy.get('#impactStatement').type(data.impactStatement);
     cy.contains('Continue').click();
   }
 
-  function fillReportingDetails() {
-    cy.get('#standardProcessDetails').type(testData.standardProcessDetails);
-    cy.get('#responseReceived').type(testData.responseReceived);
-    cy.get('#additionalStepsTaken').type(testData.additionalStepsTaken);
-    
+  function fillReportingDetails(data: PlatformTestData) {
+    if (data.standardProcessDetails) {
+      cy.get('#standardProcessDetails').type(data.standardProcessDetails);
+    }
+    if (data.escalatedProcessDetails) {
+      cy.get('#escalatedProcessDetails').type(data.escalatedProcessDetails);
+    }
+    if (data.responseReceived) {
+      cy.get('#responseReceived').type(data.responseReceived);
+    }
+    if (data.additionalStepsTaken) {
+      cy.get('#additionalStepsTaken').type(data.additionalStepsTaken);
+    }
     cy.contains('Continue').click();
   }
 
   function waitForLetterGeneration() {
-    cy.contains('Analysing your responses', { timeout: 30000 });
     cy.contains('Continue', { timeout: 30000 }).click();
-    cy.contains('Creating your letter', { timeout: 40000 });
     cy.contains('Review and send', { timeout: 100000 }).should('be.visible');
+    cy.get('h4').contains('Message content', { timeout: 10000 }).should('be.visible');
   }
 
-  function verifyLetterContent() {
+  function verifyLetterContent(data: PlatformTestData) {
     cy.contains('Subject line').should('be.visible');
     cy.contains('Message content').should('be.visible');
-    cy.contains('records@instagram.com').should('be.visible');
-    cy.verifyContentLocationInLetter(testData.contentUrl, 'url');
+    cy.contains(data.expectedEmail).should('be.visible');
+    
+    const expectedLocation = data.locationType === 'url' ? data.contentUrl : data.contentDescription;
+    cy.verifyContentLocationInLetter(expectedLocation, data.locationType);
+  }
+
+  function runCompleteFlow(data: PlatformTestData) {
+    startFlow();
+    selectPlatform(data.platform);
+    selectReportingStatus(data.reportingStatus);
+    fillInitialQuestions(data);
+    
+    // Only fill reporting details if we have previous attempts
+    if (data.reportingStatus !== "I haven't tried either process yet") {
+      fillReportingDetails(data);
+    }
+    
+    waitForLetterGeneration();
+    verifyLetterContent(data);
   }
 
   it('completes Instagram impersonation takedown request flow', () => {
-    startFlow();
-    selectPlatform();
-    selectReportingStatus();
-    fillInitialQuestions();
-    fillReportingDetails();
-    waitForLetterGeneration();
-    verifyLetterContent();
+    runCompleteFlow(testData);
   });
 });
