@@ -12,7 +12,7 @@ export function generateLetterPrompt(request: LetterRequest) {
 
   const platformPolicy = request.platformInfo.isCustom
     ? null
-    : getPlatformPolicy(platforms.find((p) => p.name === request.platformInfo.name)?.id || '');
+    : getPlatformPolicy(platforms.find((p) => p.id === request.platformInfo.platformId || p.name === request.platformInfo.name)?.id || '');
 
   const relevantPolicies = platformPolicy
     ? getRelevantPolicies(

@@ -67,7 +67,7 @@ export function LetterReview({
   const platform = platforms.find((p) => p.id === platformId);
   const platformEmail =
     platform?.contactEmail ||
-    "Please check the platform's help centre for the appropriate contact email";
+    "Please check the platform's help center for the appropriate contact email";
 
   // Get content location from form state
   const contentLocation =

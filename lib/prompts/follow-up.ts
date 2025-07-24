@@ -33,7 +33,7 @@ export function generateFollowUpPrompt(request: LetterRequest) {
 
   const platform = request.platformInfo.isCustom
     ? null
-    : platforms.find((p) => p.name === request.platformInfo.name);
+    : platforms.find((p) => p.id === request.platformInfo.platformId || p.name === request.platformInfo.name);
 
   const platformPolicy = platform ? getPlatformPolicy(platform.id) : null;
 
