@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,7 +8,7 @@ import { analytics } from '@/lib/analytics';
 import { GA_EVENTS } from '@/lib/constants/analytics';
 import { PlatformId } from '@/lib/constants/platforms';
 import { PlatformInfo, useFormContext } from '@/lib/context/FormContext';
-import { platforms, getPlatformById } from '@/lib/platforms';
+import { getPlatformById, platforms } from '@/lib/platforms';
 import { AnimatePresence, motion } from 'framer-motion';
 import { AlertTriangle, Loader2 } from 'lucide-react';
 import Image from 'next/image';
@@ -26,7 +26,7 @@ const MESSAGING_PLATFORMS = [
   'imessenger',
   'i messenger',
   'signal',
-  'telegram'
+  'telegram',
 ];
 
 export function PlatformSelection({ onComplete }: PlatformSelectionProps) {
@@ -52,8 +52,8 @@ export function PlatformSelection({ onComplete }: PlatformSelectionProps) {
 
   const handleOtherPlatformChange = (value: string) => {
     setOtherPlatform(value);
-    const isMessagingPlatform = MESSAGING_PLATFORMS.some(platform => 
-      value.toLowerCase().includes(platform.toLowerCase())
+    const isMessagingPlatform = MESSAGING_PLATFORMS.some((platform) =>
+      value.toLowerCase().includes(platform.toLowerCase()),
     );
     setShowMessagingWarning(isMessagingPlatform);
   };
@@ -67,31 +67,26 @@ export function PlatformSelection({ onComplete }: PlatformSelectionProps) {
 
       if (!selectedPlatform || (selectedPlatform === 'other' && !otherPlatform)) {
         toast({
-          title: "Platform selection required",
-          description: "Please select a platform or enter a custom platform name.",
-          variant: "destructive"
+          title: 'Platform selection required',
+          description: 'Please select a platform or enter a custom platform name.',
+          variant: 'destructive',
         });
         return;
       }
-      let platformInfo: PlatformInfo = {
-        platformId: '',
-        platformName: '',
-        isCustom: false,
-        customName: ''
-      };
+      let platformInfo: PlatformInfo | null = null;
 
       if (selectedPlatform === 'other') {
         platformInfo = {
           platformId: PlatformId.OTHER,
           platformName: otherPlatform,
           isCustom: true,
-          customName: otherPlatform
+          customName: otherPlatform,
         };
 
         // Track custom platform selection
         analytics.trackEvent(GA_EVENTS.TDLG_PLATFORM_SELECTED, {
           platform: otherPlatform,
-          is_custom: true
+          is_custom: true,
         });
       } else {
         // Set platform info for known platform
@@ -100,23 +95,28 @@ export function PlatformSelection({ onComplete }: PlatformSelectionProps) {
           platformInfo = {
             platformId: platform.id,
             platformName: platform.name,
-            isCustom: false
+            isCustom: false,
           };
           // Track known platform selection
           analytics.trackEvent(GA_EVENTS.TDLG_PLATFORM_SELECTED, {
             platform: platform.name,
-            is_custom: false
+            is_custom: false,
           });
         }
       }
-      setPlatformInfo(platformInfo);
-      onComplete(platformInfo);
+
+      if (platformInfo) {
+        setPlatformInfo(platformInfo);
+        onComplete(platformInfo);
+      } else {
+        throw new Error('no platform data set');
+      }
     } catch (error) {
       console.error('Error in platform selection:', error);
       toast({
-        title: "Error selecting platform",
-        description: "There was a problem processing your selection. Please try again.",
-        variant: "destructive"
+        title: 'Error selecting platform',
+        description: 'There was a problem processing your selection. Please try again.',
+        variant: 'destructive',
       });
     } finally {
       setIsLoading(false);
@@ -150,7 +150,7 @@ export function PlatformSelection({ onComplete }: PlatformSelectionProps) {
             </div>
           </motion.div>
         ))}
-        
+
         <motion.div
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
@@ -205,14 +205,15 @@ export function PlatformSelection({ onComplete }: PlatformSelectionProps) {
                   <div className="space-y-2">
                     <h4 className="font-medium">Reminder about messaging platforms</h4>
                     <p className="text-muted-foreground text-sm">
-                      Remember that for messaging platforms such as WhatsApp, iMessage, Signal and Telegram, 
-                      the platform does not have the power to remove content from people's messaging threads 
-                      or groups. If you have been sent the content, or are in the group it was shared then 
-                      you can report the individual sharing it from within the app.
+                      Remember that for messaging platforms such as WhatsApp, iMessage, Signal and
+                      Telegram, the platform does not have the power to remove content from people's
+                      messaging threads or groups. If you have been sent the content, or are in the
+                      group it was shared then you can report the individual sharing it from within
+                      the app.
                     </p>
                     <p className="text-muted-foreground text-sm">
-                      You can still go ahead and generate a letter to send to the platform if you think it 
-                      will be helpful in your case.
+                      You can still go ahead and generate a letter to send to the platform if you
+                      think it will be helpful in your case.
                     </p>
                   </div>
                 </div>
@@ -231,7 +232,9 @@ export function PlatformSelection({ onComplete }: PlatformSelectionProps) {
           <Button
             onClick={handleContinue}
             className="pill bg-primary text-white px-6 py-2.5 hover:opacity-90"
-            disabled={isLoading || !selectedPlatform || (selectedPlatform === 'other' && !otherPlatform)}
+            disabled={
+              isLoading || !selectedPlatform || (selectedPlatform === 'other' && !otherPlatform)
+            }
           >
             {isLoading ? (
               <>

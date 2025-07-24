@@ -1,23 +1,34 @@
 import { LetterRequest } from '@/types/letter';
-import { PlatformId } from '../constants/platforms';
 import { QUALITY_CHECK_CRITERIA } from '../constants/ai';
 import { getPlatformPolicy, getRelevantPolicies } from '../platform-policies';
 import { getPlatformPolicyId } from '../platforms';
 
 export interface QualityCheckResponse {
-  issues: 
-    {
-      severity: "CRITICAL" | "MINOR",
-      code: "HALLUCINATION" | "SENSITIVE_DATA" | "POLICY_ERROR" | "BANNED_TERM" | "AGGRESSIVE_TONE" | "LANGUAGE" | "IMPROPER_TONE" | "STRUCTURE" | "INFO_HANDLING" | "SUBJECT_LINE",
-      description: string
-    }[],
+  issues: {
+    severity: 'CRITICAL' | 'MINOR';
+    code:
+      | 'HALLUCINATION'
+      | 'SENSITIVE_DATA'
+      | 'POLICY_ERROR'
+      | 'BANNED_TERM'
+      | 'AGGRESSIVE_TONE'
+      | 'LANGUAGE'
+      | 'IMPROPER_TONE'
+      | 'STRUCTURE'
+      | 'INFO_HANDLING'
+      | 'SUBJECT_LINE';
+    description: string;
+  }[];
   improvedLetter: {
-    subject: string,
-    body:string
-  }
+    subject: string;
+    body: string;
+  };
 }
 
-export function generateLetterQualityCheckPrompt(letter: {subject:string, body:string}, request: LetterRequest) {
+export function generateLetterQualityCheckPrompt(
+  letter: { subject: string; body: string },
+  request: LetterRequest,
+) {
   const initialInfo = request.initialQuestions;
   const followUpInfo = request.followUp || {};
   const reportingInfo = request.reportingDetails || {};
@@ -44,7 +55,7 @@ export function generateLetterQualityCheckPrompt(letter: {subject:string, body:s
     reportingInfo.responseReceived ||
     reportingInfo.additionalStepsTaken;
 
-  return   `
+  return `
 # ROLE & OBJECTIVE
 
 You are a meticulous and exacting Quality Assurance (QA) Analyst AI. Your primary objective is to audit a generated letter against a master set of rules and context. You will identify all deviations, provide a surgically corrected version of the letter that makes only the necessary changes, and produce a comprehensive audit report of all issues found.
@@ -84,30 +95,44 @@ This section contains the *entire universe* of allowed information and rules for
 ### Part A: Factual Context
 Content Type: ${request.initialQuestions.contentType}
 Content Context: ${request.initialQuestions.contentContext}
-Platform: ${request.platformInfo.platformName}
+Platform: ${request.platformInfo.platformName || request.platformInfo.customName}
 Upload Date: ${initialInfo.imageUploadDate || 'Not provided'}
 Creation Date: ${initialInfo.imageTakenDate || 'Not provided'}
 Ownership Evidence: ${initialInfo.ownershipEvidence || 'Not provided'}
 Impact Statement: ${initialInfo.impactStatement || 'Not provided'}
-${hasReportingHistory ? `Standard Process Details: ${reportingInfo.standardProcessDetails || 'Not provided'}
+${
+  hasReportingHistory
+    ? `Standard Process Details: ${reportingInfo.standardProcessDetails || 'Not provided'}
 Escalated Process Details: ${reportingInfo.escalatedProcessDetails || 'Not provided'}
 Response Received: ${reportingInfo.responseReceived || 'Not provided'}
 Additional Steps Taken: ${reportingInfo.additionalStepsTaken || 'Not provided'}
-` : ''}
-${Object.entries(followUpInfo).map(([key, value]) => `${key}: ${value || 'Not provided'}`).join('\\n')}
+`
+    : ''
+}
+${Object.entries(followUpInfo)
+  .map(([key, value]) => `${key}: ${value || 'Not provided'}`)
+  .join('\\n')}
 
-${relevantPolicies ? `PLATFORM POLICY CONTEXT:
+${
+  relevantPolicies
+    ? `PLATFORM POLICY CONTEXT:
 Platform-Specific polices Context for ${platformPolicy?.name} likely applicable to this letter:
 
-${relevantPolicies.map((policy) => `- * ${policy.policy}*
+${relevantPolicies
+  .map(
+    (policy) => `- * ${policy.policy}*
   Documents: ${policy.documents.map((doc) => doc.title).join(', ')}
   Removal Criteria: ${policy.removalCriteria.join(', ')}
-  Evidence Requirements: ${policy.evidenceRequirements.join(', ')}`).join('\\n')}
+  Evidence Requirements: ${policy.evidenceRequirements.join(', ')}`,
+  )
+  .join('\\n')}
 
 Timeframes:
 - Initial Response: ${platformPolicy?.timeframes.response}
 - Content Removal: ${platformPolicy?.timeframes.removal}
-` : ''}
+`
+    : ''
+}
 
 ### Part B: Quality Ruleset
 
@@ -167,7 +192,5 @@ You MUST respond with a single, valid JSON object. The object must have this exa
   }
 }
 \`\`\`
-`
-
+`;
 }
-

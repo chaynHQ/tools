@@ -17,7 +17,7 @@ import { useToast } from '@/hooks/use-toast';
 import { analytics } from '@/lib/analytics';
 import { GA_EVENTS } from '@/lib/constants/analytics';
 import { IS_DEVELOPMENT, IS_PREVIEW } from '@/lib/constants/common';
-import { PlatformId, PLATFORM_EMAILS } from '@/lib/constants/platforms';
+import { PLATFORM_EMAILS, PlatformId } from '@/lib/constants/platforms';
 import { useFormContext } from '@/lib/context/FormContext';
 import { generateSessionId, sendDevDataToZapier } from '@/lib/dev/data-collection';
 import { getPlatformById } from '@/lib/platforms';
