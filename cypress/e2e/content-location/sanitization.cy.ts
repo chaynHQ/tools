@@ -1,11 +1,28 @@
 describe('Content Location Sanitization and Desanitization', () => {
+  interface TestScenario {
+    platform: string;
+    contentLocation: string;
+    locationType: 'url' | 'description';
+    contentType: string;
+    contentContext: string;
+    reportingStatus?: string;
+    uploadDate: string;
+    creationDate: string;
+    ownershipEvidence: string;
+    impactStatement: string;
+    standardProcessDetails?: string;
+    escalatedProcessDetails?: string;
+    responseReceived?: string;
+    additionalStepsTaken?: string;
+  }
+
   beforeEach(() => {
     cy.visit('/');
     cy.dismissDevWarning();
   });
 
   // Test data for different scenarios
-  const testScenarios = {
+  const testScenarios: Record<string, TestScenario> = {
     facebookUrl: {
       platform: 'Facebook',
       contentLocation: 'https://facebook.com/test-post-12345',
