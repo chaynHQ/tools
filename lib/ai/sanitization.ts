@@ -47,99 +47,62 @@ export function sanitizeText(text: string): string {
     text = text.substring(0, 10000);
   }
 
-  // Store original values and their unique placeholders for restoration
-  const replacements: Array<{ original: string; placeholder: string }> = [];
-
   return (
     text
       // Remove email addresses
-      .replace(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g, (match) => {
-        const placeholder = generateUniquePlaceholder(PLACEHOLDER_TYPES.EMAIL);
-        replacements.push({ original: match, placeholder });
-        return placeholder;
+      .replace(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g, () => {
+        return generateUniquePlaceholder(PLACEHOLDER_TYPES.EMAIL);
       })
       // Remove phone numbers (various formats)
-      .replace(/(?:\+?\d{1,3}[-. ]?)?\(?\d{3}\)?[-. ]?\d{3}[-. ]?\d{4}/g, (match) => {
-        const placeholder = generateUniquePlaceholder(PLACEHOLDER_TYPES.PHONE);
-        replacements.push({ original: match, placeholder });
-        return placeholder;
+      .replace(/(?:\+?\d{1,3}[-. ]?)?\(?\d{3}\)?[-. ]?\d{3}[-. ]?\d{4}/g, () => {
+        return generateUniquePlaceholder(PLACEHOLDER_TYPES.PHONE);
       })
       // Remove case/reference numbers
-      .replace(/\b(?:case|ref|reference|ticket)\s*#?\s*[\w-]+/gi, (match) => {
-        const placeholder = generateUniquePlaceholder(PLACEHOLDER_TYPES.REFERENCE);
-        replacements.push({ original: match, placeholder });
-        return placeholder;
+      .replace(/\b(?:case|ref|reference|ticket)\s*#?\s*[\w-]+/gi, () => {
+        return generateUniquePlaceholder(PLACEHOLDER_TYPES.REFERENCE);
       })
       // Remove dates in various formats while preserving general timeframes
-      .replace(/\b\d{1,2}[-/]\d{1,2}[-/]\d{2,4}\b/g, (match) => {
-        const placeholder = generateUniquePlaceholder(PLACEHOLDER_TYPES.DATE);
-        replacements.push({ original: match, placeholder });
-        return placeholder;
+      .replace(/\b\d{1,2}[-/]\d{1,2}[-/]\d{2,4}\b/g, () => {
+        return generateUniquePlaceholder(PLACEHOLDER_TYPES.DATE);
       })
       // Remove IP addresses
-      .replace(/\b(?:\d{1,3}\.){3}\d{1,3}\b/g, (match) => {
-        const placeholder = generateUniquePlaceholder(PLACEHOLDER_TYPES.IP);
-        replacements.push({ original: match, placeholder });
-        return placeholder;
+      .replace(/\b(?:\d{1,3}\.){3}\d{1,3}\b/g, () => {
+        return generateUniquePlaceholder(PLACEHOLDER_TYPES.IP);
       })
       // Remove long numbers that might be IDs
-      .replace(/\b\d{10,}\b/g, (match) => {
-        const placeholder = generateUniquePlaceholder(PLACEHOLDER_TYPES.ID);
-        replacements.push({ original: match, placeholder });
-        return placeholder;
+      .replace(/\b\d{10,}\b/g, () => {
+        return generateUniquePlaceholder(PLACEHOLDER_TYPES.ID);
       })
       // Remove social media handles while preserving platform names
-      .replace(/@[\w.]+/g, (match) => {
-        const placeholder = generateUniquePlaceholder(PLACEHOLDER_TYPES.USERNAME);
-        replacements.push({ original: match, placeholder });
-        return placeholder;
+      .replace(/@[\w.]+/g, () => {
+        return generateUniquePlaceholder(PLACEHOLDER_TYPES.USERNAME);
       })
-      // Remove URLs while preserving domain names
-      .replace(/https?:\/\/[^\s]+/g, (match) => {
-        try {
-          const url = new URL(match);
-          const placeholder = generateUniquePlaceholder(PLACEHOLDER_TYPES.URL);
-          const urlPlaceholder = `${placeholder}:${url.hostname}`;
-          replacements.push({ original: match, placeholder: urlPlaceholder });
-          return urlPlaceholder;
-        } catch {
-          const placeholder = generateUniquePlaceholder(PLACEHOLDER_TYPES.URL);
-          replacements.push({ original: match, placeholder });
-          return placeholder;
-        }
+      // Remove URLs
+      .replace(/https?:\/\/[^\s]+/g, () => {
+        return generateUniquePlaceholder(PLACEHOLDER_TYPES.URL);
       })
       // Remove platform-specific identifiers
-      .replace(/\b(?:facebook\.com|instagram\.com|tiktok\.com)\/[^\s]+/g, (match) => {
-        const placeholder = generateUniquePlaceholder(PLACEHOLDER_TYPES.PLATFORM);
-        replacements.push({ original: match, placeholder });
-        return placeholder;
+      .replace(/\b(?:facebook\.com|instagram\.com|tiktok\.com)\/[^\s]+/g, () => {
+        return generateUniquePlaceholder(PLACEHOLDER_TYPES.PLATFORM);
       })
       // Remove case numbers and ticket references
-      .replace(/\b(?:case|ticket|ref)[-#]?\d+\b/gi, (match) => {
-        const placeholder = generateUniquePlaceholder(PLACEHOLDER_TYPES.CASE_NUMBER);
-        replacements.push({ original: match, placeholder });
-        return placeholder;
+      .replace(/\b(?:case|ticket|ref)[-#]?\d+\b/gi, () => {
+        return generateUniquePlaceholder(PLACEHOLDER_TYPES.CASE_NUMBER);
       })
       // Remove account identifiers
-      .replace(/\baccount\s*(?:id|number|#)?\s*[\w-]+\b/gi, (match) => {
-        const placeholder = generateUniquePlaceholder(PLACEHOLDER_TYPES.ACCOUNT);
-        replacements.push({ original: match, placeholder });
-        return placeholder;
+      .replace(/\baccount\s*(?:id|number|#)?\s*[\w-]+\b/gi, () => {
+        return generateUniquePlaceholder(PLACEHOLDER_TYPES.ACCOUNT);
       })
       // Remove location information
       .replace(
         /\b(?:address|location|city|state|zip|postal)\s*:\s*[^\n,]+/gi,
-        (match) => {
-          const placeholder = generateUniquePlaceholder(PLACEHOLDER_TYPES.LOCATION);
-          replacements.push({ original: match, placeholder });
-          return placeholder;
+        () => {
+          return generateUniquePlaceholder(PLACEHOLDER_TYPES.LOCATION);
         }
       )
       // Remove potential names (sequences of capitalized words)
-      .replace(/\b(?:[A-Z][a-z]+(?:\s+[A-Z][a-z]+)+)\b/g, (match) => {
-        const placeholder = generateUniquePlaceholder(PLACEHOLDER_TYPES.NAME);
-        replacements.push({ original: match, placeholder });
-        return placeholder;
+      .replace(/\b(?:[A-Z][a-z]+(?:\s+[A-Z][a-z]+)+)\b/g, () => {
+        return generateUniquePlaceholder(PLACEHOLDER_TYPES.NAME);
       })
       // Remove any remaining special characters that could be used for injection
       .replace(/[^\w\s.,!?-]/g, '')
@@ -167,47 +130,16 @@ export function sanitizeFormData(data: Record<string, any>): Record<string, any>
       }
 
       if (isContentLocation) {
-        const placeholder = generateUniquePlaceholder(PLACEHOLDER_TYPES.CONTENT_LOCATION);
-        mappings.set(placeholder, value);
+        mappings.set(PLACEHOLDER_TYPES.CONTENT_LOCATION, value);
         return PLACEHOLDER_TYPES.CONTENT_LOCATION;
       }
       
-      // Store original text for mapping extraction
+      // Store original text and process sanitization
       const originalValue = value;
       const sanitizedText = sanitizeText(value);
       
-      if (sanitizedText !== originalValue) {
-        // Extract and store mappings for all placeholders found
-        const placeholders = sanitizedText.match(/\[[^\]]*\]/g) || [];
-        
-        // For URL placeholders with domain info, we need to reconstruct the original URL
-        placeholders.forEach((placeholder) => {
-          if (placeholder.includes(':') && placeholder.startsWith('[URL')) {
-            // Handle URL placeholders with domain info like [URL:facebook.com] or [URL_2:instagram.com]
-            const domainMatch = placeholder.match(/\[URL[^:]*:([^\]]+)\]/);
-            if (domainMatch) {
-              const domain = domainMatch[1];
-              // Find the original URL that matches this domain
-              const urlRegex = new RegExp(`https?://[^\\s]*${domain.replace('.', '\\.')}[^\\s]*`, 'g');
-              const urlMatch = originalValue.match(urlRegex);
-              if (urlMatch) {
-                mappings.set(placeholder, urlMatch[0]);
-              }
-            }
-          } else {
-            // For other placeholders, we need to find the original value
-            // This is more complex since we've already replaced the text
-            // We'll store a mapping based on the placeholder type
-            if (!mappings.has(placeholder)) {
-              // Try to extract the original value based on the placeholder type
-              const originalMatch = extractOriginalValue(originalValue, placeholder);
-              if (originalMatch) {
-                mappings.set(placeholder, originalMatch);
-              }
-            }
-          }
-        });
-      }
+      // Extract and store mappings for all placeholders found
+      extractAndStoreMappings(originalValue, sanitizedText, mappings);
       
       return sanitizedText;
     }
@@ -242,52 +174,35 @@ export function sanitizeFormData(data: Record<string, any>): Record<string, any>
   return { formId, ...sanitized };
 }
 
-// Helper function to extract original values based on placeholder type
-function extractOriginalValue(originalText: string, placeholder: string): string | null {
-  // Extract the base type from placeholder (e.g., [EMAIL_2] -> EMAIL)
-  const baseType = placeholder.replace(/\[([A-Z_]+)(_\d+)?\]/, '$1');
-  
-  switch (baseType) {
-    case 'EMAIL':
-      const emailMatch = originalText.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
-      return emailMatch ? emailMatch[0] : null;
-    case 'PHONE':
-      const phoneMatch = originalText.match(/(?:\+?\d{1,3}[-. ]?)?\(?\d{3}\)?[-. ]?\d{3}[-. ]?\d{4}/);
-      return phoneMatch ? phoneMatch[0] : null;
-    case 'DATE':
-      const dateMatch = originalText.match(/\b\d{1,2}[-/]\d{1,2}[-/]\d{2,4}\b/);
-      return dateMatch ? dateMatch[0] : null;
-    case 'IP':
-      const ipMatch = originalText.match(/\b(?:\d{1,3}\.){3}\d{1,3}\b/);
-      return ipMatch ? ipMatch[0] : null;
-    case 'ID':
-      const idMatch = originalText.match(/\b\d{10,}\b/);
-      return idMatch ? idMatch[0] : null;
-    case 'USERNAME':
-      const usernameMatch = originalText.match(/@[\w.]+/);
-      return usernameMatch ? usernameMatch[0] : null;
-    case 'REFERENCE':
-      const refMatch = originalText.match(/\b(?:case|ref|reference|ticket)\s*#?\s*[\w-]+/i);
-      return refMatch ? refMatch[0] : null;
-    case 'CASE_NUMBER':
-      const caseMatch = originalText.match(/\b(?:case|ticket|ref)[-#]?\d+\b/i);
-      return caseMatch ? caseMatch[0] : null;
-    case 'ACCOUNT':
-      const accountMatch = originalText.match(/\baccount\s*(?:id|number|#)?\s*[\w-]+\b/i);
-      return accountMatch ? accountMatch[0] : null;
-    case 'LOCATION':
-      const locationMatch = originalText.match(/\b(?:address|location|city|state|zip|postal)\s*:\s*[^\n,]+/i);
-      return locationMatch ? locationMatch[0] : null;
-    case 'NAME':
-      const nameMatch = originalText.match(/\b(?:[A-Z][a-z]+(?:\s+[A-Z][a-z]+)+)\b/);
-      return nameMatch ? nameMatch[0] : null;
-    case 'PLATFORM':
-      const platformMatch = originalText.match(/\b(?:facebook\.com|instagram\.com|tiktok\.com)\/[^\s]+/);
-      return platformMatch ? platformMatch[0] : null;
-    default:
-      return null;
-  }
+// Extract and store mappings between placeholders and original values
+function extractAndStoreMappings(originalText: string, sanitizedText: string, mappings: Map<string, string>): void {
+  // Define regex patterns for each type of sensitive data
+  const patterns = [
+    { type: 'EMAIL', regex: /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g },
+    { type: 'PHONE', regex: /(?:\+?\d{1,3}[-. ]?)?\(?\d{3}\)?[-. ]?\d{3}[-. ]?\d{4}/g },
+    { type: 'URL', regex: /https?:\/\/[^\s]+/g },
+    { type: 'REFERENCE', regex: /\b(?:case|ref|reference|ticket)\s*#?\s*[\w-]+/gi },
+    { type: 'DATE', regex: /\b\d{1,2}[-/]\d{1,2}[-/]\d{2,4}\b/g },
+    { type: 'IP', regex: /\b(?:\d{1,3}\.){3}\d{1,3}\b/g },
+    { type: 'ID', regex: /\b\d{10,}\b/g },
+    { type: 'USERNAME', regex: /@[\w.]+/g },
+    { type: 'PLATFORM', regex: /\b(?:facebook\.com|instagram\.com|tiktok\.com)\/[^\s]+/g },
+    { type: 'CASE_NUMBER', regex: /\b(?:case|ticket|ref)[-#]?\d+\b/gi },
+    { type: 'ACCOUNT', regex: /\baccount\s*(?:id|number|#)?\s*[\w-]+\b/gi },
+    { type: 'LOCATION', regex: /\b(?:address|location|city|state|zip|postal)\s*:\s*[^\n,]+/gi },
+    { type: 'NAME', regex: /\b(?:[A-Z][a-z]+(?:\s+[A-Z][a-z]+)+)\b/g },
+  ];
+
+  // For each pattern type, find all matches and map them to placeholders
+  patterns.forEach(({ type, regex }) => {
+    const matches = Array.from(originalText.matchAll(regex));
+    matches.forEach((match, index) => {
+      const placeholder = index === 0 ? `[${type}]` : `[${type}_${index + 1}]`;
+      mappings.set(placeholder, match[0]);
+    });
+  });
 }
+
 
 // Restore sanitized data in the letter
 export function desanitizeLetter(text: string, formId: string): string {
