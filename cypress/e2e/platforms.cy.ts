@@ -184,10 +184,8 @@ describe('Platform Tests', () => {
   }
 
   function waitForLetterGeneration(skipProcesses: boolean) {
-    if (!skipProcesses) {
-      cy.contains('Analysing your responses', { timeout: 30000 });
-      cy.contains('Continue', { timeout: 30000 }).click();
-    }
+    cy.contains('Analysing your responses', { timeout: 30000 });
+    cy.contains('Continue', { timeout: 30000 }).click();
     cy.contains('Creating your letter', { timeout: 40000 });
     cy.contains('Review and send', { timeout: 100000 }).should('be.visible');
   }

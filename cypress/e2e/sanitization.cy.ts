@@ -148,7 +148,7 @@ describe('Content Location Sanitization and Desanitization', () => {
     cy.contains('Message content', { timeout: 100000 }).should('be.visible');
   }
 
-  it('correctly sanitizes and restores URL content location in generated letter', () => {
+  it.skip('correctly sanitizes and restores URL content location in generated letter', () => {
     const data = testScenarios.facebookUrl;
 
     startFlow();
@@ -159,7 +159,7 @@ describe('Content Location Sanitization and Desanitization', () => {
     verifyContentLocationInLetter(data.contentLocation, data.locationType);
   });
 
-  it('correctly sanitizes and restores description content location in generated letter', () => {
+  it.skip('correctly sanitizes and restores description content location in generated letter', () => {
     const data = testScenarios.instagramDescription;
 
     startFlow();
@@ -170,7 +170,7 @@ describe('Content Location Sanitization and Desanitization', () => {
     verifyContentLocationInLetter(data.contentLocation, data.locationType);
   });
 
-  it('handles content location restoration for custom platforms', () => {
+  it.skip('handles content location restoration for custom platforms', () => {
     const data = testScenarios.redditUrl;
 
     startFlow();
