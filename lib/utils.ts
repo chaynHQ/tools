@@ -34,9 +34,7 @@ export function parseAIJson(input: string) {
     // Try to parse as is first
     try {
       return JSON.parse(trimmedInput);
-    } catch (e) {
-      console.log('Initial JSON parse failed, attempting cleanup...');
-    }
+    } catch (e) {}
 
     // Remove any non-JSON text before the first { and after the last }
     const jsonStart = trimmedInput.indexOf('{');
@@ -63,7 +61,6 @@ export function parseAIJson(input: string) {
     try {
       return JSON.parse(cleanedInput);
     } catch (e) {
-      console.log(input);
       console.error('Failed to parse cleaned JSON:', cleanedInput);
       throw new Error('Failed to parse AI response - the response format was invalid');
     }
