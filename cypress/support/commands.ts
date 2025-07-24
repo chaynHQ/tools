@@ -62,62 +62,64 @@ Cypress.Commands.add('verifyDevWarningContent', () => {
   });
 });
 
-Cypress.Commands.add('verifyContentLocationInLetter', (expectedLocation: string, locationType: 'url' | 'description') => {
+Cypress.Commands.add('verifyContentLocationInLetter', (expectedLocation: string) => {
   // Verify the content location appears in the letter body
-  cy.get('h4').contains('Message content').parent().within(() => {
-    cy.get('div').should('contain', expectedLocation);
-    cy.get('div').should('not.contain', '[Content Location]');
-    cy.get('div').should('not.contain', '[CONTENT_LOCATION]');
-    
-    // Verify the correct format based on type
-    if (locationType === 'url') {
-      cy.get('div').should('contain', 'The content can be found at ' + expectedLocation);
-    } else {
-      cy.get('div').should('contain', 'The content can be found at the following location: ' + expectedLocation);
-    }
-  });
+  cy.get('h4')
+    .contains('Message content')
+    .parent()
+    .within(() => {
+      cy.get('div').should('contain', expectedLocation);
+      cy.get('div').should('not.contain', '[Content Location]');
+      cy.get('div').should('not.contain', '[CONTENT_LOCATION]');
+
+      // Verify the correct format based on type
+      cy.get('div').should('contain', 'Content location: ' + expectedLocation);
+    });
 });
 
-Cypress.Commands.add('fillBasicLetterForm', (platform: string, contentLocation: string, locationType: 'url' | 'description') => {
-  // Start the process
-  cy.contains('Start your request').click();
-  cy.get('h2').contains('Building your takedown letter');
-  cy.contains('Start your request').click();
-  
-  // Select platform
-  if (platform === 'Other') {
-    cy.contains('Other platform').click();
-    cy.get('#other-platform').type('TestPlatform');
-  } else {
-    cy.get('h3').contains(platform).click();
-  }
-  cy.contains('Continue').click();
-  
-  // Skip removal process for known platforms or handle custom platforms
-  if (platform !== 'Other') {
-    cy.contains("I haven't tried either process yet").click();
+Cypress.Commands.add(
+  'fillBasicLetterForm',
+  (platform: string, contentLocation: string, locationType: 'url' | 'description') => {
+    // Start the process
+    cy.contains('Start your request').click();
+    cy.get('h2').contains('Building your takedown letter');
+    cy.contains('Start your request').click();
+
+    // Select platform
+    if (platform === 'Other') {
+      cy.contains('Other platform').click();
+      cy.get('#other-platform').type('TestPlatform');
+    } else {
+      cy.get('h3').contains(platform).click();
+    }
     cy.contains('Continue').click();
-  }
-  
-  // Fill initial questions
-  cy.contains('Intimate images').click();
-  cy.contains('Account was compromised').click();
-  
-  if (locationType === 'url') {
-    cy.get('input[type="radio"][value="url"]').check();
-    cy.get('input[id="contentUrl"]').type(contentLocation);
-  } else {
-    cy.get('input[type="radio"][value="description"]').check();
-    cy.get('#contentDescription').type(contentLocation);
-  }
-  
-  cy.get('#imageUploadDate').type('1 March 2025');
-  cy.get('#imageTakenDate').type('15 February 2025');
-  cy.get('#ownershipEvidence').type('I can verify this content');
-  cy.get('#impactStatement').type('This has caused significant distress');
-  cy.contains('Continue').click();
-  
-  // Skip follow-up questions and wait for letter generation
-  cy.contains('Continue', { timeout: 30000 }).click();
-  cy.contains('Review and send', { timeout: 100000 }).should('be.visible');
-});
+
+    // Skip removal process for known platforms or handle custom platforms
+    if (platform !== 'Other') {
+      cy.contains("I haven't tried either process yet").click();
+      cy.contains('Continue').click();
+    }
+
+    // Fill initial questions
+    cy.contains('Intimate images').click();
+    cy.contains('Account was compromised').click();
+
+    if (locationType === 'url') {
+      cy.get('input[type="radio"][value="url"]').check();
+      cy.get('input[id="contentUrl"]').type(contentLocation);
+    } else {
+      cy.get('input[type="radio"][value="description"]').check();
+      cy.get('#contentDescription').type(contentLocation);
+    }
+
+    cy.get('#imageUploadDate').type('1 March 2025');
+    cy.get('#imageTakenDate').type('15 February 2025');
+    cy.get('#ownershipEvidence').type('I can verify this content');
+    cy.get('#impactStatement').type('This has caused significant distress');
+    cy.contains('Continue').click();
+
+    // Skip follow-up questions and wait for letter generation
+    cy.contains('Continue', { timeout: 30000 }).click();
+    cy.contains('Review and send', { timeout: 100000 }).should('be.visible');
+  },
+);

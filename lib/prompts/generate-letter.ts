@@ -53,7 +53,8 @@ export function generateLetterPrompt(request: LetterRequest) {
 
 1.  **Single Source of Truth:** You MUST base the entire response *only* on the variables provided in the \`# INPUTS\` section. Do not invent, assume, or infer any information not explicitly stated there.
 2.  **Professional Tone:** The tone must always be professional, direct, and respectful. Avoid demanding, aggressive, threatening, or overly legalistic language that impersonates a legal representative.
-3.  **Final Output Only:** Generate only the final, ready-to-send letter. The body MUST NOT contain any of your own notes, comments, or newly generated placeholder descriptions (e.g., \`[Insert evidence description here]\`).
+3.  **Content Location:** Every letter MUST include this exact statement: \`Content location: [Content Location]\` after the opening paragraph and alongside timeline dates. Do NOT use an existing placeholder like \`[URL]\` that may have been provided for extra evidence.
+4.  **Final Output Only:** Generate only the final, ready-to-send letter. The body MUST NOT contain any of your own notes, comments, or newly generated placeholder descriptions (e.g., \`[Insert evidence description here]\`).
 
 ---
 
@@ -70,7 +71,7 @@ export function generateLetterPrompt(request: LetterRequest) {
     * **Format:** \`Policy Title: Document Name\`
     * **Example:** If the policy is "Bullying and Harassment" from the "Community Standards", cite it as \`Bullying and Harassment: Community Standards\`.
     * **Constraint:** DO NOT use internal codes or abbreviations (e.g., \`FB-TOS-BH\`).
-* **Placeholders:** Use the provided placeholders (e.g., \`[Content Location]\`, \`[Phone]\`) where relevant. DO NOT create new placeholders.
+* **Placeholders:** Maintain the existing placeholders from the \`# INPUTS \` data where the data supports the letter. Placeholders (e.g.\`[URL]\`, \`[Phone]\`) MUST be outputted with the exact same name and format. DO NOT create new placeholders.
 * **Confidentiality:** DO NOT mention or request identity verification, government IDs, proof of residence, or similar official documentation.
 
 ### **Impact Statements**
@@ -89,7 +90,7 @@ export function generateLetterPrompt(request: LetterRequest) {
 Construct the letter following this exact structure. Omit any section if the corresponding input is not provided.
 
 1.  **Introduction:** State the letter's purpose and briefly summarise the core policy violations.
-2a.  **Content Identification:** Clearly identify the content and every letter MUST include the statement: \`Content location: [Content Location]\`. \`[Content Location]\` will be desanitised/filled later.
+2a.  **Content Location:** Every letter MUST include this exact statement: \`Content location: [Content Location]\`. Do NOT use an existing placeholder like \`[URL]\` that may have been provided for extra evidence.
 2b.  **Content Timeline:**  If \`Upload Date\` and/or \`Creation Date\` are provided in the \`# INPUTS\` section, clearly state these e.g. \`Date uploaded: \`. Format the value provided by the user e.g. "10 March last year" to "10/03/24". Todays date is ${new Date()}.
 3.  **Policy Violations:** List the specific policies violated, using the citation format defined in the guidelines.
 4.  **Supporting Evidence:** Reference any links or evidence provided by the user. Mention previous reporting processes if available in \`# INPUTS\` \`Standard Process Details\` and/or \`Escalated Process Details\`.
