@@ -198,4 +198,56 @@ describe('Content Location Sanitization and Desanitization', () => {
     // Verify content location is still present in regenerated letter
     verifyContentLocationInLetter(data.contentLocation, data.locationType);
   });
+
+  it('sanitizes and restores multiple sensitive data types (URL, ID, phone, email)', () => {
+    const sensitiveData: TestScenario = {
+      platform: 'Facebook',
+      contentLocation: 'https://facebook.com/posts/1234567890123456',
+      locationType: 'url',
+      contentType: 'Personal content',
+      contentContext: 'Posted by someone I know',
+      reportingStatus: "I've tried the standard reporting process",
+      uploadDate: '15 March 2025',
+      creationDate: '10 March 2025',
+      ownershipEvidence: 'I can verify ownership through my email test@example.com and phone 07123456789. The original file ID is 9876543210987654.',
+      impactStatement: 'This has affected my professional reputation. My contact details test.user@company.co.uk and backup phone +44 20 7946 0958 are now exposed.',
+      standardProcessDetails: 'I reported via https://facebook.com/help/contact and provided reference ID 1122334455667788. They responded to my email admin@mycompany.com but took no action.',
+    };
+
+    startFlow();
+    selectPlatform(sensitiveData.platform);
+    selectReportingStatus(sensitiveData.reportingStatus);
+    fillInitialQuestions(sensitiveData);
+    fillReportingDetails(sensitiveData);
+    waitForLetterGeneration();
+
+    // Verify the letter contains the original content location URL
+    verifyContentLocationInLetter(sensitiveData.contentLocation, sensitiveData.locationType);
+
+    // Verify that other sensitive data has been properly sanitized and restored
+    cy.get('h4')
+      .contains('Message content')
+      .parent()
+      .within(() => {
+        // Should contain the original sensitive data (properly desanitized)
+        cy.get('div').should('contain', 'test@example.com');
+        cy.get('div').should('contain', '07123456789');
+        cy.get('div').should('contain', '9876543210987654');
+        cy.get('div').should('contain', 'test.user@company.co.uk');
+        cy.get('div').should('contain', '+44 20 7946 0958');
+        cy.get('div').should('contain', 'https://facebook.com/help/contact');
+        cy.get('div').should('contain', '1122334455667788');
+        cy.get('div').should('contain', 'admin@mycompany.com');
+        
+        // Should NOT contain any placeholder artifacts
+        cy.get('div').should('not.contain', '[EMAIL]');
+        cy.get('div').should('not.contain', '[PHONE]');
+        cy.get('div').should('not.contain', '[ID]');
+        cy.get('div').should('not.contain', '[URL]');
+        cy.get('div').should('not.contain', 'URLfacebook.com');
+        cy.get('div').should('not.contain', 'EMAILtest');
+        cy.get('div').should('not.contain', 'PHONE07123');
+        cy.get('div').should('not.contain', 'ID9876543');
+      });
+  });
 });
