@@ -4,188 +4,174 @@ describe('Content Location Sanitization and Desanitization', () => {
     cy.dismissDevWarning();
   });
 
-  it('correctly sanitizes and restores URL content location in generated letter', () => {
-    const testUrl = 'https://facebook.com/test-post-12345';
-    
-    // Complete the flow with URL content location
+  // Test data for different scenarios
+  const testScenarios = {
+    facebookUrl: {
+      platform: 'Facebook',
+      contentLocation: 'https://facebook.com/test-post-12345',
+      locationType: 'url' as const,
+      contentType: 'Intimate images',
+      contentContext: 'Account was compromised',
+      reportingStatus: "I haven't tried either process yet",
+      uploadDate: '1 March 2025',
+      creationDate: '15 February 2025',
+      ownershipEvidence: 'I can verify this is my content',
+      impactStatement: 'This has caused significant distress'
+    },
+    instagramDescription: {
+      platform: 'Instagram',
+      contentLocation: 'The content appears in posts by the user @testuser in their photo album',
+      locationType: 'description' as const,
+      contentType: 'Personal content',
+      contentContext: 'Someone is impersonating me',
+      reportingStatus: "I haven't tried either process yet",
+      uploadDate: '2 March 2025',
+      creationDate: '20 February 2025',
+      ownershipEvidence: 'I have the original files',
+      impactStatement: 'This is affecting my reputation'
+    },
+    redditUrl: {
+      platform: 'Reddit',
+      contentLocation: 'https://reddit.com/r/test/comments/abc123',
+      locationType: 'url' as const,
+      contentType: 'Private information',
+      contentContext: 'Posted by someone I know',
+      uploadDate: '5 March 2025',
+      creationDate: '1 March 2025',
+      ownershipEvidence: 'This is my personal information',
+      impactStatement: 'This violates my privacy'
+    },
+    tiktokRegeneration: {
+      platform: 'TikTok',
+      contentLocation: 'https://tiktok.com/@user/video/1234567890',
+      locationType: 'url' as const,
+      contentType: 'Intimate images',
+      contentContext: 'Posted by someone I know',
+      reportingStatus: "I've tried the standard reporting process",
+      uploadDate: '10 March 2025',
+      creationDate: '5 March 2025',
+      ownershipEvidence: 'I can verify ownership',
+      impactStatement: 'This is causing distress',
+      standardProcessDetails: 'I reported through TikTok reporting tool'
+    }
+  };
+
+  function startFlow() {
     cy.contains('Start your request').click();
-    cy.get('h2').contains('Building your takedown letter', {timeout: 10000});
+    cy.get('h2').contains('Building your takedown letter', { timeout: 10000 });
     cy.contains('Start your request').click();
-    
-    // Select platform
-    cy.get('h3').contains('Facebook').click();
+  }
+
+  function selectPlatform(platformName: string) {
+    if (platformName === 'Reddit') {
+      cy.contains('Other platform').click();
+      cy.get('#other-platform').type('Reddit');
+    } else {
+      cy.get('h3').contains(platformName).click();
+    }
     cy.contains('Continue').click();
-    
-    // Select reporting status
-    cy.contains("I haven't tried either process yet").click();
+  }
+
+  function selectReportingStatus(status: string) {
+    cy.contains(status).click();
     cy.contains('Continue').click();
+  }
+
+  function fillInitialQuestions(data: typeof testScenarios.facebookUrl) {
+    cy.contains(data.contentType).click();
+    cy.contains(data.contentContext).click();
     
-    // Fill initial questions with URL
-    cy.contains('Intimate images').click();
-    cy.contains('Account was compromised').click();
-    cy.get('input[type="radio"][value="url"]').check();
-    cy.get('input[id="contentUrl"]').type(testUrl);
-    cy.get('#imageUploadDate').type('1 March 2025');
-    cy.get('#imageTakenDate').type('15 February 2025');
-    cy.get('#ownershipEvidence').type('I can verify this is my content');
-    cy.get('#impactStatement').type('This has caused significant distress');
+    if (data.locationType === 'url') {
+      cy.get('input[type="radio"][value="url"]').check();
+      cy.get('input[id="contentUrl"]').type(data.contentLocation);
+    } else {
+      cy.get('input[type="radio"][value="description"]').check();
+      cy.get('#contentDescription').type(data.contentLocation);
+    }
+    
+    cy.get('#imageUploadDate').type(data.uploadDate);
+    cy.get('#imageTakenDate').type(data.creationDate);
+    cy.get('#ownershipEvidence').type(data.ownershipEvidence);
+    cy.get('#impactStatement').type(data.impactStatement);
     cy.contains('Continue').click();
-    
-    // Skip follow-up questions
+  }
+
+  function fillReportingDetails(data: typeof testScenarios.tiktokRegeneration) {
+    if (data.standardProcessDetails) {
+      cy.get('#standardProcessDetails').type(data.standardProcessDetails);
+    }
+    cy.contains('Continue').click();
+  }
+
+  function waitForLetterGeneration() {
     cy.contains('Continue', { timeout: 30000 }).click();
-    
-    // Wait for letter generation
     cy.contains('Review and send', { timeout: 100000 }).should('be.visible');
-    
-    // Verify the content location appears in the letter body (not as placeholder)
+  }
+
+  function verifyContentLocationInLetter(expectedLocation: string, locationType: 'url' | 'description') {
     cy.get('h4').contains('Message content').parent().within(() => {
-      cy.get('div').should('contain', testUrl);
+      cy.get('div').should('contain', expectedLocation);
       cy.get('div').should('not.contain', '[Content Location]');
       cy.get('div').should('not.contain', '[CONTENT_LOCATION]');
+      cy.get('div').should('contain', 'Content location: ' + expectedLocation);
     });
+  }
+
+  function regenerateLetter() {
+    cy.contains('Regenerate').click();
+    cy.contains('Regenerating your letter', { timeout: 10000 }).should('be.visible');
+    cy.contains('Message content', { timeout: 100000 }).should('be.visible');
+  }
+
+  it('correctly sanitizes and restores URL content location in generated letter', () => {
+    const data = testScenarios.facebookUrl;
     
-    // Verify it appears in the correct context
-    cy.get('h4').contains('Message content').parent().within(() => {
-      cy.get('div').should('contain', 'Content location: ' + testUrl);
-    });
+    startFlow();
+    selectPlatform(data.platform);
+    selectReportingStatus(data.reportingStatus);
+    fillInitialQuestions(data);
+    waitForLetterGeneration();
+    verifyContentLocationInLetter(data.contentLocation, data.locationType);
   });
 
   it('correctly sanitizes and restores description content location in generated letter', () => {
-    const testDescription = 'The content appears in posts by the user @testuser in their photo album';
+    const data = testScenarios.instagramDescription;
     
-    // Complete the flow with description content location
-    cy.contains('Start your request').click();
-    cy.get('h2').contains('Building your takedown letter');
-    cy.contains('Start your request').click();
-    
-    // Select platform
-    cy.get('h3').contains('Instagram').click();
-    cy.contains('Continue').click();
-    
-    // Select reporting status
-    cy.contains("I haven't tried either process yet").click();
-    cy.contains('Continue').click();
-    
-    // Fill initial questions with description
-    cy.contains('Personal content').click();
-    cy.contains('Someone is impersonating me').click();
-    cy.get('input[type="radio"][value="description"]').check();
-    cy.get('#contentDescription').type(testDescription);
-    cy.get('#imageUploadDate').type('2 March 2025');
-    cy.get('#imageTakenDate').type('20 February 2025');
-    cy.get('#ownershipEvidence').type('I have the original files');
-    cy.get('#impactStatement').type('This is affecting my reputation');
-    cy.contains('Continue').click();
-    
-    // Skip follow-up questions
-    cy.contains('Continue', { timeout: 30000 }).click();
-    
-    // Wait for letter generation
-    cy.contains('Review and send', { timeout: 100000 }).should('be.visible');
-    
-    // Verify the content location appears in the letter body (not as placeholder)
-    cy.get('h4').contains('Message content').parent().within(() => {
-      cy.get('div').should('contain', testDescription);
-      cy.get('div').should('not.contain', '[Content Location]');
-      cy.get('div').should('not.contain', '[CONTENT_LOCATION]');
-    });
-    
-    // Verify it appears in the correct context for descriptions
-    cy.get('h4').contains('Message content').parent().within(() => {
-      cy.get('div').should('contain', 'Content location: ' + testDescription);
-    });
+    startFlow();
+    selectPlatform(data.platform);
+    selectReportingStatus(data.reportingStatus);
+    fillInitialQuestions(data);
+    waitForLetterGeneration();
+    verifyContentLocationInLetter(data.contentLocation, data.locationType);
   });
 
   it('handles content location restoration for custom platforms', () => {
-    const testUrl = 'https://reddit.com/r/test/comments/abc123';
+    const data = testScenarios.redditUrl;
     
-    // Complete the flow with custom platform
-    cy.contains('Start your request').click();
-    cy.get('h2').contains('Building your takedown letter');
-    cy.contains('Start your request').click();
-    
-    // Select other platform
-    cy.contains('Other platform').click();
-    cy.get('#other-platform').type('Reddit');
-    cy.contains('Continue').click();
-    
-    // Fill initial questions
-    cy.contains('Private information').click();
-    cy.contains('Posted by someone I know').click();
-    cy.get('input[type="radio"][value="url"]').check();
-    cy.get('input[id="contentUrl"]').type(testUrl);
-    cy.get('#imageUploadDate').type('5 March 2025');
-    cy.get('#imageTakenDate').type('1 March 2025');
-    cy.get('#ownershipEvidence').type('This is my personal information');
-    cy.get('#impactStatement').type('This violates my privacy');
-    cy.contains('Continue').click();
-    
-    // Skip follow-up questions
-    cy.contains('Continue', { timeout: 30000 }).click();
-    
-    // Wait for letter generation
-    cy.contains('Review and send', { timeout: 100000 }).should('be.visible');
-    
-    // Verify the content location is properly restored
-    cy.get('h4').contains('Message content').parent().within(() => {
-      cy.get('div').should('contain', testUrl);
-      cy.get('div').should('not.contain', '[Content Location]');
-      cy.get('div').should('not.contain', '[CONTENT_LOCATION]');
-    });
+    startFlow();
+    selectPlatform(data.platform);
+    fillInitialQuestions(data);
+    waitForLetterGeneration();
+    verifyContentLocationInLetter(data.contentLocation, data.locationType);
   });
 
   it('preserves content location through letter regeneration', () => {
-    const testUrl = 'https://tiktok.com/@user/video/1234567890';
+    const data = testScenarios.tiktokRegeneration;
     
-    // Complete initial flow
-    cy.contains('Start your request').click();
-    cy.get('h2').contains('Building your takedown letter');
-    cy.contains('Start your request').click();
-    
-    cy.get('h3').contains('TikTok').click();
-    cy.contains('Continue').click();
-    
-    cy.contains("I've tried the standard reporting process").click();
-    cy.contains('Continue').click();
-    
-    cy.contains('Intimate images').click();
-    cy.contains('Posted by someone I know').click();
-    cy.get('input[type="radio"][value="url"]').check();
-    cy.get('input[id="contentUrl"]').type(testUrl);
-    cy.get('#imageUploadDate').type('10 March 2025');
-    cy.get('#imageTakenDate').type('5 March 2025');
-    cy.get('#ownershipEvidence').type('I can verify ownership');
-    cy.get('#impactStatement').type('This is causing distress');
-    cy.contains('Continue').click();
-    
-    // Fill reporting details
-    cy.get('#standardProcessDetails').type('I reported through TikTok reporting tool');
-    cy.contains('Continue').click();
-    
-    // Skip follow-up questions
-    cy.contains('Continue', { timeout: 30000 }).click();
-    
-    // Wait for initial letter generation
-    cy.contains('Review and send', { timeout: 100000 }).should('be.visible');
+    startFlow();
+    selectPlatform(data.platform);
+    selectReportingStatus(data.reportingStatus);
+    fillInitialQuestions(data);
+    fillReportingDetails(data);
+    waitForLetterGeneration();
     
     // Verify content location in first letter
-    cy.get('h4').contains('Message content').parent().within(() => {
-      cy.get('div').should('contain', testUrl);
-    });
+    verifyContentLocationInLetter(data.contentLocation, data.locationType);
     
     // Regenerate the letter
-    cy.contains('Regenerate').click();
-    
-    // Wait for regeneration
-    cy.contains('Regenerating your letter', { timeout: 10000 }).should('be.visible');
-    cy.contains('Message content', { timeout: 100000 }).should('be.visible');
+    regenerateLetter();
     
     // Verify content location is still present in regenerated letter
-    cy.get('h4').contains('Message content').parent().within(() => {
-      cy.get('div').should('contain', testUrl);
-      cy.get('div').should('not.contain', '[Content Location]');
-      cy.get('div').should('not.contain', '[CONTENT_LOCATION]');
-    });
+    verifyContentLocationInLetter(data.contentLocation, data.locationType);
   });
-
 });
