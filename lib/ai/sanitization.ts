@@ -14,9 +14,9 @@ function generateUniquePlaceholder(baseType: string): string {
   placeholderCounters.set(baseType, newCount);
   
   if (newCount === 1) {
-    return baseType; // First occurrence uses base placeholder
+    return `[${baseType.replace(/[\[\]]/g, '')}]`; // First occurrence uses base placeholder with brackets
   }
-  return `${baseType}_${newCount}`; // Subsequent occurrences get numbered
+  return `[${baseType.replace(/[\[\]]/g, '')}_${newCount}]`; // Subsequent occurrences get numbered with brackets
 }
 
 // Reset counters for new form
