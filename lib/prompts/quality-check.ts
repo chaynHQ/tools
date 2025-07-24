@@ -152,7 +152,7 @@ The presence of any of these issues constitutes a fundamental failure.
 4.  **Presence of Banned Terms**: The letter contains any term from the **Banned Terms** list.
 5.  **Aggressive or Threatening Language**: The letter uses hostile, demanding, or inappropriately legalistic language (e.g., "you must comply," "I demand action").
 6.  **Improper Tone or Style**: The language is unprofessional, not concise, or fails to be trauma-informed and respectful. Use **Banned Terms** list as guidance. 
-7.  **Missing Content location**: The letter does not include required \`[Content location]\` placeholder.
+7.  **Missing Content location**: The letter does not include the required \`[Content Location]\` placeholder. The improved letter MUST include \`Content location: [Content Location]\` near the top of the letter.
 
 #### Minor Issues
 These issues impact quality but are not fundamental failures.
