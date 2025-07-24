@@ -6,6 +6,7 @@ import { generateLetter } from '@/lib/ai/generate-letter';
 import { analytics } from '@/lib/analytics';
 import { GA_EVENTS } from '@/lib/constants/analytics';
 import { PlatformInfo, useFormContext } from '@/lib/context/FormContext';
+import { platforms } from '@/lib/platforms';
 import { GeneratedLetter } from '@/types/letter';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Loader2 } from 'lucide-react';

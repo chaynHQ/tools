@@ -12,7 +12,7 @@ export interface Platform {
 export const platforms: Platform[] = [
   {
     id: 'facebook',
-    name: 'Facebook (Meta)',
+    name: 'Facebook',
     logo: '/platform-logos/facebook.svg',
     contactEmail: 'records@facebook.com',
     flows: {
@@ -55,7 +55,7 @@ export const platforms: Platform[] = [
   },
   {
     id: 'instagram',
-    name: 'Instagram (Meta)',
+    name: 'Instagram',
     logo: '/platform-logos/instagram.svg',
     contactEmail: 'records@instagram.com',
     flows: {

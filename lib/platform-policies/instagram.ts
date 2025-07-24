@@ -311,7 +311,7 @@ const generalPolicies = [
 ];
 
 export const instagramPolicy: PlatformPolicy = {
-  name: 'Instagram (Meta)',
+  name: 'Instagram',
   legalDocuments,
   contentTypes,
   contentContexts,
