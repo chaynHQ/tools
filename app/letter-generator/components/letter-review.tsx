@@ -17,9 +17,10 @@ import { useToast } from '@/hooks/use-toast';
 import { analytics } from '@/lib/analytics';
 import { GA_EVENTS } from '@/lib/constants/analytics';
 import { IS_DEVELOPMENT, IS_PREVIEW } from '@/lib/constants/common';
+import { PlatformId, PLATFORM_EMAILS } from '@/lib/constants/platforms';
 import { useFormContext } from '@/lib/context/FormContext';
 import { generateSessionId, sendDevDataToZapier } from '@/lib/dev/data-collection';
-import { platforms } from '@/lib/platforms';
+import { getPlatformById } from '@/lib/platforms';
 import { rollbar } from '@/lib/rollbar';
 import { GeneratedLetter } from '@/types/letter';
 import { motion } from 'framer-motion';
@@ -40,7 +41,7 @@ import { QuestionSection } from './question-section';
 interface LetterReviewProps {
   letter: GeneratedLetter;
   redactedLetter: GeneratedLetter;
-  platformId: string;
+  platformId: PlatformId;
   onRegenerateRequest: () => void;
   onComplete: () => void;
 }
@@ -64,10 +65,8 @@ export function LetterReview({
   const { toast } = useToast();
   const { resetForm, formState } = useFormContext();
 
-  const platform = platforms.find((p) => p.id === platformId);
-  const platformEmail =
-    platform?.contactEmail ||
-    "Please check the platform's help center for the appropriate contact email";
+  const platform = getPlatformById(platformId);
+  const platformEmail = PLATFORM_EMAILS[platformId] || PLATFORM_EMAILS[PlatformId.OTHER];
 
   // Get content location from form state
   const contentLocation =

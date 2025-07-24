@@ -6,8 +6,9 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { analytics } from '@/lib/analytics';
 import { GA_EVENTS } from '@/lib/constants/analytics';
+import { PlatformId } from '@/lib/constants/platforms';
 import { PlatformInfo, useFormContext } from '@/lib/context/FormContext';
-import { platforms } from '@/lib/platforms';
+import { platforms, getPlatformById } from '@/lib/platforms';
 import { AnimatePresence, motion } from 'framer-motion';
 import { AlertTriangle, Loader2 } from 'lucide-react';
 import Image from 'next/image';
@@ -29,7 +30,7 @@ const MESSAGING_PLATFORMS = [
 ];
 
 export function PlatformSelection({ onComplete }: PlatformSelectionProps) {
-  const [selectedPlatform, setSelectedPlatform] = useState<string>('');
+  const [selectedPlatform, setSelectedPlatform] = useState<PlatformId | 'other' | ''>('');
   const [otherPlatform, setOtherPlatform] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showMessagingWarning, setShowMessagingWarning] = useState(false);
@@ -81,7 +82,7 @@ export function PlatformSelection({ onComplete }: PlatformSelectionProps) {
 
       if (selectedPlatform === 'other') {
         platformInfo = {
-          platformId: 'other',
+          platformId: PlatformId.OTHER,
           platformName: otherPlatform,
           isCustom: true,
           customName: otherPlatform
@@ -94,8 +95,7 @@ export function PlatformSelection({ onComplete }: PlatformSelectionProps) {
         });
       } else {
         // Set platform info for known platform
-
-        const platform = platforms.find(p => p.id === selectedPlatform);
+        const platform = getPlatformById(selectedPlatform as PlatformId);
         if (platform) {
           platformInfo = {
             platformId: platform.id,

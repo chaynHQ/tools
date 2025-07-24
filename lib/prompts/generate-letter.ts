@@ -1,18 +1,34 @@
 import { LetterRequest } from '@/types/letter';
+import { PlatformId } from '../constants/platforms';
 import { QUALITY_CHECK_CRITERIA } from '../constants/ai';
 import { getPlatformPolicy, getRelevantPolicies } from '../platform-policies';
-import { platforms } from '../platforms';
+import { getPlatformPolicyId } from '../platforms';
 import { serverInstance as rollbar } from '../rollbar';
 
 
 export function generateLetterPrompt(request: LetterRequest) {
   rollbar.info('generateLetterPrompt: Generating takedown letter prompt', {
-    platform: request.platformInfo.name,
+    platformId: request.platformInfo.platformId,
+    platformName: request.platformInfo.name,
+    isCustom: request.platformInfo.isCustom,
   });
 
-  const platformPolicy = request.platformInfo.isCustom
-    ? null
-    : getPlatformPolicy(platforms.find((p) => p.id === request.platformInfo.platformId || p.name === request.platformInfo.name)?.id || '');
+  let platformPolicy = null;
+  if (!request.platformInfo.isCustom) {
+    const policyId = getPlatformPolicyId(request.platformInfo.platformId);
+    if (policyId) {
+      platformPolicy = getPlatformPolicy(policyId);
+      rollbar.info('generateLetterPrompt: Found platform policy', {
+        platformId: request.platformInfo.platformId,
+        policyId,
+        policyName: platformPolicy?.name
+      });
+    } else {
+      rollbar.warning('generateLetterPrompt: No policy ID found for platform', {
+        platformId: request.platformInfo.platformId
+      });
+    }
+  }
 
   const relevantPolicies = platformPolicy
     ? getRelevantPolicies(

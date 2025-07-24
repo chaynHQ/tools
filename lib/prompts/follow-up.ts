@@ -1,12 +1,15 @@
 import { LetterRequest } from '@/types/letter';
+import { PlatformId } from '../constants/platforms';
 import { QUALITY_CHECK_CRITERIA } from '../constants/ai';
 import { getPlatformPolicy, getRelevantPolicies } from '../platform-policies';
-import { platforms } from '../platforms';
+import { getPlatformPolicyId } from '../platforms';
 import { serverInstance as rollbar } from '../rollbar';
 
 export function generateFollowUpPrompt(request: LetterRequest) {
   rollbar.info('generateFollowUpPrompt: Generating follow-up questions prompt', {
-    platform: request.platformInfo.name,
+    platformId: request.platformInfo.platformId,
+    platformName: request.platformInfo.name,
+    isCustom: request.platformInfo.isCustom,
   });
 
   // Validate required data
@@ -26,16 +29,27 @@ export function generateFollowUpPrompt(request: LetterRequest) {
     reportingInfo.additionalStepsTaken;
 
   // Validate platformInfo
-  if (!request.platformInfo.name) {
+  if (!request.platformInfo.platformName) {
     rollbar.error('generateFollowUpPrompt: Missing platform name in platformInfo');
     throw new Error('Missing name in platformInfo');
   }
 
-  const platform = request.platformInfo.isCustom
-    ? null
-    : platforms.find((p) => p.id === request.platformInfo.platformId || p.name === request.platformInfo.name);
-
-  const platformPolicy = platform ? getPlatformPolicy(platform.id) : null;
+  let platformPolicy = null;
+  if (!request.platformInfo.isCustom) {
+    const policyId = getPlatformPolicyId(request.platformInfo.platformId);
+    if (policyId) {
+      platformPolicy = getPlatformPolicy(policyId);
+      rollbar.info('generateFollowUpPrompt: Found platform policy', {
+        platformId: request.platformInfo.platformId,
+        policyId,
+        policyName: platformPolicy?.name
+      });
+    } else {
+      rollbar.warning('generateFollowUpPrompt: No policy ID found for platform', {
+        platformId: request.platformInfo.platformId
+      });
+    }
+  }
 
   const relevantPolicies = platformPolicy
     ? getRelevantPolicies(
@@ -63,7 +77,7 @@ You are a strategic AI assistant specializing in platform policy enforcement. Yo
 This is the complete set of information provided by the user so far. You must review all of it before deciding if any questions are necessary.
 
 ### User-Provided Information
-Platform: ${platform?.name || 'Not provided'}
+Platform: ${request.platformInfo.platformName || 'Not provided'}
 Content Location Type: ${initialInfo.contentLocationType || 'Not provided'}
 Content Location: ${initialInfo.imageIdentification || 'Not provided'}
 Upload Date: ${initialInfo.imageUploadDate || 'Not provided'}

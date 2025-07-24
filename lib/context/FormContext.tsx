@@ -1,5 +1,6 @@
 'use client';
 
+import { PlatformId } from '../constants/platforms';
 import { usePrefillData } from '@/lib/dev/prefill';
 import { rollbar } from '@/lib/rollbar';
 import { FollowUpQuestion } from '@/types/questions';
@@ -8,7 +9,7 @@ import { IS_DEVELOPMENT } from '../constants/common';
 
 // Define types for our form data
 export interface PlatformInfo {
-  platformId: string;
+  platformId: PlatformId;
   platformName: string;
   isCustom: boolean;
   customName?: string;

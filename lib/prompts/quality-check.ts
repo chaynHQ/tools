@@ -1,7 +1,8 @@
 import { LetterRequest } from '@/types/letter';
+import { PlatformId } from '../constants/platforms';
 import { QUALITY_CHECK_CRITERIA } from '../constants/ai';
 import { getPlatformPolicy, getRelevantPolicies } from '../platform-policies';
-import { platforms } from '../platforms';
+import { getPlatformPolicyId } from '../platforms';
 
 export interface QualityCheckResponse {
   issues: 
@@ -21,9 +22,13 @@ export function generateLetterQualityCheckPrompt(letter: {subject:string, body:s
   const followUpInfo = request.followUp || {};
   const reportingInfo = request.reportingDetails || {};
 
-  const platformPolicy = request.platformInfo.isCustom
-    ? null
-    : getPlatformPolicy(platforms.find((p) => p.id === request.platformInfo.platformId || p.name === request.platformInfo.name)?.id || '');
+  let platformPolicy = null;
+  if (!request.platformInfo.isCustom) {
+    const policyId = getPlatformPolicyId(request.platformInfo.platformId);
+    if (policyId) {
+      platformPolicy = getPlatformPolicy(policyId);
+    }
+  }
 
   const relevantPolicies = platformPolicy
     ? getRelevantPolicies(
@@ -79,7 +84,7 @@ This section contains the *entire universe* of allowed information and rules for
 ### Part A: Factual Context
 Content Type: ${request.initialQuestions.contentType}
 Content Context: ${request.initialQuestions.contentContext}
-Platform: ${request.platformInfo.name}
+Platform: ${request.platformInfo.platformName}
 Upload Date: ${initialInfo.imageUploadDate || 'Not provided'}
 Creation Date: ${initialInfo.imageTakenDate || 'Not provided'}
 Ownership Evidence: ${initialInfo.ownershipEvidence || 'Not provided'}

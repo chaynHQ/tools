@@ -5,8 +5,9 @@ import { Button } from '@/components/ui/button';
 import { generateLetter } from '@/lib/ai/generate-letter';
 import { analytics } from '@/lib/analytics';
 import { GA_EVENTS } from '@/lib/constants/analytics';
+import { PlatformId, PLATFORM_NAMES } from '@/lib/constants/platforms';
 import { PlatformInfo, useFormContext } from '@/lib/context/FormContext';
-import { platforms } from '@/lib/platforms';
+import { getPlatformById } from '@/lib/platforms';
 import { GeneratedLetter } from '@/types/letter';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Loader2 } from 'lucide-react';
@@ -212,7 +213,7 @@ export default function LetterGenerator() {
 
   const platformName = formState.platformInfo?.isCustom
     ? formState.platformInfo.customName
-    : platforms.find(p => p.id === formState.platformInfo?.platformId)?.name || formState.platformInfo?.platformName;
+    : (formState.platformInfo?.platformId ? PLATFORM_NAMES[formState.platformInfo.platformId] : 'Unknown Platform');
 
   return (
     <main className="flex-1">
@@ -313,7 +314,7 @@ export default function LetterGenerator() {
                 <LetterReview
                   letter={generatedLetter}
                   redactedLetter={redactedLetter}
-                  platformId={formState.platformInfo?.platformId || ''}
+                  platformId={formState.platformInfo?.platformId || PlatformId.OTHER}
                   onRegenerateRequest={async () => {
                     setIsRegenerating(true);
                     setGeneratedLetter(null);
