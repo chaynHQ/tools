@@ -62,23 +62,20 @@ Cypress.Commands.add('verifyDevWarningContent', () => {
   });
 });
 
-Cypress.Commands.add(
-  'verifyContentLocationInLetter',
-  (expectedLocation: string, locationType: 'url' | 'description') => {
-    // Verify the content location appears in the letter body
-    cy.get('h4')
-      .contains('Message content')
-      .parent()
-      .within(() => {
-        cy.get('div').should('contain', expectedLocation);
-        cy.get('div').should('not.contain', '[Content Location]');
-        cy.get('div').should('not.contain', '[CONTENT_LOCATION]');
+Cypress.Commands.add('verifyContentLocationInLetter', (expectedLocation: string) => {
+  // Verify the content location appears in the letter body
+  cy.get('h4')
+    .contains('Message content')
+    .parent()
+    .within(() => {
+      cy.get('div').should('contain', expectedLocation);
+      cy.get('div').should('not.contain', '[Content Location]');
+      cy.get('div').should('not.contain', '[CONTENT_LOCATION]');
 
-        // Verify the correct format based on type
-        cy.get('div').should('contain', 'Content location: ' + expectedLocation);
-      });
-  },
-);
+      // Verify the correct format based on type
+      cy.get('div').should('contain', 'Content location: ' + expectedLocation);
+    });
+});
 
 Cypress.Commands.add(
   'fillBasicLetterForm',

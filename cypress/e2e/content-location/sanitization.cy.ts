@@ -5,7 +5,7 @@ describe('Content Location Sanitization and Desanitization', () => {
     locationType: 'url' | 'description';
     contentType: string;
     contentContext: string;
-    reportingStatus?: string;
+    reportingStatus: string;
     uploadDate: string;
     creationDate: string;
     ownershipEvidence: string;
@@ -33,7 +33,7 @@ describe('Content Location Sanitization and Desanitization', () => {
       uploadDate: '1 March 2025',
       creationDate: '15 February 2025',
       ownershipEvidence: 'I can verify this is my content',
-      impactStatement: 'This has caused significant distress'
+      impactStatement: 'This has caused significant distress',
     },
     instagramDescription: {
       platform: 'Instagram',
@@ -45,7 +45,7 @@ describe('Content Location Sanitization and Desanitization', () => {
       uploadDate: '2 March 2025',
       creationDate: '20 February 2025',
       ownershipEvidence: 'I have the original files',
-      impactStatement: 'This is affecting my reputation'
+      impactStatement: 'This is affecting my reputation',
     },
     redditUrl: {
       platform: 'Reddit',
@@ -53,10 +53,11 @@ describe('Content Location Sanitization and Desanitization', () => {
       locationType: 'url' as const,
       contentType: 'Private information',
       contentContext: 'Posted by someone I know',
+      reportingStatus: "I haven't tried either process yet",
       uploadDate: '5 March 2025',
       creationDate: '1 March 2025',
       ownershipEvidence: 'This is my personal information',
-      impactStatement: 'This violates my privacy'
+      impactStatement: 'This violates my privacy',
     },
     tiktokRegeneration: {
       platform: 'TikTok',
@@ -69,8 +70,8 @@ describe('Content Location Sanitization and Desanitization', () => {
       creationDate: '5 March 2025',
       ownershipEvidence: 'I can verify ownership',
       impactStatement: 'This is causing distress',
-      standardProcessDetails: 'I reported through TikTok reporting tool'
-    }
+      standardProcessDetails: 'I reported through TikTok reporting tool',
+    },
   };
 
   function startFlow() {
@@ -97,7 +98,7 @@ describe('Content Location Sanitization and Desanitization', () => {
   function fillInitialQuestions(data: typeof testScenarios.facebookUrl) {
     cy.contains(data.contentType).click();
     cy.contains(data.contentContext).click();
-    
+
     if (data.locationType === 'url') {
       cy.get('input[type="radio"][value="url"]').check();
       cy.get('input[id="contentUrl"]').type(data.contentLocation);
@@ -105,7 +106,7 @@ describe('Content Location Sanitization and Desanitization', () => {
       cy.get('input[type="radio"][value="description"]').check();
       cy.get('#contentDescription').type(data.contentLocation);
     }
-    
+
     cy.get('#imageUploadDate').type(data.uploadDate);
     cy.get('#imageTakenDate').type(data.creationDate);
     cy.get('#ownershipEvidence').type(data.ownershipEvidence);
@@ -125,13 +126,19 @@ describe('Content Location Sanitization and Desanitization', () => {
     cy.contains('Review and send', { timeout: 100000 }).should('be.visible');
   }
 
-  function verifyContentLocationInLetter(expectedLocation: string, locationType: 'url' | 'description') {
-    cy.get('h4').contains('Message content').parent().within(() => {
-      cy.get('div').should('contain', expectedLocation);
-      cy.get('div').should('not.contain', '[Content Location]');
-      cy.get('div').should('not.contain', '[CONTENT_LOCATION]');
-      cy.get('div').should('contain', 'Content location: ' + expectedLocation);
-    });
+  function verifyContentLocationInLetter(
+    expectedLocation: string,
+    locationType: 'url' | 'description',
+  ) {
+    cy.get('h4')
+      .contains('Message content')
+      .parent()
+      .within(() => {
+        cy.get('div').should('contain', expectedLocation);
+        cy.get('div').should('not.contain', '[Content Location]');
+        cy.get('div').should('not.contain', '[CONTENT_LOCATION]');
+        cy.get('div').should('contain', 'Content location: ' + expectedLocation);
+      });
   }
 
   function regenerateLetter() {
@@ -142,7 +149,7 @@ describe('Content Location Sanitization and Desanitization', () => {
 
   it('correctly sanitizes and restores URL content location in generated letter', () => {
     const data = testScenarios.facebookUrl;
-    
+
     startFlow();
     selectPlatform(data.platform);
     selectReportingStatus(data.reportingStatus);
@@ -153,7 +160,7 @@ describe('Content Location Sanitization and Desanitization', () => {
 
   it('correctly sanitizes and restores description content location in generated letter', () => {
     const data = testScenarios.instagramDescription;
-    
+
     startFlow();
     selectPlatform(data.platform);
     selectReportingStatus(data.reportingStatus);
@@ -164,7 +171,7 @@ describe('Content Location Sanitization and Desanitization', () => {
 
   it('handles content location restoration for custom platforms', () => {
     const data = testScenarios.redditUrl;
-    
+
     startFlow();
     selectPlatform(data.platform);
     fillInitialQuestions(data);
@@ -174,20 +181,20 @@ describe('Content Location Sanitization and Desanitization', () => {
 
   it('preserves content location through letter regeneration', () => {
     const data = testScenarios.tiktokRegeneration;
-    
+
     startFlow();
     selectPlatform(data.platform);
     selectReportingStatus(data.reportingStatus);
     fillInitialQuestions(data);
     fillReportingDetails(data);
     waitForLetterGeneration();
-    
+
     // Verify content location in first letter
     verifyContentLocationInLetter(data.contentLocation, data.locationType);
-    
+
     // Regenerate the letter
     regenerateLetter();
-    
+
     // Verify content location is still present in regenerated letter
     verifyContentLocationInLetter(data.contentLocation, data.locationType);
   });
