@@ -476,7 +476,7 @@ export function LetterReview({
             onClick={() => {
               analytics.trackEvent(GA_EVENTS.TDLG_BLOOM_IBA_COURSE_LINK_CLICKED, {
                 source: 'letter_review',
-                platform: formState.platformInfo?.name || 'unknown',
+                platform: platform?.name || 'unknown',
               });
             }}
             href="https://bloom.chayn.co/courses/image-based-abuse-and-rebuilding-ourselves?utm_source=tools.chayn.co&utm_medium=referral&utm_campaign=tools.chayn.co-iba-referral"

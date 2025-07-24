@@ -5,7 +5,7 @@ import { PlatformId } from '../constants/platforms';
 export const PREFILL_DATA = {
   platformInfo: {
     platformId: PlatformId.FACEBOOK,
-    name: 'Facebook',
+    platformName: 'Facebook',
     isCustom: false
   },
   reportingInfo: {

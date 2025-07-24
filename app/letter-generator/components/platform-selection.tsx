@@ -78,7 +78,7 @@ export function PlatformSelection({ onComplete }: PlatformSelectionProps) {
       if (selectedPlatform === 'other') {
         platformInfo = {
           platformId: PlatformId.OTHER,
-          name: otherPlatform,
+          platformName: otherPlatform,
           isCustom: true,
           customName: otherPlatform,
         };
@@ -94,7 +94,7 @@ export function PlatformSelection({ onComplete }: PlatformSelectionProps) {
         if (platform) {
           platformInfo = {
             platformId: platform.id,
-            name: platform.name,
+            platformName: platform.name,
             isCustom: false,
           };
           // Track known platform selection

@@ -75,7 +75,7 @@ You are a strategic AI assistant specializing in platform policy enforcement. Yo
 This is the complete set of information provided by the user so far. You must review all of it before deciding if any questions are necessary.
 
 ### User-Provided Information
-Platform: ${request.platformInfo.name || request.platformInfo.customName}
+Platform: ${request.platformInfo.platformName || request.platformInfo.customName}
 Content Location Type: ${initialInfo.contentLocationType || 'Not provided'}
 Content Location: ${initialInfo.imageIdentification || 'Not provided'}
 Upload Date: ${initialInfo.imageUploadDate || 'Not provided'}

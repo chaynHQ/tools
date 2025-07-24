@@ -116,7 +116,7 @@ You MUST respond with a single, valid JSON object. The response must be parseabl
 # INPUTS
 Content Type: ${request.initialQuestions.contentType}
 Content Context: ${request.initialQuestions.contentContext}
-Platform: ${request.platformInfo.name || request.platformInfo.customName}
+Platform: ${request.platformInfo.platformName || request.platformInfo.customName}
 Upload Date: ${initialInfo.imageUploadDate || 'Not provided'}
 Creation Date: ${initialInfo.imageTakenDate || 'Not provided'}
 Ownership Evidence: ${initialInfo.ownershipEvidence || 'Not provided'}
