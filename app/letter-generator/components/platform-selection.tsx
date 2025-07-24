@@ -9,6 +9,7 @@ import { GA_EVENTS } from '@/lib/constants/analytics';
 import { PlatformId } from '@/lib/constants/platforms';
 import { PlatformInfo, useFormContext } from '@/lib/context/FormContext';
 import { getPlatformById, platforms } from '@/lib/platforms';
+import { rollbar } from '@/lib/rollbar';
 import { AnimatePresence, motion } from 'framer-motion';
 import { AlertTriangle, Loader2 } from 'lucide-react';
 import Image from 'next/image';
