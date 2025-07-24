@@ -124,6 +124,7 @@ describe('Content Location Sanitization and Desanitization', () => {
   function waitForLetterGeneration() {
     cy.contains('Continue', { timeout: 30000 }).click();
     cy.contains('Review and send', { timeout: 100000 }).should('be.visible');
+    cy.get('h4').contains('Message content', { timeout: 10000 }).should('be.visible');
   }
 
   function verifyContentLocationInLetter(
@@ -209,9 +210,12 @@ describe('Content Location Sanitization and Desanitization', () => {
       reportingStatus: "I've tried the standard reporting process",
       uploadDate: '15 March 2025',
       creationDate: '10 March 2025',
-      ownershipEvidence: 'I can verify ownership through my email test@example.com and phone 07123456789. The original file ID is 9876543210987654.',
-      impactStatement: 'This has affected my professional reputation. My contact details test.user@company.co.uk and backup phone +44 20 7946 0958 are now exposed.',
-      standardProcessDetails: 'I reported via https://facebook.com/help/contact and provided reference ID 1122334455667788. They responded to my email admin@mycompany.com but took no action.',
+      ownershipEvidence:
+        'I can verify ownership through my email test@example.com and phone 07123456789. The original file ID is 9876543210987654.',
+      impactStatement:
+        'This has affected my professional reputation. My contact details test.user@company.co.uk and backup phone +44 20 7946 0958 are now exposed.',
+      standardProcessDetails:
+        'I reported via https://facebook.com/help/contact and provided reference ID 1122334455667788. They responded to my email admin@mycompany.com but took no action.',
     };
 
     startFlow();
@@ -238,7 +242,7 @@ describe('Content Location Sanitization and Desanitization', () => {
         cy.get('div').should('contain', 'https://facebook.com/help/contact');
         cy.get('div').should('contain', '1122334455667788');
         cy.get('div').should('contain', 'admin@mycompany.com');
-        
+
         // Should NOT contain any placeholder artifacts
         cy.get('div').should('not.contain', '[EMAIL]');
         cy.get('div').should('not.contain', '[PHONE]');
