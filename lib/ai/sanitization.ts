@@ -13,10 +13,8 @@ function generateUniquePlaceholder(baseType: string): string {
   const newCount = currentCount + 1;
   placeholderCounters.set(baseType, newCount);
 
-  if (newCount === 1) {
-    return `[${baseType.replace(/[\[\]]/g, '')}]`; // First occurrence uses base placeholder with brackets
-  }
-  return `[${baseType.replace(/[\[\]]/g, '')}_${newCount}]`; // Subsequent occurrences get numbered with brackets
+  // Always use numbered placeholders starting from _1 for consistency
+  return `[${baseType.replace(/[\[\]]/g, '')}_${newCount}]`;
 }
 
 // Reset counters for new form
@@ -116,6 +114,9 @@ export function sanitizeFormData(data: Record<string, any>): Record<string, any>
   // Reset counters for this new form
   resetPlaceholderCounters();
 
+  // Track all placeholders used during sanitization
+  const usedPlaceholders = new Set<string>();
+
   function processSanitization(value: any, isContentLocation: boolean = false): any {
     if (typeof value === 'string') {
       // Validate string length
@@ -135,8 +136,15 @@ export function sanitizeFormData(data: Record<string, any>): Record<string, any>
       const originalValue = value;
       const sanitizedText = sanitizeText(value);
 
-      // Extract and store mappings for all placeholders found
-      extractAndStoreMappings(originalValue, sanitizedText, mappings);
+      // Track placeholders used in this sanitization
+      const placeholderRegex = /\[([A-Z_0-9]+)\]/g;
+      let match;
+      while ((match = placeholderRegex.exec(sanitizedText)) !== null) {
+        usedPlaceholders.add(match[1]);
+      }
+
+      // Store direct mapping of placeholders to original values
+      storePlaceholderMappings(originalValue, sanitizedText, mappings);
 
       return sanitizedText;
     }
@@ -171,13 +179,22 @@ export function sanitizeFormData(data: Record<string, any>): Record<string, any>
   return { formId, ...sanitized };
 }
 
-// Extract and store mappings between placeholders and original values
-function extractAndStoreMappings(
+// Store direct mappings between placeholders found in sanitized text and original values
+function storePlaceholderMappings(
   originalText: string,
   sanitizedText: string,
   mappings: Map<string, string>,
 ): void {
-  // Define regex patterns for each type of sensitive data
+  // Find all placeholders in the sanitized text
+  const placeholderRegex = /\[([A-Z_0-9]+)\]/g;
+  const placeholdersFound: string[] = [];
+  let match;
+  
+  while ((match = placeholderRegex.exec(sanitizedText)) !== null) {
+    placeholdersFound.push(`[${match[1]}]`);
+  }
+
+  // Define regex patterns for each type of sensitive data to find original values
   const patterns = [
     { type: 'EMAIL', regex: /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g },
     { type: 'PHONE', regex: /(?:\+?\d{1,3}[-. ]?)?\(?\d{3}\)?[-. ]?\d{3}[-. ]?\d{4}/g },
@@ -194,12 +211,20 @@ function extractAndStoreMappings(
     { type: 'NAME', regex: /\b(?:[A-Z][a-z]+(?:\s+[A-Z][a-z]+)+)\b/g },
   ];
 
-  // For each pattern type, find all matches and map them to placeholders
+  // For each pattern type, find matches and map them to the placeholders we actually used
   patterns.forEach(({ type, regex }) => {
     const matches = Array.from(originalText.matchAll(regex));
+    
+    // Filter placeholders that match this type
+    const typeePlaceholders = placeholdersFound.filter(p => 
+      p.startsWith(`[${type}_`) || p === `[${type}]`
+    ).sort(); // Sort to ensure consistent ordering
+    
+    // Map each match to its corresponding placeholder
     matches.forEach((match, index) => {
-      const placeholder = index === 0 ? `[${type}]` : `[${type}_${index + 1}]`;
-      mappings.set(placeholder, match[0]);
+      if (index < typeePlaceholders.length) {
+        mappings.set(typeePlaceholders[index], match[0]);
+      }
     });
   });
 }
