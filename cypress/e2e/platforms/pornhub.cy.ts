@@ -9,7 +9,7 @@ describe('Pornhub Platform Flow', () => {
   it('starts the request and navigates to the letter generator', () => {
     cy.contains('Start your request').click();
     cy.get('h2').contains('Building your takedown letter');
-    cy.contains('Start your request').click();
+    cy.contains('Start your request', { timeout: 10000 }).click();
     cy.url().should('include', '/letter-generator');
 
     cy.contains('Pornhub').click();

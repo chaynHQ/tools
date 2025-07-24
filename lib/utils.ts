@@ -7,13 +7,22 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function trimJSON(input: string) {
-  // Remove any markdown code block syntax
-  if (input.startsWith('```json')) {
-    return input.slice(7, input.length - 3).trim();
+  // This function removes ```json markdown and additional unexpected text around the JSON
+  // This regex looks for a markdown code block with an optional "json" tag.
+  // It captures the content inside the block.
+  // `[\s\S]` is used to match any character, including newlines.
+  const jsonRegex = /```(?:json)?\s*([\s\S]*?)\s*```/;
+
+  const match = input.match(jsonRegex);
+
+  // If a match is found, return the captured JSON content (group 1).
+  if (match && match[1]) {
+    return match[1].trim();
   }
-  if (input.startsWith('```')) {
-    return input.slice(3, input.length - 3).trim();
-  }
+
+  // If no code block is found, assume the entire input is the JSON
+  // and return it trimmed. This handles cases where the AI returns
+  // a raw JSON string without markdown.
   return input.trim();
 }
 
@@ -54,7 +63,7 @@ export function parseAIJson(input: string) {
     try {
       return JSON.parse(cleanedInput);
     } catch (e) {
-      console.log(input)
+      console.log(input);
       console.error('Failed to parse cleaned JSON:', cleanedInput);
       throw new Error('Failed to parse AI response - the response format was invalid');
     }

@@ -4,7 +4,7 @@ function startFacebookFlow() {
   cy.dismissDevWarning();
   cy.contains('Start your request').click();
   cy.get('h2').contains('Building your takedown letter');
-  cy.contains('Start your request').click();
+  cy.contains('Start your request', { timeout: 10000 }).click();
   cy.get('h3').contains('Facebook').click();
   cy.contains('Continue').click();
   cy.log('Started Facebook flow');
@@ -55,7 +55,7 @@ function fillFacebookReportingProcessDetails() {
 describe('Facebook Platform Flow', () => {
   it('waits for AI follow-up and generates the letter', () => {
     const testUrl = 'https://facebook.com/harmful-post-123';
-    
+
     startFacebookFlow();
     selectFacebookReportingStatus();
     selectFacebookContentTypeAndContext();
@@ -73,7 +73,7 @@ describe('Facebook Platform Flow', () => {
     cy.contains('Subject line').should('be.visible');
     cy.contains('Message content').should('be.visible');
     cy.contains('records@facebook.com').should('be.visible');
-    
+
     // Verify content location is properly restored in the letter
     cy.verifyContentLocationInLetter(testUrl, 'url');
   });

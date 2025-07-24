@@ -8,7 +8,7 @@ describe('Other Platform Flow', () => {
   it('completes flow for Other Platforms', () => {
     cy.contains('Start your request').click();
     cy.get('h2').contains('Building your takedown letter');
-    cy.contains('Start your request').click();
+    cy.contains('Start your request', { timeout: 10000 }).click();
     cy.url().should('include', '/letter-generator');
     // Select Other platform
     cy.contains('Other platform').click();

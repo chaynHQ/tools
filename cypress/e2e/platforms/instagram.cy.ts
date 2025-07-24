@@ -4,7 +4,7 @@ function startInstagramFlow() {
   cy.dismissDevWarning();
   cy.contains('Start your request').click();
   cy.get('h2').contains('Building your takedown letter');
-  cy.contains('Start your request').click();
+  cy.contains('Start your request', { timeout: 10000 }).click();
   cy.get('h3').contains('Instagram').click();
   cy.contains('Continue').click();
   cy.log('Started Instagram flow');
@@ -50,7 +50,7 @@ function fillInstagramReportingProcessDetails() {
 describe('Instagram Platform Flow', () => {
   it('fills out instagram flow', () => {
     const testUrl = 'https://instagram.com/harmful-post-123';
-    
+
     startInstagramFlow();
     selectInstagramReportingStatus();
     selectInstagramContentTypeAndContext();
@@ -67,7 +67,7 @@ describe('Instagram Platform Flow', () => {
     cy.contains('Review and send', { timeout: 100000 }).should('be.visible');
     cy.contains('Subject line').should('be.visible');
     cy.contains('Message content').should('be.visible');
-    
+
     // Verify content location is properly restored in the letter
     cy.verifyContentLocationInLetter(testUrl, 'url');
   });

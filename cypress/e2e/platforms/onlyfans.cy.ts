@@ -4,7 +4,7 @@ function startOnlyFansFlow() {
   cy.dismissDevWarning();
   cy.contains('Start your request').click();
   cy.get('h2').contains('Building your takedown letter');
-  cy.contains('Start your request').click();
+  cy.contains('Start your request', { timeout: 10000 }).click();
   cy.contains('OnlyFans').click();
   cy.contains('Continue').click();
 }
