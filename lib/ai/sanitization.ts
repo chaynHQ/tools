@@ -12,7 +12,7 @@ function generateUniquePlaceholder(baseType: string): string {
   const currentCount = placeholderCounters.get(baseType) || 0;
   const newCount = currentCount + 1;
   placeholderCounters.set(baseType, newCount);
-  
+
   if (newCount === 1) {
     return `[${baseType.replace(/[\[\]]/g, '')}]`; // First occurrence uses base placeholder with brackets
   }
@@ -94,18 +94,15 @@ export function sanitizeText(text: string): string {
         return generateUniquePlaceholder(PLACEHOLDER_TYPES.ACCOUNT);
       })
       // Remove location information
-      .replace(
-        /\b(?:address|location|city|state|zip|postal)\s*:\s*[^\n,]+/gi,
-        () => {
-          return generateUniquePlaceholder(PLACEHOLDER_TYPES.LOCATION);
-        }
-      )
+      .replace(/\b(?:address|location|city|state|zip|postal)\s*:\s*[^\n,]+/gi, () => {
+        return generateUniquePlaceholder(PLACEHOLDER_TYPES.LOCATION);
+      })
       // Remove potential names (sequences of capitalized words)
       .replace(/\b(?:[A-Z][a-z]+(?:\s+[A-Z][a-z]+)+)\b/g, () => {
         return generateUniquePlaceholder(PLACEHOLDER_TYPES.NAME);
       })
       // Remove any remaining special characters that could be used for injection
-      .replace(/[^\w\s.,!?-]/g, '')
+      .replace(/^\w\s.,!?-/g, '')
   );
 }
 
@@ -115,7 +112,7 @@ export function sanitizeFormData(data: Record<string, any>): Record<string, any>
   const formId = Math.random().toString(36).substring(7);
   const mappings = new Map<string, string>();
   sanitizationMap.set(formId, mappings);
-  
+
   // Reset counters for this new form
   resetPlaceholderCounters();
 
@@ -133,14 +130,14 @@ export function sanitizeFormData(data: Record<string, any>): Record<string, any>
         mappings.set(PLACEHOLDER_TYPES.CONTENT_LOCATION, value);
         return PLACEHOLDER_TYPES.CONTENT_LOCATION;
       }
-      
+
       // Store original text and process sanitization
       const originalValue = value;
       const sanitizedText = sanitizeText(value);
-      
+
       // Extract and store mappings for all placeholders found
       extractAndStoreMappings(originalValue, sanitizedText, mappings);
-      
+
       return sanitizedText;
     }
     if (Array.isArray(value)) {
@@ -175,7 +172,11 @@ export function sanitizeFormData(data: Record<string, any>): Record<string, any>
 }
 
 // Extract and store mappings between placeholders and original values
-function extractAndStoreMappings(originalText: string, sanitizedText: string, mappings: Map<string, string>): void {
+function extractAndStoreMappings(
+  originalText: string,
+  sanitizedText: string,
+  mappings: Map<string, string>,
+): void {
   // Define regex patterns for each type of sensitive data
   const patterns = [
     { type: 'EMAIL', regex: /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g },
@@ -202,7 +203,6 @@ function extractAndStoreMappings(originalText: string, sanitizedText: string, ma
     });
   });
 }
-
 
 // Restore sanitized data in the letter
 export function desanitizeLetter(text: string, formId: string): string {
