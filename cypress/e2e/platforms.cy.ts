@@ -183,9 +183,11 @@ describe('Platform Tests', () => {
     cy.contains('Continue').click();
   }
 
-  function waitForLetterGeneration() {
-    cy.contains('Analysing your responses', { timeout: 30000 });
-    cy.contains('Continue', { timeout: 30000 }).click();
+  function waitForLetterGeneration(skipProcesses: boolean) {
+    if (!skipProcesses) {
+      cy.contains('Analysing your responses', { timeout: 30000 });
+      cy.contains('Continue', { timeout: 30000 }).click();
+    }
     cy.contains('Creating your letter', { timeout: 40000 });
     cy.contains('Review and send', { timeout: 100000 }).should('be.visible');
   }
@@ -200,19 +202,20 @@ describe('Platform Tests', () => {
   function runCompleteFlow(platformKey: PlatformId) {
     const data = platformTestData[platformKey];
 
+    const skipProcesses =
+      platformKey === PlatformId.OTHER ||
+      data.reportingStatus === "I haven't tried either process yet";
+
     startFlow();
     selectPlatform(data.platformName);
     if (platformKey !== PlatformId.OTHER) {
       selectReportingStatus(data.reportingStatus);
     }
     fillInitialQuestions(data);
-    if (
-      platformKey !== PlatformId.OTHER ||
-      data.reportingStatus === "I haven't tried either process yet"
-    ) {
+    if (!skipProcesses) {
       fillReportingDetails(data);
     }
-    waitForLetterGeneration();
+    waitForLetterGeneration(skipProcesses);
     verifyLetterContent(data);
   }
 
