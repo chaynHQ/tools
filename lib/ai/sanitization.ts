@@ -195,10 +195,13 @@ function extractAndStoreMappings(
   ];
 
   // For each pattern type, find all matches and map them to placeholders
+  // Use the same numbering system as generateUniquePlaceholder
   patterns.forEach(({ type, regex }) => {
     const matches = Array.from(originalText.matchAll(regex));
     matches.forEach((match, index) => {
-      const placeholder = index === 0 ? `[${type}]` : `[${type}_${index + 1}]`;
+      // Reset counter for this type to match the generation logic
+      const currentCount = index + 1;
+      const placeholder = currentCount === 1 ? `[${type}]` : `[${type}_${currentCount}]`;
       mappings.set(placeholder, match[0]);
     });
   });
