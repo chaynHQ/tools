@@ -211,7 +211,7 @@ describe('Content Location Sanitization and Desanitization', () => {
       uploadDate: '15 March 2025',
       creationDate: '10 March 2025',
       ownershipEvidence:
-        'I can verify ownership through my email test@example.com and phone 07123456789.',
+        'I can verify ownership through my email randomemail189313@gmail.com and phone 07123456789. This is important info',
       impactStatement:
         'This has affected my professional reputation. My backup phone +44 20 7946 0958 is now exposed.',
       standardProcessDetails:
@@ -234,7 +234,7 @@ describe('Content Location Sanitization and Desanitization', () => {
       .parent()
       .within(() => {
         // Should contain the original sensitive data (properly desanitized)
-        cy.get('div').should('contain', 'test@example.com');
+        cy.get('div').should('contain', 'randomemail189313@gmail.com');
         cy.get('div').should('contain', '07123456789');
         cy.get('div').should('contain', '+44 20 7946 0958');
         cy.get('div').should('contain', '1122334455667788');
