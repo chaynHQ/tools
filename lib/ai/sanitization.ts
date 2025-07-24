@@ -217,14 +217,65 @@ export function desanitizeLetter(text: string, formId: string): string {
 
   let desanitizedText = text;
 
-  // Sort mappings by length (longest first) to handle nested placeholders correctly
-  const sortedMappings = Array.from(mappings.entries()).sort(([a], [b]) => b.length - a.length);
+  // Sort mappings by placeholder name to ensure numbered placeholders are processed correctly
+  // Process numbered placeholders first (e.g., [EMAIL_3], [EMAIL_2]) then base placeholders ([EMAIL])
+  const sortedMappings = Array.from(mappings.entries()).sort(([a], [b]) => {
+    // Extract the base type and number from placeholders like [EMAIL_2]
+    const getPlaceholderPriority = (placeholder: string) => {
+      const match = placeholder.match(/\[(\w+)(?:_(\d+))?\]/);
+      if (!match) return [placeholder, 0];
+      const baseType = match[1];
+      const number = match[2] ? parseInt(match[2]) : 1;
+      return [baseType, number];
+    };
+    
+    const [aType, aNum] = getPlaceholderPriority(a);
+    const [bType, bNum] = getPlaceholderPriority(b);
+    
+    // First sort by type, then by number (descending to process higher numbers first)
+    if (aType !== bType) {
+      return aType.localeCompare(bType);
+    }
+    return bNum - aNum;
+  });
 
+  // Debug logging to help identify issues
+  rollbar.info('Desanitizing letter', {
+    formId,
+    mappingsCount: mappings.size,
+    placeholders: Array.from(mappings.keys()),
+    textLength: text.length
+  });
   for (const [placeholder, original] of sortedMappings) {
+    // Create a more precise regex that matches the exact placeholder
     const regex = new RegExp(placeholder.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
+    const beforeReplace = desanitizedText;
     desanitizedText = desanitizedText.replace(regex, original);
+    
+    // Log if replacement occurred
+    if (beforeReplace !== desanitizedText) {
+      rollbar.info('Placeholder replaced', {
+        placeholder,
+        original: original.substring(0, 20) + '...', // Log first 20 chars for privacy
+        replacementCount: (beforeReplace.match(regex) || []).length
+      });
+    } else {
+      rollbar.warning('Placeholder not found in text', {
+        placeholder,
+        textContainsPlaceholder: text.includes(placeholder)
+      });
+    }
   }
 
+  // Final check for any remaining placeholders
+  const remainingPlaceholders = desanitizedText.match(/\[[A-Z_0-9]+\]/g);
+  if (remainingPlaceholders) {
+    rollbar.error('Placeholders still present after desanitization', {
+      formId,
+      remainingPlaceholders,
+      allMappings: Array.from(mappings.keys())
+    });
+  }
   return desanitizedText;
 }
 
