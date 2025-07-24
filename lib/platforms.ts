@@ -1,5 +1,7 @@
+import { PlatformId, PLATFORM_NAMES, PLATFORM_EMAILS } from './constants/platforms';
+
 export interface Platform {
-  id: string;
+  id: PlatformId;
   name: string;
   logo: string;
   contactEmail?: string;
@@ -11,10 +13,10 @@ export interface Platform {
 
 export const platforms: Platform[] = [
   {
-    id: 'facebook',
-    name: 'Facebook',
+    id: PlatformId.FACEBOOK,
+    name: PLATFORM_NAMES[PlatformId.FACEBOOK],
     logo: '/platform-logos/facebook.svg',
-    contactEmail: 'records@facebook.com',
+    contactEmail: PLATFORM_EMAILS[PlatformId.FACEBOOK],
     flows: {
       basic: [
         'Go to the image or video you want to report',
@@ -33,10 +35,10 @@ export const platforms: Platform[] = [
     }
   },
   {
-    id: 'tiktok',
-    name: 'TikTok',
+    id: PlatformId.TIKTOK,
+    name: PLATFORM_NAMES[PlatformId.TIKTOK],
     logo: '/platform-logos/tiktok.svg',
-    contactEmail: 'legal@tiktok.com',
+    contactEmail: PLATFORM_EMAILS[PlatformId.TIKTOK],
     flows: {
       basic: [
         'Tap and hold on the video you want to report',
@@ -54,10 +56,10 @@ export const platforms: Platform[] = [
     }
   },
   {
-    id: 'instagram',
-    name: 'Instagram',
+    id: PlatformId.INSTAGRAM,
+    name: PLATFORM_NAMES[PlatformId.INSTAGRAM],
     logo: '/platform-logos/instagram.svg',
-    contactEmail: 'records@instagram.com',
+    contactEmail: PLATFORM_EMAILS[PlatformId.INSTAGRAM],
     flows: {
       basic: [
         'Tap the three dots (...) above the post',
@@ -76,10 +78,10 @@ export const platforms: Platform[] = [
     }
   },
   {
-    id: 'pornhub',
-    name: 'Pornhub',
+    id: PlatformId.PORNHUB,
+    name: PLATFORM_NAMES[PlatformId.PORNHUB],
     logo: '/platform-logos/pornhub.png',
-    contactEmail: 'content@pornhub.com',
+    contactEmail: PLATFORM_EMAILS[PlatformId.PORNHUB],
     flows: {
       basic: [
         'Click the "Flag" button below the video',
@@ -97,10 +99,10 @@ export const platforms: Platform[] = [
     }
   },
   {
-    id: 'onlyfans',
-    name: 'OnlyFans',
+    id: PlatformId.ONLYFANS,
+    name: PLATFORM_NAMES[PlatformId.ONLYFANS],
     logo: '/platform-logos/onlyfans.svg',
-    contactEmail: 'support@onlyfans.com',
+    contactEmail: PLATFORM_EMAILS[PlatformId.ONLYFANS],
     flows: {
       basic: [
         'Click the flag icon on the content',
@@ -118,3 +120,26 @@ export const platforms: Platform[] = [
     }
   }
 ];
+
+// Helper function to get platform by ID
+export function getPlatformById(id: PlatformId): Platform | null {
+  return platforms.find(p => p.id === id) || null;
+}
+
+// Helper function to get platform policy ID from platform ID
+export function getPlatformPolicyId(platformId: PlatformId): string | null {
+  switch (platformId) {
+    case PlatformId.FACEBOOK:
+      return 'facebook';
+    case PlatformId.INSTAGRAM:
+      return 'instagram';
+    case PlatformId.TIKTOK:
+      return 'tiktok';
+    case PlatformId.ONLYFANS:
+      return 'onlyfans';
+    case PlatformId.PORNHUB:
+      return 'pornhub';
+    default:
+      return null;
+  }
+}

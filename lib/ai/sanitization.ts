@@ -126,6 +126,11 @@ export function sanitizeFormData(data: Record<string, any>): Record<string, any>
   }
 
   for (const [key, value] of Object.entries(data)) {
+    // Don't sanitize platformInfo to preserve the structure
+    if (key === 'platformInfo') {
+      sanitized[key] = value;
+      continue;
+    }
     sanitized[key] = processSanitization(
       value,
       key === 'contentUrl' || key === 'contentDescription' || key === 'imageIdentification',

@@ -1,12 +1,14 @@
 import { LetterRequest } from '@/types/letter';
 import { QUALITY_CHECK_CRITERIA } from '../constants/ai';
 import { getPlatformPolicy, getRelevantPolicies } from '../platform-policies';
-import { platforms } from '../platforms';
+import { getPlatformPolicyId } from '../platforms';
 import { serverInstance as rollbar } from '../rollbar';
 
 export function generateFollowUpPrompt(request: LetterRequest) {
   rollbar.info('generateFollowUpPrompt: Generating follow-up questions prompt', {
-    platform: request.platformInfo.name,
+    platformId: request.platformInfo.platformId,
+    platformName: request.platformInfo.platformName,
+    isCustom: request.platformInfo.isCustom,
   });
 
   // Validate required data
@@ -26,16 +28,29 @@ export function generateFollowUpPrompt(request: LetterRequest) {
     reportingInfo.additionalStepsTaken;
 
   // Validate platformInfo
-  if (!request.platformInfo.name) {
-    rollbar.error('generateFollowUpPrompt: Missing platform name in platformInfo');
-    throw new Error('Missing name in platformInfo');
+  if (!request.platformInfo.platformName && !request.platformInfo.customName) {
+    rollbar.error('generateFollowUpPrompt: Missing platform name in platformInfo', {
+      platformInfo: request.platformInfo
+    });
+    throw new Error('Missing platform name in platformInfo');
   }
 
-  const platform = request.platformInfo.isCustom
-    ? null
-    : platforms.find((p) => p.name === request.platformInfo.name);
-
-  const platformPolicy = platform ? getPlatformPolicy(platform.id) : null;
+  let platformPolicy = null;
+  if (!request.platformInfo.isCustom) {
+    const policyId = getPlatformPolicyId(request.platformInfo.platformId);
+    if (policyId) {
+      platformPolicy = getPlatformPolicy(policyId);
+      rollbar.info('generateFollowUpPrompt: Found platform policy', {
+        platformId: request.platformInfo.platformId,
+        policyId,
+        policyName: platformPolicy?.name,
+      });
+    } else {
+      rollbar.warning('generateFollowUpPrompt: No policy ID found for platform', {
+        platformId: request.platformInfo.platformId,
+      });
+    }
+  }
 
   const relevantPolicies = platformPolicy
     ? getRelevantPolicies(
@@ -45,10 +60,9 @@ export function generateFollowUpPrompt(request: LetterRequest) {
       )
     : null;
 
-
   return `# ROLE & OBJECTIVE
 
-You are a strategic AI assistant specializing in platform policy enforcement. Your objective is to intelligently identify critical information gaps in a user's takedown request. You will generate a small, targeted list of follow-up questions to gather only the most essential information needed to build the strongest possible case, based on specific platform policies ${platform?.name ? `for ${platform.name}` : ''}.
+You are a strategic AI assistant specializing in platform policy enforcement. Your objective is to intelligently identify critical information gaps in a user's takedown request. You will generate a small, targeted list of follow-up questions to gather only the most essential information needed to build the strongest possible case, based on specific platform policies ${request.platformInfo.platformName || request.platformInfo.customName}.
 
 # CRITICAL DIRECTIVES
 
@@ -63,7 +77,7 @@ You are a strategic AI assistant specializing in platform policy enforcement. Yo
 This is the complete set of information provided by the user so far. You must review all of it before deciding if any questions are necessary.
 
 ### User-Provided Information
-Platform: ${platform?.name || 'Not provided'}
+Platform: ${request.platformInfo.platformName || request.platformInfo.customName}
 Content Location Type: ${initialInfo.contentLocationType || 'Not provided'}
 Content Location: ${initialInfo.imageIdentification || 'Not provided'}
 Upload Date: ${initialInfo.imageUploadDate || 'Not provided'}
@@ -154,5 +168,5 @@ Ensure the JSON is perfectly valid and can be parsed by \`JSON.parse()\` in Java
   }
 ]
 \`\`\`
-`
+`;
 }

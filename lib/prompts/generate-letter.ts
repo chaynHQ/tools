@@ -1,18 +1,33 @@
 import { LetterRequest } from '@/types/letter';
 import { QUALITY_CHECK_CRITERIA } from '../constants/ai';
 import { getPlatformPolicy, getRelevantPolicies } from '../platform-policies';
-import { platforms } from '../platforms';
+import { getPlatformPolicyId } from '../platforms';
 import { serverInstance as rollbar } from '../rollbar';
-
 
 export function generateLetterPrompt(request: LetterRequest) {
   rollbar.info('generateLetterPrompt: Generating takedown letter prompt', {
-    platform: request.platformInfo.name,
+    platformId: request.platformInfo.platformId,
+    platformName: request.platformInfo.platformName,
+    customName: request.platformInfo.customName,
+    isCustom: request.platformInfo.isCustom,
   });
 
-  const platformPolicy = request.platformInfo.isCustom
-    ? null
-    : getPlatformPolicy(platforms.find((p) => p.name === request.platformInfo.name)?.id || '');
+  let platformPolicy = null;
+  if (!request.platformInfo.isCustom) {
+    const policyId = getPlatformPolicyId(request.platformInfo.platformId);
+    if (policyId) {
+      platformPolicy = getPlatformPolicy(policyId);
+      rollbar.info('generateLetterPrompt: Found platform policy', {
+        platformId: request.platformInfo.platformId,
+        policyId,
+        policyName: platformPolicy?.name,
+      });
+    } else {
+      rollbar.warning('generateLetterPrompt: No policy ID found for platform', {
+        platformId: request.platformInfo.platformId,
+      });
+    }
+  }
 
   const relevantPolicies = platformPolicy
     ? getRelevantPolicies(
@@ -32,7 +47,7 @@ export function generateLetterPrompt(request: LetterRequest) {
     reportingInfo.responseReceived ||
     reportingInfo.additionalStepsTaken;
 
-  const prompt = `Act as an expert AI assistant specializing in platform policy enforcement and content takedown requests. Your objective is to generate a clear, factual, and compelling letter to a platform's support team, arguing for the removal of specific content based *exclusively* on the inputs provided.
+  const prompt = `Act as an expert AI assistant specializing in platform policy enforcement and content takedown requests. Your objective is to generate a clear, factual, and compelling letter to a platform's (${request.platformInfo.platformName || request.platformInfo.customName}) support team, arguing for the removal of specific content based *exclusively* on the inputs provided.
 
 # CRITICAL RULES
 
@@ -102,6 +117,7 @@ You MUST respond with a single, valid JSON object. The response must be parseabl
 # INPUTS
 Content Type: ${request.initialQuestions.contentType}
 Content Context: ${request.initialQuestions.contentContext}
+Platform: ${request.platformInfo.platformName || request.platformInfo.customName}
 Upload Date: ${initialInfo.imageUploadDate || 'Not provided'}
 Creation Date: ${initialInfo.imageTakenDate || 'Not provided'}
 Ownership Evidence: ${initialInfo.ownershipEvidence || 'Not provided'}
