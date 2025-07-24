@@ -95,7 +95,7 @@ This section contains the *entire universe* of allowed information and rules for
 ### Part A: Factual Context
 Content Type: ${request.initialQuestions.contentType}
 Content Context: ${request.initialQuestions.contentContext}
-Platform: ${request.platformInfo.platformName || request.platformInfo.customName}
+Platform: ${request.platformInfo.name || request.platformInfo.customName}
 Upload Date: ${initialInfo.imageUploadDate || 'Not provided'}
 Creation Date: ${initialInfo.imageTakenDate || 'Not provided'}
 Ownership Evidence: ${initialInfo.ownershipEvidence || 'Not provided'}

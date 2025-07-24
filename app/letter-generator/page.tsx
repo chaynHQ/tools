@@ -212,9 +212,7 @@ export default function LetterGenerator() {
 
   const platformName = formState.platformInfo?.isCustom
     ? formState.platformInfo.customName
-    : formState.platformInfo?.platformId
-      ? PLATFORM_NAMES[formState.platformInfo.platformId]
-      : 'Unknown Platform';
+    : formState.platformInfo?.name || 'Unknown Platform';
 
   return (
     <main className="flex-1">

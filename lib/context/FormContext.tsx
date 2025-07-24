@@ -10,7 +10,7 @@ import { IS_DEVELOPMENT } from '../constants/common';
 // Define types for our form data
 export interface PlatformInfo {
   platformId: PlatformId;
-  platformName: string;
+  name: string;
   isCustom: boolean;
   customName?: string;
 }
@@ -192,7 +192,7 @@ export function FormProvider({ children }: { children: ReactNode }) {
           platformInfo: {
             name: prev.platformInfo?.isCustom
               ? prev.platformInfo.customName
-              : prev.platformInfo?.platformName,
+              : prev.platformInfo?.name,
             isCustom: prev.platformInfo?.isCustom || false,
           },
           reportingDetails:
