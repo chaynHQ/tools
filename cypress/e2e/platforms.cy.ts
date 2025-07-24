@@ -202,9 +202,16 @@ describe('Platform Tests', () => {
 
     startFlow();
     selectPlatform(data.platformName);
-    selectReportingStatus(data.reportingStatus);
+    if (platformKey !== PlatformId.OTHER) {
+      selectReportingStatus(data.reportingStatus);
+    }
     fillInitialQuestions(data);
-    fillReportingDetails(data);
+    if (
+      platformKey !== PlatformId.OTHER ||
+      data.reportingStatus === "I haven't tried either process yet"
+    ) {
+      fillReportingDetails(data);
+    }
     waitForLetterGeneration();
     verifyLetterContent(data);
   }
