@@ -28,9 +28,11 @@ export function generateFollowUpPrompt(request: LetterRequest) {
     reportingInfo.additionalStepsTaken;
 
   // Validate platformInfo
-  if (!request.platformInfo.platformName) {
-    rollbar.error('generateFollowUpPrompt: Missing platform name in platformInfo');
-    throw new Error('Missing name in platformInfo');
+  if (!request.platformInfo.platformName && !request.platformInfo.customName) {
+    rollbar.error('generateFollowUpPrompt: Missing platform name in platformInfo', {
+      platformInfo: request.platformInfo
+    });
+    throw new Error('Missing platform name in platformInfo');
   }
 
   let platformPolicy = null;

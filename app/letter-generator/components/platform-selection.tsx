@@ -106,6 +106,7 @@ export function PlatformSelection({ onComplete }: PlatformSelectionProps) {
       }
 
       if (platformInfo) {
+        rollbar.info('Setting platform info', { platformInfo });
         setPlatformInfo(platformInfo);
         onComplete(platformInfo);
       } else {

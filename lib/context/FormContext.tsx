@@ -181,6 +181,11 @@ export function FormProvider({ children }: { children: ReactNode }) {
   const updateCompleteFormData = () => {
     try {
       setFormState((prev) => {
+        // Get the platform name - either custom name or standard platform name
+        const platformName = prev.platformInfo?.isCustom 
+          ? prev.platformInfo.customName 
+          : prev.platformInfo?.platformName;
+
         const completeData = {
           initialQuestions: {
             ...prev.initialQuestions,
@@ -189,18 +194,17 @@ export function FormProvider({ children }: { children: ReactNode }) {
                 ? prev.initialQuestions.contentUrl
                 : prev.initialQuestions.contentDescription),
           },
-          platformInfo: {
-            name: prev.platformInfo?.isCustom
-              ? prev.platformInfo.customName
-              : prev.platformInfo?.platformName,
-            isCustom: prev.platformInfo?.isCustom || false,
-          },
+          platformInfo: prev.platformInfo,
           reportingDetails:
             Object.keys(prev.reportingDetails).length > 0 ? prev.reportingDetails : undefined,
           followUp: prev.followUpData.answers,
         };
 
-        rollbar.info('Complete form data updated');
+        rollbar.info('Complete form data updated', {
+          platformId: prev.platformInfo?.platformId,
+          platformName: platformName,
+          isCustom: prev.platformInfo?.isCustom
+        });
 
         return {
           ...prev,

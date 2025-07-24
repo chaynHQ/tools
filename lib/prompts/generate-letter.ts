@@ -8,6 +8,7 @@ export function generateLetterPrompt(request: LetterRequest) {
   rollbar.info('generateLetterPrompt: Generating takedown letter prompt', {
     platformId: request.platformInfo.platformId,
     platformName: request.platformInfo.platformName,
+    customName: request.platformInfo.customName,
     isCustom: request.platformInfo.isCustom,
   });
 
