@@ -1,9 +1,10 @@
 import { IS_DEVELOPMENT } from '../constants/common';
+import { PlatformId } from '../constants/platforms';
 
 // Sample data for quick testing
 export const PREFILL_DATA = {
   platformInfo: {
-    platformId: 'facebook',
+    platformId: PlatformId.FACEBOOK,
     platformName: 'Facebook',
     isCustom: false
   },

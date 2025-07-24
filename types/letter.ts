@@ -1,3 +1,5 @@
+import { PlatformInfo } from '@/lib/context/FormContext';
+
 export interface LetterRequest {
   initialQuestions: {
     contentLocationType: 'url' | 'description';
@@ -18,14 +20,11 @@ export interface LetterRequest {
     additionalStepsTaken?: string;
   };
   followUp?: Record<string, string>;
-  platformInfo: {
-    name: string;
-    isCustom: boolean;
-  };
+  platformInfo: PlatformInfo;
 }
 
 export interface GeneratedLetter {
   subject: string;
   body: string;
-  nextSteps: string[];
+  nextSteps?: string[];
 }

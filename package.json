@@ -28,7 +28,6 @@
     "test": "vitest",
     "type-check": "tsc --noEmit",
     "format": "prettier --write .",
-    "prepare": "husky install",
     "cypress": "cypress open",
     "cypress:headless": "cypress run --browser electron --config video=false"
   },

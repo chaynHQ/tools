@@ -339,7 +339,7 @@ const generalPolicies = [
 ];
 
 export const facebookPolicy: PlatformPolicy = {
-  name: 'Facebook (Meta)',
+  name: 'Facebook',
   legalDocuments,
   contentTypes,
   contentContexts,

@@ -1,12 +1,14 @@
 import { LetterRequest } from '@/types/letter';
 import { QUALITY_CHECK_CRITERIA } from '../constants/ai';
 import { getPlatformPolicy, getRelevantPolicies } from '../platform-policies';
-import { platforms } from '../platforms';
+import { getPlatformPolicyId } from '../platforms';
 import { serverInstance as rollbar } from '../rollbar';
 
 export function generateFollowUpPrompt(request: LetterRequest) {
   rollbar.info('generateFollowUpPrompt: Generating follow-up questions prompt', {
-    platform: request.platformInfo.name,
+    platformId: request.platformInfo.platformId,
+    platformName: request.platformInfo.platformName,
+    isCustom: request.platformInfo.isCustom,
   });
 
   // Validate required data
@@ -26,16 +28,29 @@ export function generateFollowUpPrompt(request: LetterRequest) {
     reportingInfo.additionalStepsTaken;
 
   // Validate platformInfo
-  if (!request.platformInfo.name) {
-    rollbar.error('generateFollowUpPrompt: Missing platform name in platformInfo');
-    throw new Error('Missing name in platformInfo');
+  if (!request.platformInfo.platformName && !request.platformInfo.customName) {
+    rollbar.error('generateFollowUpPrompt: Missing platform name in platformInfo', {
+      platformInfo: request.platformInfo
+    });
+    throw new Error('Missing platform name in platformInfo');
   }
 
-  const platform = request.platformInfo.isCustom
-    ? null
-    : platforms.find((p) => p.name === request.platformInfo.name);
-
-  const platformPolicy = platform ? getPlatformPolicy(platform.id) : null;
+  let platformPolicy = null;
+  if (!request.platformInfo.isCustom) {
+    const policyId = getPlatformPolicyId(request.platformInfo.platformId);
+    if (policyId) {
+      platformPolicy = getPlatformPolicy(policyId);
+      rollbar.info('generateFollowUpPrompt: Found platform policy', {
+        platformId: request.platformInfo.platformId,
+        policyId,
+        policyName: platformPolicy?.name,
+      });
+    } else {
+      rollbar.warning('generateFollowUpPrompt: No policy ID found for platform', {
+        platformId: request.platformInfo.platformId,
+      });
+    }
+  }
 
   const relevantPolicies = platformPolicy
     ? getRelevantPolicies(
@@ -45,13 +60,24 @@ export function generateFollowUpPrompt(request: LetterRequest) {
       )
     : null;
 
-  const platformContext = platform ? `on ${platform.name}` : 'on an online platform';
+  return `# ROLE & OBJECTIVE
 
-  return `You are an AI assistant helping to generate follow-up questions for a takedown request letter generator. The user has provided information about ${request.initialQuestions.contentType} content being shared ${platformContext} in a context of ${request.initialQuestions.contentContext}.
+You are a strategic AI assistant specializing in platform policy enforcement. Your objective is to intelligently identify critical information gaps in a user's takedown request. You will generate a small, targeted list of follow-up questions to gather only the most essential information needed to build the strongest possible case, based on specific platform policies ${request.platformInfo.platformName || request.platformInfo.customName}.
 
-CRITICAL: Review the information already provided before generating questions:
+# CRITICAL DIRECTIVES
 
-AVAILABLE INFORMATION:
+1.  **Surgical Questioning:** You must be extremely selective. ONLY ask a question if the answer is **absolutely essential** to strengthen the link between the content and a specific policy violation. Do not ask for information that is already provided or is not critical for the takedown letter.
+2.  **Respect Privacy & Safety:** You MUST NOT ask for any personally identifiable information (name, email), sensitive personal details (medical, financial), or any form of official documentation/ID. All questions must use sensitive, trauma-informed language and MUST NOT contain any terms from the **Banned Terms** list below.
+3.  **Maximum of 4 Questions:** You must return a maximum of four questions. If a thorough analysis determines that no additional information is required to write a strong letter, you MUST return an empty array.
+
+---
+
+# CONTEXT FOR ANALYSIS
+
+This is the complete set of information provided by the user so far. You must review all of it before deciding if any questions are necessary.
+
+### User-Provided Information
+Platform: ${request.platformInfo.platformName || request.platformInfo.customName}
 Content Location Type: ${initialInfo.contentLocationType || 'Not provided'}
 Content Location: ${initialInfo.imageIdentification || 'Not provided'}
 Upload Date: ${initialInfo.imageUploadDate || 'Not provided'}
@@ -68,6 +94,7 @@ Additional Steps Taken: ${reportingInfo.additionalStepsTaken || 'Not provided'}`
     : ''
 }
 
+### Platform Policy Context
 ${
   relevantPolicies
     ? `
@@ -85,41 +112,61 @@ ${relevantPolicies
     : ''
 }
 
-BANNED TERMS: The questions must not contain any banned terms or phrases:
+### Banned Terms
 ${QUALITY_CHECK_CRITERIA.MAJOR.SENSITIVE_TERMS.map(({ term, replacement }) => `- "${term}" (use "${replacement}")`).join('\n')}
 
-CRITICAL RULES:
-1. Prioritize questions that help establish clear links between the content shared and SPECIFIC policy violations and community standards breaches.
-2. Questions should build upon existing information only where required for clarification essential to the request. Direct policy violations should be the focus, not personal details or emotional language.
-3. DO NOT ask for information that has already been provided or does support the case. If missing information is not essential for the letter, do not ask for it again.
-4. DO NOT repeat questions about how to find the content or the content link/url, this has already been provided. DO NOT ask for timeline details if dates are already provided.
-5. Do NOT ask specifics on the provided impact statement if we can already summarise the impact based on the provided information. Never ask for sensitive information such as medical, financial or security details.
-6. DO NOT ask for personal information like name, email, or contact details, or ANY form of official documentation or ID verification.
-7. Use sensitive trauma-informed approach and language - avoid language like "evidence" and "proof" - see the provided BANNED TERMS for guidance.
-8. Return all text in British English (en_gb) NOT en_us
-9. Return a maximum of 4 questions. If no additional information is needed, return an empty array. Remember, the user has already provided a lot of information, so only ask for what is absolutely essential or would significantly strengthen the case.
 
-ALLOWED TOPICS:
-- Content description (without requesting sensitive details)
-- Timeline of events
-- Impact on the person
-- Previous actions taken
-- Evidence of ownership (without requesting official documents)
-- Platform-specific details about the content
-- Context about how the content was shared
-- Specific policy violations
+---
 
-For each question, provide:
-- A clear, concise question (max 20 words)
-- A brief explanation of why this information supports the request (1-2 sentences)
-- A category: 'essential' (missing key info), 'verification' (proves ownership), or 'supporting' (strengthens case)
+# TASK: QUESTION GENERATION WORKFLOW
+
+Follow these steps precisely:
+
+1.  **Step 1: Analyze Context vs. Policy.** Thoroughly review all **User-Provided Information** and compare it against the **Evidence Requirements** and **Removal Criteria** of the applicable platform policies.
+2.  **Step 2: Identify Critical Gaps.** Identify any missing information that directly addresses a specific evidence requirement or removal criterion. This is the only valid reason to generate a question.
+3.  **Step 3: Formulate Questions.** For each identified gap, formulate one clear and concise question.
+    * **Constraints:** Each question must be in **British English (en-GB)** and a **maximum of 20 words**.
+    * **Permissible Topics:** Questions may only relate to the following, without requesting sensitive details: content description, timeline, impact, previous actions, ownership context, or specific details about how the content was shared.
+4.  **Step 4: Construct Output.** For each formulated question, create a JSON object with the specified structure.
+
+---
+
+# OUTPUT FORMAT
+
+You MUST respond with a single, valid JSON array of question objects. If no questions are necessary, return an empty array \`[]\`. The response must be parseable by \`JSON.parse()\`.
 
 Ensure the JSON is perfectly valid and can be parsed by \`JSON.parse()\` in JavaScript without any errors.
-Output schema:
-[{
-  "id": "unique_id",
-  "question": "the follow-up question",
-  "context": "why this information helps",
-  "reason": "category"
-}]`;
+
+
+**Output Schema:**
+\`\`\`json
+[
+  {
+    "id": "a_unique_question_id",
+    "question": "The concise, trauma-informed follow-up question.",
+    "context": "A brief explanation of why this information supports the request by linking it to a policy need.",
+    "reason": "essential" | "verification" | "supporting"
+  }
+]
+\`\`\`
+
+**Example Output:**
+
+\`\`\`json
+[
+  {
+    "id": "context_of_sharing_1",
+    "question": "Can you describe the context in which this content was shared online, without sharing personal details?",
+    "context": "This helps establish if the content was shared in a targeted way, which is relevant to harassment policies.",
+    "reason": "essential"
+  },
+  {
+    "id": "ownership_details_1",
+    "question": "Can you provide any non-identifying details about how you originally created or came to own this content?",
+    "context": "This information strengthens claims of ownership without requiring official documents.",
+    "reason": "verification"
+  }
+]
+\`\`\`
+`;
 }
