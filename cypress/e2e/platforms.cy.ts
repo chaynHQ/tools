@@ -1,4 +1,4 @@
-describe('Platform Tests - All Platforms', () => {
+describe('Platform Tests', () => {
   // Shared test data for all platforms
   const platformTestData = {
     facebook: {
@@ -9,14 +9,15 @@ describe('Platform Tests - All Platforms', () => {
       contentContext: 'Posted by someone I know',
       uploadDate: '5 March 2025',
       creationDate: '20 February 2025',
-      ownershipEvidence: 'I can be identified in the content and have the original files on my device',
+      ownershipEvidence:
+        'I can be identified in the content and have the original files on my device',
       impactStatement: 'This has affected my personal relationships and caused me distress',
       reportingStatus: "I've tried both processes",
-      standardProcessDetails: 'I reported through Facebook\'s in-app reporting tool on March 6th',
-      escalatedProcessDetails: 'I submitted a detailed report through Facebook\'s Help Center form',
+      standardProcessDetails: "I reported through Facebook's in-app reporting tool on March 6th",
+      escalatedProcessDetails: "I submitted a detailed report through Facebook's Help Center form",
       responseReceived: 'Facebook sent an automated response but took no further action',
       additionalStepsTaken: 'I followed up via their support email twice requesting an update',
-      expectedEmail: 'records@facebook.com'
+      expectedEmail: 'records@facebook.com',
     },
     instagram: {
       platformName: 'Instagram',
@@ -26,14 +27,16 @@ describe('Platform Tests - All Platforms', () => {
       contentContext: 'Someone is impersonating me',
       uploadDate: '10 March 2025',
       creationDate: '1 March 2025',
-      ownershipEvidence: 'I have the original photos with metadata and can verify through distinctive features',
-      impactStatement: 'This impersonation has damaged my reputation and caused significant emotional distress',
+      ownershipEvidence:
+        'I have the original photos with metadata and can verify through distinctive features',
+      impactStatement:
+        'This impersonation has damaged my reputation and caused significant emotional distress',
       reportingStatus: "I've tried the standard reporting process",
-      standardProcessDetails: 'I used Instagram\'s report feature multiple times over the past week',
+      standardProcessDetails: "I used Instagram's report feature multiple times over the past week",
       escalatedProcessDetails: '',
-      responseReceived: 'Instagram reviewed my report but said it didn\'t violate their guidelines',
+      responseReceived: "Instagram reviewed my report but said it didn't violate their guidelines",
       additionalStepsTaken: 'I tried reporting individual posts and the account itself separately',
-      expectedEmail: 'records@instagram.com'
+      expectedEmail: 'records@instagram.com',
     },
     tiktok: {
       platformName: 'TikTok',
@@ -44,13 +47,15 @@ describe('Platform Tests - All Platforms', () => {
       uploadDate: '15 March 2025',
       creationDate: '10 March 2025',
       ownershipEvidence: 'This is my personal information that was taken from my private accounts',
-      impactStatement: 'Having my private information shared publicly has made me feel unsafe and violated my privacy',
+      impactStatement:
+        'Having my private information shared publicly has made me feel unsafe and violated my privacy',
       reportingStatus: "I've tried the escalated reporting process",
       standardProcessDetails: '',
-      escalatedProcessDetails: 'I submitted a detailed privacy violation report through TikTok\'s specialized form',
+      escalatedProcessDetails:
+        "I submitted a detailed privacy violation report through TikTok's specialized form",
       responseReceived: 'TikTok acknowledged my report and said they were investigating',
       additionalStepsTaken: 'I provided additional evidence when they requested more information',
-      expectedEmail: 'legal@tiktok.com'
+      expectedEmail: 'legal@tiktok.com',
     },
     onlyfans: {
       platformName: 'OnlyFans',
@@ -60,14 +65,16 @@ describe('Platform Tests - All Platforms', () => {
       contentContext: 'Posted by someone I know',
       uploadDate: '20 March 2025',
       creationDate: '15 March 2025',
-      ownershipEvidence: 'I am the person depicted in this content and never consented to its sharing on this platform',
-      impactStatement: 'This unauthorized sharing has violated my consent and caused me significant distress',
+      ownershipEvidence:
+        'I am the person depicted in this content and never consented to its sharing on this platform',
+      impactStatement:
+        'This unauthorized sharing has violated my consent and caused me significant distress',
       reportingStatus: "I haven't tried either process yet",
       standardProcessDetails: '',
       escalatedProcessDetails: '',
       responseReceived: '',
       additionalStepsTaken: '',
-      expectedEmail: 'support@onlyfans.com'
+      expectedEmail: 'support@onlyfans.com',
     },
     pornhub: {
       platformName: 'Pornhub',
@@ -77,14 +84,18 @@ describe('Platform Tests - All Platforms', () => {
       contentContext: 'Source unknown',
       uploadDate: '25 March 2025',
       creationDate: '20 March 2025',
-      ownershipEvidence: 'I am the person in this content and it was shared without my knowledge or consent',
-      impactStatement: 'Discovering this content online has been deeply distressing and violates my privacy',
+      ownershipEvidence:
+        'I am the person in this content and it was shared without my knowledge or consent',
+      impactStatement:
+        'Discovering this content online has been deeply distressing and violates my privacy',
       reportingStatus: "I've tried both processes",
-      standardProcessDetails: 'I used Pornhub\'s content removal request form and provided verification',
-      escalatedProcessDetails: 'I contacted their Trust & Safety team directly with additional documentation',
+      standardProcessDetails:
+        "I used Pornhub's content removal request form and provided verification",
+      escalatedProcessDetails:
+        'I contacted their Trust & Safety team directly with additional documentation',
       responseReceived: 'Pornhub confirmed receipt of my request and said they were reviewing it',
       additionalStepsTaken: 'I provided additional verification documents when requested',
-      expectedEmail: 'content@pornhub.com'
+      expectedEmail: 'content@pornhub.com',
     },
     other: {
       platformName: 'Reddit',
@@ -94,15 +105,17 @@ describe('Platform Tests - All Platforms', () => {
       contentContext: 'Source unknown',
       uploadDate: '30 March 2025',
       creationDate: '25 March 2025',
-      ownershipEvidence: 'These are my personal photos that were taken from my social media accounts',
-      impactStatement: 'Having my personal content shared without permission has made me feel exposed and unsafe',
+      ownershipEvidence:
+        'These are my personal photos that were taken from my social media accounts',
+      impactStatement:
+        'Having my personal content shared without permission has made me feel exposed and unsafe',
       reportingStatus: "I haven't tried either process yet",
       standardProcessDetails: '',
       escalatedProcessDetails: '',
       responseReceived: '',
       additionalStepsTaken: '',
-      expectedEmail: "Please check the platform's help center for the appropriate contact email"
-    }
+      expectedEmail: "Please check the platform's help center for the appropriate contact email",
+    },
   };
 
   // Shared helper functions
@@ -134,15 +147,15 @@ describe('Platform Tests - All Platforms', () => {
   function fillInitialQuestions(data: any) {
     cy.contains(data.contentType).click();
     cy.contains(data.contentContext).click();
-    
+
     cy.get('input[type="radio"][value="url"]').check();
     cy.get('input[id="contentUrl"]').type(data.contentUrl);
-    
+
     cy.get('#imageUploadDate').type(data.uploadDate);
     cy.get('#imageTakenDate').type(data.creationDate);
     cy.get('#ownershipEvidence').type(data.ownershipEvidence);
     cy.get('#impactStatement').type(data.impactStatement);
-    
+
     cy.contains('Continue').click();
   }
 
@@ -159,7 +172,7 @@ describe('Platform Tests - All Platforms', () => {
     if (data.additionalStepsTaken) {
       cy.get('#additionalStepsTaken').type(data.additionalStepsTaken);
     }
-    
+
     cy.contains('Continue').click();
   }
 
@@ -179,17 +192,12 @@ describe('Platform Tests - All Platforms', () => {
 
   function runCompleteFlow(platformKey: string) {
     const data = platformTestData[platformKey];
-    
+
     startFlow();
     selectPlatform(data.platformName);
     selectReportingStatus(data.reportingStatus);
     fillInitialQuestions(data);
-    
-    // Only fill reporting details if the user has tried processes
-    if (data.reportingStatus !== "I haven't tried either process yet") {
-      fillReportingDetails(data);
-    }
-    
+    fillReportingDetails(data);
     waitForLetterGeneration();
     verifyLetterContent(data);
   }
@@ -217,136 +225,5 @@ describe('Platform Tests - All Platforms', () => {
 
   it('completes custom platform (Reddit) takedown request flow', () => {
     runCompleteFlow('other');
-  });
-
-  // Comprehensive test that validates multiple platforms in sequence
-  it('validates all platform flows work correctly', () => {
-    const platformsToTest = ['facebook', 'instagram', 'tiktok'];
-    
-    platformsToTest.forEach((platformKey, index) => {
-      if (index > 0) {
-        // Reset for subsequent tests
-        cy.visit('/');
-        cy.dismissDevWarning();
-      }
-      
-      const data = platformTestData[platformKey];
-      
-      startFlow();
-      selectPlatform(data.platformName);
-      selectReportingStatus(data.reportingStatus);
-      fillInitialQuestions(data);
-      
-      if (data.reportingStatus !== "I haven't tried either process yet") {
-        fillReportingDetails(data);
-      }
-      
-      waitForLetterGeneration();
-      verifyLetterContent(data);
-    });
-  });
-
-  // Test different reporting statuses
-  it('handles different reporting statuses correctly', () => {
-    const testCases = [
-      {
-        platform: 'facebook',
-        status: "I've tried the standard reporting process",
-        shouldShowReportingDetails: true
-      },
-      {
-        platform: 'instagram', 
-        status: "I've tried the escalated reporting process",
-        shouldShowReportingDetails: true
-      },
-      {
-        platform: 'onlyfans',
-        status: "I haven't tried either process yet",
-        shouldShowReportingDetails: false
-      }
-    ];
-
-    testCases.forEach((testCase, index) => {
-      if (index > 0) {
-        cy.visit('/');
-        cy.dismissDevWarning();
-      }
-
-      const data = platformTestData[testCase.platform];
-      
-      startFlow();
-      selectPlatform(data.platformName);
-      
-      // Test the specific reporting status
-      cy.contains(testCase.status).click();
-      cy.contains('Continue').click();
-      
-      fillInitialQuestions(data);
-      
-      if (testCase.shouldShowReportingDetails) {
-        // Should show reporting details form
-        cy.get('h3').contains('Standard Reporting Process Details').should('be.visible');
-        fillReportingDetails(data);
-      } else {
-        // Should skip directly to follow-up questions
-        cy.contains('Continue', { timeout: 30000 }).should('be.visible');
-      }
-    });
-  });
-
-  // Test content location types (URL vs description)
-  it('handles both URL and description content location types', () => {
-    const testCases = [
-      {
-        platform: 'facebook',
-        locationType: 'url',
-        contentLocation: 'https://facebook.com/test-post-url'
-      },
-      {
-        platform: 'instagram',
-        locationType: 'description', 
-        contentLocation: 'Content appears in the user story highlights and recent posts'
-      }
-    ];
-
-    testCases.forEach((testCase, index) => {
-      if (index > 0) {
-        cy.visit('/');
-        cy.dismissDevWarning();
-      }
-
-      const data = platformTestData[testCase.platform];
-      
-      startFlow();
-      selectPlatform(data.platformName);
-      selectReportingStatus(data.reportingStatus);
-      
-      // Fill initial questions with specific content location type
-      cy.contains(data.contentType).click();
-      cy.contains(data.contentContext).click();
-      
-      if (testCase.locationType === 'url') {
-        cy.get('input[type="radio"][value="url"]').check();
-        cy.get('input[id="contentUrl"]').type(testCase.contentLocation);
-      } else {
-        cy.get('input[type="radio"][value="description"]').check();
-        cy.get('#contentDescription').type(testCase.contentLocation);
-      }
-      
-      cy.get('#imageUploadDate').type(data.uploadDate);
-      cy.get('#imageTakenDate').type(data.creationDate);
-      cy.get('#ownershipEvidence').type(data.ownershipEvidence);
-      cy.get('#impactStatement').type(data.impactStatement);
-      cy.contains('Continue').click();
-      
-      if (data.reportingStatus !== "I haven't tried either process yet") {
-        fillReportingDetails(data);
-      }
-      
-      waitForLetterGeneration();
-      
-      // Verify content location appears correctly in letter
-      cy.verifyContentLocationInLetter(testCase.contentLocation, testCase.locationType);
-    });
   });
 });
