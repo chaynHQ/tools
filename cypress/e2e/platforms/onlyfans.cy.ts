@@ -1,62 +1,74 @@
-function startOnlyFansFlow() {
-  cy.visit('/');
-  // Dismiss development warning if it appears
-  cy.dismissDevWarning();
-  cy.contains('Start your request').click();
-  cy.get('h2').contains('Building your takedown letter');
-  cy.contains('Start your request', { timeout: 10000 }).click();
-  cy.contains('OnlyFans').click();
-  cy.contains('Continue').click();
-}
-
-function selectReportingStatus() {
-  cy.contains("I've tried both processes").click();
-  cy.contains('Continue').click();
-}
-
-function selectContentTypeAndContext() {
-  cy.contains('Intimate images').click();
-  cy.contains('Account was compromised').click();
-}
-
-function fillContentLocationAndDates() {
-  cy.get('input[type="radio"][value="url"]').check();
-  cy.get('input[id="contentUrl"]').type('https://onlyfans.com/harmful-post-123');
-  cy.get('#imageUploadDate').type('1 March 2025');
-  cy.get('#imageTakenDate').type('15 February 2025');
-}
-
-function fillVerificationAndImpact() {
-  cy.get('#ownershipEvidence').type('https://onlyfans.com/myprofile');
-  cy.get('#impactStatement').type(
-    'This has caused me significant anxiety and affected my mental health.',
-  );
-  cy.contains('Continue').click();
-}
-
-function fillReportingProcessDetails() {
-  cy.get('#standardProcessDetails').type(
-    "I reported the content through the platform's reporting tool on 10th January 2025",
-  );
-  cy.get('#escalatedProcessDetails').type("I escalated through the platform's suggested route");
-  cy.get('#responseReceived').type('No response was received from the platform');
-  cy.get('#additionalStepsTaken').type('I sent a follow-up email to request an update');
-  cy.contains('Continue').click();
-}
-
 describe('OnlyFans Platform Flow', () => {
-  it('waits for AI follow-up and generates the letter', () => {
-    startOnlyFansFlow();
-    selectReportingStatus();
-    selectContentTypeAndContext();
-    fillContentLocationAndDates();
-    fillVerificationAndImpact();
-    fillReportingProcessDetails();
+  const testData = {
+    contentUrl: 'https://onlyfans.com/user/content-id-789',
+    contentDescription: 'Content appears on a verified account that is not mine',
+    contentType: 'Intimate images',
+    contentContext: 'Posted by someone I know',
+    uploadDate: '20 March 2025',
+    creationDate: '15 March 2025',
+    ownershipEvidence: 'I am the person depicted in this content and never consented to its sharing on this platform',
+    impactStatement: 'This unauthorized sharing has violated my consent and caused me significant distress',
+    reportingStatus: "I haven't tried either process yet",
+    standardProcessDetails: '',
+    escalatedProcessDetails: '',
+    responseReceived: '',
+    additionalStepsTaken: ''
+  };
+
+  function startFlow() {
+    cy.visit('/');
+    cy.dismissDevWarning();
+    cy.contains('Start your request').click();
+    cy.get('h2').contains('Building your takedown letter');
+    cy.contains('Start your request', { timeout: 10000 }).click();
+  }
+
+  function selectPlatform() {
+    cy.contains('OnlyFans').click();
+    cy.contains('Continue').click();
+  }
+
+  function selectReportingStatus() {
+    cy.contains(testData.reportingStatus).click();
+    cy.contains('Continue').click();
+  }
+
+  function fillInitialQuestions() {
+    cy.contains(testData.contentType).click();
+    cy.contains(testData.contentContext).click();
+    
+    cy.get('input[type="radio"][value="url"]').check();
+    cy.get('input[id="contentUrl"]').type(testData.contentUrl);
+    
+    cy.get('#imageUploadDate').type(testData.uploadDate);
+    cy.get('#imageTakenDate').type(testData.creationDate);
+    cy.get('#ownershipEvidence').type(testData.ownershipEvidence);
+    cy.get('#impactStatement').type(testData.impactStatement);
+    
+    cy.contains('Continue').click();
+  }
+
+  function waitForLetterGeneration() {
     cy.contains('Analysing your responses', { timeout: 30000 });
     cy.contains('Continue', { timeout: 30000 }).click();
     cy.contains('Creating your letter', { timeout: 40000 });
     cy.contains('Review and send', { timeout: 100000 }).should('be.visible');
+  }
+
+  function verifyLetterContent() {
     cy.contains('Subject line').should('be.visible');
     cy.contains('Message content').should('be.visible');
+    cy.contains('support@onlyfans.com').should('be.visible');
+    cy.verifyContentLocationInLetter(testData.contentUrl, 'url');
+  }
+
+  it('completes OnlyFans non-consensual content takedown request flow', () => {
+    startFlow();
+    selectPlatform();
+    selectReportingStatus();
+    fillInitialQuestions();
+    // Skip reporting details since user hasn't tried either process
+    waitForLetterGeneration();
+    verifyLetterContent();
   });
 });
