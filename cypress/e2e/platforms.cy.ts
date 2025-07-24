@@ -1,7 +1,16 @@
+enum PlatformId {
+  FACEBOOK = 'facebook',
+  INSTAGRAM = 'instagram',
+  TIKTOK = 'tiktok',
+  ONLYFANS = 'onlyfans',
+  PORNHUB = 'pornhub',
+  OTHER = 'other',
+}
+
 describe('Platform Tests', () => {
   // Shared test data for all platforms
   const platformTestData = {
-    facebook: {
+    [PlatformId.FACEBOOK]: {
       platformName: 'Facebook',
       contentUrl: 'https://facebook.com/post/12345',
       contentDescription: 'Content appears in a public post on the user profile @testuser',
@@ -19,7 +28,7 @@ describe('Platform Tests', () => {
       additionalStepsTaken: 'I followed up via their support email twice requesting an update',
       expectedEmail: 'records@facebook.com',
     },
-    instagram: {
+    [PlatformId.INSTAGRAM]: {
       platformName: 'Instagram',
       contentUrl: 'https://instagram.com/p/ABC123DEF456',
       contentDescription: 'Content appears in story highlights and recent posts',
@@ -38,7 +47,7 @@ describe('Platform Tests', () => {
       additionalStepsTaken: 'I tried reporting individual posts and the account itself separately',
       expectedEmail: 'records@instagram.com',
     },
-    tiktok: {
+    [PlatformId.TIKTOK]: {
       platformName: 'TikTok',
       contentUrl: 'https://tiktok.com/@user/video/7234567890123456789',
       contentDescription: 'Content appears in multiple videos on the account @fakeaccount',
@@ -57,7 +66,7 @@ describe('Platform Tests', () => {
       additionalStepsTaken: 'I provided additional evidence when they requested more information',
       expectedEmail: 'legal@tiktok.com',
     },
-    onlyfans: {
+    [PlatformId.ONLYFANS]: {
       platformName: 'OnlyFans',
       contentUrl: 'https://onlyfans.com/user/content-id-789',
       contentDescription: 'Content appears on a verified account that is not mine',
@@ -76,7 +85,7 @@ describe('Platform Tests', () => {
       additionalStepsTaken: '',
       expectedEmail: 'support@onlyfans.com',
     },
-    pornhub: {
+    [PlatformId.PORNHUB]: {
       platformName: 'Pornhub',
       contentUrl: 'https://pornhub.com/view_video.php?viewkey=ph123456789abcdef',
       contentDescription: 'Content appears in multiple videos uploaded by different accounts',
@@ -97,7 +106,7 @@ describe('Platform Tests', () => {
       additionalStepsTaken: 'I provided additional verification documents when requested',
       expectedEmail: 'content@pornhub.com',
     },
-    other: {
+    [PlatformId.OTHER]: {
       platformName: 'Reddit',
       contentUrl: 'https://reddit.com/r/subreddit/comments/abc123/post-title',
       contentDescription: 'Content appears in multiple subreddit posts and comments',
@@ -190,7 +199,7 @@ describe('Platform Tests', () => {
     cy.verifyContentLocationInLetter(data.contentUrl, 'url');
   }
 
-  function runCompleteFlow(platformKey: string) {
+  function runCompleteFlow(platformKey: PlatformId) {
     const data = platformTestData[platformKey];
 
     startFlow();
@@ -204,26 +213,26 @@ describe('Platform Tests', () => {
 
   // Individual platform tests
   it('completes Facebook takedown request flow', () => {
-    runCompleteFlow('facebook');
+    runCompleteFlow(PlatformId.FACEBOOK);
   });
 
   it('completes Instagram takedown request flow', () => {
-    runCompleteFlow('instagram');
+    runCompleteFlow(PlatformId.INSTAGRAM);
   });
 
   it('completes TikTok takedown request flow', () => {
-    runCompleteFlow('tiktok');
+    runCompleteFlow(PlatformId.TIKTOK);
   });
 
   it('completes OnlyFans takedown request flow', () => {
-    runCompleteFlow('onlyfans');
+    runCompleteFlow(PlatformId.ONLYFANS);
   });
 
   it('completes Pornhub takedown request flow', () => {
-    runCompleteFlow('pornhub');
+    runCompleteFlow(PlatformId.PORNHUB);
   });
 
   it('completes custom platform (Reddit) takedown request flow', () => {
-    runCompleteFlow('other');
+    runCompleteFlow(PlatformId.OTHER);
   });
 });
