@@ -52,7 +52,7 @@ jobs:
           cache: 'npm'
 
       - name: Run cypress
-        uses: cypress-io/github-action@v6.7.16
+        uses: cypress-io/github-action@v6.10.2
         with:
           browser: chrome
           config-file: cypress.config.ts
