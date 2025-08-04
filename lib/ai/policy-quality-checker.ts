@@ -1,7 +1,7 @@
 import {
   generatePolicyQualityCheckPrompt,
   PolicyQualityCheckResponse,
-} from '@/lib/prompts/quality-check';
+} from '../prompts/quality-check';
 import { serverInstance as rollbar } from '@/lib/rollbar';
 import { parseAIJson } from '@/lib/utils';
 import { RetryHandler } from '@/lib/validation/retry-handler';
