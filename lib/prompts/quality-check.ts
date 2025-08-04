@@ -1,74 +1,196 @@
-import { serverInstance as rollbar } from '../rollbar';
+import { LetterRequest } from '@/types/letter';
+import { QUALITY_CHECK_CRITERIA } from '../constants/ai';
+import { getPlatformPolicy, getRelevantPolicies } from '../platform-policies';
+import { getPlatformPolicyId } from '../platforms';
 
-export interface PolicyQualityCheckResponse {
-  validationStatus: 'valid' | 'invalid';
-  reasoning: string;
-  diffSummary: string;
-  issues?: Array<{
-    severity: 'critical' | 'minor';
-    type: string;
+export interface QualityCheckResponse {
+  issues: {
+    severity: 'CRITICAL' | 'MINOR';
+    code:
+      | 'HALLUCINATION'
+      | 'SENSITIVE_DATA'
+      | 'POLICY_ERROR'
+      | 'BANNED_TERM'
+      | 'AGGRESSIVE_TONE'
+      | 'LANGUAGE'
+      | 'IMPROPER_TONE'
+      | 'STRUCTURE'
+      | 'INFO_HANDLING'
+      | 'SUBJECT_LINE';
     description: string;
-  }>;
+  }[];
+  improvedLetter: {
+    subject: string;
+    body: string;
+  };
 }
 
-export function generatePolicyQualityCheckPrompt(
-  originalPolicy: any,
-  updatedPolicy: any,
-): string {
-  rollbar.info('generatePolicyQualityCheckPrompt: Creating policy quality check prompt', {
-    originalPolicyName: originalPolicy.name,
-    updatedPolicyName: updatedPolicy.name,
-  });
+export function generateLetterQualityCheckPrompt(
+  letter: { subject: string; body: string },
+  request: LetterRequest,
+) {
+  const initialInfo = request.initialQuestions;
+  const followUpInfo = request.followUp || {};
+  const reportingInfo = request.reportingDetails || {};
 
-  return `You are an AI assistant specialized in validating policy changes for structural integrity and semantic plausibility. Your task is to analyze proposed changes to a platform policy and determine if they are valid, structurally sound, and semantically reasonable.
-
-CRITICAL INSTRUCTIONS:
-1. Compare the original policy with the updated policy
-2. Focus on structural integrity (no missing keys, proper data types, valid references)
-3. Evaluate semantic plausibility (do the changes make logical sense?)
-4. Check that only appropriate fields were modified (policy text, criteria, evidence requirements)
-5. Verify that access timestamps were properly updated
-6. Your response MUST be valid JSON and nothing else
-
-ORIGINAL POLICY:
-${JSON.stringify(originalPolicy, null, 2)}
-
-UPDATED POLICY:
-${JSON.stringify(updatedPolicy, null, 2)}
-
-After analyzing both policies, you MUST respond with a single JSON object in this exact format:
-
-{
-  "validationStatus": "valid" | "invalid",
-  "reasoning": "A clear explanation of your validation decision, including what you checked and why the changes are valid or invalid",
-  "diffSummary": "A concise summary of the specific changes found between the original and updated policies. List each change on a new line with a dash prefix (e.g., '- Updated policy CS-NCSII removalCriteria to include AI content\\n- Updated accessTimestamp for META-CS')",
-  "issues": [
-    // Only include this array if validationStatus is "invalid"
-    {
-      "severity": "critical" | "minor",
-      "type": "structural_integrity" | "semantic_plausibility" | "unauthorized_changes" | "missing_data",
-      "description": "Specific description of the issue found"
+  let platformPolicy = null;
+  if (!request.platformInfo.isCustom) {
+    const policyId = getPlatformPolicyId(request.platformInfo.platformId);
+    if (policyId) {
+      platformPolicy = getPlatformPolicy(policyId);
     }
-  ]
+  }
+
+  const relevantPolicies = platformPolicy
+    ? getRelevantPolicies(
+        platformPolicy,
+        request.initialQuestions.contentType,
+        request.initialQuestions.contentContext,
+      )
+    : null;
+
+  const hasReportingHistory =
+    reportingInfo.standardProcessDetails ||
+    reportingInfo.escalatedProcessDetails ||
+    reportingInfo.responseReceived ||
+    reportingInfo.additionalStepsTaken;
+
+  return `
+# ROLE & OBJECTIVE
+
+You are a meticulous and exacting Quality Assurance (QA) Analyst AI. Your primary objective is to audit a generated letter against a master set of rules and context. You will identify all deviations, provide a surgically corrected version of the letter that makes only the necessary changes, and produce a comprehensive audit report of all issues found.
+
+# CRITICAL DIRECTIVES
+
+1.  **Be Exacting:** You must scrutinize the provided letter against *every single rule* outlined in the \`## AUDIT SPECIFICATION\`, using its contents as the absolute ground truth.
+2.  **Surgical Correction:** When creating the \`improvedLetter\`, your goal is to be a surgeon, not an artist. Change **only** what is necessary to fix the identified issues. Preserve the original letter's structure, phrasing, and intent as much as possible.
+    * **Example:** If only a single word is wrong (e.g., American spelling), change only that word, not the entire sentence.
+    * If the original letter is perfect, the \`improvedLetter\` **must be identical** to it.
+3.  **Objective Analysis:** Your findings in the \`issues\` array must be factual, objective, and directly reference the specific rule that was broken.
+
+# INPUTS FOR ANALYSIS
+
+You will audit the following \`originalLetter\`, which was generated based on the specification below.
+
+\`\`\`json
+{
+  "originalLetter": {
+    "subject": "The subject line generated by the previous AI.",
+    "body": "The body generated by the previous AI, with \\n for newlines."
+  }
+}
+\`\`\`
+
+\`\`\`
+${JSON.stringify(letter)}
+\`\`\`
+
+
+---
+
+# AUDIT SPECIFICATION: THE SINGLE SOURCE OF TRUTH
+
+This section contains the *entire universe* of allowed information and rules for the letter. The letter is only valid if it is based exclusively on this specification.
+
+### Part A: Factual Context
+Content Type: ${request.initialQuestions.contentType}
+Content Context: ${request.initialQuestions.contentContext}
+Platform: ${request.platformInfo.platformName || request.platformInfo.customName}
+Upload Date: ${initialInfo.imageUploadDate || 'Not provided'}
+Creation Date: ${initialInfo.imageTakenDate || 'Not provided'}
+Ownership Evidence: ${initialInfo.ownershipEvidence || 'Not provided'}
+Impact Statement: ${initialInfo.impactStatement || 'Not provided'}
+${
+  hasReportingHistory
+    ? `Standard Process Details: ${reportingInfo.standardProcessDetails || 'Not provided'}
+Escalated Process Details: ${reportingInfo.escalatedProcessDetails || 'Not provided'}
+Response Received: ${reportingInfo.responseReceived || 'Not provided'}
+Additional Steps Taken: ${reportingInfo.additionalStepsTaken || 'Not provided'}
+`
+    : ''
+}
+${Object.entries(followUpInfo)
+  .map(([key, value]) => `${key}: ${value || 'Not provided'}`)
+  .join('\\n')}
+
+${
+  relevantPolicies
+    ? `PLATFORM POLICY CONTEXT:
+Platform-Specific polices Context for ${platformPolicy?.name} likely applicable to this letter:
+
+${relevantPolicies
+  .map(
+    (policy) => `- * ${policy.policy}*
+  Documents: ${policy.documents.map((doc) => doc.title).join(', ')}
+  Removal Criteria: ${policy.removalCriteria.join(', ')}
+  Evidence Requirements: ${policy.evidenceRequirements.join(', ')}`,
+  )
+  .join('\\n')}
+
+Timeframes:
+- Initial Response: ${platformPolicy?.timeframes.response}
+- Content Removal: ${platformPolicy?.timeframes.removal}
+`
+    : ''
 }
 
-VALIDATION CRITERIA:
+### Part B: Quality Ruleset
 
-**VALID changes include:**
-- Updates to policy descriptions that reflect current platform rules
-- Modifications to removalCriteria that align with platform enforcement
-- Changes to evidenceRequirements that match current processes
-- Updated accessTimestamp fields to reflect when documents were last checked
-- Structural consistency maintained across all policy objects
+#### Banned Terms
+The presence of any of these terms is a **CRITICAL** issue.
+${QUALITY_CHECK_CRITERIA.MAJOR.SENSITIVE_TERMS.map(({ term, replacement }) => `- Term: "${term}" (Correct Replacement: "${replacement}")`).join('\\n')}
 
-**INVALID changes include:**
-- Missing or corrupted data structures
-- Changes to fields that should not be modified (like policy references or document URLs)
-- Semantically implausible updates (e.g., policies that contradict platform business models)
-- Inconsistent data types or malformed JSON structures
-- Missing required fields or broken object relationships
+#### Critical Issues
+The presence of any of these issues constitutes a fundamental failure.
 
-Focus on ensuring the changes are both technically sound and logically consistent with how content platforms typically operate.
+1.  **Hallucination of Information**: The letter includes **any** detail not explicitly provided in **Part A: Factual Context**.
+    * **Examples**: References to unprovided previous correspondence (e.g., "our phone call last week"), assumptions about platform actions, or inclusion of any unapproved placeholders (e.g., \`[Your Name]\`).
+2.  **Inclusion of Unnecessary Sensitive Data**: The letter contains personal details beyond what is required or appropriate.
+    * **Examples**: Specific medical conditions, third-party names, or graphic details that go beyond the summarized \`Impact Statement\`.
+3.  **Incorrect Policy Application**: The letter misrepresents or misuses the provided platform policies from the \`PLATFORM POLICY CONTEXT\`.
+    * **Examples**: Referencing policy codes instead of full titles, mentioning policies related to ID verification, or failing to clearly connect the content to a specific policy.
+4.  **Presence of Banned Terms**: The letter contains any term from the **Banned Terms** list.
+5.  **Aggressive or Threatening Language**: The letter uses hostile, demanding, or inappropriately legalistic language (e.g., "you must comply," "I demand action").
+6.  **Improper Tone or Style**: The language is unprofessional, not concise, or fails to be trauma-informed and respectful. Use **Banned Terms** list as guidance. 
+7.  **Missing Content location**: The letter does not include the required \`[Content Location]\` placeholder. The improved letter MUST include \`Content location: [Content Location]\` near the top of the letter.
 
-RESPOND WITH VALID JSON ONLY:`;
+#### Minor Issues
+These issues impact quality but are not fundamental failures.
+1.  **Language Inconsistency**: The letter is not written entirely in British English (en-GB).
+2.  **Flawed Structure or Clarity**: The letter is poorly organized, the request is ambiguous, or does not end with \`Sincerely,\` followed by a new line.
+3.  **Incorrect Information Handling**: The letter misuses evidence, understates or overstates the \`Impact Statement\`, or includes sensitive specifics that should have been generalized.
+4.  **Poor Subject Line**: The subject line is generic, unclear, or does not accurately reflect the letter's purpose (e.g., "Urgent" instead of "Takedown Request - Impersonation Account").
+
+---
+
+# ANALYSIS & CORRECTION WORKFLOW
+
+Follow these steps precisely:
+
+1.  **Step 1: Comprehensive Audit.** Scan the \`originalLetter\` against all rules in the \`## AUDIT SPECIFICATION\`.
+2.  **Step 2: Document All Findings.** For every single violation found, log it in the \`issues\` array with its severity. If no issues are found, the array must be empty \`[]\`.
+3.  **Step 3: Perform Surgical Correction.** Create the \`improvedLetter\` by correcting **all** identified issues in the \`originalLetter\`. Adhere strictly to the **Surgical Correction** directive.
+
+---
+
+# OUTPUT FORMAT
+
+You MUST respond with a single, valid JSON object. The object must have this exact structure:
+
+\`\`\`json
+{
+  "issues": [
+    {
+      "severity": "CRITICAL" | "MINOR",
+      "code": "HALLUCINATION" | "SENSITIVE_DATA" | "POLICY_ERROR" | "BANNED_TERM" | "AGGRESSIVE_TONE" | "LANGUAGE" | "IMPROPER_TONE" | "STRUCTURE" | "INFO_HANDLING" | "SUBJECT_LINE",
+      "description": "A clear, concise description of the specific issue found and how it violates the rules."
+    }
+  ],
+  "improvedLetter": {
+    "subject": "The corrected subject line.",
+    "body": "The corrected letter body, with \\n for newlines."
+  }
+}
+\`\`\`
+`;
 }
