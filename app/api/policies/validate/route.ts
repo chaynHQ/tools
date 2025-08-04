@@ -1,5 +1,6 @@
 import { getPlatformPolicy } from '@/lib/platform-policies';
 import { GitHubPRCreator } from '@/lib/github/pr-creator';
+import { callGemini } from '@/lib/ai/gemini';
 import { handleApiError, serverInstance as rollbar } from '@/lib/rollbar';
 import { parseAIJson, retryWithDelay } from '@/lib/utils';
 import { 
@@ -8,15 +9,7 @@ import {
   PolicyAnalysisPromptData,
   PolicyValidationPromptData 
 } from '@/lib/prompts/policy-validation';
-import { GoogleGenAI, HarmBlockThreshold, HarmCategory } from '@google/genai';
 import { NextResponse } from 'next/server';
-
-// Initialize Gemini
-const genAI = new GoogleGenAI({
-  vertexai: true,
-  project: process.env.GOOGLE_CLOUD_PROJECT || 'bloom-dev-8f085',
-  location: process.env.GOOGLE_CLOUD_LOCATION || 'global',
-});
 
 // Store validation sessions
 const validationSessions = new Map<string, any>();
@@ -214,43 +207,7 @@ async function validateChanges(document: any, updatedPolicies: any[]) {
 }
 
 async function callGemini(prompt: string): Promise<string> {
-  return await retryWithDelay(async () => {
-    const req = {
-      model: 'gemini-2.0-flash-exp',
-      contents: [{ role: 'user', parts: [{ text: prompt }] }],
-      config: {
-        maxOutputTokens: 8192,
-        temperature: 0.1,
-        topP: 0.8,
-        safetySettings: [
-          { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.OFF },
-          { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.OFF },
-          { category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold: HarmBlockThreshold.OFF },
-          { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.OFF },
-        ],
-      },
-    };
-
-    const response = await genAI.models.generateContent(req);
-    
-    let fullText = '';
-    if (response.candidates && response.candidates.length > 0) {
-      const candidate = response.candidates[0];
-      if (candidate.content && candidate.content.parts) {
-        for (const part of candidate.content.parts) {
-          if (part.text) {
-            fullText += part.text;
-          }
-        }
-      }
-    }
-
-    if (!fullText) {
-      throw new Error('No text content received from Gemini');
-    }
-
-    return fullText;
-  });
+  return await callGemini(prompt);
 }
 
 async function finalizeValidation(session: any) {

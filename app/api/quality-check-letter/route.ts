@@ -1,21 +1,13 @@
 import { AI_MODEL, AI_TEMPERATURE } from '@/lib/constants/common';
+import { callAnthropic } from '@/lib/ai/anthropic';
 import { generateLetterQualityCheckPrompt } from '@/lib/prompts/quality-check';
 import { handleApiError, serverInstance as rollbar } from '@/lib/rollbar';
 import { parseAIJson, retryWithDelay } from '@/lib/utils';
 import { sendToZapier } from '@/lib/zapier';
-import Anthropic from '@anthropic-ai/sdk';
 import { NextResponse } from 'next/server';
-
-// Initialize Anthropic with environment variable
-const anthropic = new Anthropic();
 
 export async function POST(request: Request) {
   try {
-    if (!process.env.ANTHROPIC_API_KEY) {
-      rollbar.error('QualityCheckLetter: Anthropic API key not configured');
-      return NextResponse.json({ error: 'Missing Anthropic API key' }, { status: 500 });
-    }
-
     const body = await request.json();
     const { letter, formData } = body;
 
@@ -29,23 +21,8 @@ export async function POST(request: Request) {
 
     const generateQualityCheck = async () => {
       const content = generateLetterQualityCheckPrompt(letter, formData);
-      const response = await anthropic.messages.create({
-        model: AI_MODEL,
-        max_tokens: 4000,
-        temperature: AI_TEMPERATURE,
-        messages: [
-          {
-            role: 'user',
-            content: content,
-          },
-        ],
-      });
-      //@ts-ignore
-      if (!response?.content?.[0]?.text) {
-        throw new Error('Invalid response from Anthropic API');
-      }
-      //@ts-ignore
-      return parseAIJson(response.content[0].text);
+      const response = await callAnthropic(content);
+      return parseAIJson(response);
     };
 
     const qualityCheckResult = await retryWithDelay(generateQualityCheck);
