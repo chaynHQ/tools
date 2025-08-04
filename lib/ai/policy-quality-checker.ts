@@ -1,11 +1,11 @@
-import {
-  generatePolicyQualityCheckPrompt,
-  PolicyQualityCheckResponse,
-} from '../prompts/quality-check';
 import { serverInstance as rollbar } from '@/lib/rollbar';
 import { parseAIJson } from '@/lib/utils';
 import { RetryHandler } from '@/lib/validation/retry-handler';
 import Anthropic from '@anthropic-ai/sdk';
+import {
+  generatePolicyQualityCheckPrompt,
+  PolicyQualityCheckResponse,
+} from '../prompts/policy-quality-check';
 
 // Initialize Anthropic client
 const anthropic = new Anthropic();
