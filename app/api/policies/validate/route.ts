@@ -146,32 +146,16 @@ export async function POST(request: Request) {
               validationId,
               validationStatus: qualityCheckResult.validationStatus,
             });
-
-            // If we have updates, validate them with Prompt B
-            if (analysisResult.status === 'updated') {
-              rollbar.info('PolicyValidation: Starting change validation (Prompt B)', {
-                validationId,
-                platformId: nextDocument.platformId,
-                documentReference: nextDocument.reference,
-              });
-
-              const validationResponse = await fetch(
-                `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/policies/validate/analyze`,
-                {
-                  method: 'POST',
-                  headers: {
-                    'Content-Type': 'application/json',
-                  },
-                  body: JSON.stringify({
-                    validateChanges: true,
-                    documentUrl: nextDocument.url,
-                    documentReference: nextDocument.reference,
-                    documentTitle: nextDocument.title,
-                    originalPolicies: scopedPolicies.relatedPolicies,
-                    updatedPolicies: analysisResult.data.relatedPolicies,
-                  }),
-                },
-              );
+          } catch (error) {
+            rollbar.error('PolicyValidation: AI quality check failed', {
+              validationId,
+              error: error instanceof Error ? error.message : String(error),
+            });
+            hasQualityError = true;
+            qualityCheckResult = {
+              error: `Quality check failed: ${error instanceof Error ? error.message : String(error)}`,
+            };
+          }
 
           // Step 5: Create Pull Request (validation already done in Prompt B)
           let prResult = null;
@@ -182,7 +166,6 @@ export async function POST(request: Request) {
               validationId,
               totalChanges: aggregationResult.totalChanges,
             });
-                  validation: analysisResult.validation,
 
             const prResponse = await fetch(
               `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/policies/validate/create-pr`,
@@ -343,6 +326,48 @@ export async function POST(request: Request) {
           analysisStatus: analysisResult.status,
           hasUpdates: analysisResult.status === 'updated',
         });
+
+        // If we have updates, validate them with Prompt B
+        if (analysisResult.status === 'updated') {
+          rollbar.info('PolicyValidation: Starting change validation (Prompt B)', {
+            validationId,
+            platformId: nextDocument.platformId,
+            documentReference: nextDocument.reference,
+          });
+
+          const validationResponse = await fetch(
+            `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/policies/validate/analyze`,
+            {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                validateChanges: true,
+                documentUrl: nextDocument.url,
+                documentReference: nextDocument.reference,
+                documentTitle: nextDocument.title,
+                originalPolicies: scopedPolicies.relatedPolicies,
+                updatedPolicies: analysisResult.data.relatedPolicies,
+              }),
+            },
+          );
+
+          if (!validationResponse.ok) {
+            const errorData = await validationResponse.json();
+            throw new Error(errorData.error || 'Validation request failed');
+          }
+
+          const validationData = await validationResponse.json();
+          analysisResult.validation = validationData.validation;
+
+          rollbar.info('PolicyValidation: Change validation completed', {
+            validationId,
+            platformId: nextDocument.platformId,
+            documentReference: nextDocument.reference,
+            validationStatus: analysisResult.validation.status,
+          });
+        }
       } catch (error) {
         rollbar.error('PolicyValidation: AI analysis failed', {
           validationId,
