@@ -1,9 +1,8 @@
-import { facebookPolicy } from '@/lib/platform-policies/facebook';
 import { handleApiError, serverInstance as rollbar } from '@/lib/rollbar';
 import { EnvironmentValidator } from '@/lib/validation/environment-validator';
 import { PolicyAggregator, ProposedUpdate } from '@/lib/validation/policy-aggregator';
 import {
-  createScopedPolicies,
+  createScopedPoliciesForDocument,
   getNextDocument,
   getValidationProgress,
   initializeValidationWorkflow,
@@ -38,17 +37,19 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { action, validationId } = body;
+    const { action, validationId, platforms } = body;
 
     if (action === 'initialize') {
       // Step 1: Initialize the workflow
-      const validationState = initializeValidationWorkflow();
+      const validationState = initializeValidationWorkflow(platforms);
 
       // Store the validation state
       activeValidations.set(validationState.validationId, validationState);
 
       rollbar.info('PolicyValidation: Workflow initialized successfully', {
         validationId: validationState.validationId,
+        platforms: validationState.targetPlatforms,
+        totalPlatforms: validationState.totalPlatforms,
         totalDocuments: validationState.totalDocuments,
       });
 
@@ -58,12 +59,19 @@ export async function POST(request: Request) {
         status: 'initialized',
         message: 'Policy validation workflow initialized',
         data: {
+          platforms: validationState.targetPlatforms,
+          totalPlatforms: validationState.totalPlatforms,
           totalDocuments: validationState.totalDocuments,
-          documentsToProcess: validationState.originalPlatformPolicy.legalDocuments.map((doc) => ({
-            reference: doc.reference,
-            title: doc.title,
-            url: doc.url,
-          })),
+          documentsToProcess: Object.entries(validationState.originalPlatformPolicies).flatMap(
+            ([platformId, policy]) =>
+              policy.legalDocuments.map((doc) => ({
+                platformId,
+                platformName: policy.name,
+                reference: doc.reference,
+                title: doc.title,
+                url: doc.url,
+              })),
+          ),
           nextStep: 'process_next_document',
         },
       });
@@ -88,7 +96,7 @@ export async function POST(request: Request) {
         });
 
         const aggregationResult = PolicyAggregator.aggregateChanges(
-          validationState.originalPlatformPolicy,
+          validationState.originalPlatformPolicies,
           validationState.proposedUpdates as ProposedUpdate[],
         );
 
@@ -96,6 +104,7 @@ export async function POST(request: Request) {
           validationId,
           hasChanges: aggregationResult.hasChanges,
           totalChanges: aggregationResult.totalChanges,
+          platformsUpdated: aggregationResult.platformsUpdated.length,
           documentsUpdated: aggregationResult.documentsUpdated.length,
         });
 
@@ -118,8 +127,8 @@ export async function POST(request: Request) {
                   'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                  originalPolicy: validationState.originalPlatformPolicy,
-                  updatedPolicy: aggregationResult.updatedPolicy,
+                  originalPolicies: validationState.originalPlatformPolicies,
+                  updatedPolicies: aggregationResult.updatedPolicies,
                 }),
               },
             );
@@ -169,10 +178,11 @@ export async function POST(request: Request) {
                     'Content-Type': 'application/json',
                   },
                   body: JSON.stringify({
-                    validationId,
-                    updatedPolicy: aggregationResult.updatedPolicy,
+                    originalPolicies: validationState.originalPlatformPolicies,
+                    updatedPolicies: aggregationResult.updatedPolicies,
                     changesSummary: PolicyAggregator.generateChangesSummary(aggregationResult),
                     totalChanges: aggregationResult.totalChanges,
+                    platformsUpdated: aggregationResult.platformsUpdated,
                     documentsUpdated: aggregationResult.documentsUpdated,
                     documentsProcessed: validationState.processedDocuments.length,
                   }),
@@ -209,7 +219,7 @@ export async function POST(request: Request) {
 
           // Return results with quality check and PR creation
           let finalStatus = 'completed_with_valid_changes';
-          let finalMessage = `Validation completed with ${aggregationResult.totalChanges} valid policy changes across ${aggregationResult.documentsUpdated.length} documents`;
+          let finalMessage = `Validation completed with ${aggregationResult.totalChanges} valid policy changes across ${aggregationResult.platformsUpdated.length} platforms and ${aggregationResult.documentsUpdated.length} documents`;
 
           if (hasQualityError) {
             finalStatus = 'completed_with_quality_error';
@@ -267,19 +277,19 @@ export async function POST(request: Request) {
 
       rollbar.info('PolicyValidation: Processing document', {
         validationId,
+        platformId: nextDocument.platformId,
+        platformName: nextDocument.platformName,
         documentReference: nextDocument.reference,
         documentTitle: nextDocument.title,
       });
 
       // Create scoped policies for this document
-      const scopedPolicies = createScopedPolicies(
-        validationState.originalPlatformPolicy,
-        nextDocument.reference,
-      );
+      const scopedPolicies = createScopedPoliciesForDocument(validationState, nextDocument.reference);
 
       if (!scopedPolicies) {
         rollbar.error('PolicyValidation: Failed to create scoped policies', {
           validationId,
+          platformId: nextDocument.platformId,
           documentReference: nextDocument.reference,
         });
         return NextResponse.json({ error: 'Failed to create scoped policies' }, { status: 500 });
@@ -292,6 +302,7 @@ export async function POST(request: Request) {
       try {
         rollbar.info('PolicyValidation: Starting Gemini analysis', {
           validationId,
+          platformId: nextDocument.platformId,
           documentReference: nextDocument.reference,
           documentUrl: nextDocument.url,
         });
@@ -320,6 +331,7 @@ export async function POST(request: Request) {
 
         rollbar.info('PolicyValidation: Gemini analysis completed', {
           validationId,
+          platformId: nextDocument.platformId,
           documentReference: nextDocument.reference,
           analysisStatus: analysisResult.status,
           hasUpdates: analysisResult.status === 'updated',
@@ -327,6 +339,7 @@ export async function POST(request: Request) {
       } catch (error) {
         rollbar.error('PolicyValidation: AI analysis failed', {
           validationId,
+          platformId: nextDocument.platformId,
           documentReference: nextDocument.reference,
           error: error instanceof Error ? error.message : String(error),
         });
@@ -363,9 +376,11 @@ export async function POST(request: Request) {
       return NextResponse.json({
         success: true,
         status: hasAnalysisError ? 'document_processed_with_error' : 'document_processed',
-        message: `Processed document: ${nextDocument.title}`,
+        message: `Processed document: ${nextDocument.title} (${nextDocument.platformName})`,
         data: {
           currentDocument: {
+            platformId: nextDocument.platformId,
+            platformName: nextDocument.platformName,
             reference: nextDocument.reference,
             title: nextDocument.title,
             url: nextDocument.url,
@@ -414,25 +429,42 @@ export async function POST(request: Request) {
 
 export async function GET(request: Request) {
   try {
-    // Return current Facebook policy structure for inspection
-    const policyStructure = {
-      name: facebookPolicy.name,
-      legalDocumentsCount: facebookPolicy.legalDocuments.length,
-      contentTypesCount: facebookPolicy.contentTypes.length,
-      contentContextsCount: facebookPolicy.contentContexts.length,
-      generalPoliciesCount: facebookPolicy.generalPolicies.length,
-      legalDocuments: facebookPolicy.legalDocuments.map((doc) => ({
-        reference: doc.reference,
-        title: doc.title,
-        url: doc.url,
-        lastAccessed: doc.accessTimestamp,
-      })),
+    // Return all available platform policy structures for inspection
+    const availablePlatforms = ['facebook', 'instagram', 'tiktok', 'onlyfans', 'pornhub'];
+    const policyStructures: Record<string, any> = {};
+    let totalDocuments = 0;
+
+    for (const platformId of availablePlatforms) {
+      const policy = getPlatformPolicy(platformId);
+      if (policy) {
+        policyStructures[platformId] = {
+          name: policy.name,
+          legalDocumentsCount: policy.legalDocuments.length,
+          contentTypesCount: policy.contentTypes.length,
+          contentContextsCount: policy.contentContexts.length,
+          generalPoliciesCount: policy.generalPolicies.length,
+          legalDocuments: policy.legalDocuments.map((doc) => ({
+            reference: doc.reference,
+            title: doc.title,
+            url: doc.url,
+            lastAccessed: doc.accessTimestamp,
+          })),
+        };
+        totalDocuments += policy.legalDocuments.length;
+      }
+    }
+
+    const summary = {
+      availablePlatforms,
+      totalPlatforms: Object.keys(policyStructures).length,
+      totalDocuments,
+      platforms: policyStructures,
     };
 
     return NextResponse.json({
       success: true,
-      message: 'Facebook policy structure retrieved',
-      data: policyStructure,
+      message: 'All platform policy structures retrieved',
+      data: summary,
     });
   } catch (error: any) {
     const { error: errorMessage, status } = handleApiError(error, '/api/policies/validate');
