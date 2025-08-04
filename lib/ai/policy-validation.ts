@@ -127,7 +127,7 @@ export async function validatePlatformPolicies(
             invalidChanges,
             errors,
           },
-          updatedPolicies: processResponse.data?.aggregationResult?.updatedPolicies,
+          updatedPolicies: processResponse.data?.updatedPolicies,
           changesSummary: processResponse.data?.changesSummary,
           pullRequest: processResponse.data?.pullRequest,
         };

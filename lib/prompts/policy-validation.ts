@@ -66,7 +66,6 @@ If you DO find meaningful changes needed:
   "status": "updated",
   "reasoning": "Brief summary of key changes identified. Be specific about what changed.",
   "updatedPolicies": [
-    // The full, updated list of policies with your changes
     {
       "reference": "policy_reference",
       "policy": "updated policy description",
@@ -131,7 +130,6 @@ After analyzing the document and comparing the policies, respond with:
   "validationStatus": "valid" | "invalid",
   "reasoning": "Clear explanation of your validation decision, including what you verified in the document and why changes are valid or invalid. Be specific about any hallucinations or meaningless rewording detected.",
   "issues": [
-    // Only include if validationStatus is "invalid"
     {
       "severity": "critical" | "minor",
       "type": "hallucination" | "meaningless_rewording" | "structural_error",
