@@ -1,0 +1,265 @@
+name: Policy Validation Workflow
+
+on:
+  schedule:
+    # Run every Monday at 9:00 AM UTC (weekly)
+    - cron: '0 9 * * 1'
+  workflow_dispatch: # Allow manual triggering
+    inputs:
+      platform:
+        description: 'Platform to validate (currently only facebook supported)'
+        required: false
+        default: 'facebook'
+        type: choice
+        options:
+          - facebook
+
+jobs:
+  validate-policies:
+    name: Validate Platform Policies
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+
+    env:
+      NEXT_PUBLIC_BASE_URL: ${{ secrets.NEXT_PUBLIC_BASE_URL || 'https://tools.chayn.co' }}
+      GOOGLE_AI_API_KEY: ${{ secrets.GOOGLE_AI_API_KEY }}
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate environment variables
+        run: |
+          if [ -z "$GOOGLE_AI_API_KEY" ]; then
+            echo "Error: GOOGLE_AI_API_KEY is not set"
+            exit 1
+          fi
+          if [ ${#GOOGLE_AI_API_KEY} -lt 10 ]; then
+            echo "Error: GOOGLE_AI_API_KEY appears to be too short"
+            exit 1
+          fi
+          if [[ ! "$GOOGLE_AI_API_KEY" =~ ^AIza ]]; then
+            echo "Warning: GOOGLE_AI_API_KEY does not appear to have the correct format"
+          fi
+
+          if [ -z "$ANTHROPIC_API_KEY" ]; then
+            echo "Error: ANTHROPIC_API_KEY is not set"
+            exit 1
+          fi
+          if [ ${#ANTHROPIC_API_KEY} -lt 10 ]; then
+            echo "Error: ANTHROPIC_API_KEY appears to be too short"
+            exit 1
+          fi
+          if [[ ! "$ANTHROPIC_API_KEY" =~ ^sk-ant- ]]; then
+            echo "Warning: ANTHROPIC_API_KEY does not appear to have the correct format"
+          fi
+
+          if [ -z "$SLACK_WEBHOOK_URL" ]; then
+            echo "Warning: SLACK_WEBHOOK_URL is not set - notifications may not work"
+          fi
+
+          if [ -z "$GITHUB_TOKEN" ]; then
+            echo "Warning: GITHUB_TOKEN is not set - PR creation may not work"
+          fi
+
+          echo "Environment validation completed successfully"
+
+      - name: Start policy validation workflow
+        id: start_validation
+        run: |
+          echo "Starting policy validation workflow..."
+
+          # Step 1: Initialize the workflow
+          RESPONSE=$(curl -s -X POST \
+            -H "Content-Type: application/json" \
+            -d '{"action": "initialize"}' \
+            "$NEXT_PUBLIC_BASE_URL/api/policies/validate" \
+            -w "HTTPSTATUS:%{http_code}")
+
+          HTTP_STATUS=$(echo $RESPONSE | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
+          RESPONSE_BODY=$(echo $RESPONSE | sed -e 's/HTTPSTATUS:.*//g')
+
+          echo "HTTP Status: $HTTP_STATUS"
+          echo "Response: $RESPONSE_BODY"
+
+          if [ $HTTP_STATUS -ne 200 ]; then
+            echo "Error: Policy validation failed to start"
+            echo "Response: $RESPONSE_BODY"
+            exit 1
+          fi
+
+          # Extract validation ID from response
+          VALIDATION_ID=$(echo $RESPONSE_BODY | jq -r '.validationId // empty')
+
+          if [ -z "$VALIDATION_ID" ]; then
+            echo "Error: No validation ID returned"
+            exit 1
+          fi
+
+          echo "validation_id=$VALIDATION_ID" >> $GITHUB_OUTPUT
+          echo "Validation workflow started with ID: $VALIDATION_ID"
+
+      - name: Process all documents
+        id: process_documents
+        run: |
+          VALIDATION_ID="${{ steps.start_validation.outputs.validation_id }}"
+          echo "Processing documents for validation ID: $VALIDATION_ID"
+
+          # Step 2: Process each document iteratively
+          COMPLETED=false
+          PROCESSED_COUNT=0
+
+          while [ "$COMPLETED" = false ]; do
+            echo "Processing next document..."
+            
+            RESPONSE=$(curl -s -X POST \
+              -H "Content-Type: application/json" \
+              -d "{\"action\": \"process_next_document\", \"validationId\": \"$VALIDATION_ID\"}" \
+              "$NEXT_PUBLIC_BASE_URL/api/policies/validate" \
+              -w "HTTPSTATUS:%{http_code}")
+            
+            HTTP_STATUS=$(echo $RESPONSE | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
+            RESPONSE_BODY=$(echo $RESPONSE | sed -e 's/HTTPSTATUS:.*//g')
+            
+            echo "HTTP Status: $HTTP_STATUS"
+            echo "Response: $RESPONSE_BODY"
+            
+            if [ $HTTP_STATUS -ne 200 ]; then
+              echo "Error: Document processing failed"
+              echo "Response: $RESPONSE_BODY"
+              exit 1
+            fi
+            
+            # Check if completed
+            STATUS=$(echo $RESPONSE_BODY | jq -r '.status // empty')
+            if [ "$STATUS" = "completed" ]; then
+              COMPLETED=true
+              echo "All documents processed successfully"
+              
+              # Extract final results based on completion status
+              COMPLETION_STATUS=$(echo $RESPONSE_BODY | jq -r '.status // "unknown"')
+              
+              if [ "$COMPLETION_STATUS" = "completed_with_changes" ]; then
+                TOTAL_CHANGES=$(echo $RESPONSE_BODY | jq -r '.data.aggregationResult.totalChanges // 0')
+                DOCUMENTS_UPDATED=$(echo $RESPONSE_BODY | jq -r '.data.aggregationResult.documentsUpdated | length // 0')
+                echo "Validation completed with changes: $TOTAL_CHANGES policy changes across $DOCUMENTS_UPDATED documents"
+                
+                # Extract changes summary for notification
+                CHANGES_SUMMARY=$(echo $RESPONSE_BODY | jq -r '.data.changesSummary // "No summary available"')
+                echo "Changes Summary:"
+                echo "$CHANGES_SUMMARY"
+                
+              elif [ "$COMPLETION_STATUS" = "completed_no_changes" ]; then
+                echo "Validation completed with no changes needed"
+                TOTAL_CHANGES=0
+                DOCUMENTS_UPDATED=0
+              else
+                echo "Unknown completion status: $COMPLETION_STATUS"
+                TOTAL_CHANGES=0
+                DOCUMENTS_UPDATED=0
+              fi
+              
+            else
+              PROCESSED_COUNT=$((PROCESSED_COUNT + 1))
+              echo "Processed document $PROCESSED_COUNT"
+              
+              # Extract document info for logging
+              DOC_TITLE=$(echo $RESPONSE_BODY | jq -r '.data.currentDocument.title // "Unknown"')
+              DOC_REF=$(echo $RESPONSE_BODY | jq -r '.data.currentDocument.reference // "Unknown"')
+              POLICIES_COUNT=$(echo $RESPONSE_BODY | jq -r '.data.scopedPolicies.relatedPolicies | length // 0')
+              ANALYSIS_STATUS=$(echo $RESPONSE_BODY | jq -r '.data.analysis.status // "unknown"')
+              
+              echo "Processed: $DOC_TITLE ($DOC_REF) with $POLICIES_COUNT related policies - Analysis: $ANALYSIS_STATUS"
+              
+              # Log analysis results
+              if [ "$ANALYSIS_STATUS" = "updated" ]; then
+                REASONING=$(echo $RESPONSE_BODY | jq -r '.data.analysis.reasoning // "No reasoning provided"')
+                echo "  → Updates found: $REASONING"
+              elif [ "$ANALYSIS_STATUS" = "no_change" ]; then
+                echo "  → No changes needed"
+              elif [ "$ANALYSIS_STATUS" = "error" ]; then
+                ERROR_MSG=$(echo $RESPONSE_BODY | jq -r '.data.analysis.reasoning // "Unknown error"')
+                echo "  → Analysis error: $ERROR_MSG"
+              fi
+              
+              # Safety check to prevent infinite loops
+              if [ $PROCESSED_COUNT -gt 10 ]; then
+                echo "Error: Too many documents processed, possible infinite loop"
+                exit 1
+              fi
+            fi
+          done
+
+          echo "processed_count=$PROCESSED_COUNT" >> $GITHUB_OUTPUT
+          echo "total_changes=$TOTAL_CHANGES" >> $GITHUB_OUTPUT
+          echo "documents_updated=$DOCUMENTS_UPDATED" >> $GITHUB_OUTPUT
+          echo "completion_status=$COMPLETION_STATUS" >> $GITHUB_OUTPUT
+
+          # Extract quality check results if available
+          QUALITY_STATUS=$(echo $RESPONSE_BODY | jq -r '.data.qualityCheck.validationStatus // "unknown"')
+          QUALITY_REASONING=$(echo $RESPONSE_BODY | jq -r '.data.qualityCheck.reasoning // "No quality check performed"')
+
+          echo "quality_status=$QUALITY_STATUS" >> $GITHUB_OUTPUT
+          echo "quality_reasoning=$QUALITY_REASONING" >> $GITHUB_OUTPUT
+
+          # Extract PR results if available
+          PR_URL=$(echo $RESPONSE_BODY | jq -r '.data.pullRequest.pullRequestUrl // "none"')
+          PR_NUMBER=$(echo $RESPONSE_BODY | jq -r '.data.pullRequest.pullRequestNumber // "none"')
+
+          echo "pr_url=$PR_URL" >> $GITHUB_OUTPUT
+          echo "pr_number=$PR_NUMBER" >> $GITHUB_OUTPUT
+
+          echo "Document processing completed successfully"
+
+      - name: Send completion notification
+        if: always()
+        run: |
+          VALIDATION_ID="${{ steps.start_validation.outputs.validation_id }}"
+          PROCESSED_COUNT="${{ steps.process_documents.outputs.processed_count }}"
+          TOTAL_CHANGES="${{ steps.process_documents.outputs.total_changes }}"
+          DOCUMENTS_UPDATED="${{ steps.process_documents.outputs.documents_updated }}"
+          COMPLETION_STATUS="${{ steps.process_documents.outputs.completion_status }}"
+          QUALITY_STATUS="${{ steps.process_documents.outputs.quality_status }}"
+          QUALITY_REASONING="${{ steps.process_documents.outputs.quality_reasoning }}"
+          PR_URL="${{ steps.process_documents.outputs.pr_url }}"
+          PR_NUMBER="${{ steps.process_documents.outputs.pr_number }}"
+          STATUS="${{ job.status }}"
+
+          if [ "$STATUS" = "success" ]; then
+            if [ "$COMPLETION_STATUS" = "completed_with_pr_created" ]; then
+              MESSAGE="🎉 Policy validation workflow Steps 1-6 completed successfully! Processed $PROCESSED_COUNT documents with $TOTAL_CHANGES policy changes across $DOCUMENTS_UPDATED documents. Quality check: PASSED. Pull Request created: $PR_URL (PR #$PR_NUMBER). Ready for review and merge. Validation ID: $VALIDATION_ID"
+            elif [ "$COMPLETION_STATUS" = "completed_with_pr_error" ]; then
+              MESSAGE="⚠️ Policy validation workflow Steps 1-5 completed successfully, but Step 6 (PR creation) failed. Processed $PROCESSED_COUNT documents with $TOTAL_CHANGES policy changes. Quality check: PASSED. Manual PR creation required. Validation ID: $VALIDATION_ID"
+            elif [ "$COMPLETION_STATUS" = "completed_with_valid_changes" ]; then
+              MESSAGE="✅ Policy validation workflow Steps 1-5 completed successfully. Processed $PROCESSED_COUNT documents with $TOTAL_CHANGES policy changes across $DOCUMENTS_UPDATED documents. Quality check: PASSED. Ready for Step 6 (Pull Request). Validation ID: $VALIDATION_ID"
+            elif [ "$COMPLETION_STATUS" = "completed_with_invalid_changes" ]; then
+              MESSAGE="⚠️ Policy validation workflow Steps 1-5 completed with issues. Processed $PROCESSED_COUNT documents with $TOTAL_CHANGES policy changes, but quality check FAILED. Reason: $QUALITY_REASONING. Manual review required. Validation ID: $VALIDATION_ID"
+            elif [ "$COMPLETION_STATUS" = "completed_with_quality_error" ]; then
+              MESSAGE="⚠️ Policy validation workflow Steps 1-4 completed, but Step 5 (Quality Check) failed due to technical error. Processed $PROCESSED_COUNT documents with $TOTAL_CHANGES policy changes. Manual review required. Validation ID: $VALIDATION_ID"
+            elif [ "$COMPLETION_STATUS" = "completed_no_changes" ]; then
+              MESSAGE="✅ Policy validation workflow Steps 1-5 completed successfully. Processed $PROCESSED_COUNT documents with no changes needed. All policies are up to date. Validation ID: $VALIDATION_ID"
+            else
+              MESSAGE="✅ Policy validation workflow Steps 1-5 completed successfully. Processed $PROCESSED_COUNT documents. Status: $COMPLETION_STATUS. Validation ID: $VALIDATION_ID"
+            fi
+          else
+            MESSAGE="❌ Policy validation workflow Steps 1-6 failed. Validation ID: $VALIDATION_ID"
+          fi
+
+          echo "Sending notification: $MESSAGE"
+
+          # Send Slack notification
+          curl -X POST -H 'Content-type: application/json' \
+            --data "{\"text\":\"$MESSAGE\"}" \
+            "$SLACK_WEBHOOK_URL" || echo "Failed to send Slack notification"

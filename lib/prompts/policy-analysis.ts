@@ -19,7 +19,7 @@ export interface PolicyAnalysisRequest {
 
 export function generatePolicyAnalysisPrompt(request: PolicyAnalysisRequest): string {
   const { documentUrl, scopedPolicies } = request;
-  
+
   rollbar.info('generatePolicyAnalysisPrompt: Creating policy analysis prompt', {
     documentUrl,
     documentReference: scopedPolicies.legalDocumentReference,
