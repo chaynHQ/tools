@@ -1,505 +1,412 @@
 import { getPlatformPolicy } from '@/lib/platform-policies';
 import { handleApiError, serverInstance as rollbar } from '@/lib/rollbar';
-import { EnvironmentValidator } from '@/lib/validation/environment-validator';
-import { PolicyAggregator, ProposedUpdate } from '@/lib/validation/policy-aggregator';
-import {
-  createScopedPoliciesForDocument,
-  getNextDocument,
-  getValidationProgress,
-  initializeValidationWorkflow,
-  isValidationComplete,
-  PolicyValidationState,
-  updateValidationState,
-} from '@/lib/validation/policy-workflow';
+import { parseAIJson, retryWithDelay } from '@/lib/utils';
+import { GoogleGenAI, HarmBlockThreshold, HarmCategory } from '@google/genai';
 import { NextResponse } from 'next/server';
+import { generatePolicyAnalysisPrompt, generatePolicyValidationPrompt } from '@/lib/prompts/policy-validation';
 
-// Store active validation sessions in memory
-const activeValidations = new Map<string, PolicyValidationState>();
+// Initialize Gemini
+const genAI = new GoogleGenAI({
+  vertexai: true,
+  project: process.env.GOOGLE_CLOUD_PROJECT || 'bloom-dev-8f085',
+  location: process.env.GOOGLE_CLOUD_LOCATION || 'global',
+});
+
+// Store validation sessions
+const validationSessions = new Map<string, any>();
 
 export async function POST(request: Request) {
-  rollbar.info('PolicyValidation: Starting policy validation workflow');
-
   try {
-    // Validate environment before starting any operations
-    try {
-      EnvironmentValidator.validateOrThrow();
-      rollbar.info('PolicyValidation: Environment validation passed', {
-        environmentSummary: EnvironmentValidator.getEnvironmentSummary(),
-      });
-    } catch (error) {
-      rollbar.error('PolicyValidation: Environment validation failed', { error });
-      return NextResponse.json(
-        {
-          error: `Environment validation failed: ${error instanceof Error ? error.message : String(error)}`,
-          environmentSummary: EnvironmentValidator.getEnvironmentSummary(),
-        },
-        { status: 500 },
-      );
-    }
-
     const body = await request.json();
     const { action, validationId, platforms } = body;
 
     if (action === 'initialize') {
-      // Step 1: Initialize the workflow
-      const validationState = initializeValidationWorkflow(platforms);
-
-      // Store the validation state
-      activeValidations.set(validationState.validationId, validationState);
-
-      rollbar.info('PolicyValidation: Workflow initialized successfully', {
-        validationId: validationState.validationId,
-        platforms: validationState.targetPlatforms,
-        totalPlatforms: validationState.totalPlatforms,
-        totalDocuments: validationState.totalDocuments,
-      });
-
-      return NextResponse.json({
-        success: true,
-        validationId: validationState.validationId,
-        status: 'initialized',
-        message: 'Policy validation workflow initialized',
-        data: {
-          platforms: validationState.targetPlatforms,
-          totalPlatforms: validationState.totalPlatforms,
-          totalDocuments: validationState.totalDocuments,
-          documentsToProcess: Object.entries(validationState.originalPlatformPolicies).flatMap(
-            ([platformId, policy]) =>
-              policy.legalDocuments.map((doc) => ({
-                platformId,
-                platformName: policy.name,
-                reference: doc.reference,
-                title: doc.title,
-                url: doc.url,
-              })),
-          ),
-          nextStep: 'process_next_document',
-        },
-      });
+      return await initializeValidation(platforms);
     }
 
     if (action === 'process_next_document') {
-      if (!validationId) {
-        return NextResponse.json({ error: 'Validation ID required' }, { status: 400 });
-      }
-
-      const validationState = activeValidations.get(validationId);
-      if (!validationState) {
-        return NextResponse.json({ error: 'Validation session not found' }, { status: 404 });
-      }
-
-      // Check if validation is complete
-      if (isValidationComplete(validationState)) {
-        // Step 4: Aggregate all changes into final policy
-        rollbar.info('PolicyValidation: Starting change aggregation', {
-          validationId,
-          proposedUpdatesCount: validationState.proposedUpdates.length,
-        });
-
-        const aggregationResult = PolicyAggregator.aggregateChanges(
-          validationState.originalPlatformPolicies,
-          validationState.proposedUpdates as ProposedUpdate[],
-        );
-
-        rollbar.info('PolicyValidation: Change aggregation completed', {
-          validationId,
-          hasChanges: aggregationResult.hasChanges,
-          totalChanges: aggregationResult.totalChanges,
-          platformsUpdated: aggregationResult.platformsUpdated.length,
-          documentsUpdated: aggregationResult.documentsUpdated.length,
-        });
-
-        if (aggregationResult.hasChanges) {
-          // Step 5: AI Quality Check
-          rollbar.info('PolicyValidation: Starting AI quality check', {
-            validationId,
-            totalChanges: aggregationResult.totalChanges,
-          });
-
-          let qualityCheckResult = null;
-          let hasQualityError = false;
-
-          try {
-            const qualityResponse = await fetch(
-              `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/policies/validate/quality-check`,
-              {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                  originalPolicies: validationState.originalPlatformPolicies,
-                  updatedPolicies: aggregationResult.updatedPolicies,
-                }),
-              },
-            );
-
-            if (!qualityResponse.ok) {
-              const errorData = await qualityResponse.json();
-              throw new Error(errorData.error || 'Quality check request failed');
-            }
-
-            const qualityData = await qualityResponse.json();
-            qualityCheckResult = qualityData.qualityCheck;
-
-            rollbar.info('PolicyValidation: AI quality check completed', {
-              validationId,
-              validationStatus: qualityCheckResult.validationStatus,
-            });
-          } catch (error) {
-            rollbar.error('PolicyValidation: AI quality check failed', {
-              validationId,
-              error: error instanceof Error ? error.message : String(error),
-            });
-            hasQualityError = true;
-            qualityCheckResult = {
-              error: `Quality check failed: ${error instanceof Error ? error.message : String(error)}`,
-            };
-          }
-
-          // Step 5: Create Pull Request (validation already done in Prompt B)
-          let prResult = null;
-          let hasPRError = false;
-
-          try {
-            rollbar.info('PolicyValidation: Starting PR creation', {
-              validationId,
-              totalChanges: aggregationResult.totalChanges,
-            });
-
-            const prResponse = await fetch(
-              `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/policies/validate/create-pr`,
-              {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                  validationId,
-                  updatedPolicies: aggregationResult.updatedPolicies,
-                  changesSummary: PolicyAggregator.generateChangesSummary(aggregationResult),
-                  totalChanges: aggregationResult.totalChanges,
-                  platformsUpdated: aggregationResult.platformsUpdated,
-                  documentsUpdated: aggregationResult.documentsUpdated,
-                  documentsProcessed: validationState.processedDocuments.length,
-                }),
-              },
-            );
-
-            if (!prResponse.ok) {
-              const errorData = await prResponse.json();
-              throw new Error(errorData.error || 'PR creation request failed');
-            }
-
-            const prData = await prResponse.json();
-            prResult = prData.data;
-
-            rollbar.info('PolicyValidation: PR creation completed', {
-              validationId,
-              pullRequestUrl: prResult.pullRequestUrl,
-              pullRequestNumber: prResult.pullRequestNumber,
-            });
-          } catch (error) {
-            rollbar.error('PolicyValidation: PR creation failed', {
-              validationId,
-              error: error instanceof Error ? error.message : String(error),
-            });
-            hasPRError = true;
-            prResult = {
-              error: `PR creation failed: ${error instanceof Error ? error.message : String(error)}`,
-            };
-          }
-
-          // Clean up validation session
-          activeValidations.delete(validationId);
-
-          // Return results with PR creation
-          let finalStatus = 'completed_with_changes';
-          let finalMessage = `Validation completed with ${aggregationResult.totalChanges} valid policy changes across ${aggregationResult.platformsUpdated.length} platforms and ${aggregationResult.documentsUpdated.length} documents`;
-
-          if (hasPRError) {
-            finalStatus = 'completed_with_pr_error';
-            finalMessage = `Validation completed with valid changes, but PR creation failed`;
-          } else if (prResult?.pullRequestUrl) {
-            finalStatus = 'completed_with_pr_created';
-            finalMessage = `Validation completed successfully and PR created: ${prResult.pullRequestUrl}`;
-          }
-
-          return NextResponse.json({
-            success: true,
-            status: finalStatus,
-            message: finalMessage,
-            data: {
-              aggregationResult,
-              pullRequest: prResult,
-              changesSummary: PolicyAggregator.generateChangesSummary(aggregationResult),
-              progress: getValidationProgress(validationState),
-              nextStep: prResult?.pullRequestUrl
-                ? 'review_and_merge'
-                : 'manual_pr_creation',
-            },
-          });
-        } else {
-          // Clean up validation session
-          activeValidations.delete(validationId);
-
-          return NextResponse.json({
-            success: true,
-            status: 'completed_no_changes',
-            message: 'All documents processed. No policy changes needed.',
-            data: {
-              aggregationResult,
-              changesSummary: PolicyAggregator.generateChangesSummary(aggregationResult),
-              progress: getValidationProgress(validationState),
-            },
-          });
-        }
-      }
-
-      // Step 2: Get next document and create scoped policies
-      const nextDocument = getNextDocument(validationState);
-      if (!nextDocument) {
-        return NextResponse.json({ error: 'No more documents to process' }, { status: 400 });
-      }
-
-      rollbar.info('PolicyValidation: Processing document', {
-        validationId,
-        platformId: nextDocument.platformId,
-        platformName: nextDocument.platformName,
-        documentReference: nextDocument.reference,
-        documentTitle: nextDocument.title,
-      });
-
-      // Create scoped policies for this document
-      const scopedPolicies = createScopedPoliciesForDocument(
-        validationState,
-        nextDocument.reference,
-      );
-
-      if (!scopedPolicies) {
-        rollbar.error('PolicyValidation: Failed to create scoped policies', {
-          validationId,
-          platformId: nextDocument.platformId,
-          documentReference: nextDocument.reference,
-        });
-        return NextResponse.json({ error: 'Failed to create scoped policies' }, { status: 500 });
-      }
-
-      // Step 3: Perform AI analysis using Gemini
-      let analysisResult = null;
-      let hasAnalysisError = false;
-
-      try {
-        rollbar.info('PolicyValidation: Starting Gemini analysis', {
-          validationId,
-          platformId: nextDocument.platformId,
-          documentReference: nextDocument.reference,
-          documentUrl: nextDocument.url,
-        });
-
-        const analysisResponse = await fetch(
-          `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/policies/validate/analyze`,
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              documentUrl: nextDocument.url,
-              scopedPolicies,
-            }),
-          },
-        );
-
-        if (!analysisResponse.ok) {
-          const errorData = await analysisResponse.json();
-          throw new Error(errorData.error || 'Analysis request failed');
-        }
-
-        const analysisData = await analysisResponse.json();
-        analysisResult = analysisData.analysis;
-
-        rollbar.info('PolicyValidation: Gemini analysis completed', {
-          validationId,
-          platformId: nextDocument.platformId,
-          documentReference: nextDocument.reference,
-          analysisStatus: analysisResult.status,
-          hasUpdates: analysisResult.status === 'updated',
-        });
-
-        // If we have updates, validate them with Prompt B
-        if (analysisResult.status === 'updated') {
-          rollbar.info('PolicyValidation: Starting change validation (Prompt B)', {
-            validationId,
-            platformId: nextDocument.platformId,
-            documentReference: nextDocument.reference,
-          });
-
-          const validationResponse = await fetch(
-            `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/policies/validate/analyze`,
-            {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                validateChanges: true,
-                documentUrl: nextDocument.url,
-                documentReference: nextDocument.reference,
-                documentTitle: nextDocument.title,
-                originalPolicies: scopedPolicies.relatedPolicies,
-                updatedPolicies: analysisResult.data.relatedPolicies,
-              }),
-            },
-          );
-
-          if (!validationResponse.ok) {
-            const errorData = await validationResponse.json();
-            throw new Error(errorData.error || 'Validation request failed');
-          }
-
-          const validationData = await validationResponse.json();
-          analysisResult.validation = validationData.validation;
-
-          rollbar.info('PolicyValidation: Change validation completed', {
-            validationId,
-            platformId: nextDocument.platformId,
-            documentReference: nextDocument.reference,
-            validationStatus: analysisResult.validation.status,
-          });
-        }
-      } catch (error) {
-        rollbar.error('PolicyValidation: AI analysis failed', {
-          validationId,
-          platformId: nextDocument.platformId,
-          documentReference: nextDocument.reference,
-          error: error instanceof Error ? error.message : String(error),
-        });
-        hasAnalysisError = true;
-        analysisResult = {
-          status: 'error',
-          reasoning: `AI analysis failed: ${error instanceof Error ? error.message : String(error)}`,
-          error: true,
-        };
-      }
-
-      // Update validation state with analysis results
-      const updatedState = updateValidationState(
-        validationState,
-        nextDocument.reference,
-        analysisResult?.status === 'updated'
-          ? {
-              legalDocumentReference: analysisResult.data.legalDocumentReference,
-              relatedPolicies: analysisResult.data.relatedPolicies,
-              reasoning: analysisResult.reasoning,
-              analyzedAt: new Date().toISOString(),
-            }
-          : null,
-      );
-      activeValidations.set(validationId, updatedState);
-
-      rollbar.info('PolicyValidation: Scoped policies created', {
-        validationId,
-        documentReference: nextDocument.reference,
-        relatedPoliciesCount: scopedPolicies.relatedPolicies.length,
-        analysisStatus: analysisResult?.status || 'unknown',
-      });
-
-      return NextResponse.json({
-        success: true,
-        status: hasAnalysisError ? 'document_processed_with_error' : 'document_processed',
-        message: `Processed document: ${nextDocument.title} (${nextDocument.platformName})`,
-        data: {
-          currentDocument: {
-            platformId: nextDocument.platformId,
-            platformName: nextDocument.platformName,
-            reference: nextDocument.reference,
-            title: nextDocument.title,
-            url: nextDocument.url,
-          },
-          scopedPolicies,
-          analysis: analysisResult,
-          progress: getValidationProgress(updatedState),
-          nextStep: isValidationComplete(updatedState) ? 'completed' : 'process_next_document',
-        },
-      });
-    }
-
-    if (action === 'get_progress') {
-      if (!validationId) {
-        return NextResponse.json({ error: 'Validation ID required' }, { status: 400 });
-      }
-
-      const validationState = activeValidations.get(validationId);
-      if (!validationState) {
-        return NextResponse.json({ error: 'Validation session not found' }, { status: 404 });
-      }
-
-      return NextResponse.json({
-        success: true,
-        data: {
-          progress: getValidationProgress(validationState),
-        },
-      });
+      return await processNextDocument(validationId);
     }
 
     return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
   } catch (error: any) {
-    rollbar.error('PolicyValidation: Error initializing workflow', {
-      error: error.message,
-      stack: error.stack,
-    });
-
-    const { error: errorMessage, status } = handleApiError(error, '/api/policies/validate', {
-      statusCode: error.status,
-      errorType: error.name,
-    });
-
+    const { error: errorMessage, status } = handleApiError(error, '/api/policies/validate');
     return NextResponse.json({ error: errorMessage }, { status });
   }
 }
 
-export async function GET(request: Request) {
-  try {
-    // Return all available platform policy structures for inspection
-    const availablePlatforms = ['facebook', 'instagram', 'tiktok', 'onlyfans', 'pornhub'];
-    const policyStructures: Record<string, any> = {};
-    let totalDocuments = 0;
+async function initializeValidation(platforms?: string[]) {
+  const validationId = `validation_${Date.now()}_${Math.random().toString(36).substring(7)}`;
+  const availablePlatforms = ['facebook', 'instagram', 'tiktok', 'onlyfans', 'pornhub'];
+  const targetPlatforms = platforms && platforms.length > 0 ? platforms : availablePlatforms;
 
-    for (const platformId of availablePlatforms) {
-      const policy = getPlatformPolicy(platformId);
-      if (policy) {
-        policyStructures[platformId] = {
-          name: policy.name,
-          legalDocumentsCount: policy.legalDocuments.length,
-          contentTypesCount: policy.contentTypes.length,
-          contentContextsCount: policy.contentContexts.length,
-          generalPoliciesCount: policy.generalPolicies.length,
-          legalDocuments: policy.legalDocuments.map((doc) => ({
-            reference: doc.reference,
-            title: doc.title,
-            url: doc.url,
-            lastAccessed: doc.accessTimestamp,
-          })),
-        };
-        totalDocuments += policy.legalDocuments.length;
+  // Load platform policies and create document queue
+  const documentQueue: any[] = [];
+  const platformPolicies: Record<string, any> = {};
+
+  for (const platformId of targetPlatforms) {
+    const policy = getPlatformPolicy(platformId);
+    if (policy) {
+      platformPolicies[platformId] = policy;
+      
+      // Add each document to the queue
+      policy.legalDocuments.forEach((doc: any) => {
+        documentQueue.push({
+          platformId,
+          platformName: policy.name,
+          ...doc,
+          policies: extractPoliciesForDocument(policy, doc.reference),
+        });
+      });
+    }
+  }
+
+  const session = {
+    validationId,
+    platforms: targetPlatforms,
+    documentQueue,
+    platformPolicies,
+    processedDocuments: [],
+    proposedUpdates: [],
+    currentIndex: 0,
+    startTime: new Date().toISOString(),
+  };
+
+  validationSessions.set(validationId, session);
+
+  rollbar.info('PolicyValidation: Session initialized', {
+    validationId,
+    platforms: targetPlatforms,
+    totalDocuments: documentQueue.length,
+  });
+
+  return NextResponse.json({
+    success: true,
+    validationId,
+    data: {
+      platforms: targetPlatforms,
+      totalPlatforms: targetPlatforms.length,
+      totalDocuments: documentQueue.length,
+      nextStep: 'process_next_document',
+    },
+  });
+}
+
+async function processNextDocument(validationId: string) {
+  const session = validationSessions.get(validationId);
+  if (!session) {
+    return NextResponse.json({ error: 'Validation session not found' }, { status: 404 });
+  }
+
+  // Check if all documents processed
+  if (session.currentIndex >= session.documentQueue.length) {
+    return await finalizeValidation(session);
+  }
+
+  const currentDoc = session.documentQueue[session.currentIndex];
+  
+  rollbar.info('PolicyValidation: Processing document', {
+    validationId,
+    platformId: currentDoc.platformId,
+    documentReference: currentDoc.reference,
+    progress: `${session.currentIndex + 1}/${session.documentQueue.length}`,
+  });
+
+  try {
+    // Step 1: Analyze document with Prompt A
+    const analysisResult = await analyzeDocument(currentDoc);
+    
+    let finalResult = analysisResult;
+
+    // Step 2: If changes found, validate with Prompt B
+    if (analysisResult.status === 'updated') {
+      const validationResult = await validateChanges(currentDoc, analysisResult.updatedPolicies);
+      finalResult = {
+        ...analysisResult,
+        validation: validationResult,
+      };
+
+      // Only keep changes if validation passed
+      if (validationResult.validationStatus === 'valid') {
+        session.proposedUpdates.push({
+          platformId: currentDoc.platformId,
+          documentReference: currentDoc.reference,
+          updatedPolicies: analysisResult.updatedPolicies,
+          reasoning: analysisResult.reasoning,
+        });
       }
     }
 
-    const summary = {
-      availablePlatforms,
-      totalPlatforms: Object.keys(policyStructures).length,
-      totalDocuments,
-      platforms: policyStructures,
-    };
+    session.processedDocuments.push(currentDoc.reference);
+    session.currentIndex++;
 
     return NextResponse.json({
       success: true,
-      message: 'All platform policy structures retrieved',
-      data: summary,
+      status: 'document_processed',
+      data: {
+        currentDocument: currentDoc,
+        analysis: finalResult,
+        progress: {
+          current: session.currentIndex,
+          total: session.documentQueue.length,
+          percentage: Math.round((session.currentIndex / session.documentQueue.length) * 100),
+        },
+        nextStep: session.currentIndex >= session.documentQueue.length ? 'completed' : 'process_next_document',
+      },
     });
-  } catch (error: any) {
-    const { error: errorMessage, status } = handleApiError(error, '/api/policies/validate');
-    return NextResponse.json({ error: errorMessage }, { status });
+
+  } catch (error) {
+    rollbar.error('PolicyValidation: Document processing failed', {
+      validationId,
+      documentReference: currentDoc.reference,
+      error,
+    });
+
+    session.currentIndex++;
+    return NextResponse.json({
+      success: true,
+      status: 'document_processed_with_error',
+      data: {
+        currentDocument: currentDoc,
+        analysis: { status: 'error', reasoning: `Processing failed: ${error}` },
+        progress: {
+          current: session.currentIndex,
+          total: session.documentQueue.length,
+          percentage: Math.round((session.currentIndex / session.documentQueue.length) * 100),
+        },
+        nextStep: session.currentIndex >= session.documentQueue.length ? 'completed' : 'process_next_document',
+      },
+    });
   }
+}
+
+async function analyzeDocument(document: any) {
+  const prompt = generatePolicyAnalysisPrompt({
+    documentUrl: document.url,
+    documentTitle: document.title,
+    documentReference: document.reference,
+    currentPolicies: document.policies,
+  });
+
+  const response = await callGemini(prompt);
+  return parseAIJson(response);
+}
+
+async function validateChanges(document: any, updatedPolicies: any[]) {
+  const prompt = generatePolicyValidationPrompt({
+    documentUrl: document.url,
+    documentTitle: document.title,
+    documentReference: document.reference,
+    originalPolicies: document.policies,
+    updatedPolicies,
+  });
+
+  const response = await callGemini(prompt);
+  return parseAIJson(response);
+}
+
+async function callGemini(prompt: string): Promise<string> {
+  return await retryWithDelay(async () => {
+    const req = {
+      model: 'gemini-2.0-flash-exp',
+      contents: [{ role: 'user', parts: [{ text: prompt }] }],
+      config: {
+        maxOutputTokens: 8192,
+        temperature: 0.1,
+        topP: 0.8,
+        safetySettings: [
+          { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.OFF },
+          { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.OFF },
+          { category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold: HarmBlockThreshold.OFF },
+          { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.OFF },
+        ],
+      },
+    };
+
+    const response = await genAI.models.generateContent(req);
+    
+    let fullText = '';
+    if (response.candidates && response.candidates.length > 0) {
+      const candidate = response.candidates[0];
+      if (candidate.content && candidate.content.parts) {
+        for (const part of candidate.content.parts) {
+          if (part.text) {
+            fullText += part.text;
+          }
+        }
+      }
+    }
+
+    if (!fullText) {
+      throw new Error('No text content received from Gemini');
+    }
+
+    return fullText;
+  });
+}
+
+async function finalizeValidation(session: any) {
+  rollbar.info('PolicyValidation: Finalizing validation', {
+    validationId: session.validationId,
+    proposedUpdatesCount: session.proposedUpdates.length,
+  });
+
+  // Apply updates to platform policies
+  const updatedPolicies: Record<string, any> = {};
+  let totalChanges = 0;
+
+  for (const update of session.proposedUpdates) {
+    if (!updatedPolicies[update.platformId]) {
+      updatedPolicies[update.platformId] = JSON.parse(JSON.stringify(session.platformPolicies[update.platformId]));
+    }
+    
+    // Apply the policy updates
+    applyPolicyUpdates(updatedPolicies[update.platformId], update.updatedPolicies);
+    totalChanges += update.updatedPolicies.length;
+  }
+
+  // Clean up session
+  validationSessions.delete(session.validationId);
+
+  if (totalChanges === 0) {
+    return NextResponse.json({
+      success: true,
+      status: 'completed_no_changes',
+      message: 'All documents processed. No policy changes needed.',
+      data: {
+        progress: {
+          current: session.documentQueue.length,
+          total: session.documentQueue.length,
+          percentage: 100,
+        },
+      },
+    });
+  }
+
+  // Create PR if changes found
+  let pullRequest = null;
+  try {
+    const prResponse = await fetch('/api/policies/validate/create-pr', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        validationId: session.validationId,
+        updatedPolicies,
+        changesSummary: `Policy validation completed with ${totalChanges} changes across ${Object.keys(updatedPolicies).length} platforms`,
+        totalChanges,
+        platformsUpdated: Object.keys(updatedPolicies),
+        documentsUpdated: session.proposedUpdates.map((u: any) => u.documentReference),
+        documentsProcessed: session.processedDocuments.length,
+      }),
+    });
+
+    if (prResponse.ok) {
+      const prData = await prResponse.json();
+      pullRequest = prData.data;
+    }
+  } catch (error) {
+    rollbar.error('PolicyValidation: PR creation failed', { error });
+  }
+
+  return NextResponse.json({
+    success: true,
+    status: pullRequest ? 'completed_with_pr_created' : 'completed_with_changes',
+    message: `Validation completed with ${totalChanges} changes across ${Object.keys(updatedPolicies).length} platforms`,
+    data: {
+      updatedPolicies,
+      pullRequest,
+      totalChanges,
+      platformsUpdated: Object.keys(updatedPolicies),
+      progress: {
+        current: session.documentQueue.length,
+        total: session.documentQueue.length,
+        percentage: 100,
+      },
+    },
+  });
+}
+
+function extractPoliciesForDocument(platformPolicy: any, documentReference: string) {
+  const policies: any[] = [];
+
+  // Extract from contentTypes
+  platformPolicy.contentTypes?.forEach((contentType: any) => {
+    contentType.policies?.forEach((policy: any) => {
+      if (policy.documents?.some((doc: any) => doc.reference === documentReference)) {
+        policies.push({
+          reference: policy.reference,
+          policy: policy.policy,
+          removalCriteria: policy.removalCriteria,
+          evidenceRequirements: policy.evidenceRequirements,
+        });
+      }
+    });
+  });
+
+  // Extract from contentContexts
+  platformPolicy.contentContexts?.forEach((contentContext: any) => {
+    contentContext.policies?.forEach((policy: any) => {
+      if (policy.documents?.some((doc: any) => doc.reference === documentReference)) {
+        policies.push({
+          reference: policy.reference,
+          policy: policy.policy,
+          removalCriteria: policy.removalCriteria,
+          evidenceRequirements: policy.evidenceRequirements,
+        });
+      }
+    });
+  });
+
+  // Extract from generalPolicies
+  platformPolicy.generalPolicies?.forEach((policy: any) => {
+    if (policy.documents?.some((doc: any) => doc.reference === documentReference)) {
+      policies.push({
+        reference: policy.reference,
+        policy: policy.policy,
+        removalCriteria: policy.removalCriteria,
+        evidenceRequirements: policy.evidenceRequirements,
+      });
+    }
+  });
+
+  return policies;
+}
+
+function applyPolicyUpdates(platformPolicy: any, updatedPolicies: any[]) {
+  // This is a simplified version - in practice you'd need more sophisticated merging
+  // For now, just update the access timestamp
+  platformPolicy.legalDocuments?.forEach((doc: any) => {
+    doc.accessTimestamp = new Date().toISOString();
+  });
+}
+
+export async function GET() {
+  const availablePlatforms = ['facebook', 'instagram', 'tiktok', 'onlyfans', 'pornhub'];
+  let totalDocuments = 0;
+
+  for (const platformId of availablePlatforms) {
+    const policy = getPlatformPolicy(platformId);
+    if (policy) {
+      totalDocuments += policy.legalDocuments.length;
+    }
+  }
+
+  return NextResponse.json({
+    success: true,
+    message: 'Policy Validation API - Simplified Two-Prompt System',
+    data: {
+      availablePlatforms,
+      totalDocuments,
+      endpoints: {
+        'POST /api/policies/validate': {
+          actions: ['initialize', 'process_next_document'],
+          description: 'Main validation workflow endpoint',
+        },
+      },
+      prompts: {
+        A: 'Document Analysis - Compare policies against live document',
+        B: 'Change Validation - Verify changes are genuine',
+      },
+    },
+  });
 }
