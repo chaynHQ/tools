@@ -1,4 +1,5 @@
 import { generatePolicyAnalysisPrompt, PolicyAnalysisRequest } from '@/lib/prompts/policy-analysis';
+import { generatePolicyValidationPrompt, PolicyValidationRequest, PolicyValidationResponse } from '@/lib/prompts/policy-validation';
 import { serverInstance as rollbar } from '@/lib/rollbar';
 import { RetryHandler } from '@/lib/validation/retry-handler';
 import { GoogleGenAI, HarmBlockThreshold, HarmCategory } from '@google/genai';
@@ -148,6 +149,137 @@ export class GeminiPolicyAnalyzer {
         documentReference: request.scopedPolicies.legalDocumentReference,
       });
       throw error;
+    }
+  }
+
+  /**
+   * Validate policy changes against live document (Prompt B)
+   */
+  async validatePolicyChanges(request: PolicyValidationRequest): Promise<PolicyValidationResponse> {
+    try {
+      rollbar.info('GeminiAnalyzer: Starting policy validation (Prompt B)', {
+        documentUrl: request.documentUrl,
+        documentReference: request.documentReference,
+        originalPoliciesCount: request.originalPolicies.length,
+        updatedPoliciesCount: request.updatedPolicies.length,
+      });
+
+      const prompt = generatePolicyValidationPrompt(request);
+
+      rollbar.info('GeminiAnalyzer: Sending validation request to Gemini', {
+        promptLength: prompt.length,
+        documentReference: request.documentReference,
+      });
+
+      // Use retry handler for Gemini API calls
+      const retryResult = await RetryHandler.executeWithRetry(
+        async () => {
+          const req = {
+            model: this.model,
+            contents: [
+              {
+                role: 'user',
+                parts: [{ text: prompt }],
+              },
+            ],
+            config: this.generationConfig,
+          };
+
+          const response = await genAI.models.generateContent(req);
+
+          // Extract text from the response
+          let fullText = '';
+          if (response.candidates && response.candidates.length > 0) {
+            const candidate = response.candidates[0];
+            if (candidate.content && candidate.content.parts) {
+              for (const part of candidate.content.parts) {
+                if (part.text) {
+                  fullText += part.text;
+                }
+              }
+            }
+          }
+
+          if (!fullText) {
+            throw new Error('No text content received from Vertex AI');
+          }
+
+          return fullText;
+        },
+        RetryHandler.createAIRetryConfig(),
+        `Gemini validation for ${request.documentReference}`,
+      );
+
+      if (!retryResult.success) {
+        throw retryResult.error || new Error('Gemini API call failed after retries');
+      }
+
+      const text = retryResult.data!;
+
+      rollbar.info('GeminiAnalyzer: Received validation response from Gemini', {
+        responseLength: text.length,
+        documentReference: request.documentReference,
+        attempts: retryResult.attempts,
+        totalTime: retryResult.totalTime,
+      });
+
+      // Parse the JSON response
+      const parsedResponse = this.parseValidationResponse(text);
+
+      rollbar.info('GeminiAnalyzer: Successfully parsed validation response', {
+        validationStatus: parsedResponse.validationStatus,
+        documentReference: request.documentReference,
+        hasIssues: parsedResponse.issues && parsedResponse.issues.length > 0,
+      });
+
+      return parsedResponse;
+    } catch (error) {
+      rollbar.error('GeminiAnalyzer: Error during policy validation', {
+        error: error instanceof Error ? error.message : String(error),
+        documentUrl: request.documentUrl,
+        documentReference: request.documentReference,
+      });
+      throw error;
+    }
+  }
+
+  private parseValidationResponse(text: string): PolicyValidationResponse {
+    try {
+      // Clean up the response text
+      let cleanedText = text.trim();
+
+      // Remove any markdown code blocks
+      cleanedText = cleanedText.replace(/```json\s*/g, '').replace(/```\s*/g, '');
+
+      // Find the JSON object
+      const jsonStart = cleanedText.indexOf('{');
+      const jsonEnd = cleanedText.lastIndexOf('}');
+
+      if (jsonStart === -1 || jsonEnd === -1) {
+        throw new Error('No valid JSON object found in Gemini validation response');
+      }
+
+      const jsonString = cleanedText.slice(jsonStart, jsonEnd + 1);
+      const parsed = JSON.parse(jsonString);
+
+      // Validate the response structure
+      if (!parsed.validationStatus || !parsed.reasoning) {
+        throw new Error('Invalid validation response structure: missing validationStatus or reasoning');
+      }
+
+      if (!['valid', 'invalid'].includes(parsed.validationStatus)) {
+        throw new Error(`Invalid validationStatus: ${parsed.validationStatus}`);
+      }
+
+      return parsed as PolicyValidationResponse;
+    } catch (error) {
+      rollbar.error('GeminiAnalyzer: Failed to parse validation response', {
+        error: error instanceof Error ? error.message : String(error),
+        responseText: text.substring(0, 500), // Log first 500 chars for debugging
+      });
+      throw new Error(
+        `Failed to parse Gemini validation response: ${error instanceof Error ? error.message : String(error)}`,
+      );
     }
   }
 
