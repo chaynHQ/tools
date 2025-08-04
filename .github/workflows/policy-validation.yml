@@ -24,7 +24,8 @@ jobs:
 
     env:
       NEXT_PUBLIC_BASE_URL: ${{ secrets.NEXT_PUBLIC_BASE_URL || 'https://tools.chayn.co' }}
-      GOOGLE_AI_API_KEY: ${{ secrets.GOOGLE_AI_API_KEY }}
+      GOOGLE_CLOUD_PROJECT: ${{ secrets.GOOGLE_CLOUD_PROJECT }}
+      GOOGLE_CLOUD_LOCATION: ${{ secrets.GOOGLE_CLOUD_LOCATION || 'global' }}
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
     steps:
@@ -42,16 +43,13 @@ jobs:
 
       - name: Validate environment variables
         run: |
-          if [ -z "$GOOGLE_AI_API_KEY" ]; then
-            echo "Error: GOOGLE_AI_API_KEY is not set"
+          if [ -z "$GOOGLE_CLOUD_PROJECT" ]; then
+            echo "Error: GOOGLE_CLOUD_PROJECT is not set"
             exit 1
           fi
-          if [ ${#GOOGLE_AI_API_KEY} -lt 10 ]; then
-            echo "Error: GOOGLE_AI_API_KEY appears to be too short"
+          if [ ${#GOOGLE_CLOUD_PROJECT} -lt 5 ]; then
+            echo "Error: GOOGLE_CLOUD_PROJECT appears to be too short"
             exit 1
-          fi
-          if [[ ! "$GOOGLE_AI_API_KEY" =~ ^AIza ]]; then
-            echo "Warning: GOOGLE_AI_API_KEY does not appear to have the correct format"
           fi
 
           if [ -z "$ANTHROPIC_API_KEY" ]; then

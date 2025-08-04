@@ -103,8 +103,8 @@ export async function GET(request: Request) {
         },
       },
       status: {
-        claudeConfigured: !!process.env.ANTHROPIC_API_KEY,
-        model: 'claude-sonnet-4-20250514',
+        vertexAIConfigured: !!process.env.GOOGLE_CLOUD_PROJECT,
+        model: 'gemini-2.0-flash-exp',
         capabilities: ['structural_validation', 'semantic_analysis', 'change_detection'],
       },
     });

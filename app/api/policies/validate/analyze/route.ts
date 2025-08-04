@@ -6,9 +6,12 @@ export async function POST(request: Request) {
   rollbar.info('PolicyAnalysis: Received AI analysis request');
 
   try {
-    if (!process.env.GOOGLE_AI_API_KEY) {
-      rollbar.error('PolicyAnalysis: Google AI API key not configured');
-      return NextResponse.json({ error: 'Missing Google AI API key' }, { status: 500 });
+    if (!process.env.GOOGLE_CLOUD_PROJECT) {
+      rollbar.error('PolicyAnalysis: Google Cloud Project not configured');
+      return NextResponse.json(
+        { error: 'Missing Google Cloud Project configuration' },
+        { status: 500 },
+      );
     }
 
     const body = await request.json();

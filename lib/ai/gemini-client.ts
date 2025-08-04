@@ -1,7 +1,7 @@
 import { generatePolicyAnalysisPrompt, PolicyAnalysisRequest } from '@/lib/prompts/policy-analysis';
 import { serverInstance as rollbar } from '@/lib/rollbar';
 import { RetryHandler } from '@/lib/validation/retry-handler';
-import { GoogleGenerativeAI } from '@google/genai';
+import { GoogleGenAI, HarmBlockThreshold, HarmCategory } from '@google/genai';
 
 // Re-export the interface from prompts for backward compatibility
 export type GeminiAnalysisRequest = PolicyAnalysisRequest;
@@ -22,27 +22,46 @@ export interface GeminiAnalysisResponse {
   };
 }
 
-// Initialize Gemini client
-const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY!);
+// Initialize Vertex AI client
+const genAI = new GoogleGenAI({
+  vertexai: true,
+  project: process.env.GOOGLE_CLOUD_PROJECT || 'bloom-dev-8f085',
+  location: process.env.GOOGLE_CLOUD_LOCATION || 'global',
+});
 
 export class GeminiPolicyAnalyzer {
-  private model;
+  private model = 'gemini-2.0-flash-exp';
+  private generationConfig;
 
   constructor() {
-    if (!process.env.GOOGLE_AI_API_KEY) {
-      throw new Error('GOOGLE_AI_API_KEY is required for Gemini analysis');
+    if (!process.env.GOOGLE_CLOUD_PROJECT) {
+      throw new Error('GOOGLE_CLOUD_PROJECT is required for Vertex AI');
     }
 
-    // Use Gemini 2.5 Flash with grounding capabilities
-    this.model = genAI.getGenerativeModel({
-      model: 'gemini-2.0-flash-exp',
-      generationConfig: {
-        temperature: 0.1, // Low temperature for consistent, factual analysis
-        topP: 0.8,
-        topK: 40,
-        maxOutputTokens: 8192,
-      },
-    });
+    // Set up generation config
+    this.generationConfig = {
+      maxOutputTokens: 8192,
+      temperature: 0.1, // Low temperature for consistent, factual analysis
+      topP: 0.8,
+      safetySettings: [
+        {
+          category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
+          threshold: HarmBlockThreshold.OFF,
+        },
+        {
+          category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+          threshold: HarmBlockThreshold.OFF,
+        },
+        {
+          category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
+          threshold: HarmBlockThreshold.OFF,
+        },
+        {
+          category: HarmCategory.HARM_CATEGORY_HARASSMENT,
+          threshold: HarmBlockThreshold.OFF,
+        },
+      ],
+    };
   }
 
   async analyzePolicyDocument(request: PolicyAnalysisRequest): Promise<GeminiAnalysisResponse> {
@@ -63,9 +82,37 @@ export class GeminiPolicyAnalyzer {
       // Use retry handler for Gemini API calls
       const retryResult = await RetryHandler.executeWithRetry(
         async () => {
-          const result = await this.model.generateContent(prompt);
-          const response = await result.response;
-          return response.text();
+          const req = {
+            model: this.model,
+            contents: [
+              {
+                role: 'user',
+                parts: [{ text: prompt }],
+              },
+            ],
+            config: this.generationConfig,
+          };
+
+          const response = await genAI.models.generateContent(req);
+
+          // Extract text from the response
+          let fullText = '';
+          if (response.candidates && response.candidates.length > 0) {
+            const candidate = response.candidates[0];
+            if (candidate.content && candidate.content.parts) {
+              for (const part of candidate.content.parts) {
+                if (part.text) {
+                  fullText += part.text;
+                }
+              }
+            }
+          }
+
+          if (!fullText) {
+            throw new Error('No text content received from Vertex AI');
+          }
+
+          return fullText;
         },
         RetryHandler.createAIRetryConfig(),
         `Gemini analysis for ${request.scopedPolicies.legalDocumentReference}`,

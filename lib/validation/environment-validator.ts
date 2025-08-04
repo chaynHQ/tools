@@ -15,9 +15,13 @@ export interface RequiredEnvironmentVariables {
  * Validates that all required environment variables are present and properly configured
  */
 export class EnvironmentValidator {
-  private static readonly REQUIRED_VARS = ['GOOGLE_AI_API_KEY', 'ANTHROPIC_API_KEY'];
+  private static readonly REQUIRED_VARS = ['GOOGLE_CLOUD_PROJECT', 'ANTHROPIC_API_KEY'];
 
-  private static readonly OPTIONAL_VARS = ['GITHUB_TOKEN', 'SLACK_WEBHOOK_URL'];
+  private static readonly OPTIONAL_VARS = [
+    'GITHUB_TOKEN',
+    'SLACK_WEBHOOK_URL',
+    'GOOGLE_CLOUD_LOCATION',
+  ];
 
   /**
    * Validates all environment variables required for policy validation
@@ -45,8 +49,8 @@ export class EnvironmentValidator {
     }
 
     // Validate API key formats
-    if (process.env.GOOGLE_AI_API_KEY && !process.env.GOOGLE_AI_API_KEY.startsWith('AIza')) {
-      warnings.push('GOOGLE_AI_API_KEY does not appear to have the correct format');
+    if (process.env.GOOGLE_CLOUD_PROJECT && process.env.GOOGLE_CLOUD_PROJECT.length < 5) {
+      warnings.push('GOOGLE_CLOUD_PROJECT appears to be too short');
     }
 
     if (process.env.ANTHROPIC_API_KEY && !process.env.ANTHROPIC_API_KEY.startsWith('sk-ant-')) {
