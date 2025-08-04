@@ -1,255 +1,19 @@
 import { handleApiError, serverInstance as rollbar } from '@/lib/rollbar';
-import { getPlatformPolicy } from '@/lib/platform-policies';
-import { PlatformPolicy } from '@/lib/platform-policies/types';
+import { EnvironmentValidator } from '@/lib/validation/environment-validator';
 import { PolicyAggregator, ProposedUpdate } from '@/lib/validation/policy-aggregator';
+import {
+  createScopedPoliciesForDocument,
+  getNextDocument,
+  getValidationProgress,
+  initializeValidationWorkflow,
+  isValidationComplete,
+  PolicyValidationState,
+  updateValidationState,
+} from '@/lib/validation/policy-workflow';
 import { NextResponse } from 'next/server';
-
-// Interfaces
-export interface PolicyValidationState {
-  proposedUpdates: any[];
-  originalPlatformPolicies: Record<string, PlatformPolicy>;
-  platformIds: string[];
-  currentDocumentIndex: number;
-  totalDocuments: number;
-  totalPlatforms: number;
-  processedDocuments: string[];
-  validationId: string;
-  targetPlatforms: string[];
-  status: 'initialized' | 'processing' | 'completed' | 'failed';
-  startTime: string;
-  lastUpdated: string;
-}
-
-export interface ScopedPolicies {
-  legalDocumentReference: string;
-  documentTitle: string;
-  documentUrl: string;
-  relatedPolicies: Array<{
-    reference: string;
-    policy: string;
-    removalCriteria: string[];
-    evidenceRequirements: string[];
-    sourceSection: 'contentTypes' | 'contentContexts' | 'generalPolicies';
-    sourceType?: string;
-  }>;
-}
 
 // Store active validation sessions in memory
 const activeValidations = new Map<string, PolicyValidationState>();
-
-// Helper functions
-function validateEnvironment() {
-  const requiredVars = ['GOOGLE_CLOUD_PROJECT', 'ANTHROPIC_API_KEY'];
-  const missingVars = requiredVars.filter(varName => !process.env[varName]);
-  
-  if (missingVars.length > 0) {
-    throw new Error(`Missing required environment variables: ${missingVars.join(', ')}`);
-  }
-}
-
-function initializeValidationWorkflow(platformIds?: string[]): PolicyValidationState {
-  const validationId = `validation_${Date.now()}_${Math.random().toString(36).substring(7)}`;
-  const currentTime = new Date().toISOString();
-
-  const availablePlatforms = ['facebook', 'instagram', 'tiktok', 'onlyfans', 'pornhub'];
-  const targetPlatforms = platformIds && platformIds.length > 0 ? platformIds : availablePlatforms;
-
-  const originalPlatformPolicies: Record<string, PlatformPolicy> = {};
-  const validPlatforms: string[] = [];
-  let totalDocuments = 0;
-
-  for (const platformId of targetPlatforms) {
-    const policy = getPlatformPolicy(platformId);
-    if (policy) {
-      originalPlatformPolicies[platformId] = JSON.parse(JSON.stringify(policy)) as PlatformPolicy;
-      validPlatforms.push(platformId);
-      totalDocuments += policy.legalDocuments.length;
-    }
-  }
-
-  if (validPlatforms.length === 0) {
-    throw new Error('No valid platform policies found');
-  }
-
-  return {
-    proposedUpdates: [],
-    originalPlatformPolicies,
-    platformIds: validPlatforms,
-    currentDocumentIndex: 0,
-    totalDocuments,
-    totalPlatforms: validPlatforms.length,
-    processedDocuments: [],
-    validationId,
-    targetPlatforms: validPlatforms,
-    status: 'initialized',
-    startTime: currentTime,
-    lastUpdated: currentTime,
-  };
-}
-
-function getNextDocument(state: PolicyValidationState) {
-  let documentCount = 0;
-  
-  for (const platformId of state.platformIds) {
-    const policy = state.originalPlatformPolicies[platformId];
-    
-    if (state.currentDocumentIndex < documentCount + policy.legalDocuments.length) {
-      const documentIndex = state.currentDocumentIndex - documentCount;
-      const document = policy.legalDocuments[documentIndex];
-      
-      return {
-        ...document,
-        platformId,
-        platformName: policy.name,
-      };
-    }
-    
-    documentCount += policy.legalDocuments.length;
-  }
-
-  return null;
-}
-
-function createScopedPoliciesForDocument(
-  state: PolicyValidationState,
-  documentReference: string,
-): ScopedPolicies | null {
-  for (const [platformId, policy] of Object.entries(state.originalPlatformPolicies)) {
-    const document = policy.legalDocuments.find((doc) => doc.reference === documentReference);
-    if (document) {
-      return createScopedPolicies(policy, documentReference);
-    }
-  }
-  return null;
-}
-
-function createScopedPolicies(
-  platformPolicy: PlatformPolicy,
-  legalDocumentReference: string,
-): ScopedPolicies | null {
-  const legalDocument = platformPolicy.legalDocuments.find(
-    (doc) => doc.reference === legalDocumentReference,
-  );
-
-  if (!legalDocument) {
-    return null;
-  }
-
-  const relatedPolicies: ScopedPolicies['relatedPolicies'] = [];
-
-  // Check contentTypes
-  platformPolicy.contentTypes.forEach((contentType) => {
-    contentType.policies.forEach((policy) => {
-      const referencesDocument = policy.documents.some(
-        (doc) => doc.reference === legalDocumentReference,
-      );
-
-      if (referencesDocument) {
-        relatedPolicies.push({
-          reference: policy.reference,
-          policy: policy.policy,
-          removalCriteria: [...policy.removalCriteria],
-          evidenceRequirements: [...policy.evidenceRequirements],
-          sourceSection: 'contentTypes',
-          sourceType: contentType.type,
-        });
-      }
-    });
-  });
-
-  // Check contentContexts
-  platformPolicy.contentContexts.forEach((contentContext) => {
-    contentContext.policies.forEach((policy) => {
-      const referencesDocument = policy.documents.some(
-        (doc) => doc.reference === legalDocumentReference,
-      );
-
-      if (referencesDocument) {
-        relatedPolicies.push({
-          reference: policy.reference,
-          policy: policy.policy,
-          removalCriteria: [...policy.removalCriteria],
-          evidenceRequirements: [...policy.evidenceRequirements],
-          sourceSection: 'contentContexts',
-          sourceType: contentContext.context,
-        });
-      }
-    });
-  });
-
-  // Check generalPolicies
-  platformPolicy.generalPolicies.forEach((policy) => {
-    const referencesDocument = policy.documents.some(
-      (doc) => doc.reference === legalDocumentReference,
-    );
-
-    if (referencesDocument) {
-      relatedPolicies.push({
-        reference: policy.reference,
-        policy: policy.policy,
-        removalCriteria: [...policy.removalCriteria],
-        evidenceRequirements: [...policy.evidenceRequirements],
-        sourceSection: 'generalPolicies',
-      });
-    }
-  });
-
-  const uniquePolicies = relatedPolicies.filter(
-    (policy, index, self) => index === self.findIndex((p) => p.reference === policy.reference),
-  );
-
-  return {
-    legalDocumentReference,
-    documentTitle: legalDocument.title,
-    documentUrl: legalDocument.url,
-    relatedPolicies: uniquePolicies,
-  };
-}
-
-function updateValidationState(
-  state: PolicyValidationState,
-  documentReference: string,
-  proposedUpdate?: any,
-): PolicyValidationState {
-  const updatedState = {
-    ...state,
-    currentDocumentIndex: state.currentDocumentIndex + 1,
-    processedDocuments: [...state.processedDocuments, documentReference],
-    lastUpdated: new Date().toISOString(),
-  };
-
-  if (proposedUpdate) {
-    updatedState.proposedUpdates = [...state.proposedUpdates, proposedUpdate];
-  }
-
-  if (updatedState.currentDocumentIndex >= updatedState.totalDocuments) {
-    updatedState.status = 'completed';
-  } else {
-    updatedState.status = 'processing';
-  }
-
-  return updatedState;
-}
-
-function isValidationComplete(state: PolicyValidationState): boolean {
-  return state.currentDocumentIndex >= state.totalDocuments;
-}
-
-function getValidationProgress(state: PolicyValidationState) {
-  return {
-    validationId: state.validationId,
-    status: state.status,
-    progress: {
-      current: state.currentDocumentIndex,
-      total: state.totalDocuments,
-      percentage: Math.round((state.currentDocumentIndex / state.totalDocuments) * 100),
-    },
-    processedDocuments: state.processedDocuments,
-    proposedUpdatesCount: state.proposedUpdates.length,
-    startTime: state.startTime,
-    lastUpdated: state.lastUpdated,
-  };
-}
 
 export async function POST(request: Request) {
   rollbar.info('PolicyValidation: Starting policy validation workflow');
@@ -257,13 +21,16 @@ export async function POST(request: Request) {
   try {
     // Validate environment before starting any operations
     try {
-      validateEnvironment();
-      rollbar.info('PolicyValidation: Environment validation passed');
+      EnvironmentValidator.validateOrThrow();
+      rollbar.info('PolicyValidation: Environment validation passed', {
+        environmentSummary: EnvironmentValidator.getEnvironmentSummary(),
+      });
     } catch (error) {
       rollbar.error('PolicyValidation: Environment validation failed', { error });
       return NextResponse.json(
         {
           error: `Environment validation failed: ${error instanceof Error ? error.message : String(error)}`,
+          environmentSummary: EnvironmentValidator.getEnvironmentSummary(),
         },
         { status: 500 },
       );
