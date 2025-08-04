@@ -146,91 +146,97 @@ export async function POST(request: Request) {
               validationId,
               validationStatus: qualityCheckResult.validationStatus,
             });
-          } catch (error) {
-            rollbar.error('PolicyValidation: AI quality check failed', {
-              validationId,
-              error: error instanceof Error ? error.message : String(error),
-            });
-            hasQualityError = true;
-            qualityCheckResult = {
-              validationStatus: 'error',
-              reasoning: `Quality check failed: ${error instanceof Error ? error.message : String(error)}`,
-              diffSummary: 'Quality check could not be completed due to technical error',
-              error: true,
-            };
-          }
 
-          // Step 6: Create Pull Request (if quality check passed)
-          let prResult = null;
-          let hasPRError = false;
-
-          if (!hasQualityError && qualityCheckResult?.validationStatus === 'valid') {
-            try {
-              rollbar.info('PolicyValidation: Starting PR creation', {
+            // If we have updates, validate them with Prompt B
+            if (analysisResult.status === 'updated') {
+              rollbar.info('PolicyValidation: Starting change validation (Prompt B)', {
                 validationId,
-                totalChanges: aggregationResult.totalChanges,
+                platformId: nextDocument.platformId,
+                documentReference: nextDocument.reference,
               });
 
-              const prResponse = await fetch(
-                `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/policies/validate/create-pr`,
+              const validationResponse = await fetch(
+                `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/policies/validate/analyze`,
                 {
                   method: 'POST',
                   headers: {
                     'Content-Type': 'application/json',
                   },
                   body: JSON.stringify({
-                    originalPolicies: validationState.originalPlatformPolicies,
-                    updatedPolicies: aggregationResult.updatedPolicies,
-                    changesSummary: PolicyAggregator.generateChangesSummary(aggregationResult),
-                    totalChanges: aggregationResult.totalChanges,
-                    platformsUpdated: aggregationResult.platformsUpdated,
-                    documentsUpdated: aggregationResult.documentsUpdated,
-                    documentsProcessed: validationState.processedDocuments.length,
+                    validateChanges: true,
+                    documentUrl: nextDocument.url,
+                    documentReference: nextDocument.reference,
+                    documentTitle: nextDocument.title,
+                    originalPolicies: scopedPolicies.relatedPolicies,
+                    updatedPolicies: analysisResult.data.relatedPolicies,
                   }),
                 },
               );
 
-              if (!prResponse.ok) {
-                const errorData = await prResponse.json();
-                throw new Error(errorData.error || 'PR creation request failed');
-              }
+          // Step 5: Create Pull Request (validation already done in Prompt B)
+          let prResult = null;
+          let hasPRError = false;
 
-              const prData = await prResponse.json();
-              prResult = prData.data;
+          try {
+            rollbar.info('PolicyValidation: Starting PR creation', {
+              validationId,
+              totalChanges: aggregationResult.totalChanges,
+            });
+                  validation: analysisResult.validation,
 
-              rollbar.info('PolicyValidation: PR creation completed', {
-                validationId,
-                pullRequestUrl: prResult.pullRequestUrl,
-                pullRequestNumber: prResult.pullRequestNumber,
-              });
-            } catch (error) {
-              rollbar.error('PolicyValidation: PR creation failed', {
-                validationId,
-                error: error instanceof Error ? error.message : String(error),
-              });
-              hasPRError = true;
-              prResult = {
-                error: `PR creation failed: ${error instanceof Error ? error.message : String(error)}`,
-              };
+            const prResponse = await fetch(
+              `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/policies/validate/create-pr`,
+              {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  validationId,
+                  updatedPolicies: aggregationResult.updatedPolicies,
+                  changesSummary: PolicyAggregator.generateChangesSummary(aggregationResult),
+                  totalChanges: aggregationResult.totalChanges,
+                  platformsUpdated: aggregationResult.platformsUpdated,
+                  documentsUpdated: aggregationResult.documentsUpdated,
+                  documentsProcessed: validationState.processedDocuments.length,
+                }),
+              },
+            );
+
+            if (!prResponse.ok) {
+              const errorData = await prResponse.json();
+              throw new Error(errorData.error || 'PR creation request failed');
             }
+
+            const prData = await prResponse.json();
+            prResult = prData.data;
+
+            rollbar.info('PolicyValidation: PR creation completed', {
+              validationId,
+              pullRequestUrl: prResult.pullRequestUrl,
+              pullRequestNumber: prResult.pullRequestNumber,
+            });
+          } catch (error) {
+            rollbar.error('PolicyValidation: PR creation failed', {
+              validationId,
+              error: error instanceof Error ? error.message : String(error),
+            });
+            hasPRError = true;
+            prResult = {
+              error: `PR creation failed: ${error instanceof Error ? error.message : String(error)}`,
+            };
           }
 
           // Clean up validation session
           activeValidations.delete(validationId);
 
-          // Return results with quality check and PR creation
-          let finalStatus = 'completed_with_valid_changes';
+          // Return results with PR creation
+          let finalStatus = 'completed_with_changes';
           let finalMessage = `Validation completed with ${aggregationResult.totalChanges} valid policy changes across ${aggregationResult.platformsUpdated.length} platforms and ${aggregationResult.documentsUpdated.length} documents`;
 
-          if (hasQualityError) {
-            finalStatus = 'completed_with_quality_error';
-            finalMessage = `Validation completed with ${aggregationResult.totalChanges} changes, but quality check failed`;
-          } else if (qualityCheckResult?.validationStatus !== 'valid') {
-            finalStatus = 'completed_with_invalid_changes';
-            finalMessage = `Validation completed but proposed changes failed quality check`;
-          } else if (hasPRError) {
+          if (hasPRError) {
             finalStatus = 'completed_with_pr_error';
-            finalMessage = `Validation and quality check completed successfully, but PR creation failed`;
+            finalMessage = `Validation completed with valid changes, but PR creation failed`;
           } else if (prResult?.pullRequestUrl) {
             finalStatus = 'completed_with_pr_created';
             finalMessage = `Validation completed successfully and PR created: ${prResult.pullRequestUrl}`;
@@ -242,15 +248,12 @@ export async function POST(request: Request) {
             message: finalMessage,
             data: {
               aggregationResult,
-              qualityCheck: qualityCheckResult,
               pullRequest: prResult,
               changesSummary: PolicyAggregator.generateChangesSummary(aggregationResult),
               progress: getValidationProgress(validationState),
               nextStep: prResult?.pullRequestUrl
                 ? 'review_and_merge'
-                : qualityCheckResult?.validationStatus === 'valid'
-                  ? 'manual_pr_creation'
-                  : 'manual_review',
+                : 'manual_pr_creation',
             },
           });
         } else {
