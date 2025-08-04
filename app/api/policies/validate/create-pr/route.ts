@@ -9,23 +9,24 @@ export async function POST(request: Request) {
     const body = await request.json();
     const {
       validationId,
-      updatedPolicy,
+      updatedPolicies,
       changesSummary,
       totalChanges,
+      platformsUpdated,
       documentsUpdated,
       documentsProcessed,
     } = body;
 
     // Validate required fields
-    if (!validationId || !updatedPolicy || !changesSummary) {
+    if (!validationId || !updatedPolicies || !changesSummary) {
       rollbar.error('CreatePR: Missing required fields', {
         hasValidationId: !!validationId,
-        hasUpdatedPolicy: !!updatedPolicy,
+        hasUpdatedPolicies: !!updatedPolicies,
         hasChangesSummary: !!changesSummary,
       });
       return NextResponse.json(
         {
-          error: 'Missing required fields: validationId, updatedPolicy, and changesSummary',
+          error: 'Missing required fields: validationId, updatedPolicies, and changesSummary',
         },
         { status: 400 },
       );
@@ -45,8 +46,9 @@ export async function POST(request: Request) {
     rollbar.info('CreatePR: Starting PR creation process', {
       validationId,
       totalChanges,
+      platformsUpdated: platformsUpdated?.length || 0,
       documentsUpdated: documentsUpdated?.length || 0,
-      policyName: updatedPolicy.name,
+      platforms: Object.keys(updatedPolicies),
     });
 
     // Initialize GitHub PR creator
@@ -58,7 +60,7 @@ export async function POST(request: Request) {
 
     // Generate PR data
     const branchName = GitHubPRCreator.generateBranchName(validationId);
-    const prTitle = GitHubPRCreator.generatePRTitle(totalChanges, documentsUpdated || []);
+    const prTitle = GitHubPRCreator.generatePRTitle(totalChanges, platformsUpdated || []);
     const prBody = GitHubPRCreator.generatePRBody(
       changesSummary,
       validationId,
@@ -66,16 +68,24 @@ export async function POST(request: Request) {
       totalChanges,
     );
 
-    // Determine which policy file to update based on the policy name
-    const policyFileName = getPolicyFileName(updatedPolicy.name);
-    if (!policyFileName) {
-      rollbar.error('CreatePR: Unknown policy name', { policyName: updatedPolicy.name });
-      return NextResponse.json(
-        {
-          error: `Unknown policy name: ${updatedPolicy.name}`,
-        },
-        { status: 400 },
-      );
+    // Create files for all updated platforms
+    const files = [];
+    for (const [platformId, policy] of Object.entries(updatedPolicies)) {
+      const policyFileName = getPolicyFileName(platformId);
+      if (!policyFileName) {
+        rollbar.error('CreatePR: Unknown platform ID', { platformId });
+        return NextResponse.json(
+          {
+            error: `Unknown platform ID: ${platformId}`,
+          },
+          { status: 400 },
+        );
+      }
+
+      files.push({
+        path: `lib/platform-policies/${policyFileName}`,
+        content: generatePolicyFileContent(policy, policyFileName),
+      });
     }
 
     // Create the PR
@@ -84,12 +94,7 @@ export async function POST(request: Request) {
       body: prBody,
       branchName,
       baseBranch: 'main',
-      files: [
-        {
-          path: `lib/platform-policies/${policyFileName}`,
-          content: generatePolicyFileContent(updatedPolicy, policyFileName),
-        },
-      ],
+      files,
     });
 
     if (prResult.success) {
@@ -98,6 +103,7 @@ export async function POST(request: Request) {
         pullRequestUrl: prResult.pullRequestUrl,
         pullRequestNumber: prResult.pullRequestNumber,
         branchName,
+        filesUpdated: files.length,
       });
 
       return NextResponse.json({
@@ -108,6 +114,8 @@ export async function POST(request: Request) {
           pullRequestNumber: prResult.pullRequestNumber,
           branchName,
           validationId,
+          filesUpdated: files.length,
+          platformsUpdated: Object.keys(updatedPolicies),
         },
       });
     } else {
@@ -152,8 +160,13 @@ export async function GET(request: Request) {
       endpoints: {
         POST: {
           description: 'Create a pull request with policy changes',
-          requiredFields: ['validationId', 'updatedPolicy', 'changesSummary'],
-          optionalFields: ['totalChanges', 'documentsUpdated', 'documentsProcessed'],
+          requiredFields: ['validationId', 'updatedPolicies', 'changesSummary'],
+          optionalFields: [
+            'totalChanges',
+            'platformsUpdated',
+            'documentsUpdated',
+            'documentsProcessed',
+          ],
         },
       },
       status: {
@@ -172,18 +185,18 @@ export async function GET(request: Request) {
 }
 
 /**
- * Maps policy names to their corresponding file names
+ * Maps platform IDs to their corresponding file names
  */
-function getPolicyFileName(policyName: string): string | null {
+function getPolicyFileName(platformId: string): string | null {
   const policyFileMap: Record<string, string> = {
-    Facebook: 'facebook.ts',
-    Instagram: 'instagram.ts',
-    TikTok: 'tiktok.ts',
-    OnlyFans: 'onlyfans.ts',
-    Pornhub: 'pornhub.ts',
+    facebook: 'facebook.ts',
+    instagram: 'instagram.ts',
+    tiktok: 'tiktok.ts',
+    onlyfans: 'onlyfans.ts',
+    pornhub: 'pornhub.ts',
   };
 
-  return policyFileMap[policyName] || null;
+  return policyFileMap[platformId] || null;
 }
 
 /**

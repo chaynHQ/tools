@@ -80,6 +80,7 @@ jobs:
           echo "Starting policy validation workflow..."
 
           # Step 1: Initialize the workflow
+          # Default to all platforms, but can be customized by adding platforms array
           RESPONSE=$(curl -s -X POST \
             -H "Content-Type: application/json" \
             -d '{"action": "initialize"}' \
@@ -237,22 +238,22 @@ jobs:
 
           if [ "$STATUS" = "success" ]; then
             if [ "$COMPLETION_STATUS" = "completed_with_pr_created" ]; then
-              MESSAGE="🎉 Policy validation workflow Steps 1-6 completed successfully! Processed $PROCESSED_COUNT documents with $TOTAL_CHANGES policy changes across $DOCUMENTS_UPDATED documents. Quality check: PASSED. Pull Request created: $PR_URL (PR #$PR_NUMBER). Ready for review and merge. Validation ID: $VALIDATION_ID"
+              MESSAGE="🎉 Policy validation workflow Steps 1-6 completed successfully! Processed $PROCESSED_COUNT documents with $TOTAL_CHANGES policy changes across multiple platforms and $DOCUMENTS_UPDATED documents. Quality check: PASSED. Pull Request created: $PR_URL (PR #$PR_NUMBER). Ready for review and merge. Validation ID: $VALIDATION_ID"
             elif [ "$COMPLETION_STATUS" = "completed_with_pr_error" ]; then
-              MESSAGE="⚠️ Policy validation workflow Steps 1-5 completed successfully, but Step 6 (PR creation) failed. Processed $PROCESSED_COUNT documents with $TOTAL_CHANGES policy changes. Quality check: PASSED. Manual PR creation required. Validation ID: $VALIDATION_ID"
+              MESSAGE="⚠️ Policy validation workflow Steps 1-5 completed successfully, but Step 6 (PR creation) failed. Processed $PROCESSED_COUNT documents with $TOTAL_CHANGES policy changes across multiple platforms. Quality check: PASSED. Manual PR creation required. Validation ID: $VALIDATION_ID"
             elif [ "$COMPLETION_STATUS" = "completed_with_valid_changes" ]; then
-              MESSAGE="✅ Policy validation workflow Steps 1-5 completed successfully. Processed $PROCESSED_COUNT documents with $TOTAL_CHANGES policy changes across $DOCUMENTS_UPDATED documents. Quality check: PASSED. Ready for Step 6 (Pull Request). Validation ID: $VALIDATION_ID"
+              MESSAGE="✅ Policy validation workflow Steps 1-5 completed successfully. Processed $PROCESSED_COUNT documents with $TOTAL_CHANGES policy changes across multiple platforms and $DOCUMENTS_UPDATED documents. Quality check: PASSED. Ready for Step 6 (Pull Request). Validation ID: $VALIDATION_ID"
             elif [ "$COMPLETION_STATUS" = "completed_with_invalid_changes" ]; then
-              MESSAGE="⚠️ Policy validation workflow Steps 1-5 completed with issues. Processed $PROCESSED_COUNT documents with $TOTAL_CHANGES policy changes, but quality check FAILED. Reason: $QUALITY_REASONING. Manual review required. Validation ID: $VALIDATION_ID"
+              MESSAGE="⚠️ Policy validation workflow Steps 1-5 completed with issues. Processed $PROCESSED_COUNT documents with $TOTAL_CHANGES policy changes across multiple platforms, but quality check FAILED. Reason: $QUALITY_REASONING. Manual review required. Validation ID: $VALIDATION_ID"
             elif [ "$COMPLETION_STATUS" = "completed_with_quality_error" ]; then
-              MESSAGE="⚠️ Policy validation workflow Steps 1-4 completed, but Step 5 (Quality Check) failed due to technical error. Processed $PROCESSED_COUNT documents with $TOTAL_CHANGES policy changes. Manual review required. Validation ID: $VALIDATION_ID"
+              MESSAGE="⚠️ Policy validation workflow Steps 1-4 completed, but Step 5 (Quality Check) failed due to technical error. Processed $PROCESSED_COUNT documents with $TOTAL_CHANGES policy changes across multiple platforms. Manual review required. Validation ID: $VALIDATION_ID"
             elif [ "$COMPLETION_STATUS" = "completed_no_changes" ]; then
-              MESSAGE="✅ Policy validation workflow Steps 1-5 completed successfully. Processed $PROCESSED_COUNT documents with no changes needed. All policies are up to date. Validation ID: $VALIDATION_ID"
+              MESSAGE="✅ Policy validation workflow Steps 1-5 completed successfully. Processed $PROCESSED_COUNT documents across all platforms with no changes needed. All policies are up to date. Validation ID: $VALIDATION_ID"
             else
-              MESSAGE="✅ Policy validation workflow Steps 1-5 completed successfully. Processed $PROCESSED_COUNT documents. Status: $COMPLETION_STATUS. Validation ID: $VALIDATION_ID"
+              MESSAGE="✅ Policy validation workflow Steps 1-5 completed successfully. Processed $PROCESSED_COUNT documents across multiple platforms. Status: $COMPLETION_STATUS. Validation ID: $VALIDATION_ID"
             fi
           else
-            MESSAGE="❌ Policy validation workflow Steps 1-6 failed. Validation ID: $VALIDATION_ID"
+            MESSAGE="❌ Policy validation workflow Steps 1-6 failed for multi-platform validation. Validation ID: $VALIDATION_ID"
           fi
 
           echo "Sending notification: $MESSAGE"

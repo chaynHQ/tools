@@ -1,3 +1,4 @@
+import { getPlatformPolicy } from '@/lib/platform-policies';
 import { handleApiError, serverInstance as rollbar } from '@/lib/rollbar';
 import { EnvironmentValidator } from '@/lib/validation/environment-validator';
 import { PolicyAggregator, ProposedUpdate } from '@/lib/validation/policy-aggregator';
@@ -284,7 +285,10 @@ export async function POST(request: Request) {
       });
 
       // Create scoped policies for this document
-      const scopedPolicies = createScopedPoliciesForDocument(validationState, nextDocument.reference);
+      const scopedPolicies = createScopedPoliciesForDocument(
+        validationState,
+        nextDocument.reference,
+      );
 
       if (!scopedPolicies) {
         rollbar.error('PolicyValidation: Failed to create scoped policies', {

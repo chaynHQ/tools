@@ -12,46 +12,49 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { originalPolicy, updatedPolicy } = body;
+    const { originalPolicies, updatedPolicies } = body;
 
     // Validate required fields
-    if (!originalPolicy || !updatedPolicy) {
+    if (!originalPolicies || !updatedPolicies) {
       rollbar.error('PolicyQualityCheck: Missing required fields', {
-        hasOriginal: !!originalPolicy,
-        hasUpdated: !!updatedPolicy,
+        hasOriginal: !!originalPolicies,
+        hasUpdated: !!updatedPolicies,
       });
       return NextResponse.json(
         {
-          error: 'Missing required fields: originalPolicy and updatedPolicy',
+          error: 'Missing required fields: originalPolicies and updatedPolicies',
         },
         { status: 400 },
       );
     }
 
     // Validate that both are objects with expected structure
-    if (!originalPolicy.name || !updatedPolicy.name) {
+    if (typeof originalPolicies !== 'object' || typeof updatedPolicies !== 'object') {
       rollbar.error('PolicyQualityCheck: Invalid policy structure', {
-        originalHasName: !!originalPolicy.name,
-        updatedHasName: !!updatedPolicy.name,
+        originalType: typeof originalPolicies,
+        updatedType: typeof updatedPolicies,
       });
       return NextResponse.json(
         {
-          error: 'Invalid policy structure: both policies must have a name field',
+          error: 'Invalid policy structure: both must be objects containing platform policies',
         },
         { status: 400 },
       );
     }
 
     rollbar.info('PolicyQualityCheck: Starting AI quality validation', {
-      originalPolicyName: originalPolicy.name,
-      updatedPolicyName: updatedPolicy.name,
+      platformCount: Object.keys(originalPolicies).length,
+      platforms: Object.keys(originalPolicies),
     });
 
     // Initialize the quality checker
     const qualityChecker = new PolicyQualityChecker();
 
     // Perform the quality check
-    const qualityResult = await qualityChecker.validatePolicyChanges(originalPolicy, updatedPolicy);
+    const qualityResult = await qualityChecker.validatePolicyChanges(
+      originalPolicies,
+      updatedPolicies,
+    );
 
     rollbar.info('PolicyQualityCheck: Quality validation completed', {
       validationStatus: qualityResult.validationStatus,
@@ -62,8 +65,8 @@ export async function POST(request: Request) {
       success: true,
       qualityCheck: qualityResult,
       metadata: {
-        originalPolicyName: originalPolicy.name,
-        updatedPolicyName: updatedPolicy.name,
+        platformCount: Object.keys(originalPolicies).length,
+        platforms: Object.keys(originalPolicies),
         checkedAt: new Date().toISOString(),
       },
     });
@@ -95,10 +98,10 @@ export async function GET(request: Request) {
       endpoints: {
         POST: {
           description: 'Validate policy changes using Claude Sonnet 4',
-          requiredFields: ['originalPolicy', 'updatedPolicy'],
+          requiredFields: ['originalPolicies', 'updatedPolicies'],
           example: {
-            originalPolicy: { name: 'Facebook', legalDocuments: [] /* ... */ },
-            updatedPolicy: { name: 'Facebook', legalDocuments: [] /* ... */ },
+            originalPolicies: { facebook: { name: 'Facebook', legalDocuments: [] /* ... */ } },
+            updatedPolicies: { facebook: { name: 'Facebook', legalDocuments: [] /* ... */ } },
           },
         },
       },

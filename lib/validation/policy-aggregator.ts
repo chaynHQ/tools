@@ -17,22 +17,23 @@ export interface ProposedUpdate {
 
 export interface AggregationResult {
   hasChanges: boolean;
-  updatedPolicy: PlatformPolicy | null;
+  updatedPolicies: Record<string, PlatformPolicy> | null;
   changesSummary: string[];
+  platformsUpdated: string[];
   documentsUpdated: string[];
   totalChanges: number;
 }
 
 export class PolicyAggregator {
   /**
-   * Aggregates all proposed updates into a single updated PlatformPolicy
+   * Aggregates all proposed updates into updated PlatformPolicies
    */
   static aggregateChanges(
-    originalPolicy: PlatformPolicy,
+    originalPolicies: Record<string, PlatformPolicy>,
     proposedUpdates: ProposedUpdate[],
   ): AggregationResult {
     rollbar.info('PolicyAggregator: Starting change aggregation', {
-      originalPolicyName: originalPolicy.name,
+      platformCount: Object.keys(originalPolicies).length,
       proposedUpdatesCount: proposedUpdates.length,
     });
 
@@ -41,35 +42,57 @@ export class PolicyAggregator {
       rollbar.info('PolicyAggregator: No proposed updates found');
       return {
         hasChanges: false,
-        updatedPolicy: null,
+        updatedPolicies: null,
         changesSummary: [],
+        platformsUpdated: [],
         documentsUpdated: [],
         totalChanges: 0,
       };
     }
 
-    // Create deep copy of original policy
-    const updatedPolicy: PlatformPolicy = JSON.parse(JSON.stringify(originalPolicy));
+    // Create deep copies of original policies
+    const updatedPolicies: Record<string, PlatformPolicy> = {};
+    for (const [platformId, policy] of Object.entries(originalPolicies)) {
+      updatedPolicies[platformId] = JSON.parse(JSON.stringify(policy));
+    }
+
     const changesSummary: string[] = [];
     const documentsUpdated: string[] = [];
+    const platformsUpdated: string[] = [];
     let totalChanges = 0;
 
     // Update access timestamps for all processed documents
-    this.updateAccessTimestamps(updatedPolicy, proposedUpdates);
+    this.updateAccessTimestamps(updatedPolicies, proposedUpdates);
 
     // Process each proposed update
     for (const update of proposedUpdates) {
+      // Find which platform this update belongs to
+      const platformId = this.findPlatformForDocument(
+        originalPolicies,
+        update.legalDocumentReference,
+      );
+      if (!platformId) {
+        rollbar.error('PolicyAggregator: Could not find platform for document', {
+          documentReference: update.legalDocumentReference,
+        });
+        continue;
+      }
+
       rollbar.info('PolicyAggregator: Processing update', {
+        platformId,
         documentReference: update.legalDocumentReference,
         policiesCount: update.relatedPolicies.length,
       });
 
-      const documentChanges = this.applyDocumentUpdate(updatedPolicy, update);
+      const documentChanges = this.applyDocumentUpdate(updatedPolicies[platformId], update);
 
       if (documentChanges.changesApplied > 0) {
         documentsUpdated.push(update.legalDocumentReference);
+        if (!platformsUpdated.includes(platformId)) {
+          platformsUpdated.push(platformId);
+        }
         changesSummary.push(
-          `**${update.legalDocumentReference}**: ${update.reasoning} (${documentChanges.changesApplied} policies updated)`,
+          `**${platformId.toUpperCase()} - ${update.legalDocumentReference}**: ${update.reasoning} (${documentChanges.changesApplied} policies updated)`,
         );
         totalChanges += documentChanges.changesApplied;
 
@@ -80,24 +103,42 @@ export class PolicyAggregator {
 
     rollbar.info('PolicyAggregator: Aggregation completed', {
       hasChanges: totalChanges > 0,
+      platformsUpdated: platformsUpdated.length,
       documentsUpdated: documentsUpdated.length,
       totalChanges,
     });
 
     return {
       hasChanges: totalChanges > 0,
-      updatedPolicy: totalChanges > 0 ? updatedPolicy : null,
+      updatedPolicies: totalChanges > 0 ? updatedPolicies : null,
       changesSummary,
+      platformsUpdated,
       documentsUpdated,
       totalChanges,
     };
   }
 
   /**
+   * Find which platform a document belongs to
+   */
+  private static findPlatformForDocument(
+    policies: Record<string, PlatformPolicy>,
+    documentReference: string,
+  ): string | null {
+    for (const [platformId, policy] of Object.entries(policies)) {
+      const document = policy.legalDocuments.find((doc) => doc.reference === documentReference);
+      if (document) {
+        return platformId;
+      }
+    }
+    return null;
+  }
+
+  /**
    * Update access timestamps for all legal documents that were processed
    */
   private static updateAccessTimestamps(
-    policy: PlatformPolicy,
+    policies: Record<string, PlatformPolicy>,
     proposedUpdates: ProposedUpdate[],
   ): void {
     const currentTimestamp = new Date().toISOString();
@@ -105,15 +146,18 @@ export class PolicyAggregator {
       proposedUpdates.map((update) => update.legalDocumentReference),
     );
 
-    policy.legalDocuments.forEach((doc) => {
-      if (processedDocuments.has(doc.reference)) {
-        doc.accessTimestamp = currentTimestamp;
-        rollbar.info('PolicyAggregator: Updated access timestamp', {
-          documentReference: doc.reference,
-          timestamp: currentTimestamp,
-        });
-      }
-    });
+    for (const [platformId, policy] of Object.entries(policies)) {
+      policy.legalDocuments.forEach((doc) => {
+        if (processedDocuments.has(doc.reference)) {
+          doc.accessTimestamp = currentTimestamp;
+          rollbar.info('PolicyAggregator: Updated access timestamp', {
+            platformId,
+            documentReference: doc.reference,
+            timestamp: currentTimestamp,
+          });
+        }
+      });
+    }
   }
 
   /**

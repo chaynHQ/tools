@@ -15,16 +15,16 @@ export class PolicyQualityChecker {
    * Validates proposed policy changes using AI quality check
    */
   async validatePolicyChanges(
-    originalPolicy: any,
-    updatedPolicy: any,
+    originalPolicies: Record<string, any>,
+    updatedPolicies: Record<string, any>,
   ): Promise<PolicyQualityCheckResponse> {
     try {
       rollbar.info('PolicyQualityChecker: Starting quality validation', {
-        originalPolicyName: originalPolicy.name,
-        updatedPolicyName: updatedPolicy.name,
+        platformCount: Object.keys(originalPolicies).length,
+        platforms: Object.keys(originalPolicies),
       });
 
-      const prompt = generatePolicyQualityCheckPrompt(originalPolicy, updatedPolicy);
+      const prompt = generatePolicyQualityCheckPrompt(originalPolicies, updatedPolicies);
 
       rollbar.info('PolicyQualityChecker: Sending request to Claude', {
         promptLength: prompt.length,

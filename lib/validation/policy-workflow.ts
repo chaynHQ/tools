@@ -98,22 +98,21 @@ export function initializeValidationWorkflow(platformIds?: string[]): PolicyVali
 export function getNextDocument(state: PolicyValidationState) {
   // Find the current platform and document
   let documentCount = 0;
-  
+
   for (let platformIndex = 0; platformIndex < state.platformIds.length; platformIndex++) {
     const platformId = state.platformIds[platformIndex];
     const policy = state.originalPlatformPolicies[platformId];
-    
+
     if (state.currentDocumentIndex < documentCount + policy.legalDocuments.length) {
       const documentIndex = state.currentDocumentIndex - documentCount;
       const document = policy.legalDocuments[documentIndex];
-      
+
       return {
         ...document,
         platformId,
         platformName: policy.name,
       };
     }
-    
     documentCount += policy.legalDocuments.length;
   }
 
@@ -134,12 +133,10 @@ export function getPlatformForDocument(
       return { platformId, policy };
     }
   }
-  
   rollbar.error('PolicyValidation: Could not find platform for document', {
     documentReference,
     availablePlatforms: Object.keys(state.originalPlatformPolicies),
   });
-  
   return null;
 }
 
