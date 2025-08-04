@@ -50,24 +50,46 @@ export async function POST(request: Request) {
     // Initialize the quality checker
     const qualityChecker = new PolicyQualityChecker();
 
-    // Perform the quality check
+    // Perform the quality check (now processes each platform individually)
     const qualityResult = await qualityChecker.validatePolicyChanges(
       originalPolicies,
       updatedPolicies,
     );
 
     rollbar.info('PolicyQualityCheck: Quality validation completed', {
-      validationStatus: qualityResult.validationStatus,
-      hasChanges: qualityResult.diffSummary?.length > 0,
+      overallStatus: qualityResult.overallStatus,
+      validPlatforms: Object.entries(qualityResult.platformResults)
+        .filter(([_, result]) => result.validationStatus === 'valid')
+        .length,
+      invalidPlatforms: Object.entries(qualityResult.platformResults)
+        .filter(([_, result]) => result.validationStatus === 'invalid')
+        .length,
     });
+
+    // Convert to the expected format for backward compatibility
+    const legacyResponse = {
+      validationStatus: qualityResult.overallStatus,
+      reasoning: qualityResult.summary,
+      diffSummary: Object.entries(qualityResult.platformResults)
+        .map(([platformId, result]) => {
+          if (result.diffSummary && result.diffSummary !== 'No meaningful changes detected.') {
+            return `- ${platformId.toUpperCase()}: ${result.diffSummary}`;
+          }
+          return null;
+        })
+        .filter(Boolean)
+        .join('\n') || 'No meaningful changes detected across all platforms.',
+      platformResults: qualityResult.platformResults, // Include detailed platform results
+    };
 
     return NextResponse.json({
       success: true,
-      qualityCheck: qualityResult,
+      qualityCheck: legacyResponse,
       metadata: {
         platformCount: Object.keys(originalPolicies).length,
         platforms: Object.keys(originalPolicies),
         checkedAt: new Date().toISOString(),
+        processingMethod: 'single-platform-iteration',
       },
     });
   } catch (error: any) {
@@ -94,11 +116,12 @@ export async function GET(request: Request) {
     // Return API documentation and status
     return NextResponse.json({
       success: true,
-      message: 'Policy Quality Check API - Claude Sonnet 4 Integration',
+      message: 'Policy Quality Check API - Claude Sonnet 4 Integration (Single Platform Processing)',
       endpoints: {
         POST: {
-          description: 'Validate policy changes using Claude Sonnet 4',
+          description: 'Validate policy changes using Claude Sonnet 4 (processes each platform individually)',
           requiredFields: ['originalPolicies', 'updatedPolicies'],
+          processingMethod: 'single-platform-iteration',
           example: {
             originalPolicies: { facebook: { name: 'Facebook', legalDocuments: [] /* ... */ } },
             updatedPolicies: { facebook: { name: 'Facebook', legalDocuments: [] /* ... */ } },
@@ -106,9 +129,15 @@ export async function GET(request: Request) {
         },
       },
       status: {
-        vertexAIConfigured: !!process.env.GOOGLE_CLOUD_PROJECT,
-        model: 'gemini-2.0-flash-exp',
-        capabilities: ['structural_validation', 'semantic_analysis', 'change_detection'],
+        anthropicConfigured: !!process.env.ANTHROPIC_API_KEY,
+        model: 'claude-sonnet-4-20250514',
+        capabilities: [
+          'single_platform_validation', 
+          'hallucination_detection', 
+          'meaningless_rewording_detection',
+          'structural_validation', 
+          'semantic_analysis'
+        ],
       },
     });
   } catch (error: any) {
