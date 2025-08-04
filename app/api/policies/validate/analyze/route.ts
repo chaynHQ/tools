@@ -15,7 +15,7 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { documentUrl, scopedPolicies, step } = body;
+    const { documentUrl, scopedPolicies, step, validateChanges } = body;
 
     // Initialize the analysis service
     const analysisService = new PolicyAnalysisService();
@@ -102,6 +102,7 @@ export async function POST(request: Request) {
         },
       });
     }
+    }
   } catch (error: any) {
     rollbar.error('PolicyAnalysis: Error during AI analysis', {
       error: error.message,
@@ -165,28 +166,6 @@ export async function GET(request: Request) {
           A: 'Document Analysis - Compare policies against live document',
           B: 'Change Validation - Verify changes are genuine',
         },
-      },
-    });
-  } catch (error: any) {
-    const { error: errorMessage, status } = handleApiError(error, '/api/policies/validate/analyze');
-    return NextResponse.json({ error: errorMessage }, { status });
-  }
-}
-
-            documentUrl: 'https://transparency.fb.com/policies/community-standards/',
-            scopedPolicies: {
-              legalDocumentReference: 'META-CS',
-              documentTitle: 'Meta Community Standards',
-              documentUrl: 'https://transparency.fb.com/policies/community-standards/',
-              relatedPolicies: [],
-            },
-          },
-        },
-      },
-      status: {
-        geminiConfigured: !!process.env.GOOGLE_AI_API_KEY,
-        model: 'gemini-2.0-flash-exp',
-        capabilities: ['document_analysis', 'policy_comparison', 'structured_output'],
       },
     });
   } catch (error: any) {
