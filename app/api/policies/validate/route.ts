@@ -1,4 +1,5 @@
 import { getPlatformPolicy } from '@/lib/platform-policies';
+import { GitHubPRCreator } from '@/lib/github/pr-creator';
 import { handleApiError, serverInstance as rollbar } from '@/lib/rollbar';
 import { parseAIJson, retryWithDelay } from '@/lib/utils';
 import { GoogleGenAI, HarmBlockThreshold, HarmCategory } from '@google/genai';
@@ -283,29 +284,7 @@ async function finalizeValidation(session: any) {
   }
 
   // Create PR if changes found
-  let pullRequest = null;
-  try {
-    const prResponse = await fetch('/api/policies/validate/create-pr', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        validationId: session.validationId,
-        updatedPolicies,
-        changesSummary: `Policy validation completed with ${totalChanges} changes across ${Object.keys(updatedPolicies).length} platforms`,
-        totalChanges,
-        platformsUpdated: Object.keys(updatedPolicies),
-        documentsUpdated: session.proposedUpdates.map((u: any) => u.documentReference),
-        documentsProcessed: session.processedDocuments.length,
-      }),
-    });
-
-    if (prResponse.ok) {
-      const prData = await prResponse.json();
-      pullRequest = prData.data;
-    }
-  } catch (error) {
-    rollbar.error('PolicyValidation: PR creation failed', { error });
-  }
+  const pullRequest = await createPullRequest(session, updatedPolicies, totalChanges);
 
   return NextResponse.json({
     success: true,
@@ -323,6 +302,121 @@ async function finalizeValidation(session: any) {
       },
     },
   });
+}
+
+async function createPullRequest(session: any, updatedPolicies: Record<string, any>, totalChanges: number) {
+  if (!process.env.GITHUB_TOKEN) {
+    rollbar.warning('PolicyValidation: GitHub token not configured, skipping PR creation');
+    return null;
+  }
+
+  try {
+    rollbar.info('PolicyValidation: Creating PR', {
+      validationId: session.validationId,
+      totalChanges,
+      platformsUpdated: Object.keys(updatedPolicies).length,
+    });
+
+    const prCreator = new GitHubPRCreator(
+      process.env.GITHUB_TOKEN,
+      'chaynHQ',
+      'tools'
+    );
+
+    const branchName = GitHubPRCreator.generateBranchName(session.validationId);
+    const prTitle = GitHubPRCreator.generatePRTitle(totalChanges, Object.keys(updatedPolicies));
+    const prBody = GitHubPRCreator.generatePRBody(
+      `Policy validation completed with ${totalChanges} changes across ${Object.keys(updatedPolicies).length} platforms`,
+      session.validationId,
+      session.processedDocuments.length,
+      totalChanges
+    );
+
+    // Create files for all updated platforms
+    const files = [];
+    for (const [platformId, policy] of Object.entries(updatedPolicies)) {
+      const policyFileName = getPolicyFileName(platformId);
+      if (!policyFileName) {
+        rollbar.error('PolicyValidation: Unknown platform ID', { platformId });
+        continue;
+      }
+
+      files.push({
+        path: `lib/platform-policies/${policyFileName}`,
+        content: generatePolicyFileContent(policy, policyFileName),
+      });
+    }
+
+    const prResult = await prCreator.createPolicyUpdatePR({
+      title: prTitle,
+      body: prBody,
+      branchName,
+      baseBranch: 'main',
+      files,
+    });
+
+    if (prResult.success) {
+      rollbar.info('PolicyValidation: Successfully created PR', {
+        validationId: session.validationId,
+        pullRequestUrl: prResult.pullRequestUrl,
+        pullRequestNumber: prResult.pullRequestNumber,
+      });
+
+      return {
+        url: prResult.pullRequestUrl,
+        number: prResult.pullRequestNumber,
+      };
+    } else {
+      rollbar.error('PolicyValidation: Failed to create PR', {
+        validationId: session.validationId,
+        error: prResult.error,
+      });
+      return null;
+    }
+  } catch (error) {
+    rollbar.error('PolicyValidation: PR creation failed', {
+      validationId: session.validationId,
+      error,
+    });
+    return null;
+  }
+}
+
+function getPolicyFileName(platformId: string): string | null {
+  const policyFileMap: Record<string, string> = {
+    facebook: 'facebook.ts',
+    instagram: 'instagram.ts',
+    tiktok: 'tiktok.ts',
+    onlyfans: 'onlyfans.ts',
+    pornhub: 'pornhub.ts',
+  };
+
+  return policyFileMap[platformId] || null;
+}
+
+function generatePolicyFileContent(updatedPolicy: any, fileName: string): string {
+  const exportName = fileName.replace('.ts', 'Policy');
+
+  return `import { ContentContext, ContentType, LegalDocument, PlatformPolicy } from './types';
+
+const legalDocuments: LegalDocument[] = ${JSON.stringify(updatedPolicy.legalDocuments, null, 2)};
+
+const contentTypes: ContentType[] = ${JSON.stringify(updatedPolicy.contentTypes, null, 2)};
+
+const contentContexts: ContentContext[] = ${JSON.stringify(updatedPolicy.contentContexts, null, 2)};
+
+const generalPolicies = ${JSON.stringify(updatedPolicy.generalPolicies, null, 2)};
+
+export const ${exportName}: PlatformPolicy = {
+  name: '${updatedPolicy.name}',
+  legalDocuments,
+  contentTypes,
+  contentContexts,
+  generalPolicies,
+  timeframes: ${JSON.stringify(updatedPolicy.timeframes, null, 2)},
+  appealProcess: ${JSON.stringify(updatedPolicy.appealProcess, null, 2)},
+};
+`;
 }
 
 function extractPoliciesForDocument(platformPolicy: any, documentReference: string) {
