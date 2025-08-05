@@ -1,6 +1,6 @@
 import { callGemini } from '@/lib/ai/gemini';
 import { PLATFORM_NAMES } from '@/lib/constants/platforms';
-import { GitHubPRCreator, applyPolicyUpdates } from '@/lib/github/create-policies-pr';
+import { GitHubPRCreator } from '@/lib/github/create-policies-pr';
 import { getPlatformPolicy } from '@/lib/platform-policies';
 import {
   generatePolicyAnalysisPrompt,
@@ -37,7 +37,7 @@ export async function POST(request: Request) {
 
 async function initializeValidation(documentQueue?: any[]) {
   const validationId = `validation_${Date.now()}_${Math.random().toString(36).substring(7)}`;
-  
+
   // Use provided document queue or create default one
   let finalDocumentQueue = documentQueue;
   let platformPolicies: Record<string, any> = {};
@@ -199,6 +199,17 @@ async function processNextDocument(validationId: string) {
   }
 }
 
+/**
+ * Applies policy updates to a platform policy object
+ */
+export function applyPolicyUpdates(platformPolicy: any, updatedPolicies: any[]): void {
+  // This is a simplified version - in practice you'd need more sophisticated merging
+  // For now, just update the access timestamp
+  platformPolicy.legalDocuments?.forEach((doc: any) => {
+    doc.accessTimestamp = new Date().toISOString();
+  });
+}
+
 async function finalizeValidation(session: any) {
   rollbar.info('PolicyValidation: Finalizing validation', {
     validationId: session.validationId,
@@ -242,7 +253,7 @@ async function finalizeValidation(session: any) {
   // Create PR if changes found using the dedicated PR creator
   let pullRequest = null;
   if (process.env.GITHUB_TOKEN) {
-    const prCreator = new GitHubPRCreator(process.env.GITHUB_TOKEN, 'chaynHQ', 'tools');
+    const prCreator = new GitHubPRCreator();
     pullRequest = await prCreator.createPolicyPullRequest(session, updatedPolicies, totalChanges);
   }
 

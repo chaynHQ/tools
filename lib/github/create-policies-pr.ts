@@ -5,7 +5,6 @@ export interface PullRequestData {
   title: string;
   body: string;
   branchName: string;
-  baseBranch: string;
   files: Array<{
     path: string;
     content: string;
@@ -24,10 +23,10 @@ export class GitHubPRCreator {
   private owner: string;
   private repo: string;
 
-  constructor(token: string, owner: string, repo: string) {
-    this.octokit = new Octokit({ auth: token });
-    this.owner = owner;
-    this.repo = repo;
+  constructor() {
+    this.octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
+    this.owner = 'chaynHQ'; // Github owner
+    this.repo = 'tools'; // Github repository
   }
 
   /**
@@ -43,24 +42,30 @@ export class GitHubPRCreator {
       });
 
       // Step 1: Get the default branch SHA
-      const { data: defaultBranch } = await this.octokit.rest.repos.get({
+      const { data: repo } = await this.octokit.rest.repos.get({
         owner: this.owner,
         repo: this.repo,
       });
 
-      const baseSha = await this.getLatestCommitSha(data.baseBranch);
+      const { data: baseBranch } = await this.octokit.rest.repos.getBranch({
+        owner: this.owner,
+        repo: this.repo,
+        branch: repo.default_branch,
+      });
+
+      const baseBranchSha = baseBranch.commit.sha;
 
       // Step 2: Create a new branch
       await this.octokit.rest.git.createRef({
         owner: this.owner,
         repo: this.repo,
         ref: `refs/heads/${data.branchName}`,
-        sha: baseSha,
+        sha: baseBranchSha,
       });
 
       rollbar.info('GitHubPRCreator: Created branch', {
         branchName: data.branchName,
-        baseSha: baseSha.substring(0, 7),
+        baseSha: baseBranchSha.substring(0, 7),
       });
 
       // Step 3: Create/update files in the new branch
@@ -75,7 +80,7 @@ export class GitHubPRCreator {
         title: data.title,
         body: data.body,
         head: data.branchName,
-        base: data.baseBranch,
+        base: repo.default_branch,
       });
 
       rollbar.info('GitHubPRCreator: Successfully created PR', {
@@ -103,19 +108,6 @@ export class GitHubPRCreator {
       };
     }
   }
-
-  /**
-   * Gets the latest commit SHA for a branch
-   */
-  private async getLatestCommitSha(branch: string): Promise<string> {
-    const { data: branchData } = await this.octokit.rest.repos.getBranch({
-      owner: this.owner,
-      repo: this.repo,
-      branch,
-    });
-    return branchData.commit.sha;
-  }
-
   /**
    * Creates or updates a file in the repository
    */
@@ -208,7 +200,6 @@ export class GitHubPRCreator {
         title: prTitle,
         body: prBody,
         branchName,
-        baseBranch: 'main',
         files,
       });
 
@@ -332,15 +323,4 @@ export const ${exportName}: PlatformPolicy = {
   appealProcess: ${JSON.stringify(updatedPolicy.appealProcess, null, 2)},
 };
 `;
-}
-
-/**
- * Applies policy updates to a platform policy object
- */
-export function applyPolicyUpdates(platformPolicy: any, updatedPolicies: any[]): void {
-  // This is a simplified version - in practice you'd need more sophisticated merging
-  // For now, just update the access timestamp
-  platformPolicy.legalDocuments?.forEach((doc: any) => {
-    doc.accessTimestamp = new Date().toISOString();
-  });
 }
