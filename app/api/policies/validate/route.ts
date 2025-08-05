@@ -143,7 +143,7 @@ async function processNextDocument(validationId: string) {
 
       const validationPrompt = generatePolicyValidationPrompt(validationPromptData);
       const validationResponse = await callGemini(validationPrompt);
-      const validationResult = parseAIJson(response);
+      const validationResult = parseAIJson(validationResponse);
 
       finalResult = {
         ...analysisResult,
@@ -239,7 +239,7 @@ async function finalizeValidation(session: any) {
 
   // Count unique platforms that were updated
   const platformsWithChanges = Object.keys(updatedPolicies).filter(platformId => 
-    session.proposedUpdates.some(update => update.platformId === platformId)
+    session.proposedUpdates.some((update: any) => update.platformId === platformId)
   );
   totalPlatformsUpdated = platformsWithChanges.length;
 
@@ -331,33 +331,6 @@ async function finalizeValidation(session: any) {
       totalChanges,
       totalPlatformsUpdated,
       platformsUpdated: platformsWithChanges,
-      progress: {
-        current: session.documentQueue.length,
-        total: session.documentQueue.length,
-        percentage: 100,
-      },
-    },
-  });
-}
-      session,
-      updatedPolicies,
-      totalChanges,
-      totalPlatformsUpdated,
-    );
-  }
-
-  return NextResponse.json({
-    success: true,
-    status: pullRequest ? 'completed_with_pr_created' : 'completed_with_changes',
-    message: `Validation completed with ${totalChanges} policy changes across ${totalPlatformsUpdated} platforms`,
-    data: {
-      updatedPolicies,
-      pullRequest,
-      totalChanges,
-      totalPlatformsUpdated,
-      platformsUpdated: Object.keys(updatedPolicies).filter(platformId => 
-        session.proposedUpdates.some((update: any) => update.platformId === platformId)
-      ),
       progress: {
         current: session.documentQueue.length,
         total: session.documentQueue.length,
