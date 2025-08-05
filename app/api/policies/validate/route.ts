@@ -219,6 +219,7 @@ async function finalizeValidation(session: any) {
   // Apply updates to platform policies
   const updatedPolicies: Record<string, any> = {};
   let totalChanges = 0;
+  let totalPlatformsUpdated = 0;
 
   for (const update of session.proposedUpdates) {
     if (!updatedPolicies[update.platformId]) {
@@ -227,9 +228,12 @@ async function finalizeValidation(session: any) {
       );
     }
 
-    // Apply the policy updates
-    applyPolicyUpdates(updatedPolicies[update.platformId], update.updatedPolicies);
-    totalChanges += update.updatedPolicies.length;
+    // Apply the policy updates and track if changes were made
+    const hasChanges = applyPolicyUpdates(updatedPolicies[update.platformId], update.updatedPolicies);
+    if (hasChanges) {
+      totalChanges += update.updatedPolicies.length;
+      totalPlatformsUpdated++;
+    }
   }
 
   // Clean up session
@@ -241,6 +245,8 @@ async function finalizeValidation(session: any) {
       status: 'completed_no_changes',
       message: 'All documents processed. No policy changes needed.',
       data: {
+        totalDocuments: session.documentQueue.length,
+        totalPlatforms: Object.keys(session.platformPolicies).length,
         progress: {
           current: session.documentQueue.length,
           total: session.documentQueue.length,
@@ -250,22 +256,37 @@ async function finalizeValidation(session: any) {
     });
   }
 
+  rollbar.info('PolicyValidation: Applying policy updates', {
+    validationId: session.validationId,
+    totalChanges,
+    totalPlatformsUpdated,
+    platformsUpdated: Object.keys(updatedPolicies),
+  });
+
   // Create PR if changes found using the dedicated PR creator
   let pullRequest = null;
   if (process.env.GITHUB_TOKEN) {
     const prCreator = new GitHubPRCreator();
-    pullRequest = await prCreator.createPolicyPullRequest(session, updatedPolicies, totalChanges);
+    pullRequest = await prCreator.createPolicyPullRequest(
+      session,
+      updatedPolicies,
+      totalChanges,
+      totalPlatformsUpdated,
+    );
   }
 
   return NextResponse.json({
     success: true,
     status: pullRequest ? 'completed_with_pr_created' : 'completed_with_changes',
-    message: `Validation completed with ${totalChanges} changes across ${Object.keys(updatedPolicies).length} platforms`,
+    message: `Validation completed with ${totalChanges} policy changes across ${totalPlatformsUpdated} platforms`,
     data: {
       updatedPolicies,
       pullRequest,
       totalChanges,
-      platformsUpdated: Object.keys(updatedPolicies),
+      totalPlatformsUpdated,
+      platformsUpdated: Object.keys(updatedPolicies).filter(platformId => 
+        session.proposedUpdates.some((update: any) => update.platformId === platformId)
+      ),
       progress: {
         current: session.documentQueue.length,
         total: session.documentQueue.length,
