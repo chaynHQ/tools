@@ -10,6 +10,9 @@ import { handleApiError, serverInstance as rollbar } from '@/lib/rollbar';
 import { parseAIJson } from '@/lib/utils';
 import { NextResponse } from 'next/server';
 
+// Test environment detection
+const isTestEnvironment = process.env.NODE_ENV === 'test' || process.env.CYPRESS === 'true';
+
 import {
   generatePolicyValidationQualityCheckPrompt,
   PolicyValidationQualityCheckPromptData,
@@ -113,6 +116,11 @@ async function processNextDocument(validationId: string) {
 
   const currentDocument = session.documentQueue[session.currentIndex];
 
+  // In test environment, return mock responses
+  if (isTestEnvironment) {
+    return handleTestEnvironmentProcessing(session, currentDocument);
+  }
+
   try {
     const analysisPromptData: PolicyValidationPromptData = {
       documentUrl: currentDocument.url,
@@ -201,6 +209,103 @@ async function processNextDocument(validationId: string) {
       },
     });
   }
+}
+
+/**
+ * Handles finalization in test environment with mock PR creation
+ */
+function handleTestEnvironmentFinalization(
+  session: ValidationSession,
+  totalChanges: number,
+  totalPlatformsUpdated: number,
+  platformsWithChanges: string[],
+  updatedPolicies: Record<string, PlatformPolicy>
+) {
+  validationSessions.delete(session.validationId);
+
+  const mockPullRequest = {
+    url: 'https://github.com/chaynHQ/tools/pull/123',
+    number: 123
+  };
+
+  return NextResponse.json({
+    success: true,
+    status: 'completed_with_pr_created',
+    message: `Mock: Validation completed with ${totalChanges} policy changes across ${totalPlatformsUpdated} platforms`,
+    data: {
+      updatedPolicies,
+      pullRequest: mockPullRequest,
+      totalChanges,
+      totalPlatformsUpdated,
+      platformsUpdated: platformsWithChanges,
+      progress: {
+        current: session.documentQueue.length,
+        total: session.documentQueue.length,
+        percentage: 100,
+      },
+    },
+  });
+}
+/**
+ * Handles document processing in test environment with mock responses
+ */
+function handleTestEnvironmentProcessing(session: ValidationSession, currentDocument: DocumentWithPolicies) {
+  // Mock analysis result - alternates between changes and no changes
+  const hasChanges = session.currentIndex % 3 === 0; // Every 3rd document has changes
+  
+  let analysisResult: AnalysisResult;
+  
+  if (hasChanges) {
+    analysisResult = {
+      status: 'updated',
+      reasoning: `Mock: Found policy updates for ${currentDocument.title}`,
+      updatedPolicies: [
+        {
+          reference: currentDocument.reference,
+          policy: `Mock updated policy for ${currentDocument.title}`,
+          removalCriteria: ['Mock removal criteria'],
+          evidenceRequirements: ['Mock evidence requirements']
+        }
+      ],
+      validation: {
+        validationStatus: 'valid',
+        reasoning: 'Mock: Changes are structurally sound'
+      }
+    };
+
+    session.proposedUpdates.push({
+      platformId: currentDocument.platformId,
+      documentReference: currentDocument.reference,
+      updatedPolicies: analysisResult.updatedPolicies,
+      reasoning: analysisResult.reasoning
+    });
+  } else {
+    analysisResult = {
+      status: 'no_change',
+      reasoning: `Mock: No changes needed for ${currentDocument.title}`
+    };
+  }
+
+  session.processedDocuments.push(currentDocument.reference);
+  session.currentIndex++;
+
+  return NextResponse.json({
+    success: true,
+    status: 'document_processed',
+    data: {
+      currentDocument: currentDocument,
+      analysis: analysisResult,
+      progress: {
+        current: session.currentIndex,
+        total: session.documentQueue.length,
+        percentage: Math.round((session.currentIndex / session.documentQueue.length) * 100),
+      },
+      nextStep:
+        session.currentIndex >= session.documentQueue.length
+          ? 'completed'
+          : 'process_next_document',
+    },
+  });
 }
 
 /**
@@ -322,6 +427,11 @@ async function finalizeValidation(session: ValidationSession) {
         },
       },
     });
+  }
+
+  // In test environment, mock PR creation
+  if (isTestEnvironment) {
+    return handleTestEnvironmentFinalization(session, totalChanges, totalPlatformsUpdated, platformsWithChanges, updatedPolicies);
   }
 
   rollbar.info('PolicyValidation: Applying policy updates', {
