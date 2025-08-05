@@ -1,3 +1,5 @@
+import { PLATFORM_NAMES } from '../constants/platforms';
+import { getPlatformPolicy } from '../platform-policies';
 import { serverInstance as rollbar } from '../rollbar';
 import { retryWithDelay } from '../utils';
 
@@ -26,6 +28,100 @@ export interface PolicyValidationResponse {
   };
 }
 
+export interface DocumentWithPolicies {
+  platformId: string;
+  platformName: string;
+  reference: string;
+  title: string;
+  url: string;
+  accessTimestamp?: string;
+  notes?: string;
+  policies: Array<{
+    reference: string;
+    policy: string;
+    removalCriteria: string[];
+    evidenceRequirements: string[];
+  }>;
+}
+
+/**
+ * Extracts policies for a specific document from a platform policy
+ */
+export function extractPoliciesForDocument(platformPolicy: any, documentReference: string) {
+  const policies: any[] = [];
+
+  // Extract from contentTypes
+  platformPolicy.contentTypes?.forEach((contentType: any) => {
+    contentType.policies?.forEach((policy: any) => {
+      if (policy.documents?.some((doc: any) => doc.reference === documentReference)) {
+        policies.push({
+          reference: policy.reference,
+          policy: policy.policy,
+          removalCriteria: policy.removalCriteria,
+          evidenceRequirements: policy.evidenceRequirements,
+        });
+      }
+    });
+  });
+
+  // Extract from contentContexts
+  platformPolicy.contentContexts?.forEach((contentContext: any) => {
+    contentContext.policies?.forEach((policy: any) => {
+      if (policy.documents?.some((doc: any) => doc.reference === documentReference)) {
+        policies.push({
+          reference: policy.reference,
+          policy: policy.policy,
+          removalCriteria: policy.removalCriteria,
+          evidenceRequirements: policy.evidenceRequirements,
+        });
+      }
+    });
+  });
+
+  // Extract from generalPolicies
+  platformPolicy.generalPolicies?.forEach((policy: any) => {
+    if (policy.documents?.some((doc: any) => doc.reference === documentReference)) {
+      policies.push({
+        reference: policy.reference,
+        policy: policy.policy,
+        removalCriteria: policy.removalCriteria,
+        evidenceRequirements: policy.evidenceRequirements,
+      });
+    }
+  });
+
+  return policies;
+}
+
+/**
+ * Prepares document queue with full policy data for validation
+ */
+export function prepareDocumentQueue(platforms?: string[]): DocumentWithPolicies[] {
+  const targetPlatforms = platforms && platforms.length > 0 ? platforms : Object.keys(PLATFORM_NAMES);
+  const documentQueue: DocumentWithPolicies[] = [];
+
+  for (const platformId of targetPlatforms) {
+    const policy = getPlatformPolicy(platformId);
+    if (policy) {
+      // Add each document to the queue with its associated policies
+      policy.legalDocuments.forEach((doc: any) => {
+        documentQueue.push({
+          platformId,
+          platformName: policy.name,
+          reference: doc.reference,
+          title: doc.title,
+          url: doc.url,
+          accessTimestamp: doc.accessTimestamp,
+          notes: doc.notes,
+          policies: extractPoliciesForDocument(policy, doc.reference),
+        });
+      });
+    }
+  }
+
+  return documentQueue;
+}
+
 export async function validatePlatformPolicies(
   request: PolicyValidationRequest = {},
 ): Promise<PolicyValidationResponse> {
@@ -34,14 +130,17 @@ export async function validatePlatformPolicies(
   });
 
   try {
-    // Step 1: Initialize validation
+    // Prepare document queue with full policy data
+    const documentQueue = prepareDocumentQueue(request.platforms);
+
+    // Step 1: Initialize validation with prepared data
     const initResponse = await retryWithDelay(async () => {
       const res = await fetch('/api/policies/validate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           action: 'initialize',
-          platforms: request.platforms,
+          documentQueue, // Pass prepared documents with policies
         }),
       });
 
