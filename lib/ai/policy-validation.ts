@@ -1,81 +1,19 @@
+import {
+  DocumentWithPolicies,
+  PlatformPolicy,
+  PolicyUpdate,
+  PolicyValidationRequest,
+  PolicyValidationResponse,
+} from '../../types/policies';
 import { PLATFORM_NAMES } from '../constants/platforms';
 import { getPlatformPolicy } from '../platform-policies';
 import { serverInstance as rollbar } from '../rollbar';
 import { retryWithDelay } from '../utils';
 
-export interface PolicyValidationRequest {
-  platforms?: string[];
-}
-
-export interface PolicyValidationResponse {
-  success: boolean;
-  validationId: string;
-  totalDocuments: number;
-  totalPlatforms: number;
-  platforms: string[];
-  results: {
-    documentsProcessed: number;
-    changesFound: number;
-    validChanges: number;
-    invalidChanges: number;
-    errors: number;
-  };
-  updatedPolicies?: Record<string, PlatformPolicy>;
-  changesSummary?: string;
-  pullRequest?: {
-    url: string;
-    number: number;
-  };
-}
-
-export interface PolicyUpdate {
-  reference: string;
-  policy: string;
-  removalCriteria: string[];
-  evidenceRequirements: string[];
-}
-
-export interface DocumentWithPolicies {
-  platformId: string;
-  platformName: string;
-  reference: string;
-  title: string;
-  url: string;
-  accessTimestamp?: string;
-  notes?: string;
-  policies: PolicyUpdate[];
-}
-
-export interface ValidationSession {
-  validationId: string;
-  documentQueue: DocumentWithPolicies[];
-  platformPolicies: Record<string, PlatformPolicy>;
-  processedDocuments: string[];
-  proposedUpdates: Array<{
-    platformId: string;
-    documentReference: string;
-    updatedPolicies: PolicyUpdate[];
-    reasoning: string;
-  }>;
-  currentIndex: number;
-  startTime: string;
-}
-
-export interface AnalysisResult {
-  status: 'no_change' | 'updated' | 'error';
-  reasoning: string;
-  updatedPolicies?: PolicyUpdate[];
-  validation?: {
-    validationStatus: 'valid' | 'invalid';
-    reasoning: string;
-    issues?: Array<{
-      severity: 'critical' | 'minor';
-      type: 'hallucination' | 'meaningless_rewording' | 'structural_error';
-      description: string;
-    }>;
-  };
-}
-export function extractPoliciesForDocument(platformPolicy: PlatformPolicy, documentReference: string): PolicyUpdate[] {
+export function extractPoliciesForDocument(
+  platformPolicy: PlatformPolicy,
+  documentReference: string,
+): PolicyUpdate[] {
   const policies: PolicyUpdate[] = [];
 
   platformPolicy.contentTypes?.forEach((contentType) => {
@@ -119,7 +57,8 @@ export function extractPoliciesForDocument(platformPolicy: PlatformPolicy, docum
 }
 
 export function prepareDocumentQueue(platforms?: string[]): DocumentWithPolicies[] {
-  const targetPlatforms = platforms && platforms.length > 0 ? platforms : Object.keys(PLATFORM_NAMES);
+  const targetPlatforms =
+    platforms && platforms.length > 0 ? platforms : Object.keys(PLATFORM_NAMES);
   const documentQueue: DocumentWithPolicies[] = [];
 
   for (const platformId of targetPlatforms) {
@@ -140,7 +79,10 @@ export function prepareDocumentQueue(platforms?: string[]): DocumentWithPolicies
     }
   }
 
-  rollbar.info('PolicyValidation: Document queue prepared', { totalDocuments: documentQueue.length, platforms: targetPlatforms });
+  rollbar.info('PolicyValidation: Document queue prepared', {
+    totalDocuments: documentQueue.length,
+    platforms: targetPlatforms,
+  });
   return documentQueue;
 }
 
@@ -173,7 +115,10 @@ export async function validatePlatformPolicies(
     });
 
     const { validationId, data } = initResponse;
-    rollbar.info('PolicyValidation: Validation initialized', { validationId, totalDocuments: data.totalDocuments });
+    rollbar.info('PolicyValidation: Validation initialized', {
+      validationId,
+      totalDocuments: data.totalDocuments,
+    });
 
     let documentsProcessed = 0;
     let changesFound = 0;

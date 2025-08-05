@@ -12,8 +12,12 @@ import { handleApiError, serverInstance as rollbar } from '@/lib/rollbar';
 import { parseAIJson } from '@/lib/utils';
 import { NextResponse } from 'next/server';
 
-import { PlatformPolicy } from '@/lib/platform-policies/types';
-import { ValidationSession, DocumentWithPolicies, AnalysisResult } from '@/lib/ai/policy-validation';
+import {
+  AnalysisResult,
+  DocumentWithPolicies,
+  PlatformPolicy,
+  ValidationSession,
+} from '@/types/policies';
 
 // Store validation sessions
 const validationSessions = new Map<string, ValidationSession>();
@@ -41,7 +45,7 @@ export async function POST(request: Request) {
 async function initializeValidation(documentQueue?: DocumentWithPolicies[]) {
   const validationId = `validation_${Date.now()}_${Math.random().toString(36).substring(7)}`;
 
-  let finalDocumentQueue = documentQueue;
+  let finalDocumentQueue = documentQueue || [];
   let platformPolicies: Record<string, PlatformPolicy> = {};
 
   if (!documentQueue) {
@@ -86,7 +90,7 @@ async function initializeValidation(documentQueue?: DocumentWithPolicies[]) {
   };
 
   validationSessions.set(validationId, session);
-  
+
   rollbar.info('PolicyValidation: Session initialized', {
     validationId,
     totalDocuments: finalDocumentQueue.length,
@@ -231,15 +235,18 @@ async function finalizeValidation(session: any) {
       );
     }
 
-    const hasChanges = applyPolicyUpdates(updatedPolicies[update.platformId], update.updatedPolicies);
+    const hasChanges = applyPolicyUpdates(
+      updatedPolicies[update.platformId],
+      update.updatedPolicies,
+    );
     if (hasChanges) {
       totalChanges += update.updatedPolicies.length;
     }
   }
 
   // Count unique platforms that were updated
-  const platformsWithChanges = Object.keys(updatedPolicies).filter(platformId => 
-    session.proposedUpdates.some((update: any) => update.platformId === platformId)
+  const platformsWithChanges = Object.keys(updatedPolicies).filter((platformId) =>
+    session.proposedUpdates.some((update) => update.platformId === platformId),
   );
   totalPlatformsUpdated = platformsWithChanges.length;
 
@@ -290,7 +297,7 @@ async function finalizeValidation(session: any) {
         validationId: session.validationId,
         error,
       });
-      
+
       return NextResponse.json({
         success: true,
         status: 'completed_with_pr_error',
@@ -312,7 +319,7 @@ async function finalizeValidation(session: any) {
   }
 
   const finalStatus = pullRequest ? 'completed_with_pr_created' : 'completed_with_changes';
-  
+
   rollbar.info('PolicyValidation: Validation completed successfully', {
     validationId: session.validationId,
     status: finalStatus,

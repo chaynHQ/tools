@@ -1,9 +1,9 @@
+import { PlatformPolicy } from '../../types/policies';
 import { facebookPolicy } from './facebook';
 import { instagramPolicy } from './instagram';
 import { onlyfansPolicy } from './onlyfans';
 import { pornhubPolicy } from './pornhub';
 import { tiktokPolicy } from './tiktok';
-import { PlatformPolicy } from './types';
 
 const platformPolicies: Record<string, PlatformPolicy> = {
   facebook: facebookPolicy,

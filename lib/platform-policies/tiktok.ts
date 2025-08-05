@@ -1,4 +1,4 @@
-import { ContentContext, ContentType, LegalDocument, PlatformPolicy } from './types';
+import { ContentContext, ContentType, LegalDocument, PlatformPolicy } from '../../types/policies';
 
 const legalDocuments: LegalDocument[] = [
   {
