@@ -26,10 +26,10 @@ const validationSessions = new Map<string, ValidationSession>();
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { action, validationId, documentQueue } = body;
+    const { action, validationId } = body;
 
     if (action === 'initialize') {
-      return await initializeValidation(documentQueue);
+      return await initializeValidation();
     }
 
     if (action === 'process_next_document') {
@@ -43,46 +43,34 @@ export async function POST(request: Request) {
   }
 }
 
-async function initializeValidation(documentQueue?: DocumentWithPolicies[]) {
+async function initializeValidation() {
   const validationId = `validation_${Date.now()}_${Math.random().toString(36).substring(7)}`;
 
-  let finalDocumentQueue = documentQueue || [];
   let platformPolicies: Record<string, PlatformPolicy> = {};
 
-  if (!documentQueue) {
-    rollbar.warning('PolicyValidation: No document queue provided, creating default');
-    const targetPlatforms = Object.keys(PLATFORM_NAMES);
-    finalDocumentQueue = [];
+  rollbar.warning('PolicyValidation: No document queue provided, creating default');
+  const targetPlatforms = Object.keys(PLATFORM_NAMES);
+  const documentQueue: DocumentWithPolicies[] = [];
 
-    for (const platformId of targetPlatforms) {
-      const policy = getPlatformPolicy(platformId);
-      if (policy) {
-        platformPolicies[platformId] = policy;
+  for (const platformId of targetPlatforms) {
+    const policy = getPlatformPolicy(platformId);
+    if (policy) {
+      platformPolicies[platformId] = policy;
 
-        policy.legalDocuments.forEach((doc) => {
-          finalDocumentQueue!.push({
-            platformId,
-            platformName: policy.name,
-            ...doc,
-            policies: [],
-          });
+      policy.legalDocuments.forEach((doc) => {
+        documentQueue!.push({
+          platformId,
+          platformName: policy.name,
+          ...doc,
+          policies: [],
         });
-      }
-    }
-  } else {
-    for (const doc of documentQueue) {
-      if (!platformPolicies[doc.platformId]) {
-        const policy = getPlatformPolicy(doc.platformId);
-        if (policy) {
-          platformPolicies[doc.platformId] = policy;
-        }
-      }
+      });
     }
   }
 
   const session: ValidationSession = {
     validationId,
-    documentQueue: finalDocumentQueue,
+    documentQueue,
     platformPolicies,
     processedDocuments: [],
     proposedUpdates: [],
@@ -94,7 +82,7 @@ async function initializeValidation(documentQueue?: DocumentWithPolicies[]) {
 
   rollbar.info('PolicyValidation: Session initialized', {
     validationId,
-    totalDocuments: finalDocumentQueue.length,
+    totalDocuments: documentQueue.length,
     totalPlatforms: Object.keys(platformPolicies).length,
   });
 
@@ -102,7 +90,7 @@ async function initializeValidation(documentQueue?: DocumentWithPolicies[]) {
     success: true,
     validationId,
     data: {
-      totalDocuments: finalDocumentQueue!.length,
+      totalDocuments: documentQueue!.length,
       totalPlatforms: Object.keys(platformPolicies).length,
       platforms: Object.keys(platformPolicies),
       nextStep: 'process_next_document',
@@ -401,35 +389,6 @@ async function finalizeValidation(session: ValidationSession) {
         current: session.documentQueue.length,
         total: session.documentQueue.length,
         percentage: 100,
-      },
-    },
-  });
-}
-
-export async function GET() {
-  let totalDocuments = 0;
-
-  for (const platformId of Object.keys(PLATFORM_NAMES)) {
-    const policy = getPlatformPolicy(platformId);
-    if (policy) {
-      totalDocuments += policy.legalDocuments.length;
-    }
-  }
-
-  return NextResponse.json({
-    success: true,
-    message: 'Policy Validation API - Two-Prompt System',
-    data: {
-      totalDocuments,
-      endpoints: {
-        'POST /api/policies/validate': {
-          actions: ['initialize', 'process_next_document'],
-          description: 'Main validation workflow endpoint',
-        },
-      },
-      prompts: {
-        A: 'Document Analysis - Compare policies against live document',
-        B: 'Change Validation - Verify changes are genuine',
       },
     },
   });
