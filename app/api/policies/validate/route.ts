@@ -10,6 +10,46 @@ import { handleApiError, serverInstance as rollbar } from '@/lib/rollbar';
 import { parseAIJson } from '@/lib/utils';
 import { NextResponse } from 'next/server';
 
+// Mock data for testing
+const MOCK_ANALYSIS_RESPONSES = {
+  no_change: {
+    status: 'no_change',
+    reasoning: 'Mock: No changes needed - policies are up to date'
+  },
+  updated: {
+    status: 'updated',
+    reasoning: 'Mock: Found policy updates that need to be applied',
+    updatedPolicies: [
+      {
+        reference: 'MOCK-POLICY-1',
+        policy: 'Mock updated policy description',
+        removalCriteria: ['Mock updated criteria 1', 'Mock updated criteria 2'],
+        evidenceRequirements: ['Mock updated evidence 1', 'Mock updated evidence 2']
+      }
+    ]
+  },
+  error: {
+    status: 'error',
+    reasoning: 'Mock: Simulated processing error'
+  }
+};
+
+const MOCK_VALIDATION_RESPONSE = {
+  validationStatus: 'valid',
+  reasoning: 'Mock: Changes are valid and meaningful',
+  issues: []
+};
+
+// Helper function to check if we're in test mode
+function isTestMode(request: Request): boolean {
+  return request.headers.get('X-Cypress-Test') === 'true';
+}
+
+// Helper function to get mock analysis type from headers
+function getMockAnalysisType(request: Request): string {
+  return request.headers.get('X-Mock-Analysis') || 'no_change';
+}
+
 import {
   generatePolicyValidationQualityCheckPrompt,
   PolicyValidationQualityCheckPromptData,
@@ -28,14 +68,14 @@ const validationSessions = new Map<string, ValidationSession>();
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { action, validationId } = body;
+    const { action, validationId, platforms } = body;
 
     if (action === 'initialize') {
-      return await initializeValidation();
+      return await initializeValidation(platforms);
     }
 
     if (action === 'process_next_document') {
-      return await processNextDocument(validationId);
+      return await processNextDocument(validationId, request);
     }
 
     return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
@@ -46,12 +86,12 @@ export async function POST(request: Request) {
 }
 
 async function initializeValidation() {
+async function initializeValidation(platforms?: string[]) {
   const validationId = `validation_${Date.now()}_${Math.random().toString(36).substring(7)}`;
 
   let platformPolicies: Record<string, PlatformPolicy> = {};
 
-  rollbar.warning('PolicyValidation: No document queue provided, creating default');
-  const targetPlatforms = Object.keys(PLATFORM_NAMES);
+  const targetPlatforms = platforms || Object.keys(PLATFORM_NAMES);
   const documentQueue: DocumentWithPolicies[] = [];
 
   for (const platformId of targetPlatforms) {
@@ -60,7 +100,7 @@ async function initializeValidation() {
       platformPolicies[platformId] = policy;
 
       policy.legalDocuments.forEach((doc) => {
-        documentQueue!.push({
+        documentQueue.push({
           platformId,
           platformName: policy.name,
           ...doc,
@@ -92,7 +132,7 @@ async function initializeValidation() {
     success: true,
     validationId,
     data: {
-      totalDocuments: documentQueue!.length,
+      totalDocuments: documentQueue.length,
       totalPlatforms: Object.keys(platformPolicies).length,
       platforms: Object.keys(platformPolicies),
       nextStep: 'process_next_document',
