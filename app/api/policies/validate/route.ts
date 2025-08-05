@@ -3,15 +3,17 @@ import { PLATFORM_NAMES } from '@/lib/constants/platforms';
 import { GitHubPRCreator } from '@/lib/github/create-policies-pr';
 import { getPlatformPolicy } from '@/lib/platform-policies';
 import {
-  generatePolicyAnalysisPrompt,
   generatePolicyValidationPrompt,
-  PolicyAnalysisPromptData,
   PolicyValidationPromptData,
 } from '@/lib/prompts/policy-validation';
 import { handleApiError, serverInstance as rollbar } from '@/lib/rollbar';
 import { parseAIJson } from '@/lib/utils';
 import { NextResponse } from 'next/server';
 
+import {
+  generatePolicyValidationQualityCheckPrompt,
+  PolicyValidationQualityCheckPromptData,
+} from '@/lib/prompts/policy-validation-quality-check';
 import {
   AnalysisResult,
   DocumentWithPolicies,
@@ -112,21 +114,21 @@ async function processNextDocument(validationId: string) {
   const currentDocument = session.documentQueue[session.currentIndex];
 
   try {
-    const analysisPromptData: PolicyAnalysisPromptData = {
+    const analysisPromptData: PolicyValidationPromptData = {
       documentUrl: currentDocument.url,
       documentTitle: currentDocument.title,
       documentReference: currentDocument.reference,
       currentPolicies: currentDocument.policies,
     };
 
-    const analysisPrompt = generatePolicyAnalysisPrompt(analysisPromptData);
+    const analysisPrompt = generatePolicyValidationPrompt(analysisPromptData);
     const analysisResponse = await callGemini(analysisPrompt);
     const analysisResult: AnalysisResult = parseAIJson(analysisResponse);
 
     let finalResult: AnalysisResult = analysisResult;
 
     if (analysisResult.status === 'updated') {
-      const validationPromptData: PolicyValidationPromptData = {
+      const validationPromptData: PolicyValidationQualityCheckPromptData = {
         documentUrl: currentDocument.url,
         documentTitle: currentDocument.title,
         documentReference: currentDocument.reference,
@@ -134,7 +136,7 @@ async function processNextDocument(validationId: string) {
         updatedPolicies: analysisResult.updatedPolicies!,
       };
 
-      const validationPrompt = generatePolicyValidationPrompt(validationPromptData);
+      const validationPrompt = generatePolicyValidationQualityCheckPrompt(validationPromptData);
       const validationResponse = await callGemini(validationPrompt);
       const validationResult = parseAIJson(validationResponse);
 

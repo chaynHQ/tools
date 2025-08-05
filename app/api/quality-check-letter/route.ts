@@ -1,5 +1,5 @@
 import { callAnthropic } from '@/lib/ai/anthropic';
-import { generateLetterQualityCheckPrompt } from '@/lib/prompts/quality-check';
+import { generateLetterQualityCheckPrompt } from '@/lib/prompts/letter-quality-check';
 import { handleApiError, serverInstance as rollbar } from '@/lib/rollbar';
 import { parseAIJson, retryWithDelay } from '@/lib/utils';
 import { sendToZapier } from '@/lib/zapier';

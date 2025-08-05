@@ -1,6 +1,6 @@
 import { GeneratedLetter, LetterRequest } from '@/types/letter';
 import { MAX_RETRIES, RETRY_DELAY, STATIC_NEXT_STEPS } from '../constants/ai';
-import { QualityCheckResponse } from '../prompts/quality-check';
+import { QualityCheckResponse } from '../prompts/letter-quality-check';
 import { serverInstance as rollbar } from '../rollbar';
 import { retryWithDelay } from '../utils';
 import { cleanupSanitizationMap, desanitizeLetter, sanitizeFormData } from './sanitization';
@@ -71,7 +71,7 @@ export async function generateLetter(formData: LetterRequest): Promise<Generated
           body: qualityCheckResponse.improvedLetter.body,
         };
       }
-      const letter = improvedLetter || originalLetter
+      const letter = improvedLetter || originalLetter;
 
       // Desanitize and return the final attempt
       const desanitizedLetter = {
