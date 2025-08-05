@@ -369,6 +369,7 @@ export function applyPolicyUpdates(platformPolicy: any, updatedPolicies: any[]):
   });
 
   return hasChanges;
+}
 
 const contentTypes: ContentType[] = ${JSON.stringify(updatedPolicy.contentTypes, null, 2)};
 
