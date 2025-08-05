@@ -1,14 +1,15 @@
-import { getPlatformPolicy } from '@/lib/platform-policies';
-import { GitHubPRCreator } from '@/lib/github/pr-creator';
 import { callGemini } from '@/lib/ai/gemini';
-import { handleApiError, serverInstance as rollbar } from '@/lib/rollbar';
-import { parseAIJson, retryWithDelay } from '@/lib/utils';
-import { 
-  generatePolicyAnalysisPrompt, 
+import { PLATFORM_NAMES } from '@/lib/constants/platforms';
+import { GitHubPRCreator } from '@/lib/github/pr-creator';
+import { getPlatformPolicy } from '@/lib/platform-policies';
+import {
+  generatePolicyAnalysisPrompt,
   generatePolicyValidationPrompt,
   PolicyAnalysisPromptData,
-  PolicyValidationPromptData 
+  PolicyValidationPromptData,
 } from '@/lib/prompts/policy-validation';
+import { handleApiError, serverInstance as rollbar } from '@/lib/rollbar';
+import { parseAIJson } from '@/lib/utils';
 import { NextResponse } from 'next/server';
 
 // Store validation sessions
@@ -36,8 +37,8 @@ export async function POST(request: Request) {
 
 async function initializeValidation(platforms?: string[]) {
   const validationId = `validation_${Date.now()}_${Math.random().toString(36).substring(7)}`;
-  const availablePlatforms = ['facebook', 'instagram', 'tiktok', 'onlyfans', 'pornhub'];
-  const targetPlatforms = platforms && platforms.length > 0 ? platforms : availablePlatforms;
+  const targetPlatforms =
+    platforms && platforms.length > 0 ? platforms : Object.keys(PLATFORM_NAMES);
 
   // Create document queue
   const documentQueue: any[] = [];
@@ -47,7 +48,7 @@ async function initializeValidation(platforms?: string[]) {
     const policy = getPlatformPolicy(platformId);
     if (policy) {
       platformPolicies[platformId] = policy;
-      
+
       // Add each document to the queue
       policy.legalDocuments.forEach((doc: any) => {
         documentQueue.push({
@@ -73,12 +74,6 @@ async function initializeValidation(platforms?: string[]) {
 
   validationSessions.set(validationId, session);
 
-  rollbar.info('PolicyValidation: Session initialized', {
-    validationId,
-    platforms: targetPlatforms,
-    totalDocuments: documentQueue.length,
-  });
-
   return NextResponse.json({
     success: true,
     validationId,
@@ -102,24 +97,37 @@ async function processNextDocument(validationId: string) {
     return await finalizeValidation(session);
   }
 
-  const currentDoc = session.documentQueue[session.currentIndex];
-  
-  rollbar.info('PolicyValidation: Processing document', {
-    validationId,
-    platformId: currentDoc.platformId,
-    documentReference: currentDoc.reference,
-    progress: `${session.currentIndex + 1}/${session.documentQueue.length}`,
-  });
+  const currentDocument = session.documentQueue[session.currentIndex];
 
   try {
     // Step 1: Analyze document with Prompt A
-    const analysisResult = await analyzeDocument(currentDoc);
-    
+    const promptData: PolicyAnalysisPromptData = {
+      documentUrl: currentDocument.url,
+      documentTitle: currentDocument.title,
+      documentReference: currentDocument.reference,
+      currentPolicies: currentDocument.policies,
+    };
+
+    const prompt = generatePolicyAnalysisPrompt(promptData);
+    const response = await callGemini(prompt);
+    const analysisResult = parseAIJson(response);
+
     let finalResult = analysisResult;
 
     // Step 2: If changes found, validate with Prompt B
     if (analysisResult.status === 'updated') {
-      const validationResult = await validateChanges(currentDoc, analysisResult.updatedPolicies);
+      const promptData: PolicyValidationPromptData = {
+        documentUrl: currentDocument.url,
+        documentTitle: currentDocument.title,
+        documentReference: currentDocument.reference,
+        originalPolicies: currentDocument.policies,
+        updatedPolicies: analysisResult.updatedPolicies,
+      };
+
+      const prompt = generatePolicyValidationPrompt(promptData);
+      const response = await callGemini(prompt);
+      const validationResult = parseAIJson(response);
+
       finalResult = {
         ...analysisResult,
         validation: validationResult,
@@ -128,36 +136,38 @@ async function processNextDocument(validationId: string) {
       // Only keep changes if validation passed
       if (validationResult.validationStatus === 'valid') {
         session.proposedUpdates.push({
-          platformId: currentDoc.platformId,
-          documentReference: currentDoc.reference,
+          platformId: currentDocument.platformId,
+          documentReference: currentDocument.reference,
           updatedPolicies: analysisResult.updatedPolicies,
           reasoning: analysisResult.reasoning,
         });
       }
     }
 
-    session.processedDocuments.push(currentDoc.reference);
+    session.processedDocuments.push(currentDocument.reference);
     session.currentIndex++;
 
     return NextResponse.json({
       success: true,
       status: 'document_processed',
       data: {
-        currentDocument: currentDoc,
+        currentDocument: currentDocument,
         analysis: finalResult,
         progress: {
           current: session.currentIndex,
           total: session.documentQueue.length,
           percentage: Math.round((session.currentIndex / session.documentQueue.length) * 100),
         },
-        nextStep: session.currentIndex >= session.documentQueue.length ? 'completed' : 'process_next_document',
+        nextStep:
+          session.currentIndex >= session.documentQueue.length
+            ? 'completed'
+            : 'process_next_document',
       },
     });
-
   } catch (error) {
     rollbar.error('PolicyValidation: Document processing failed', {
       validationId,
-      documentReference: currentDoc.reference,
+      documentReference: currentDocument.reference,
       error,
     });
 
@@ -166,48 +176,20 @@ async function processNextDocument(validationId: string) {
       success: true,
       status: 'document_processed_with_error',
       data: {
-        currentDocument: currentDoc,
+        currentDocument: currentDocument,
         analysis: { status: 'error', reasoning: `Processing failed: ${error}` },
         progress: {
           current: session.currentIndex,
           total: session.documentQueue.length,
           percentage: Math.round((session.currentIndex / session.documentQueue.length) * 100),
         },
-        nextStep: session.currentIndex >= session.documentQueue.length ? 'completed' : 'process_next_document',
+        nextStep:
+          session.currentIndex >= session.documentQueue.length
+            ? 'completed'
+            : 'process_next_document',
       },
     });
   }
-}
-
-async function analyzeDocument(document: any) {
-  const promptData: PolicyAnalysisPromptData = {
-    documentUrl: document.url,
-    documentTitle: document.title,
-    documentReference: document.reference,
-    currentPolicies: document.policies,
-  };
-
-  const prompt = generatePolicyAnalysisPrompt(promptData);
-  const response = await callGemini(prompt);
-  return parseAIJson(response);
-}
-
-async function validateChanges(document: any, updatedPolicies: any[]) {
-  const promptData: PolicyValidationPromptData = {
-    documentUrl: document.url,
-    documentTitle: document.title,
-    documentReference: document.reference,
-    originalPolicies: document.policies,
-    updatedPolicies,
-  };
-
-  const prompt = generatePolicyValidationPrompt(promptData);
-  const response = await callGemini(prompt);
-  return parseAIJson(response);
-}
-
-async function callGemini(prompt: string): Promise<string> {
-  return await callGemini(prompt);
 }
 
 async function finalizeValidation(session: any) {
@@ -222,9 +204,11 @@ async function finalizeValidation(session: any) {
 
   for (const update of session.proposedUpdates) {
     if (!updatedPolicies[update.platformId]) {
-      updatedPolicies[update.platformId] = JSON.parse(JSON.stringify(session.platformPolicies[update.platformId]));
+      updatedPolicies[update.platformId] = JSON.parse(
+        JSON.stringify(session.platformPolicies[update.platformId]),
+      );
     }
-    
+
     // Apply the policy updates
     applyPolicyUpdates(updatedPolicies[update.platformId], update.updatedPolicies);
     totalChanges += update.updatedPolicies.length;
@@ -269,7 +253,11 @@ async function finalizeValidation(session: any) {
   });
 }
 
-async function createPullRequest(session: any, updatedPolicies: Record<string, any>, totalChanges: number) {
+async function createPullRequest(
+  session: any,
+  updatedPolicies: Record<string, any>,
+  totalChanges: number,
+) {
   if (!process.env.GITHUB_TOKEN) {
     rollbar.warning('PolicyValidation: GitHub token not configured, skipping PR creation');
     return null;
@@ -282,11 +270,7 @@ async function createPullRequest(session: any, updatedPolicies: Record<string, a
       platformsUpdated: Object.keys(updatedPolicies).length,
     });
 
-    const prCreator = new GitHubPRCreator(
-      process.env.GITHUB_TOKEN,
-      'chaynHQ',
-      'tools'
-    );
+    const prCreator = new GitHubPRCreator(process.env.GITHUB_TOKEN, 'chaynHQ', 'tools');
 
     const branchName = GitHubPRCreator.generateBranchName(session.validationId);
     const prTitle = GitHubPRCreator.generatePRTitle(totalChanges, Object.keys(updatedPolicies));
@@ -294,13 +278,13 @@ async function createPullRequest(session: any, updatedPolicies: Record<string, a
       `Policy validation completed with ${totalChanges} changes across ${Object.keys(updatedPolicies).length} platforms`,
       session.validationId,
       session.processedDocuments.length,
-      totalChanges
+      totalChanges,
     );
 
     // Create files for all updated platforms
     const files = [];
     for (const [platformId, policy] of Object.entries(updatedPolicies)) {
-      const policyFileName = getPolicyFileName(platformId);
+      const policyFileName = `${platformId}.ts`;
       if (!policyFileName) {
         rollbar.error('PolicyValidation: Unknown platform ID', { platformId });
         continue;
@@ -345,18 +329,6 @@ async function createPullRequest(session: any, updatedPolicies: Record<string, a
     });
     return null;
   }
-}
-
-function getPolicyFileName(platformId: string): string | null {
-  const policyFileMap: Record<string, string> = {
-    facebook: 'facebook.ts',
-    instagram: 'instagram.ts',
-    tiktok: 'tiktok.ts',
-    onlyfans: 'onlyfans.ts',
-    pornhub: 'pornhub.ts',
-  };
-
-  return policyFileMap[platformId] || null;
 }
 
 function generatePolicyFileContent(updatedPolicy: any, fileName: string): string {
@@ -439,10 +411,9 @@ function applyPolicyUpdates(platformPolicy: any, updatedPolicies: any[]) {
 }
 
 export async function GET() {
-  const availablePlatforms = ['facebook', 'instagram', 'tiktok', 'onlyfans', 'pornhub'];
   let totalDocuments = 0;
 
-  for (const platformId of availablePlatforms) {
+  for (const platformId of Object.keys(PLATFORM_NAMES)) {
     const policy = getPlatformPolicy(platformId);
     if (policy) {
       totalDocuments += policy.legalDocuments.length;
@@ -453,7 +424,6 @@ export async function GET() {
     success: true,
     message: 'Policy Validation API - Two-Prompt System',
     data: {
-      availablePlatforms,
       totalDocuments,
       endpoints: {
         'POST /api/policies/validate': {

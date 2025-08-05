@@ -1,4 +1,3 @@
-import { MAX_RETRIES, RETRY_DELAY } from '../constants/ai';
 import { serverInstance as rollbar } from '../rollbar';
 import { retryWithDelay } from '../utils';
 
@@ -28,7 +27,7 @@ export interface PolicyValidationResponse {
 }
 
 export async function validatePlatformPolicies(
-  request: PolicyValidationRequest = {}
+  request: PolicyValidationRequest = {},
 ): Promise<PolicyValidationResponse> {
   rollbar.info('PolicyValidation: Starting validation process', {
     platforms: request.platforms || 'all',
@@ -55,11 +54,6 @@ export async function validatePlatformPolicies(
     });
 
     const { validationId, data } = initResponse;
-    rollbar.info('PolicyValidation: Initialized successfully', {
-      validationId,
-      totalDocuments: data.totalDocuments,
-      platforms: data.platforms,
-    });
 
     // Step 2: Process all documents
     let documentsProcessed = 0;
@@ -105,7 +99,10 @@ export async function validatePlatformPolicies(
       }
 
       // Check if complete
-      if (processResponse.status === 'completed' || processResponse.data?.nextStep === 'completed') {
+      if (
+        processResponse.status === 'completed' ||
+        processResponse.data?.nextStep === 'completed'
+      ) {
         rollbar.info('PolicyValidation: All documents processed', {
           validationId,
           documentsProcessed,
