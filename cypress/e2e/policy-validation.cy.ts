@@ -1,59 +1,65 @@
 describe('Policy Validation API', () => {
   beforeEach(() => {
-    // Mock external AI service calls (Gemini)
-    cy.intercept('POST', '**/v1beta/models/gemini-*:generateContent', {
+    // Mock external AI service calls (Anthropic)
+    cy.intercept('POST', '**/api.anthropic.com/**', {
       statusCode: 200,
       body: {
-        candidates: [{
-          content: {
-            parts: [{
-              text: JSON.stringify({
-                status: 'updated',
-                reasoning: 'Found policy updates based on document analysis',
-                updatedPolicies: [{
-                  reference: 'FB-TOS',
-                  policy: 'Updated policy based on document changes',
-                  removalCriteria: ['Updated removal criteria'],
-                  evidenceRequirements: ['Updated evidence requirements']
-                }]
-              })
-            }]
-          }
-        }]
-      }
-    }).as('geminiCall');
+        candidates: [
+          {
+            content: {
+              parts: [
+                {
+                  text: JSON.stringify({
+                    status: 'updated',
+                    reasoning: 'Found policy updates based on document analysis',
+                    updatedPolicies: [
+                      {
+                        reference: 'FB-TOS',
+                        policy: 'Updated policy based on document changes',
+                        removalCriteria: ['Updated removal criteria'],
+                        evidenceRequirements: ['Updated evidence requirements'],
+                      },
+                    ],
+                  }),
+                },
+              ],
+            },
+          },
+        ],
+      },
+    }).as('anthropicCall');
 
     // Mock GitHub API calls for PR creation
     cy.intercept('GET', 'https://api.github.com/repos/chaynHQ/tools', {
       statusCode: 200,
       body: {
-        default_branch: 'main'
-      }
+        default_branch: 'main',
+      },
     }).as('getRepo');
 
     cy.intercept('GET', 'https://api.github.com/repos/chaynHQ/tools/branches/main', {
       statusCode: 200,
       body: {
-        commit: { sha: 'abc123' }
-      }
+        commit: { sha: 'abc123' },
+      },
     }).as('getBranch');
 
     cy.intercept('POST', 'https://api.github.com/repos/chaynHQ/tools/git/refs', {
       statusCode: 201,
-      body: { ref: 'refs/heads/test-branch' }
+      body: { ref: 'refs/heads/test-branch' },
     }).as('createBranch');
 
     cy.intercept('PUT', 'https://api.github.com/repos/chaynHQ/tools/contents/**', {
       statusCode: 200,
-      body: { commit: { sha: 'def456' } }
+      body: { commit: { sha: 'def456' } },
     }).as('createFile');
 
     cy.intercept('POST', 'https://api.github.com/repos/chaynHQ/tools/pulls', {
       statusCode: 201,
       body: {
         html_url: 'https://github.com/chaynHQ/tools/pull/123',
-        number: 123
-      }
+        number: 123,
+      },
     }).as('createPR');
   });
 
@@ -63,8 +69,8 @@ describe('Policy Validation API', () => {
         method: 'POST',
         url: '/api/policies/validate',
         body: {
-          action: 'initialize'
-        }
+          action: 'initialize',
+        },
       }).then((response) => {
         expect(response.status).to.eq(200);
         expect(response.body).to.have.property('success', true);
@@ -73,7 +79,7 @@ describe('Policy Validation API', () => {
         expect(response.body.data).to.have.property('totalPlatforms');
         expect(response.body.data).to.have.property('platforms');
         expect(response.body.data).to.have.property('nextStep', 'process_next_document');
-        
+
         // Validate structure
         expect(response.body.validationId).to.match(/^validation_\d+_[a-z0-9]+$/);
         expect(response.body.data.totalDocuments).to.be.a('number');
@@ -87,9 +93,9 @@ describe('Policy Validation API', () => {
         method: 'POST',
         url: '/api/policies/validate',
         body: {
-          action: 'invalid_action'
+          action: 'invalid_action',
         },
-        failOnStatusCode: false
+        failOnStatusCode: false,
       }).then((response) => {
         expect(response.status).to.eq(400);
         expect(response.body).to.have.property('error', 'Invalid action');
@@ -106,8 +112,8 @@ describe('Policy Validation API', () => {
         method: 'POST',
         url: '/api/policies/validate',
         body: {
-          action: 'initialize'
-        }
+          action: 'initialize',
+        },
       }).then((response) => {
         validationId = response.body.validationId;
       });
@@ -120,8 +126,8 @@ describe('Policy Validation API', () => {
           url: '/api/policies/validate',
           body: {
             action: 'process_next_document',
-            validationId: validationId
-          }
+            validationId: validationId,
+          },
         }).then((response) => {
           expect(response.status).to.eq(200);
           expect(response.body).to.have.property('success', true);
@@ -129,18 +135,18 @@ describe('Policy Validation API', () => {
           expect(response.body.data).to.have.property('currentDocument');
           expect(response.body.data).to.have.property('analysis');
           expect(response.body.data).to.have.property('progress');
-          
+
           // Validate progress structure
           expect(response.body.data.progress).to.have.property('current');
           expect(response.body.data.progress).to.have.property('total');
           expect(response.body.data.progress).to.have.property('percentage');
-          
+
           // Validate analysis structure
           expect(response.body.data.analysis).to.have.property('status');
           expect(response.body.data.analysis).to.have.property('reasoning');
-          
+
           // Check that AI was called
-          cy.get('@geminiCall').should('have.been.called');
+          cy.get('@anthropicCall').should('have.been.called');
         });
       });
     });
@@ -151,9 +157,9 @@ describe('Policy Validation API', () => {
         url: '/api/policies/validate',
         body: {
           action: 'process_next_document',
-          validationId: 'invalid_id'
+          validationId: 'invalid_id',
         },
-        failOnStatusCode: false
+        failOnStatusCode: false,
       }).then((response) => {
         expect(response.status).to.eq(404);
         expect(response.body).to.have.property('error', 'Validation session not found');
@@ -165,9 +171,9 @@ describe('Policy Validation API', () => {
         method: 'POST',
         url: '/api/policies/validate',
         body: {
-          action: 'process_next_document'
+          action: 'process_next_document',
         },
-        failOnStatusCode: false
+        failOnStatusCode: false,
       }).then((response) => {
         expect(response.status).to.eq(404);
         expect(response.body).to.have.property('error', 'Validation session not found');
@@ -178,45 +184,49 @@ describe('Policy Validation API', () => {
   describe('Complete Workflow', () => {
     it('should complete full validation workflow with changes and PR creation', () => {
       let validationId: string;
-      
+
       // Step 1: Initialize
       cy.request({
         method: 'POST',
         url: '/api/policies/validate',
         body: {
-          action: 'initialize'
-        }
+          action: 'initialize',
+        },
       }).then((response) => {
         expect(response.status).to.eq(200);
         validationId = response.body.validationId;
         const totalDocuments = response.body.data.totalDocuments;
-        
+
         // Step 2: Process all documents
         const processAllDocuments = (currentIndex = 0) => {
           if (currentIndex >= totalDocuments) {
             return; // All documents processed
           }
-          
+
           cy.request({
             method: 'POST',
             url: '/api/policies/validate',
             body: {
               action: 'process_next_document',
-              validationId: validationId
-            }
+              validationId: validationId,
+            },
           }).then((response) => {
             expect(response.status).to.eq(200);
-            
+
             if (response.body.data.nextStep === 'completed') {
               // Workflow completed
               expect(response.body).to.have.property('status');
-              expect(['completed_with_pr_created', 'completed_no_changes', 'completed_with_changes']).to.include(response.body.status);
-              
+              expect([
+                'completed_with_pr_created',
+                'completed_no_changes',
+                'completed_with_changes',
+              ]).to.include(response.body.status);
+
               if (response.body.status === 'completed_with_pr_created') {
                 expect(response.body.data).to.have.property('pullRequest');
                 expect(response.body.data.pullRequest).to.have.property('url');
                 expect(response.body.data.pullRequest).to.have.property('number');
-                
+
                 // Verify GitHub API calls were made
                 cy.get('@getRepo').should('have.been.called');
                 cy.get('@getBranch').should('have.been.called');
@@ -224,7 +234,7 @@ describe('Policy Validation API', () => {
                 cy.get('@createFile').should('have.been.called');
                 cy.get('@createPR').should('have.been.called');
               }
-              
+
               expect(response.body.data).to.have.property('progress');
               expect(response.body.data.progress.percentage).to.eq(100);
             } else {
@@ -233,7 +243,7 @@ describe('Policy Validation API', () => {
             }
           });
         };
-        
+
         processAllDocuments();
       });
     });
@@ -241,30 +251,30 @@ describe('Policy Validation API', () => {
 
   describe('Error Handling', () => {
     it('should handle AI service failures gracefully', () => {
-      // Override the Gemini mock to return an error
-      cy.intercept('POST', '**/v1beta/models/gemini-*:generateContent', {
+      // Override the Anthropic mock to return an error
+      cy.intercept('POST', '**/api.anthropic.com/**', {
         statusCode: 500,
-        body: { error: 'AI service unavailable' }
-      }).as('geminiError');
-      
+        body: { error: 'AI service unavailable' },
+      }).as('anthropicError');
+
       let validationId: string;
-      
+
       cy.request({
         method: 'POST',
         url: '/api/policies/validate',
         body: {
-          action: 'initialize'
-        }
+          action: 'initialize',
+        },
       }).then((response) => {
         validationId = response.body.validationId;
-        
+
         cy.request({
           method: 'POST',
           url: '/api/policies/validate',
           body: {
             action: 'process_next_document',
-            validationId: validationId
-          }
+            validationId: validationId,
+          },
         }).then((response) => {
           expect(response.status).to.eq(200);
           expect(response.body).to.have.property('success', true);
@@ -279,43 +289,49 @@ describe('Policy Validation API', () => {
       // Override GitHub mocks to return errors
       cy.intercept('GET', 'https://api.github.com/repos/chaynHQ/tools', {
         statusCode: 500,
-        body: { message: 'GitHub API unavailable' }
+        body: { message: 'GitHub API unavailable' },
       }).as('githubError');
-      
-      // Mock Gemini to return changes so we trigger PR creation
-      cy.intercept('POST', '**/v1beta/models/gemini-*:generateContent', {
+
+      // Mock Anthropic to return changes so we trigger PR creation
+      cy.intercept('POST', '**/api.anthropic.com/**', {
         statusCode: 200,
         body: {
-          candidates: [{
-            content: {
-              parts: [{
-                text: JSON.stringify({
-                  status: 'updated',
-                  reasoning: 'Found changes',
-                  updatedPolicies: [{
-                    reference: 'FB-TOS',
-                    policy: 'Updated policy',
-                    removalCriteria: ['Updated criteria'],
-                    evidenceRequirements: ['Updated requirements']
-                  }]
-                })
-              }]
-            }
-          }]
-        }
-      }).as('geminiWithChanges');
-      
+          candidates: [
+            {
+              content: {
+                parts: [
+                  {
+                    text: JSON.stringify({
+                      status: 'updated',
+                      reasoning: 'Found changes',
+                      updatedPolicies: [
+                        {
+                          reference: 'FB-TOS',
+                          policy: 'Updated policy',
+                          removalCriteria: ['Updated criteria'],
+                          evidenceRequirements: ['Updated requirements'],
+                        },
+                      ],
+                    }),
+                  },
+                ],
+              },
+            },
+          ],
+        },
+      }).as('anthropicWithChanges');
+
       let validationId: string;
-      
+
       cy.request({
         method: 'POST',
         url: '/api/policies/validate',
         body: {
-          action: 'initialize'
-        }
+          action: 'initialize',
+        },
       }).then((response) => {
         validationId = response.body.validationId;
-        
+
         // Process documents until completion
         const processUntilComplete = () => {
           cy.request({
@@ -323,8 +339,8 @@ describe('Policy Validation API', () => {
             url: '/api/policies/validate',
             body: {
               action: 'process_next_document',
-              validationId: validationId
-            }
+              validationId: validationId,
+            },
           }).then((response) => {
             if (response.body.data.nextStep === 'completed') {
               // Should complete with PR error
@@ -335,7 +351,7 @@ describe('Policy Validation API', () => {
             }
           });
         };
-        
+
         processUntilComplete();
       });
     });

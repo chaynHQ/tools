@@ -17,14 +17,10 @@ jobs:
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       NEXT_PUBLIC_BASE_URL: ${{ secrets.NEXT_PUBLIC_BASE_URL || 'https://tools-git-develop-chaynhq.vercel.app/' }}
-      GOOGLE_CLOUD_PROJECT: ${{ secrets.GOOGLE_CLOUD_PROJECT }}
-      GOOGLE_CLOUD_LOCATION: ${{ secrets.GOOGLE_CLOUD_LOCATION || 'global' }}
-      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
       ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       ANTHROPIC_MODEL: ${{ secrets.ANTHROPIC_MODEL }}
       ANTHROPIC_TEMPERATURE: ${{ secrets.ANTHROPIC_TEMPERATURE }}
-      GEMINI_MODEL: ${{ secrets.GEMINI_MODEL }}
-      GEMINI_TEMPERATURE: ${{ secrets.GEMINI_TEMPERATURE }}
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -40,15 +36,6 @@ jobs:
 
       - name: Validate environment variables
         run: |
-          if [ -z "$GOOGLE_CLOUD_PROJECT" ]; then
-            echo "Error: GOOGLE_CLOUD_PROJECT is not set"
-            exit 1
-          fi
-          if [ ${#GOOGLE_CLOUD_PROJECT} -lt 5 ]; then
-            echo "Error: GOOGLE_CLOUD_PROJECT appears to be too short"
-            exit 1
-          fi
-
           if [ -z "$ANTHROPIC_API_KEY" ]; then
             echo "Error: ANTHROPIC_API_KEY is not set"
             exit 1
