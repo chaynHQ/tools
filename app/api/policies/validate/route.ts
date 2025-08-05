@@ -215,12 +215,63 @@ async function processNextDocument(validationId: string) {
 /**
  * Applies policy updates to a platform policy object
  */
-export function applyPolicyUpdates(platformPolicy: any, updatedPolicies: any[]): void {
-  // This is a simplified version - in practice you'd need more sophisticated merging
-  // For now, just update the access timestamp
-  platformPolicy.legalDocuments?.forEach((doc: any) => {
-    doc.accessTimestamp = new Date().toISOString();
+export function applyPolicyUpdates(platformPolicy: PlatformPolicy, updatedPolicies: PolicyUpdate[]): boolean {
+  let hasChanges = false;
+  const timestamp = new Date().toISOString();
+
+  // Update access timestamps for all legal documents
+  platformPolicy.legalDocuments?.forEach((doc) => {
+    doc.accessTimestamp = timestamp;
   });
+
+  // Apply policy updates by reference
+  updatedPolicies.forEach((updatedPolicy) => {
+    const policyRef = updatedPolicy.reference;
+
+    // Update policies in contentTypes
+    platformPolicy.contentTypes?.forEach((contentType) => {
+      const policyIndex = contentType.policies?.findIndex((p) => p.reference === policyRef);
+      if (policyIndex !== undefined && policyIndex !== -1 && contentType.policies) {
+        contentType.policies[policyIndex] = {
+          ...contentType.policies[policyIndex],
+          policy: updatedPolicy.policy,
+          removalCriteria: updatedPolicy.removalCriteria,
+          evidenceRequirements: updatedPolicy.evidenceRequirements,
+        };
+        hasChanges = true;
+      }
+    });
+
+    // Update policies in contentContexts
+    platformPolicy.contentContexts?.forEach((contentContext) => {
+      const policyIndex = contentContext.policies?.findIndex((p) => p.reference === policyRef);
+      if (policyIndex !== undefined && policyIndex !== -1 && contentContext.policies) {
+        contentContext.policies[policyIndex] = {
+          ...contentContext.policies[policyIndex],
+          policy: updatedPolicy.policy,
+          removalCriteria: updatedPolicy.removalCriteria,
+          evidenceRequirements: updatedPolicy.evidenceRequirements,
+        };
+        hasChanges = true;
+      }
+    });
+
+    // Update policies in generalPolicies
+    const generalPolicyIndex = platformPolicy.generalPolicies?.findIndex(
+      (p) => p.reference === policyRef,
+    );
+    if (generalPolicyIndex !== undefined && generalPolicyIndex !== -1 && platformPolicy.generalPolicies) {
+      platformPolicy.generalPolicies[generalPolicyIndex] = {
+        ...platformPolicy.generalPolicies[generalPolicyIndex],
+        policy: updatedPolicy.policy,
+        removalCriteria: updatedPolicy.removalCriteria,
+        evidenceRequirements: updatedPolicy.evidenceRequirements,
+      };
+      hasChanges = true;
+    }
+  });
+
+  return hasChanges;
 }
 
 async function finalizeValidation(session: any) {
