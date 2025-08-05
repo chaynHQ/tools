@@ -4,7 +4,7 @@ import { serverInstance as rollbar } from '../rollbar';
 import { retryWithDelay } from '../utils';
 
 export interface PolicyValidationRequest {
-  platforms?: string[]; // Optional: specific platforms to validate, defaults to all
+  platforms?: string[];
 }
 
 export interface PolicyValidationResponse {
@@ -20,12 +20,19 @@ export interface PolicyValidationResponse {
     invalidChanges: number;
     errors: number;
   };
-  updatedPolicies?: Record<string, any>;
+  updatedPolicies?: Record<string, PlatformPolicy>;
   changesSummary?: string;
   pullRequest?: {
     url: string;
     number: number;
   };
+}
+
+export interface PolicyUpdate {
+  reference: string;
+  policy: string;
+  removalCriteria: string[];
+  evidenceRequirements: string[];
 }
 
 export interface DocumentWithPolicies {
@@ -36,24 +43,44 @@ export interface DocumentWithPolicies {
   url: string;
   accessTimestamp?: string;
   notes?: string;
-  policies: Array<{
-    reference: string;
-    policy: string;
-    removalCriteria: string[];
-    evidenceRequirements: string[];
-  }>;
+  policies: PolicyUpdate[];
 }
 
-/**
- * Extracts policies for a specific document from a platform policy
- */
-export function extractPoliciesForDocument(platformPolicy: any, documentReference: string) {
-  const policies: any[] = [];
+export interface ValidationSession {
+  validationId: string;
+  documentQueue: DocumentWithPolicies[];
+  platformPolicies: Record<string, PlatformPolicy>;
+  processedDocuments: string[];
+  proposedUpdates: Array<{
+    platformId: string;
+    documentReference: string;
+    updatedPolicies: PolicyUpdate[];
+    reasoning: string;
+  }>;
+  currentIndex: number;
+  startTime: string;
+}
 
-  // Extract from contentTypes
-  platformPolicy.contentTypes?.forEach((contentType: any) => {
-    contentType.policies?.forEach((policy: any) => {
-      if (policy.documents?.some((doc: any) => doc.reference === documentReference)) {
+export interface AnalysisResult {
+  status: 'no_change' | 'updated' | 'error';
+  reasoning: string;
+  updatedPolicies?: PolicyUpdate[];
+  validation?: {
+    validationStatus: 'valid' | 'invalid';
+    reasoning: string;
+    issues?: Array<{
+      severity: 'critical' | 'minor';
+      type: 'hallucination' | 'meaningless_rewording' | 'structural_error';
+      description: string;
+    }>;
+  };
+}
+export function extractPoliciesForDocument(platformPolicy: PlatformPolicy, documentReference: string): PolicyUpdate[] {
+  const policies: PolicyUpdate[] = [];
+
+  platformPolicy.contentTypes?.forEach((contentType) => {
+    contentType.policies?.forEach((policy) => {
+      if (policy.documents?.some((doc) => doc.reference === documentReference)) {
         policies.push({
           reference: policy.reference,
           policy: policy.policy,
@@ -64,10 +91,9 @@ export function extractPoliciesForDocument(platformPolicy: any, documentReferenc
     });
   });
 
-  // Extract from contentContexts
-  platformPolicy.contentContexts?.forEach((contentContext: any) => {
-    contentContext.policies?.forEach((policy: any) => {
-      if (policy.documents?.some((doc: any) => doc.reference === documentReference)) {
+  platformPolicy.contentContexts?.forEach((contentContext) => {
+    contentContext.policies?.forEach((policy) => {
+      if (policy.documents?.some((doc) => doc.reference === documentReference)) {
         policies.push({
           reference: policy.reference,
           policy: policy.policy,
@@ -78,9 +104,8 @@ export function extractPoliciesForDocument(platformPolicy: any, documentReferenc
     });
   });
 
-  // Extract from generalPolicies
-  platformPolicy.generalPolicies?.forEach((policy: any) => {
-    if (policy.documents?.some((doc: any) => doc.reference === documentReference)) {
+  platformPolicy.generalPolicies?.forEach((policy) => {
+    if (policy.documents?.some((doc) => doc.reference === documentReference)) {
       policies.push({
         reference: policy.reference,
         policy: policy.policy,
@@ -93,9 +118,6 @@ export function extractPoliciesForDocument(platformPolicy: any, documentReferenc
   return policies;
 }
 
-/**
- * Prepares document queue with full policy data for validation
- */
 export function prepareDocumentQueue(platforms?: string[]): DocumentWithPolicies[] {
   const targetPlatforms = platforms && platforms.length > 0 ? platforms : Object.keys(PLATFORM_NAMES);
   const documentQueue: DocumentWithPolicies[] = [];
@@ -103,8 +125,7 @@ export function prepareDocumentQueue(platforms?: string[]): DocumentWithPolicies
   for (const platformId of targetPlatforms) {
     const policy = getPlatformPolicy(platformId);
     if (policy) {
-      // Add each document to the queue with its associated policies
-      policy.legalDocuments.forEach((doc: any) => {
+      policy.legalDocuments.forEach((doc) => {
         documentQueue.push({
           platformId,
           platformName: policy.name,
@@ -119,6 +140,7 @@ export function prepareDocumentQueue(platforms?: string[]): DocumentWithPolicies
     }
   }
 
+  rollbar.info('PolicyValidation: Document queue prepared', { totalDocuments: documentQueue.length, platforms: targetPlatforms });
   return documentQueue;
 }
 
@@ -130,17 +152,15 @@ export async function validatePlatformPolicies(
   });
 
   try {
-    // Prepare document queue with full policy data
     const documentQueue = prepareDocumentQueue(request.platforms);
 
-    // Step 1: Initialize validation with prepared data
     const initResponse = await retryWithDelay(async () => {
       const res = await fetch('/api/policies/validate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           action: 'initialize',
-          documentQueue, // Pass prepared documents with policies
+          documentQueue,
         }),
       });
 
@@ -153,8 +173,8 @@ export async function validatePlatformPolicies(
     });
 
     const { validationId, data } = initResponse;
+    rollbar.info('PolicyValidation: Validation initialized', { validationId, totalDocuments: data.totalDocuments });
 
-    // Step 2: Process all documents
     let documentsProcessed = 0;
     let changesFound = 0;
     let validChanges = 0;
@@ -182,7 +202,6 @@ export async function validatePlatformPolicies(
 
       documentsProcessed++;
 
-      // Track results
       if (processResponse.data?.analysis) {
         const analysis = processResponse.data.analysis;
         if (analysis.status === 'updated') {
@@ -197,10 +216,12 @@ export async function validatePlatformPolicies(
         }
       }
 
-      // Check if complete
       if (
         processResponse.status === 'completed' ||
-        processResponse.data?.nextStep === 'completed'
+        processResponse.status === 'completed_with_changes' ||
+        processResponse.status === 'completed_no_changes' ||
+        processResponse.status === 'completed_with_pr_created' ||
+        processResponse.status === 'completed_with_pr_error'
       ) {
         rollbar.info('PolicyValidation: All documents processed', {
           validationId,
@@ -209,14 +230,15 @@ export async function validatePlatformPolicies(
           validChanges,
           invalidChanges,
           errors,
+          status: processResponse.status,
         });
 
         return {
           success: true,
           validationId,
           totalDocuments: data.totalDocuments,
-          totalPlatforms: data.totalPlatforms,
-          platforms: data.platforms,
+          totalPlatforms: data.totalPlatforms || 0,
+          platforms: data.platforms || [],
           results: {
             documentsProcessed,
             changesFound,

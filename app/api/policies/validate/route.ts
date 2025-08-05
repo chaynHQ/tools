@@ -12,8 +12,11 @@ import { handleApiError, serverInstance as rollbar } from '@/lib/rollbar';
 import { parseAIJson } from '@/lib/utils';
 import { NextResponse } from 'next/server';
 
+import { PlatformPolicy } from '@/lib/platform-policies/types';
+import { ValidationSession, DocumentWithPolicies, AnalysisResult } from '@/lib/ai/policy-validation';
+
 // Store validation sessions
-const validationSessions = new Map<string, any>();
+const validationSessions = new Map<string, ValidationSession>();
 
 export async function POST(request: Request) {
   try {
@@ -35,15 +38,14 @@ export async function POST(request: Request) {
   }
 }
 
-async function initializeValidation(documentQueue?: any[]) {
+async function initializeValidation(documentQueue?: DocumentWithPolicies[]) {
   const validationId = `validation_${Date.now()}_${Math.random().toString(36).substring(7)}`;
 
-  // Use provided document queue or create default one
   let finalDocumentQueue = documentQueue;
-  let platformPolicies: Record<string, any> = {};
+  let platformPolicies: Record<string, PlatformPolicy> = {};
 
   if (!documentQueue) {
-    // Fallback to creating document queue (legacy support)
+    rollbar.warning('PolicyValidation: No document queue provided, creating default');
     const targetPlatforms = Object.keys(PLATFORM_NAMES);
     finalDocumentQueue = [];
 
@@ -52,26 +54,28 @@ async function initializeValidation(documentQueue?: any[]) {
       if (policy) {
         platformPolicies[platformId] = policy;
 
-        policy.legalDocuments.forEach((doc: any) => {
+        policy.legalDocuments.forEach((doc) => {
           finalDocumentQueue!.push({
             platformId,
             platformName: policy.name,
             ...doc,
-            policies: [], // Empty for legacy support
+            policies: [],
           });
         });
       }
     }
   } else {
-    // Extract platform policies from document queue
     for (const doc of documentQueue) {
       if (!platformPolicies[doc.platformId]) {
-        platformPolicies[doc.platformId] = getPlatformPolicy(doc.platformId);
+        const policy = getPlatformPolicy(doc.platformId);
+        if (policy) {
+          platformPolicies[doc.platformId] = policy;
+        }
       }
     }
   }
 
-  const session = {
+  const session: ValidationSession = {
     validationId,
     documentQueue: finalDocumentQueue,
     platformPolicies,
@@ -82,12 +86,20 @@ async function initializeValidation(documentQueue?: any[]) {
   };
 
   validationSessions.set(validationId, session);
+  
+  rollbar.info('PolicyValidation: Session initialized', {
+    validationId,
+    totalDocuments: finalDocumentQueue.length,
+    totalPlatforms: Object.keys(platformPolicies).length,
+  });
 
   return NextResponse.json({
     success: true,
     validationId,
     data: {
       totalDocuments: finalDocumentQueue!.length,
+      totalPlatforms: Object.keys(platformPolicies).length,
+      platforms: Object.keys(platformPolicies),
       nextStep: 'process_next_document',
     },
   });
@@ -96,10 +108,10 @@ async function initializeValidation(documentQueue?: any[]) {
 async function processNextDocument(validationId: string) {
   const session = validationSessions.get(validationId);
   if (!session) {
+    rollbar.error('PolicyValidation: Session not found', { validationId });
     return NextResponse.json({ error: 'Validation session not found' }, { status: 404 });
   }
 
-  // Check if all documents processed
   if (session.currentIndex >= session.documentQueue.length) {
     return await finalizeValidation(session);
   }
@@ -107,32 +119,30 @@ async function processNextDocument(validationId: string) {
   const currentDocument = session.documentQueue[session.currentIndex];
 
   try {
-    // Step 1: Analyze document with Prompt A
-    const promptData: PolicyAnalysisPromptData = {
+    const analysisPromptData: PolicyAnalysisPromptData = {
       documentUrl: currentDocument.url,
       documentTitle: currentDocument.title,
       documentReference: currentDocument.reference,
       currentPolicies: currentDocument.policies,
     };
 
-    const prompt = generatePolicyAnalysisPrompt(promptData);
-    const response = await callGemini(prompt);
-    const analysisResult = parseAIJson(response);
+    const analysisPrompt = generatePolicyAnalysisPrompt(analysisPromptData);
+    const analysisResponse = await callGemini(analysisPrompt);
+    const analysisResult: AnalysisResult = parseAIJson(analysisResponse);
 
-    let finalResult = analysisResult;
+    let finalResult: AnalysisResult = analysisResult;
 
-    // Step 2: If changes found, validate with Prompt B
     if (analysisResult.status === 'updated') {
-      const promptData: PolicyValidationPromptData = {
+      const validationPromptData: PolicyValidationPromptData = {
         documentUrl: currentDocument.url,
         documentTitle: currentDocument.title,
         documentReference: currentDocument.reference,
         originalPolicies: currentDocument.policies,
-        updatedPolicies: analysisResult.updatedPolicies,
+        updatedPolicies: analysisResult.updatedPolicies!,
       };
 
-      const prompt = generatePolicyValidationPrompt(promptData);
-      const response = await callGemini(prompt);
+      const validationPrompt = generatePolicyValidationPrompt(validationPromptData);
+      const validationResponse = await callGemini(validationPrompt);
       const validationResult = parseAIJson(response);
 
       finalResult = {
@@ -140,12 +150,11 @@ async function processNextDocument(validationId: string) {
         validation: validationResult,
       };
 
-      // Only keep changes if validation passed
       if (validationResult.validationStatus === 'valid') {
         session.proposedUpdates.push({
           platformId: currentDocument.platformId,
           documentReference: currentDocument.reference,
-          updatedPolicies: analysisResult.updatedPolicies,
+          updatedPolicies: analysisResult.updatedPolicies!,
           reasoning: analysisResult.reasoning,
         });
       }
@@ -211,13 +220,7 @@ export function applyPolicyUpdates(platformPolicy: any, updatedPolicies: any[]):
 }
 
 async function finalizeValidation(session: any) {
-  rollbar.info('PolicyValidation: Finalizing validation', {
-    validationId: session.validationId,
-    proposedUpdatesCount: session.proposedUpdates.length,
-  });
-
-  // Apply updates to platform policies
-  const updatedPolicies: Record<string, any> = {};
+  const updatedPolicies: Record<string, PlatformPolicy> = {};
   let totalChanges = 0;
   let totalPlatformsUpdated = 0;
 
@@ -228,18 +231,26 @@ async function finalizeValidation(session: any) {
       );
     }
 
-    // Apply the policy updates and track if changes were made
     const hasChanges = applyPolicyUpdates(updatedPolicies[update.platformId], update.updatedPolicies);
     if (hasChanges) {
       totalChanges += update.updatedPolicies.length;
-      totalPlatformsUpdated++;
     }
   }
 
-  // Clean up session
+  // Count unique platforms that were updated
+  const platformsWithChanges = Object.keys(updatedPolicies).filter(platformId => 
+    session.proposedUpdates.some(update => update.platformId === platformId)
+  );
+  totalPlatformsUpdated = platformsWithChanges.length;
+
   validationSessions.delete(session.validationId);
 
   if (totalChanges === 0) {
+    rollbar.info('PolicyValidation: Completed with no changes', {
+      validationId: session.validationId,
+      documentsProcessed: session.processedDocuments.length,
+    });
+
     return NextResponse.json({
       success: true,
       status: 'completed_no_changes',
@@ -247,6 +258,7 @@ async function finalizeValidation(session: any) {
       data: {
         totalDocuments: session.documentQueue.length,
         totalPlatforms: Object.keys(session.platformPolicies).length,
+        platforms: Object.keys(session.platformPolicies),
         progress: {
           current: session.documentQueue.length,
           total: session.documentQueue.length,
@@ -260,14 +272,73 @@ async function finalizeValidation(session: any) {
     validationId: session.validationId,
     totalChanges,
     totalPlatformsUpdated,
-    platformsUpdated: Object.keys(updatedPolicies),
+    platformsUpdated: platformsWithChanges,
   });
 
-  // Create PR if changes found using the dedicated PR creator
-  let pullRequest = null;
+  let pullRequest: { url: string; number: number } | null = null;
   if (process.env.GITHUB_TOKEN) {
     const prCreator = new GitHubPRCreator();
-    pullRequest = await prCreator.createPolicyPullRequest(
+    try {
+      pullRequest = await prCreator.createPolicyPullRequest(
+        session,
+        updatedPolicies,
+        totalChanges,
+        totalPlatformsUpdated,
+      );
+    } catch (error) {
+      rollbar.error('PolicyValidation: PR creation failed', {
+        validationId: session.validationId,
+        error,
+      });
+      
+      return NextResponse.json({
+        success: true,
+        status: 'completed_with_pr_error',
+        message: `Validation completed with ${totalChanges} policy changes, but PR creation failed`,
+        data: {
+          updatedPolicies,
+          totalChanges,
+          totalPlatformsUpdated,
+          platformsUpdated: platformsWithChanges,
+          progress: {
+            current: session.documentQueue.length,
+            total: session.documentQueue.length,
+            percentage: 100,
+          },
+          error: error instanceof Error ? error.message : 'Unknown PR creation error',
+        },
+      });
+    }
+  }
+
+  const finalStatus = pullRequest ? 'completed_with_pr_created' : 'completed_with_changes';
+  
+  rollbar.info('PolicyValidation: Validation completed successfully', {
+    validationId: session.validationId,
+    status: finalStatus,
+    totalChanges,
+    totalPlatformsUpdated,
+    pullRequestCreated: !!pullRequest,
+  });
+
+  return NextResponse.json({
+    success: true,
+    status: finalStatus,
+    message: `Validation completed with ${totalChanges} policy changes across ${totalPlatformsUpdated} platforms`,
+    data: {
+      updatedPolicies,
+      pullRequest,
+      totalChanges,
+      totalPlatformsUpdated,
+      platformsUpdated: platformsWithChanges,
+      progress: {
+        current: session.documentQueue.length,
+        total: session.documentQueue.length,
+        percentage: 100,
+      },
+    },
+  });
+}
       session,
       updatedPolicies,
       totalChanges,
