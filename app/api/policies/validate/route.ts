@@ -86,6 +86,7 @@ export async function POST(request: Request) {
 }
 
 async function initializeValidation() {
+}
 async function initializeValidation(platforms?: string[]) {
   const validationId = `validation_${Date.now()}_${Math.random().toString(36).substring(7)}`;
 
