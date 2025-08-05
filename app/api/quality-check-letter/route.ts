@@ -1,4 +1,3 @@
-import { AI_MODEL, AI_TEMPERATURE } from '@/lib/constants/common';
 import { callAnthropic } from '@/lib/ai/anthropic';
 import { generateLetterQualityCheckPrompt } from '@/lib/prompts/quality-check';
 import { handleApiError, serverInstance as rollbar } from '@/lib/rollbar';

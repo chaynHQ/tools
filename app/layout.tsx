@@ -1,5 +1,5 @@
 import { CookieConsent } from '@/components/cookie-consent';
-import { IS_PRODUCTION } from '@/lib/constants/common';
+import { IS_PRODUCTION } from '@/lib/constants/env';
 import type { Metadata } from 'next';
 import { Merriweather, Open_Sans } from 'next/font/google';
 import Script from 'next/script';

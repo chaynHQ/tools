@@ -9,7 +9,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { analytics } from '@/lib/analytics';
-import { IS_DEVELOPMENT, IS_PREVIEW } from '@/lib/constants/common';
+import { IS_DEVELOPMENT, IS_PREVIEW } from '@/lib/constants/env';
 import { AlertTriangle, ExternalLink } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';

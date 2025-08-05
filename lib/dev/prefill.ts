@@ -1,4 +1,4 @@
-import { IS_DEVELOPMENT } from '../constants/common';
+import { IS_DEVELOPMENT } from '../constants/env';
 import { PlatformId } from '../constants/platforms';
 
 // Sample data for quick testing
@@ -6,10 +6,10 @@ export const PREFILL_DATA = {
   platformInfo: {
     platformId: PlatformId.FACEBOOK,
     platformName: 'Facebook',
-    isCustom: false
+    isCustom: false,
   },
   reportingInfo: {
-    status: 'both-completed' as const
+    status: 'both-completed' as const,
   },
   initialQuestions: {
     contentLocationType: 'url' as const,
@@ -18,23 +18,28 @@ export const PREFILL_DATA = {
     contentContext: 'hacked' as const,
     imageUploadDate: '15 March 2024',
     imageTakenDate: '1 March 2024',
-    ownershipEvidence: 'I can verify this content through specific identifiable features and original files.',
-    impactStatement: 'This has caused significant distress and affected my personal and professional life.'
+    ownershipEvidence:
+      'I can verify this content through specific identifiable features and original files.',
+    impactStatement:
+      'This has caused significant distress and affected my personal and professional life.',
   },
   reportingDetails: {
-    standardProcessDetails: 'I reported through the standard process on March 16th using the report button.',
-    escalatedProcessDetails: 'I submitted an escalated report through the help center on March 18th.',
+    standardProcessDetails:
+      'I reported through the standard process on March 16th using the report button.',
+    escalatedProcessDetails:
+      'I submitted an escalated report through the help center on March 18th.',
     responseReceived: 'I received an automated response but no further action was taken.',
-    additionalStepsTaken: 'I followed up via email on March 20th requesting an update.'
+    additionalStepsTaken: 'I followed up via email on March 20th requesting an update.',
   },
   followUpData: {
     questions: [],
     answers: {
       'additional-context': 'The content was taken from my compromised cloud storage account.',
       'previous-contact': 'I have email records of all previous correspondence.',
-      'specific-violations': 'The content violates privacy policies and terms regarding non-consensual sharing.'
-    }
-  }
+      'specific-violations':
+        'The content violates privacy policies and terms regarding non-consensual sharing.',
+    },
+  },
 };
 
 export function usePrefillData() {

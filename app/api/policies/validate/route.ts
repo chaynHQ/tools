@@ -16,6 +16,7 @@ import {
   AnalysisResult,
   DocumentWithPolicies,
   PlatformPolicy,
+  PolicyUpdate,
   ValidationSession,
 } from '@/types/policies';
 
@@ -36,7 +37,7 @@ export async function POST(request: Request) {
     }
 
     return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
-  } catch (error: any) {
+  } catch (error) {
     const { error: errorMessage, status } = handleApiError(error, '/api/policies/validate');
     return NextResponse.json({ error: errorMessage }, { status });
   }
@@ -215,7 +216,10 @@ async function processNextDocument(validationId: string) {
 /**
  * Applies policy updates to a platform policy object
  */
-export function applyPolicyUpdates(platformPolicy: PlatformPolicy, updatedPolicies: PolicyUpdate[]): boolean {
+export function applyPolicyUpdates(
+  platformPolicy: PlatformPolicy,
+  updatedPolicies: PolicyUpdate[],
+): boolean {
   let hasChanges = false;
   const timestamp = new Date().toISOString();
 
@@ -260,7 +264,11 @@ export function applyPolicyUpdates(platformPolicy: PlatformPolicy, updatedPolici
     const generalPolicyIndex = platformPolicy.generalPolicies?.findIndex(
       (p) => p.reference === policyRef,
     );
-    if (generalPolicyIndex !== undefined && generalPolicyIndex !== -1 && platformPolicy.generalPolicies) {
+    if (
+      generalPolicyIndex !== undefined &&
+      generalPolicyIndex !== -1 &&
+      platformPolicy.generalPolicies
+    ) {
       platformPolicy.generalPolicies[generalPolicyIndex] = {
         ...platformPolicy.generalPolicies[generalPolicyIndex],
         policy: updatedPolicy.policy,
@@ -274,7 +282,7 @@ export function applyPolicyUpdates(platformPolicy: PlatformPolicy, updatedPolici
   return hasChanges;
 }
 
-async function finalizeValidation(session: any) {
+async function finalizeValidation(session: ValidationSession) {
   const updatedPolicies: Record<string, PlatformPolicy> = {};
   let totalChanges = 0;
   let totalPlatformsUpdated = 0;

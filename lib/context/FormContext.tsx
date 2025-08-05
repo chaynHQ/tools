@@ -1,11 +1,11 @@
 'use client';
 
-import { PlatformId } from '../constants/platforms';
 import { usePrefillData } from '@/lib/dev/prefill';
 import { rollbar } from '@/lib/rollbar';
 import { FollowUpQuestion } from '@/types/questions';
 import { createContext, ReactNode, useContext, useEffect, useState } from 'react';
-import { IS_DEVELOPMENT } from '../constants/common';
+import { IS_DEVELOPMENT } from '../constants/env';
+import { PlatformId } from '../constants/platforms';
 
 // Define types for our form data
 export interface PlatformInfo {
@@ -182,14 +182,15 @@ export function FormProvider({ children }: { children: ReactNode }) {
     try {
       setFormState((prev) => {
         // Get the platform name - either custom name or standard platform name
-        const platformName = prev.platformInfo?.isCustom 
-          ? prev.platformInfo.customName 
+        const platformName = prev.platformInfo?.isCustom
+          ? prev.platformInfo.customName
           : prev.platformInfo?.platformName;
 
         const completeData = {
           initialQuestions: {
             ...prev.initialQuestions,
-            imageIdentification: prev.initialQuestions.imageIdentification ||
+            imageIdentification:
+              prev.initialQuestions.imageIdentification ||
               (prev.initialQuestions.contentLocationType === 'url'
                 ? prev.initialQuestions.contentUrl
                 : prev.initialQuestions.contentDescription),
@@ -203,7 +204,7 @@ export function FormProvider({ children }: { children: ReactNode }) {
         rollbar.info('Complete form data updated', {
           platformId: prev.platformInfo?.platformId,
           platformName: platformName,
-          isCustom: prev.platformInfo?.isCustom
+          isCustom: prev.platformInfo?.isCustom,
         });
 
         return {

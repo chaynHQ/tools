@@ -1,5 +1,5 @@
 import Rollbar from 'rollbar';
-import { ENVIRONMENT } from './constants/common';
+import { ENVIRONMENT } from './constants/env';
 
 const clientToken = process.env.NEXT_PUBLIC_ROLLBAR_CLIENT_TOKEN || undefined;
 const serverToken = process.env.ROLLBAR_SERVER_TOKEN || undefined;

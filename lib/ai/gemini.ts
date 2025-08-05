@@ -5,8 +5,8 @@ import { retryWithDelay } from '../utils';
 // Initialize Gemini client
 const genAI = new GoogleGenAI({
   vertexai: true,
-  project: process.env.GOOGLE_CLOUD_PROJECT || 'bloom-dev-8f085',
-  location: process.env.GOOGLE_CLOUD_LOCATION || 'global',
+  project: process.env.GOOGLE_CLOUD_PROJECT,
+  location: process.env.GOOGLE_CLOUD_LOCATION,
 });
 
 export interface GeminiConfig {
@@ -17,16 +17,13 @@ export interface GeminiConfig {
 }
 
 const defaultConfig: Required<GeminiConfig> = {
-  model: 'gemini-2.0-flash-exp',
+  model: process.env.GEMINI_MODEL || 'gemini-2.5-pro-preview-06-05',
+  temperature: process.env.GEMINI_TEMPERATURE ? parseFloat(process.env.GEMINI_TEMPERATURE) : 0.3,
   maxOutputTokens: 8192,
-  temperature: 0.1,
   topP: 0.8,
 };
 
-export async function callGemini(
-  prompt: string,
-  config: GeminiConfig = {}
-): Promise<string> {
+export async function callGemini(prompt: string, config: GeminiConfig = {}): Promise<string> {
   const finalConfig = { ...defaultConfig, ...config };
 
   rollbar.info('Gemini: Making API call', {
@@ -45,15 +42,21 @@ export async function callGemini(
         topP: finalConfig.topP,
         safetySettings: [
           { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.OFF },
-          { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.OFF },
-          { category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold: HarmBlockThreshold.OFF },
+          {
+            category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+            threshold: HarmBlockThreshold.OFF,
+          },
+          {
+            category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
+            threshold: HarmBlockThreshold.OFF,
+          },
           { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.OFF },
         ],
       },
     };
 
     const response = await genAI.models.generateContent(req);
-    
+
     let fullText = '';
     if (response.candidates && response.candidates.length > 0) {
       const candidate = response.candidates[0];

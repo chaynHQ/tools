@@ -1,5 +1,4 @@
 import Anthropic from '@anthropic-ai/sdk';
-import { AI_MODEL, AI_TEMPERATURE } from '../constants/common';
 import { serverInstance as rollbar } from '../rollbar';
 import { retryWithDelay } from '../utils';
 
@@ -13,15 +12,14 @@ export interface AnthropicConfig {
 }
 
 const defaultConfig: Required<AnthropicConfig> = {
-  model: AI_MODEL,
+  model: process.env.ANTHROPIC_MODEL || 'claude-sonnet-4-20250514',
   maxTokens: 4000,
-  temperature: AI_TEMPERATURE,
+  temperature: process.env.ANTHROPIC_TEMPERATURE
+    ? parseFloat(process.env.ANTHROPIC_TEMPERATURE)
+    : 0.3,
 };
 
-export async function callAnthropic(
-  prompt: string,
-  config: AnthropicConfig = {}
-): Promise<string> {
+export async function callAnthropic(prompt: string, config: AnthropicConfig = {}): Promise<string> {
   if (!process.env.ANTHROPIC_API_KEY) {
     rollbar.error('Anthropic: API key not configured');
     throw new Error('Missing Anthropic API key');
