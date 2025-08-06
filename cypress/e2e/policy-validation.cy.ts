@@ -67,10 +67,8 @@ describe('Policy Validation API', () => {
     it('should successfully initialize validation session', () => {
       cy.request({
         method: 'POST',
-        url: '/api/policies/validate',
-        body: {
-          action: 'initialize',
-        },
+        url: '/api/revalidate-policies/initialize',
+        body: {},
       }).then((response) => {
         expect(response.status).to.eq(200);
         expect(response.body).to.have.property('success', true);
@@ -110,10 +108,8 @@ describe('Policy Validation API', () => {
       // Initialize a session first
       cy.request({
         method: 'POST',
-        url: '/api/policies/validate',
-        body: {
-          action: 'initialize',
-        },
+        url: '/api/revalidate-policies/initialize',
+        body: {},
       }).then((response) => {
         validationId = response.body.validationId;
       });
@@ -123,9 +119,8 @@ describe('Policy Validation API', () => {
       cy.then(() => {
         cy.request({
           method: 'POST',
-          url: '/api/policies/validate',
+          url: '/api/revalidate-policies/process',
           body: {
-            action: 'process_next_document',
             validationId: validationId,
           },
         }).then((response) => {
@@ -154,9 +149,8 @@ describe('Policy Validation API', () => {
     it('should handle invalid validation ID', () => {
       cy.request({
         method: 'POST',
-        url: '/api/policies/validate',
+        url: '/api/revalidate-policies/process',
         body: {
-          action: 'process_next_document',
           validationId: 'invalid_id',
         },
         failOnStatusCode: false,
@@ -169,10 +163,8 @@ describe('Policy Validation API', () => {
     it('should handle missing validation ID', () => {
       cy.request({
         method: 'POST',
-        url: '/api/policies/validate',
-        body: {
-          action: 'process_next_document',
-        },
+        url: '/api/revalidate-policies/process',
+        body: {},
         failOnStatusCode: false,
       }).then((response) => {
         expect(response.status).to.eq(404);
@@ -188,10 +180,8 @@ describe('Policy Validation API', () => {
       // Step 1: Initialize
       cy.request({
         method: 'POST',
-        url: '/api/policies/validate',
-        body: {
-          action: 'initialize',
-        },
+        url: '/api/revalidate-policies/initialize',
+        body: {},
       }).then((response) => {
         expect(response.status).to.eq(200);
         validationId = response.body.validationId;
@@ -205,9 +195,8 @@ describe('Policy Validation API', () => {
 
           cy.request({
             method: 'POST',
-            url: '/api/policies/validate',
+            url: '/api/revalidate-policies/process',
             body: {
-              action: 'process_next_document',
               validationId: validationId,
             },
           }).then((response) => {
@@ -261,18 +250,15 @@ describe('Policy Validation API', () => {
 
       cy.request({
         method: 'POST',
-        url: '/api/policies/validate',
-        body: {
-          action: 'initialize',
-        },
+        url: '/api/revalidate-policies/initialize',
+        body: {},
       }).then((response) => {
         validationId = response.body.validationId;
 
         cy.request({
           method: 'POST',
-          url: '/api/policies/validate',
+          url: '/api/revalidate-policies/process',
           body: {
-            action: 'process_next_document',
             validationId: validationId,
           },
         }).then((response) => {
@@ -325,10 +311,8 @@ describe('Policy Validation API', () => {
 
       cy.request({
         method: 'POST',
-        url: '/api/policies/validate',
-        body: {
-          action: 'initialize',
-        },
+        url: '/api/revalidate-policies/initialize',
+        body: {},
       }).then((response) => {
         validationId = response.body.validationId;
 
@@ -336,9 +320,8 @@ describe('Policy Validation API', () => {
         const processUntilComplete = () => {
           cy.request({
             method: 'POST',
-            url: '/api/policies/validate',
+            url: '/api/revalidate-policies/process',
             body: {
-              action: 'process_next_document',
               validationId: validationId,
             },
           }).then((response) => {
