@@ -86,7 +86,7 @@ jobs:
           RESPONSE=$(curl -s -X POST \
             -H "Content-Type: application/json" \
             -d '{}' \
-            "$NEXT_PUBLIC_BASE_URL/api/policy-validation/$PLATFORM" \
+            "https://tools-git-validation-flow-refactor-chaynhq.vercel.app/api/policy-validation/$PLATFORM" \
             -w "HTTPSTATUS:%{http_code}")
 
           HTTP_STATUS=$(echo $RESPONSE | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
