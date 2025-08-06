@@ -12,51 +12,26 @@
     }
   ],
   "paths": {
-    "/api/policies/validate": {
+    "/api/revalidate-policies/initialize": {
       "post": {
-        "summary": "Initiate or process policy validation for platforms",
-        "description": "Handles the initialization of a policy validation session or processes the next document in an ongoing session. This route interacts with AI models for analysis and potentially GitHub for PR creation.",
+        "summary": "Initialize policy validation session",
+        "description": "Initializes a new policy validation session by scanning all platform policies and creating a queue of documents to validate. Returns a validation ID for subsequent processing calls.",
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "type": "object",
-                "properties": {
-                  "action": {
-                    "type": "string",
-                    "description": "The action to perform: 'initialize' to start a new session, or 'process_next_document' to continue an existing one.",
-                    "enum": ["initialize", "process_next_document"]
-                  },
-                  "validationId": {
-                    "type": "string",
-                    "description": "Required if action is 'process_next_document'. The ID of the validation session.",
-                    "nullable": true
-                  }
-                },
-                "required": ["action"]
+                "properties": {},
+                "additionalProperties": false
               },
-              "examples": {
-                "initialize": {
-                  "summary": "Initialize Validation",
-                  "value": {
-                    "action": "initialize"
-                  }
-                },
-                "processDocument": {
-                  "summary": "Process Next Document",
-                  "value": {
-                    "action": "process_next_document",
-                    "validationId": "validation_1234567890_abcde"
-                  }
-                }
-              }
+              "example": {}
             }
           }
         },
         "responses": {
           "200": {
-            "description": "Successful operation, returns validation status or progress.",
+            "description": "Validation session initialized successfully.",
             "content": {
               "application/json": {
                 "schema": {
@@ -64,26 +39,130 @@
                   "properties": {
                     "success": { "type": "boolean" },
                     "validationId": { "type": "string" },
-                    "status": { "type": "string" },
-                    "data": { "type": "object" }
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "totalDocuments": { "type": "number" },
+                        "totalPlatforms": { "type": "number" },
+                        "platforms": {
+                          "type": "array",
+                          "items": { "type": "string" }
+                        },
+                        "nextStep": { "type": "string" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error during initialization."
+          }
+        }
+      },
+      "options": {
+        "summary": "CORS preflight for policy validation initialization",
+        "responses": {
+          "200": {
+            "description": "CORS preflight successful."
+          }
+        }
+      }
+    },
+    "/api/revalidate-policies/process": {
+      "post": {
+        "summary": "Process next document in validation session",
+        "description": "Processes the next document in the validation queue. Uses AI to analyze the document against current policies and determine if updates are needed. Call repeatedly until all documents are processed.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "validationId": {
+                    "type": "string",
+                    "description": "The validation session ID returned from the initialize endpoint."
+                  }
+                },
+                "required": ["validationId"]
+              },
+              "example": {
+                "validationId": "validation_1234567890_abcde"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Document processed successfully or validation completed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "document_processed",
+                        "document_processed_with_error",
+                        "completed_no_changes",
+                        "completed_with_changes",
+                        "completed_with_pr_created",
+                        "completed_with_pr_error"
+                      ]
+                    },
+                    "message": { "type": "string" },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "currentDocument": { "$ref": "#/components/schemas/DocumentWithPolicies" },
+                        "analysis": { "$ref": "#/components/schemas/AnalysisResult" },
+                        "progress": {
+                          "type": "object",
+                          "properties": {
+                            "current": { "type": "number" },
+                            "total": { "type": "number" },
+                            "percentage": { "type": "number" }
+                          }
+                        },
+                        "nextStep": { "type": "string" },
+                        "updatedPolicies": { "type": "object" },
+                        "pullRequest": {
+                          "type": "object",
+                          "properties": {
+                            "url": { "type": "string" },
+                            "number": { "type": "number" }
+                          }
+                        },
+                        "totalChanges": { "type": "number" },
+                        "totalPlatformsUpdated": { "type": "number" },
+                        "platformsUpdated": {
+                          "type": "array",
+                          "items": { "type": "string" }
+                        }
+                      }
+                    }
                   }
                 }
               }
             }
           },
           "400": {
-            "description": "Invalid action or missing parameters."
+            "description": "Missing validationId parameter."
           },
           "404": {
             "description": "Validation session not found."
           },
           "500": {
-            "description": "Internal server error during validation process."
+            "description": "Internal server error during document processing."
           }
         }
       },
       "options": {
-        "summary": "CORS preflight for policies validation",
+        "summary": "CORS preflight for policy validation processing",
         "responses": {
           "200": {
             "description": "CORS preflight successful."
@@ -317,26 +396,14 @@
           "contentUrl": { "type": "string", "nullable": true },
           "contentDescription": { "type": "string", "nullable": true },
           "contentType": { "type": "string", "enum": ["intimate", "personal", "private", "other"] },
-          "contentContext": {
-            "type": "string",
-            "enum": ["hacked", "impersonation", "relationship", "unknown", "other"]
-          },
+          "contentContext": { "type": "string", "enum": ["hacked", "impersonation", "relationship", "unknown", "other"] },
           "imageUploadDate": { "type": "string" },
           "imageTakenDate": { "type": "string" },
           "ownershipEvidence": { "type": "string" },
           "impactStatement": { "type": "string" },
           "imageIdentification": { "type": "string" }
         },
-        "required": [
-          "contentLocationType",
-          "contentType",
-          "contentContext",
-          "imageUploadDate",
-          "imageTakenDate",
-          "ownershipEvidence",
-          "impactStatement",
-          "imageIdentification"
-        ]
+        "required": ["contentLocationType", "contentType", "contentContext", "imageUploadDate", "imageTakenDate", "ownershipEvidence", "impactStatement", "imageIdentification"]
       },
       "ReportingDetailsData": {
         "type": "object",
@@ -351,10 +418,7 @@
         "type": "object",
         "properties": {
           "initialQuestions": { "$ref": "#/components/schemas/InitialQuestionsData" },
-          "reportingDetails": {
-            "$ref": "#/components/schemas/ReportingDetailsData",
-            "nullable": true
-          },
+          "reportingDetails": { "$ref": "#/components/schemas/ReportingDetailsData", "nullable": true },
           "followUp": {
             "type": "object",
             "additionalProperties": { "type": "string" },
@@ -426,6 +490,83 @@
           }
         },
         "required": ["issues", "improvedLetter"]
+      },
+      "PolicyUpdate": {
+        "type": "object",
+        "properties": {
+          "reference": { "type": "string" },
+          "policy": { "type": "string" },
+          "removalCriteria": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "evidenceRequirements": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        },
+        "required": ["reference", "policy", "removalCriteria", "evidenceRequirements"]
+      },
+      "DocumentWithPolicies": {
+        "type": "object",
+        "properties": {
+          "platformId": { "type": "string" },
+          "platformName": { "type": "string" },
+          "reference": { "type": "string" },
+          "title": { "type": "string" },
+          "url": { "type": "string" },
+          "accessTimestamp": { "type": "string", "nullable": true },
+          "notes": { "type": "string", "nullable": true },
+          "policies": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/PolicyUpdate" }
+          }
+        },
+        "required": ["platformId", "platformName", "reference", "title", "url", "policies"]
+      },
+      "AnalysisResult": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": ["no_change", "updated", "error"]
+          },
+          "reasoning": { "type": "string" },
+          "updatedPolicies": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/PolicyUpdate" },
+            "nullable": true
+          },
+          "validation": {
+            "type": "object",
+            "properties": {
+              "validationStatus": {
+                "type": "string",
+                "enum": ["valid", "invalid"]
+              },
+              "reasoning": { "type": "string" },
+              "issues": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "severity": {
+                      "type": "string",
+                      "enum": ["critical", "minor"]
+                    },
+                    "type": {
+                      "type": "string",
+                      "enum": ["hallucination", "meaningless_rewording", "structural_error"]
+                    },
+                    "description": { "type": "string" }
+                  }
+                }
+              }
+            },
+            "nullable": true
+          }
+        },
+        "required": ["status", "reasoning"]
       }
     }
   }
