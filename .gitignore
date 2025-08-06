@@ -33,9 +33,6 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# Session storage
-.sessions/
-
 # IDE
 .idea/
 .vscode/
