@@ -36,7 +36,7 @@ export class GitHubPRCreator {
    */
   async createPolicyUpdatePR(data: PullRequestData): Promise<PullRequestResult> {
     try {
-      rollbar.info('GitHubPRCreator: Starting PR creation', {
+      console.log('GitHubPRCreator: Starting PR creation', {
         branchName: data.branchName,
         filesCount: data.files.length,
         owner: this.owner,
@@ -65,7 +65,7 @@ export class GitHubPRCreator {
         sha: baseBranchSha,
       });
 
-      rollbar.info('GitHubPRCreator: Created branch', {
+      console.log('GitHubPRCreator: Created branch', {
         branchName: data.branchName,
         baseSha: baseBranchSha.substring(0, 7),
       });
@@ -85,7 +85,7 @@ export class GitHubPRCreator {
         base: repo.default_branch,
       });
 
-      rollbar.info('GitHubPRCreator: Successfully created PR', {
+      console.log('GitHubPRCreator: Successfully created PR', {
         pullRequestNumber: pullRequest.number,
         pullRequestUrl: pullRequest.html_url,
         branchName: data.branchName,
@@ -134,7 +134,7 @@ export class GitHubPRCreator {
         sha: Array.isArray(existingFile) ? undefined : existingFile.sha,
       });
 
-      rollbar.info('GitHubPRCreator: Updated existing file', { path, branch });
+      console.log('GitHubPRCreator: Updated existing file', { path, branch });
     } catch (error: any) {
       if (error.status === 404) {
         // File doesn't exist, create it
@@ -147,7 +147,7 @@ export class GitHubPRCreator {
           branch,
         });
 
-        rollbar.info('GitHubPRCreator: Created new file', { path, branch });
+        console.log('GitHubPRCreator: Created new file', { path, branch });
       } else {
         throw error;
       }
@@ -189,7 +189,7 @@ export class GitHubPRCreator {
       });
 
       if (prResult.success) {
-        rollbar.info('PolicyValidation: Successfully created PR', {
+        console.log('PolicyValidation: Successfully created PR', {
           platformId,
           pullRequestUrl: prResult.pullRequestUrl,
           pullRequestNumber: prResult.pullRequestNumber,

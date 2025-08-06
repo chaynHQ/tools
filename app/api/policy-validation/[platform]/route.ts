@@ -11,10 +11,12 @@ import { parseAIJson } from '@/lib/utils';
 import { PolicyValidationResult } from '@/types/policies';
 import { NextResponse } from 'next/server';
 
-export async function POST(request: Request, { params }: { params: { platform: string } }) {
+export async function POST(
+  request: Request,
+  { params }: { params: Promise<{ platform: string }> },
+) {
+  const { platform } = await params;
   try {
-    const { platform } = await params;
-
     // Validate platform
     if (!PLATFORM_NAMES[platform as keyof typeof PLATFORM_NAMES]) {
       return NextResponse.json({ error: 'Invalid platform' }, { status: 400 });
@@ -158,7 +160,7 @@ export async function POST(request: Request, { params }: { params: { platform: s
   } catch (error) {
     const { error: errorMessage, status } = handleApiError(
       error,
-      `/api/policy-validation/${params.platform}`,
+      `/api/policy-validation/${platform}`,
     );
     return NextResponse.json({ error: errorMessage }, { status });
   }
