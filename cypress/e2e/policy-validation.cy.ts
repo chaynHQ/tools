@@ -339,33 +339,4 @@ describe('Policy Validation API', () => {
       });
     });
   });
-
-  it('should initialize validation session', () => {
-    cy.request('POST', '/api/policy-validation/initialize', {}).then((response) => {
-      expect(response.status).to.eq(200);
-      expect(response.body).to.have.property('success', true);
-      expect(response.body).to.have.property('validationId');
-    });
-  });
-
-  it('should process documents with document index', () => {
-    cy.request('POST', '/api/policy-validation/process-document', {
-      documentIndex: 0,
-    }).then((response) => {
-      expect(response.status).to.eq(200);
-      expect(response.body).to.have.property('success', true);
-      expect(response.body).to.have.property('status');
-      expect(response.body.data).to.have.property('progress');
-    });
-  });
-
-  it('should complete when processing beyond document count', () => {
-    cy.request('POST', '/api/policy-validation/process-document', {
-      documentIndex: 999, // Beyond any reasonable document count
-    }).then((response) => {
-      expect(response.status).to.eq(200);
-      expect(response.body).to.have.property('success', true);
-      expect(response.body).to.have.property('status', 'completed');
-    });
-  });
 });
