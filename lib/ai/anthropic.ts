@@ -31,13 +31,13 @@ export async function callAnthropic(
       ...config,
     });
 
-    //@ts-ignore
-    if (!response?.content?.[0]?.text) {
-      throw new Error('Invalid response from Anthropic API');
-    }
+    console.log(response);
+    const responseText = response?.content?.filter((c) => c.type === 'text')[0]?.text;
 
     //@ts-ignore
-    const responseText = response.content[0].text;
+    if (!responseText) {
+      throw new Error('Invalid response from Anthropic API');
+    }
 
     rollbar.info('Anthropic: API call successful', {
       responseLength: responseText.length,

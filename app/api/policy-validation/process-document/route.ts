@@ -301,6 +301,7 @@ export async function POST(request: Request) {
         },
       });
     } catch (error) {
+      console.log('Error processing document:', error);
       rollbar.error('PolicyRevalidation: Document processing failed', {
         validationId,
         documentReference: currentDocument.reference,
