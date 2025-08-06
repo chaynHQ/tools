@@ -59,12 +59,61 @@ async function initializeValidation() {
     if (policy) {
       platformPolicies[platformId] = policy;
 
+      // For each legal document, find all policies that reference it
       policy.legalDocuments.forEach((doc) => {
+        const relatedPolicies: PolicyUpdate[] = [];
+        
+        // Check content type policies
+        policy.contentTypes?.forEach((contentType) => {
+          contentType.policies?.forEach((pol) => {
+            if (pol.documents.some(d => d.reference === doc.reference)) {
+              relatedPolicies.push({
+                reference: pol.reference,
+                policy: pol.policy,
+                removalCriteria: pol.removalCriteria,
+                evidenceRequirements: pol.evidenceRequirements,
+              });
+            }
+          });
+        });
+        
+        // Check content context policies
+        policy.contentContexts?.forEach((contentContext) => {
+          contentContext.policies?.forEach((pol) => {
+            if (pol.documents.some(d => d.reference === doc.reference)) {
+              // Avoid duplicates
+              if (!relatedPolicies.some(rp => rp.reference === pol.reference)) {
+                relatedPolicies.push({
+                  reference: pol.reference,
+                  policy: pol.policy,
+                  removalCriteria: pol.removalCriteria,
+                  evidenceRequirements: pol.evidenceRequirements,
+                });
+              }
+            }
+          });
+        });
+        
+        // Check general policies
+        policy.generalPolicies?.forEach((pol) => {
+          if (pol.documents.some(d => d.reference === doc.reference)) {
+            // Avoid duplicates
+            if (!relatedPolicies.some(rp => rp.reference === pol.reference)) {
+              relatedPolicies.push({
+                reference: pol.reference,
+                policy: pol.policy,
+                removalCriteria: pol.removalCriteria,
+                evidenceRequirements: pol.evidenceRequirements,
+              });
+            }
+          }
+        });
+        
         documentQueue!.push({
           platformId,
           platformName: policy.name,
           ...doc,
-          policies: [],
+          policies: relatedPolicies,
         });
       });
     }
