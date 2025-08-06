@@ -25,6 +25,48 @@ import {
 // Store validation sessions
 const validationSessions = new Map<string, ValidationSession>();
 
+/**
+ * Finds all policies within a platform that reference a specific document
+ */
+function getPlatformPoliciesForDocument(
+  platformPolicy: PlatformPolicy,
+  documentReference: string,
+): PolicyUpdate[] {
+  const relatedPolicies: PolicyUpdate[] = [];
+  const seenReferences = new Set<string>();
+
+  // Helper function to add policy if it references the document
+  const addPolicyIfRelevant = (policy: any) => {
+    if (
+      policy.documents?.some((doc: any) => doc.reference === documentReference) &&
+      !seenReferences.has(policy.reference)
+    ) {
+      seenReferences.add(policy.reference);
+      relatedPolicies.push({
+        reference: policy.reference,
+        policy: policy.policy,
+        removalCriteria: policy.removalCriteria,
+        evidenceRequirements: policy.evidenceRequirements,
+      });
+    }
+  };
+
+  // Check content type policies
+  platformPolicy.contentTypes?.forEach((contentType) => {
+    contentType.policies?.forEach(addPolicyIfRelevant);
+  });
+
+  // Check content context policies
+  platformPolicy.contentContexts?.forEach((contentContext) => {
+    contentContext.policies?.forEach(addPolicyIfRelevant);
+  });
+
+  // Check general policies
+  platformPolicy.generalPolicies?.forEach(addPolicyIfRelevant);
+
+  return relatedPolicies;
+}
+
 export async function POST(request: Request) {
   try {
     const body = await request.json();
@@ -61,55 +103,9 @@ async function initializeValidation() {
 
       // For each legal document, find all policies that reference it
       policy.legalDocuments.forEach((doc) => {
-        const relatedPolicies: PolicyUpdate[] = [];
-        
-        // Check content type policies
-        policy.contentTypes?.forEach((contentType) => {
-          contentType.policies?.forEach((pol) => {
-            if (pol.documents.some(d => d.reference === doc.reference)) {
-              relatedPolicies.push({
-                reference: pol.reference,
-                policy: pol.policy,
-                removalCriteria: pol.removalCriteria,
-                evidenceRequirements: pol.evidenceRequirements,
-              });
-            }
-          });
-        });
-        
-        // Check content context policies
-        policy.contentContexts?.forEach((contentContext) => {
-          contentContext.policies?.forEach((pol) => {
-            if (pol.documents.some(d => d.reference === doc.reference)) {
-              // Avoid duplicates
-              if (!relatedPolicies.some(rp => rp.reference === pol.reference)) {
-                relatedPolicies.push({
-                  reference: pol.reference,
-                  policy: pol.policy,
-                  removalCriteria: pol.removalCriteria,
-                  evidenceRequirements: pol.evidenceRequirements,
-                });
-              }
-            }
-          });
-        });
-        
-        // Check general policies
-        policy.generalPolicies?.forEach((pol) => {
-          if (pol.documents.some(d => d.reference === doc.reference)) {
-            // Avoid duplicates
-            if (!relatedPolicies.some(rp => rp.reference === pol.reference)) {
-              relatedPolicies.push({
-                reference: pol.reference,
-                policy: pol.policy,
-                removalCriteria: pol.removalCriteria,
-                evidenceRequirements: pol.evidenceRequirements,
-              });
-            }
-          }
-        });
-        
-        documentQueue!.push({
+        const relatedPolicies = getPlatformPoliciesForDocument(policy, doc.reference);
+
+        documentQueue.push({
           platformId,
           platformName: policy.name,
           ...doc,
@@ -286,55 +282,43 @@ function applyPolicyUpdates(
     doc.accessTimestamp = timestamp;
   });
 
-  // Apply policy updates by reference
-  updatedPolicies.forEach((updatedPolicy) => {
-    const policyRef = updatedPolicy.reference;
-
-    // Update policies in contentTypes
-    platformPolicy.contentTypes?.forEach((contentType) => {
-      const policyIndex = contentType.policies?.findIndex((p) => p.reference === policyRef);
-      if (policyIndex !== undefined && policyIndex !== -1 && contentType.policies) {
-        contentType.policies[policyIndex] = {
-          ...contentType.policies[policyIndex],
-          policy: updatedPolicy.policy,
-          removalCriteria: updatedPolicy.removalCriteria,
-          evidenceRequirements: updatedPolicy.evidenceRequirements,
-        };
-        hasChanges = true;
-      }
-    });
-
-    // Update policies in contentContexts
-    platformPolicy.contentContexts?.forEach((contentContext) => {
-      const policyIndex = contentContext.policies?.findIndex((p) => p.reference === policyRef);
-      if (policyIndex !== undefined && policyIndex !== -1 && contentContext.policies) {
-        contentContext.policies[policyIndex] = {
-          ...contentContext.policies[policyIndex],
-          policy: updatedPolicy.policy,
-          removalCriteria: updatedPolicy.removalCriteria,
-          evidenceRequirements: updatedPolicy.evidenceRequirements,
-        };
-        hasChanges = true;
-      }
-    });
-
-    // Update policies in generalPolicies
-    const generalPolicyIndex = platformPolicy.generalPolicies?.findIndex(
-      (p) => p.reference === policyRef,
-    );
-    if (
-      generalPolicyIndex !== undefined &&
-      generalPolicyIndex !== -1 &&
-      platformPolicy.generalPolicies
-    ) {
-      platformPolicy.generalPolicies[generalPolicyIndex] = {
-        ...platformPolicy.generalPolicies[generalPolicyIndex],
-        policy: updatedPolicy.policy,
-        removalCriteria: updatedPolicy.removalCriteria,
-        evidenceRequirements: updatedPolicy.evidenceRequirements,
-      };
-      hasChanges = true;
+  // Helper function to update a policy if it matches the reference
+  const updatePolicyIfMatches = (policy: any, updatedPolicy: PolicyUpdate): boolean => {
+    if (policy.reference === updatedPolicy.reference) {
+      policy.policy = updatedPolicy.policy;
+      policy.removalCriteria = updatedPolicy.removalCriteria;
+      policy.evidenceRequirements = updatedPolicy.evidenceRequirements;
+      return true;
     }
+    return false;
+  };
+
+  // Apply each policy update
+  updatedPolicies.forEach((updatedPolicy) => {
+    // Check content type policies
+    platformPolicy.contentTypes?.forEach((contentType) => {
+      contentType.policies?.forEach((policy) => {
+        if (updatePolicyIfMatches(policy, updatedPolicy)) {
+          hasChanges = true;
+        }
+      });
+    });
+
+    // Check content context policies
+    platformPolicy.contentContexts?.forEach((contentContext) => {
+      contentContext.policies?.forEach((policy) => {
+        if (updatePolicyIfMatches(policy, updatedPolicy)) {
+          hasChanges = true;
+        }
+      });
+    });
+
+    // Check general policies
+    platformPolicy.generalPolicies?.forEach((policy) => {
+      if (updatePolicyIfMatches(policy, updatedPolicy)) {
+        hasChanges = true;
+      }
+    });
   });
 
   return hasChanges;
