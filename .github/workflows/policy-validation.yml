@@ -64,11 +64,10 @@ jobs:
           echo "Starting policy validation workflow..."
 
           # Step 1: Initialize the workflow
-          # Default to all platforms, but can be customized by adding platforms array
           RESPONSE=$(curl -s -X POST \
             -H "Content-Type: application/json" \
-            -d '{"action": "initialize"}' \
-            "$NEXT_PUBLIC_BASE_URL/api/policies/validate" \
+            -d '{}' \
+            "$NEXT_PUBLIC_BASE_URL/api/policy-validation/initialize" \
             -w "HTTPSTATUS:%{http_code}")
 
           HTTP_STATUS=$(echo $RESPONSE | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
@@ -109,8 +108,8 @@ jobs:
             
             RESPONSE=$(curl -s -X POST \
               -H "Content-Type: application/json" \
-              -d "{\"action\": \"process_next_document\", \"validationId\": \"$VALIDATION_ID\"}" \
-              "$NEXT_PUBLIC_BASE_URL/api/policies/validate" \
+              -d "{\"validationId\": \"$VALIDATION_ID\"}" \
+              "$NEXT_PUBLIC_BASE_URL/api/policy-validation/process-document" \
               -w "HTTPSTATUS:%{http_code}")
             
             HTTP_STATUS=$(echo $RESPONSE | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')

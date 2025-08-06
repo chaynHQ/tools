@@ -12,7 +12,7 @@
     }
   ],
   "paths": {
-    "/api/revalidate-policies/initialize": {
+    "/api/policy-validation/initialize": {
       "post": {
         "summary": "Initialize policy validation session",
         "description": "Initializes a new policy validation session by scanning all platform policies and creating a queue of documents to validate. Returns a validation ID for subsequent processing calls.",
@@ -70,7 +70,7 @@
         }
       }
     },
-    "/api/revalidate-policies/process": {
+    "/api/policy-validation/process-document": {
       "post": {
         "summary": "Process next document in validation session",
         "description": "Processes the next document in the validation queue. Uses AI to analyze the document against current policies and determine if updates are needed. Call repeatedly until all documents are processed.",
@@ -396,14 +396,26 @@
           "contentUrl": { "type": "string", "nullable": true },
           "contentDescription": { "type": "string", "nullable": true },
           "contentType": { "type": "string", "enum": ["intimate", "personal", "private", "other"] },
-          "contentContext": { "type": "string", "enum": ["hacked", "impersonation", "relationship", "unknown", "other"] },
+          "contentContext": {
+            "type": "string",
+            "enum": ["hacked", "impersonation", "relationship", "unknown", "other"]
+          },
           "imageUploadDate": { "type": "string" },
           "imageTakenDate": { "type": "string" },
           "ownershipEvidence": { "type": "string" },
           "impactStatement": { "type": "string" },
           "imageIdentification": { "type": "string" }
         },
-        "required": ["contentLocationType", "contentType", "contentContext", "imageUploadDate", "imageTakenDate", "ownershipEvidence", "impactStatement", "imageIdentification"]
+        "required": [
+          "contentLocationType",
+          "contentType",
+          "contentContext",
+          "imageUploadDate",
+          "imageTakenDate",
+          "ownershipEvidence",
+          "impactStatement",
+          "imageIdentification"
+        ]
       },
       "ReportingDetailsData": {
         "type": "object",
@@ -418,7 +430,10 @@
         "type": "object",
         "properties": {
           "initialQuestions": { "$ref": "#/components/schemas/InitialQuestionsData" },
-          "reportingDetails": { "$ref": "#/components/schemas/ReportingDetailsData", "nullable": true },
+          "reportingDetails": {
+            "$ref": "#/components/schemas/ReportingDetailsData",
+            "nullable": true
+          },
           "followUp": {
             "type": "object",
             "additionalProperties": { "type": "string" },

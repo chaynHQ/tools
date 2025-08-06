@@ -67,7 +67,7 @@ describe('Policy Validation API', () => {
     it('should successfully initialize validation session', () => {
       cy.request({
         method: 'POST',
-        url: '/api/revalidate-policies/initialize',
+        url: '/api/policy-validation/initialize',
         body: {},
       }).then((response) => {
         expect(response.status).to.eq(200);
@@ -108,7 +108,7 @@ describe('Policy Validation API', () => {
       // Initialize a session first
       cy.request({
         method: 'POST',
-        url: '/api/revalidate-policies/initialize',
+        url: '/api/policy-validation/initialize',
         body: {},
       }).then((response) => {
         validationId = response.body.validationId;
@@ -119,7 +119,7 @@ describe('Policy Validation API', () => {
       cy.then(() => {
         cy.request({
           method: 'POST',
-          url: '/api/revalidate-policies/process',
+          url: '/api/policy-validation/process-document',
           body: {
             validationId: validationId,
           },
@@ -149,7 +149,7 @@ describe('Policy Validation API', () => {
     it('should handle invalid validation ID', () => {
       cy.request({
         method: 'POST',
-        url: '/api/revalidate-policies/process',
+        url: '/api/policy-validation/process-document',
         body: {
           validationId: 'invalid_id',
         },
@@ -163,7 +163,7 @@ describe('Policy Validation API', () => {
     it('should handle missing validation ID', () => {
       cy.request({
         method: 'POST',
-        url: '/api/revalidate-policies/process',
+        url: '/api/policy-validation/process-document',
         body: {},
         failOnStatusCode: false,
       }).then((response) => {
@@ -180,7 +180,7 @@ describe('Policy Validation API', () => {
       // Step 1: Initialize
       cy.request({
         method: 'POST',
-        url: '/api/revalidate-policies/initialize',
+        url: '/api/policy-validation/initialize',
         body: {},
       }).then((response) => {
         expect(response.status).to.eq(200);
@@ -195,7 +195,7 @@ describe('Policy Validation API', () => {
 
           cy.request({
             method: 'POST',
-            url: '/api/revalidate-policies/process',
+            url: '/api/policy-validation/process-document',
             body: {
               validationId: validationId,
             },
@@ -250,14 +250,14 @@ describe('Policy Validation API', () => {
 
       cy.request({
         method: 'POST',
-        url: '/api/revalidate-policies/initialize',
+        url: '/api/policy-validation/initialize',
         body: {},
       }).then((response) => {
         validationId = response.body.validationId;
 
         cy.request({
           method: 'POST',
-          url: '/api/revalidate-policies/process',
+          url: '/api/policy-validation/process-document',
           body: {
             validationId: validationId,
           },
@@ -311,7 +311,7 @@ describe('Policy Validation API', () => {
 
       cy.request({
         method: 'POST',
-        url: '/api/revalidate-policies/initialize',
+        url: '/api/policy-validation/initialize',
         body: {},
       }).then((response) => {
         validationId = response.body.validationId;
@@ -320,7 +320,7 @@ describe('Policy Validation API', () => {
         const processUntilComplete = () => {
           cy.request({
             method: 'POST',
-            url: '/api/revalidate-policies/process',
+            url: '/api/policy-validation/process-document',
             body: {
               validationId: validationId,
             },
