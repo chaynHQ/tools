@@ -6,32 +6,24 @@ const legalDocuments: LegalDocument[] = [
     title: 'Terms of Service',
     url: 'https://www.tiktok.com/legal/page/us/terms-of-service/en',
     accessTimestamp: '2025-06-06T00:00:00Z',
-    notes:
-      'The foundational legal agreement that requires users to comply with the Community Guidelines and outlines rules for content ownership and intellectual property (copyright).',
   },
   {
     reference: 'TT-CG',
     title: 'Community Guidelines',
     url: 'https://www.tiktok.com/community-guidelines/en/',
     accessTimestamp: '2025-06-06T00:00:00Z',
-    notes:
-      'A major update took effect on May 17, 2025. This is the core rulebook for all content and behavior, with specific, detailed sections on NCII, AI, harassment, privacy, and impersonation.',
   },
   {
     reference: 'TT-PP',
     title: 'Privacy Policy',
     url: 'https://www.tiktok.com/legal/page/us/privacy-policy/en',
     accessTimestamp: '2025-06-06T00:00:00Z',
-    notes:
-      'Governs how user data is collected and used. It is directly relevant to violations involving the exposure of private information (doxing).',
   },
   {
     reference: 'TAKE-IT-DOWN-ACT-2025',
     title: 'TAKE IT DOWN Act of 2025',
     url: 'https://www.congress.gov/bill/118th-congress/house-bill/7891',
     accessTimestamp: '2025-06-06T00:00:00Z',
-    notes:
-      'A U.S. federal law signed on May 19, 2025. It legally mandates that platforms like TikTok remove non-consensual intimate imagery (NCII), including AI-generated deepfakes, within 48 hours of a valid report.',
   },
 ];
 

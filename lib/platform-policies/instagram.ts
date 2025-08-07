@@ -6,32 +6,24 @@ const legalDocuments: LegalDocument[] = [
     title: 'Instagram Terms of Use',
     url: 'https://help.instagram.com/581066165581870',
     accessTimestamp: '2025-06-06T00:00:00Z',
-    notes:
-      'Terms updated effective January 1, 2025. They require all users to comply with the Meta Community Standards and grant Instagram a license to use content posted on the platform.',
   },
   {
     reference: 'META-CS',
     title: 'Meta Community Standards',
     url: 'https://transparency.fb.com/policies/community-standards/',
     accessTimestamp: '2025-06-06T00:00:00Z',
-    notes:
-      'As of November 12, 2024, these unified standards replaced the separate Instagram Community Guidelines. They are the primary rulebook for all content on Instagram, covering NCII, bullying, impersonation, and more.',
   },
   {
     reference: 'META-PP',
     title: 'Meta Privacy Policy',
     url: 'https://privacycenter.instagram.com/policy',
     accessTimestamp: '2025-06-06T00:00:00Z',
-    notes:
-      'Governs how Meta handles user data across its products, including Instagram. It is directly relevant to violations involving the exposure of private information.',
   },
   {
     reference: 'TAKE-IT-DOWN-ACT-2025',
     title: 'TAKE IT DOWN Act of 2025',
     url: 'https://www.congress.gov/bill/118th-congress/house-bill/7891',
     accessTimestamp: '2025-06-06T00:00:00Z',
-    notes:
-      'A U.S. federal law signed on May 19, 2025. It legally mandates that platforms like Instagram remove non-consensual intimate imagery (NCII), including AI-generated deepfakes, within 48 hours of a valid report.',
   },
 ];
 

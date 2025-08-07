@@ -6,40 +6,30 @@ const legalDocuments: LegalDocument[] = [
     title: 'Facebook Terms of Service',
     url: 'https://www.facebook.com/legal/terms',
     accessTimestamp: '2025-06-06T00:00:00Z',
-    notes:
-      'Updates effective January 1, 2025, include stronger language on data scraping and clarify that users grant Meta a license to use content while retaining ownership. The terms require adherence to all platform policies, including the Community Standards.',
   },
   {
     reference: 'META-CS',
     title: 'Meta Community Standards',
     url: 'https://transparency.fb.com/policies/community-standards/',
     accessTimestamp: '2025-06-06T00:00:00Z',
-    notes:
-      'Unified across Meta platforms (Facebook, Instagram, etc.) on November 12, 2024. These are the core rules governing content and behavior, covering everything from NCII and bullying to impersonation and privacy.',
   },
   {
     reference: 'META-PP',
     title: 'Meta Privacy Policy',
     url: 'https://www.facebook.com/privacy/policy/',
     accessTimestamp: '2025-06-06T00:00:00Z',
-    notes:
-      'Governs how user data is collected, used, and shared. It is relevant to privacy violations where personal data is exposed.',
   },
   {
     reference: 'FB-HC-Reporting',
     title: 'Facebook Help Center - Reporting & Account Recovery',
     url: 'https://www.facebook.com/help/181495968648557',
     accessTimestamp: '2025-06-06T00:00:00Z',
-    notes:
-      'Provides practical steps and tools for users to report violations and recover compromised accounts (e.g., via facebook.com/hacked).',
   },
   {
     reference: 'TAKE-IT-DOWN-ACT-2025',
     title: 'TAKE IT DOWN Act of 2025',
     url: 'https://www.congress.gov/bill/118th-congress/house-bill/7891',
     accessTimestamp: '2025-06-06T00:00:00Z',
-    notes:
-      'A U.S. federal law signed on May 19, 2025. It legally mandates that platforms like Meta remove non-consensual intimate imagery (NCII), including AI-generated deepfakes, within 48 hours of receiving a valid report.',
   },
 ];
 
