@@ -6,32 +6,24 @@ const legalDocuments: LegalDocument[] = [
     title: 'Pornhub Terms of Service',
     url: 'https://www.pornhub.com/information/terms',
     accessTimestamp: '2025-06-06T00:00:00Z',
-    notes:
-      "The foundational legal agreement. It prohibits illegal content, requires all uploaders to be verified, and contains the platform's DMCA/copyright policy.",
   },
   {
     reference: 'PH-PP',
     title: 'Pornhub Privacy Policy',
     url: 'https://www.pornhub.com/information/privacy',
     accessTimestamp: '2025-06-06T00:00:00Z',
-    notes:
-      'Outlines data collection practices, including the personal information required for the mandatory Uploader Verification System. Relevant to doxing and privacy violations.',
   },
   {
     reference: 'PH-CONTENT-POLICY',
     title: 'Pornhub Trust and Safety Policy',
     url: 'https://www.pornhub.com/information/trust-and-safety',
     accessTimestamp: '2025-06-06T00:00:00Z',
-    notes:
-      "Details the platform's core safety measures, including its zero-tolerance policy for illegal content, the Uploader Verification System, and the process for content removal.",
   },
   {
     reference: 'TAKE-IT-DOWN-ACT-2025',
     title: 'TAKE IT DOWN Act of 2025',
     url: 'https://www.congress.gov/bill/118th-congress/house-bill/7891',
     accessTimestamp: '2025-06-06T00:00:00Z',
-    notes:
-      'A U.S. federal law signed on May 19, 2025. It legally mandates that platforms like Pornhub remove non-consensual intimate imagery (NCII), including AI-generated deepfakes, within 48 hours of a valid report.',
   },
 ];
 

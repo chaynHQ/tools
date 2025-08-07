@@ -1,7 +1,7 @@
 import { serverInstance as rollbar } from '@/lib/rollbar';
 import { Octokit } from '@octokit/rest';
 
-import { PlatformPolicy, PolicyUpdate, ValidationSession } from '@/types/policies';
+import { PlatformPolicy } from '@/types/policies';
 
 export interface PullRequestData {
   title: string;
@@ -36,7 +36,7 @@ export class GitHubPRCreator {
    */
   async createPolicyUpdatePR(data: PullRequestData): Promise<PullRequestResult> {
     try {
-      rollbar.info('GitHubPRCreator: Starting PR creation', {
+      console.log('GitHubPRCreator: Starting PR creation', {
         branchName: data.branchName,
         filesCount: data.files.length,
         owner: this.owner,
@@ -65,7 +65,7 @@ export class GitHubPRCreator {
         sha: baseBranchSha,
       });
 
-      rollbar.info('GitHubPRCreator: Created branch', {
+      console.log('GitHubPRCreator: Created branch', {
         branchName: data.branchName,
         baseSha: baseBranchSha.substring(0, 7),
       });
@@ -85,7 +85,7 @@ export class GitHubPRCreator {
         base: repo.default_branch,
       });
 
-      rollbar.info('GitHubPRCreator: Successfully created PR', {
+      console.log('GitHubPRCreator: Successfully created PR', {
         pullRequestNumber: pullRequest.number,
         pullRequestUrl: pullRequest.html_url,
         branchName: data.branchName,
@@ -134,7 +134,7 @@ export class GitHubPRCreator {
         sha: Array.isArray(existingFile) ? undefined : existingFile.sha,
       });
 
-      rollbar.info('GitHubPRCreator: Updated existing file', { path, branch });
+      console.log('GitHubPRCreator: Updated existing file', { path, branch });
     } catch (error: any) {
       if (error.status === 404) {
         // File doesn't exist, create it
@@ -147,7 +147,7 @@ export class GitHubPRCreator {
           branch,
         });
 
-        rollbar.info('GitHubPRCreator: Created new file', { path, branch });
+        console.log('GitHubPRCreator: Created new file', { path, branch });
       } else {
         throw error;
       }
@@ -155,13 +155,12 @@ export class GitHubPRCreator {
   }
 
   /**
-   * Creates a pull request for policy updates with all the logic moved from the route
+   * Creates a pull request for a single platform policy update
    */
   async createPolicyPullRequest(
-    session: ValidationSession,
-    updatedPolicies: Record<string, PlatformPolicy>,
-    totalChanges: number,
-    totalPlatformsUpdated: number,
+    platformId: string,
+    updatedPolicy: PlatformPolicy,
+    reasoning: string,
   ): Promise<{ url: string; number: number } | null> {
     if (!process.env.GITHUB_TOKEN) {
       rollbar.warning('PolicyValidation: GitHub token not configured, skipping PR creation');
@@ -169,29 +168,18 @@ export class GitHubPRCreator {
     }
 
     try {
-      const branchName = GitHubPRCreator.generateBranchName(session.validationId);
-      const prTitle = GitHubPRCreator.generatePRTitle(
-        totalChanges,
-        totalPlatformsUpdated,
-        Object.keys(updatedPolicies),
-      );
-      const prBody = GitHubPRCreator.generatePRBody(
-        `Policy validation completed with ${totalChanges} policy changes across ${totalPlatformsUpdated} platforms`,
-        session.validationId,
-        session.processedDocuments.length,
-        totalChanges,
-        totalPlatformsUpdated,
-      );
+      const timestamp = new Date().toISOString().split('T')[0];
+      const branchName = `policy-update/${timestamp}-${platformId}`;
+      const prTitle = GitHubPRCreator.generatePRTitle(platformId, updatedPolicy.name);
+      const prBody = GitHubPRCreator.generatePRBody(platformId, updatedPolicy.name, reasoning);
 
-      const files = [];
-      for (const [platformId, policy] of Object.entries(updatedPolicies)) {
-        const policyFileName = `${platformId}.ts`;
-
-        files.push({
+      const policyFileName = `${platformId}.ts`;
+      const files = [
+        {
           path: `lib/platform-policies/${policyFileName}`,
-          content: generatePolicyFileContent(policy, policyFileName),
-        });
-      }
+          content: generatePolicyFileContent(updatedPolicy, policyFileName),
+        },
+      ];
 
       const prResult = await this.createPolicyUpdatePR({
         title: prTitle,
@@ -201,8 +189,8 @@ export class GitHubPRCreator {
       });
 
       if (prResult.success) {
-        rollbar.info('PolicyValidation: Successfully created PR', {
-          validationId: session.validationId,
+        console.log('PolicyValidation: Successfully created PR', {
+          platformId,
           pullRequestUrl: prResult.pullRequestUrl,
           pullRequestNumber: prResult.pullRequestNumber,
         });
@@ -222,13 +210,7 @@ export class GitHubPRCreator {
   /**
    * Generates PR body content
    */
-  static generatePRBody(
-    changesSummary: string,
-    validationId: string,
-    documentsProcessed: number,
-    totalChanges: number,
-    totalPlatformsUpdated: number,
-  ): string {
+  static generatePRBody(platformId: string, platformName: string, reasoning: string): string {
     const timestamp = new Date().toISOString();
 
     return `## 🤖 Automated Policy Update
@@ -236,20 +218,17 @@ export class GitHubPRCreator {
 This pull request contains policy updates identified by our automated validation system.
 
 ### 📊 Summary
-- **Validation ID**: \`${validationId}\`
-- **Documents Processed**: ${documentsProcessed}
-- **Total Policy Changes**: ${totalChanges}
-- **Platforms Updated**: ${totalPlatformsUpdated}
+- **Platform**: ${platformName} (\`${platformId}\`)
 - **Generated**: ${timestamp}
 
 ### 🔍 Changes Made
 
-${changesSummary}
+${reasoning}
 
 ### ✅ Validation Status
-- **Step 1-3**: AI analysis completed successfully
-- **Step 4**: Changes aggregated and compiled
-- **Step 5**: Quality check passed - all changes validated as structurally sound and semantically plausible
+- **Step 1**: AI analysis completed successfully
+- **Step 2**: Quality check passed - all changes validated as genuine and meaningful
+- **Step 3**: Pull request automatically created
 
 ### 🔄 Next Steps
 1. **Review**: Please review the changes in the Files Changed tab
@@ -259,42 +238,20 @@ ${changesSummary}
 ### 🤖 Automation Details
 This PR was automatically generated by the Policy Validation Workflow. The changes were:
 1. Identified by AI analysis of live platform documents
-2. Aggregated into a cohesive policy update
-3. Validated by a second AI for quality assurance
-4. Automatically formatted and submitted as this PR
+2. Validated by a second AI for quality assurance
+3. Automatically formatted and submitted as this PR
 
 ---
 *Generated by Policy Validation Workflow v1.0*`;
   }
 
   /**
-   * Generates branch name for policy updates
-   */
-  static generateBranchName(validationId: string): string {
-    const timestamp = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
-    return `policy-update/${timestamp}-${validationId.split('_')[1]}`;
-  }
-
-  /**
    * Generates PR title
    */
-  static generatePRTitle(
-    totalChanges: number,
-    totalPlatformsUpdated: number,
-    platformsUpdated: string[],
-  ): string {
-    const platformsText =
-      totalPlatformsUpdated === 1
-        ? platformsUpdated[0]?.toUpperCase() || 'platform'
-        : `${totalPlatformsUpdated} platforms`;
-
-    return `🤖 Policy Update: ${totalChanges} changes across ${platformsText}`;
+  static generatePRTitle(platformId: string, platformName: string): string {
+    return `🤖 Policy Update: ${platformName} (${platformId})`;
   }
 }
-
-/**
- * Applies policy updates to a platform policy object by mapping references
- */
 
 /**
  * Generates the TypeScript file content for a platform policy

@@ -18,7 +18,7 @@ export async function callAnthropic(
   return await retryWithDelay(async () => {
     const response = await anthropic.messages.create({
       model: process.env.ANTHROPIC_MODEL || 'claude-sonnet-4-20250514',
-      max_tokens: 4000,
+      max_tokens: 10000,
       temperature: process.env.ANTHROPIC_TEMPERATURE
         ? parseFloat(process.env.ANTHROPIC_TEMPERATURE)
         : 0.3,

@@ -6,32 +6,24 @@ const legalDocuments: LegalDocument[] = [
     title: 'Terms of Service',
     url: 'https://onlyfans.com/terms',
     accessTimestamp: '2025-06-06T00:00:00Z',
-    notes:
-      'Covers fundamental rules regarding account security, content ownership, copyright (DMCA), and the requirement for all users to comply with the Acceptable Use Policy.',
   },
   {
     reference: 'OF-AUP',
     title: 'Acceptable Use Policy',
     url: 'https://onlyfans.com/aup',
     accessTimestamp: '2025-06-06T00:00:00Z',
-    notes:
-      'This is the core rulebook for content and behavior. It contains specific, detailed prohibitions against non-consensual content, harassment, privacy violations, impersonation, and AI-generated deepfakes.',
   },
   {
     reference: 'OF-PP',
     title: 'Privacy Policy',
     url: 'https://onlyfans.com/privacy',
     accessTimestamp: '2025-06-06T00:00:00Z',
-    notes:
-      'Outlines data collection and use, particularly the personal information required for the mandatory creator identity verification process.',
   },
   {
     reference: 'TAKE-IT-DOWN-ACT-2025',
     title: 'TAKE IT DOWN Act of 2025',
     url: 'https://www.congress.gov/bill/118th-congress/house-bill/7891',
     accessTimestamp: '2025-06-06T00:00:00Z',
-    notes:
-      'A U.S. federal law signed on May 19, 2025. It legally mandates that platforms like OnlyFans remove non-consensual intimate imagery (NCII), including AI-generated deepfakes, within 48 hours of a valid report.',
   },
 ];
 
