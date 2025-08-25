@@ -14,7 +14,7 @@ jobs:
     steps:
       - name: Checkout actions/github-script
         uses:
-          actions/checkout@v4 # Good practice to checkout if the script becomes complex or needs local files
+          actions/checkout@v5 # Good practice to checkout if the script becomes complex or needs local files
           # Not strictly necessary for this specific github-script if it's self-contained
 
       - name: Create or Update Release Pull Request
