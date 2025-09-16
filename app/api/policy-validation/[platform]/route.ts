@@ -29,7 +29,7 @@ export async function POST(
 
     rollbar.info('PolicyValidation: Starting validation for platform', {
       platform,
-      documentsCount: platformPolicy.legalDocuments.length,
+      documentsCount: platformPolicy.policyDocuments.length,
     });
 
     // Step 1: Analyze all documents and policies for the platform
@@ -43,7 +43,7 @@ export async function POST(
         {
           type: 'web_search_20250305',
           name: 'web_search',
-          max_uses: platformPolicy.legalDocuments.length,
+          max_uses: platformPolicy.policyDocuments.length,
         },
       ],
     });
@@ -69,7 +69,7 @@ export async function POST(
           {
             type: 'web_search_20250305',
             name: 'web_search',
-            max_uses: platformPolicy.legalDocuments.length,
+            max_uses: platformPolicy.policyDocuments.length,
           },
         ],
       });

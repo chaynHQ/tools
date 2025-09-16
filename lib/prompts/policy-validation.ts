@@ -1,23 +1,24 @@
-import { PlatformPolicy } from '@/types/policies';
+import { PlatformPolicies } from '@/types/policies';
 import { serverInstance as rollbar } from '../rollbar';
 
 export interface PolicyValidationPromptData {
   platformId: string;
-  platformPolicy: PlatformPolicy;
+  platformPolicy: PlatformPolicies;
 }
 
 export interface PolicyValidationQualityCheckPromptData {
   platformId: string;
-  originalPolicy: PlatformPolicy;
-  updatedPolicy: PlatformPolicy;
+  originalPolicy: PlatformPolicies;
+  updatedPolicy: PlatformPolicies;
   reasoning: string;
 }
 
 export function generatePolicyValidationPrompt(data: PolicyValidationPromptData): string {
   rollbar.info('generatePolicyValidationPrompt: Creating analysis prompt', {
     platformId: data.platformId,
-    platformName: data.platformPolicy.name,
-    documentsCount: data.platformPolicy.legalDocuments.length,
+    platformName: data.platformPolicy.platform,
+    documentsCount: data.platformPolicy.policyDocuments.length,
+  return `You are an AI assistant specialized in legal and policy analysis for image takedown requests. Your task is to analyze ALL legal documents for ${data.platformPolicy.platform} and determine if our current policy data needs updates.
   });
 
   return `You are an AI assistant specialized in legal and policy analysis for image takedown requests. Your task is to analyze ALL legal documents for ${data.platformPolicy.name} and determine if our current policy data needs updates.
@@ -35,30 +36,23 @@ CRITICAL INSTRUCTIONS:
 4. Only suggest meaningful changes that affect policy enforcement for image takedown requests
 5. Your response MUST be valid JSON and nothing else. Only return policies that were updated or added, not unchanged policies.
 
-PLATFORM: ${data.platformPolicy.name}
+PLATFORM: ${data.platformPolicy.platform}
 
 CURRENT LEGAL DOCUMENTS TO VERIFY:
-${data.platformPolicy.legalDocuments
+${data.platformPolicy.policyDocuments
   .map(
     (doc) => `
 - Reference: ${doc.reference}
 - Title: ${doc.title}
 - URL: ${doc.url}
-- Last Access: ${doc.accessTimestamp || 'Unknown'}
-- Notes: ${doc.notes || 'None'}
+- Last Access: ${doc.accessTimestamp}
 `,
   )
   .join('\n')}
 
 CURRENT POLICY STRUCTURE TO ANALYZE:
 ${JSON.stringify(
-  {
-    contentTypes: data.platformPolicy.contentTypes,
-    contentContexts: data.platformPolicy.contentContexts,
-    generalPolicies: data.platformPolicy.generalPolicies,
-    timeframes: data.platformPolicy.timeframes,
-    appealProcess: data.platformPolicy.appealProcess,
-  },
+  data.platformPolicy,
   null,
   2,
 )}
@@ -95,13 +89,8 @@ If meaningful changes ARE needed:
     }
   ],
   "updatedPolicy": {
-    "name": "${data.platformPolicy.name}",
-    "legalDocuments": [/* updated documents array with new accessTimestamp */],
-    "contentTypes": [/* updated if needed */],
-    "contentContexts": [/* updated if needed */],
-    "generalPolicies": [/* updated if needed */],
-    "timeframes": {/* updated if needed */},
-    "appealProcess": [/* updated if needed */]
+    "platform": "${data.platformPolicy.platform}",
+    "policyDocuments": [/* updated documents array with new accessTimestamp */]
   }
 }
 
@@ -113,7 +102,7 @@ export function generatePolicyValidationQualityCheckPrompt(
 ): string {
   rollbar.info('generatePolicyValidationQualityCheckPrompt: Creating validation prompt', {
     platformId: data.platformId,
-    platformName: data.originalPolicy.name,
+    platformName: data.originalPolicy.platform,
   });
 
   return `You are an AI assistant specialized in validating policy changes for image takedown systems. Your task is to verify that proposed policy updates are genuine, meaningful, and properly implemented.
@@ -125,7 +114,7 @@ CRITICAL INSTRUCTIONS:
 4. Ensure all changes are properly justified and documented
 5. Your response MUST be valid JSON and nothing else
 
-PLATFORM: ${data.originalPolicy.name}
+PLATFORM: ${data.originalPolicy.platform}
 
 ORIGINAL POLICY STRUCTURE:
 ${JSON.stringify(data.originalPolicy, null, 2)}
