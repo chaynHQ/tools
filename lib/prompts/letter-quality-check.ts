@@ -33,17 +33,17 @@ export function generateLetterQualityCheckPrompt(
   const followUpInfo = request.followUp || {};
   const reportingInfo = request.reportingDetails || {};
 
-  let platformPolicy = null;
+  let platformPolicies = null;
   if (!request.platformInfo.isCustom) {
     const policyId = getPlatformPolicyId(request.platformInfo.platformId);
     if (policyId) {
-      platformPolicy = getPlatformPolicy(policyId);
+      platformPolicies = getPlatformPolicy(policyId);
     }
   }
 
-  const relevantPolicies = platformPolicy
+  const relevantPolicies = platformPolicies
     ? getRelevantPolicies(
-        platformPolicy,
+        platformPolicies,
         request.initialQuestions.contentType,
         request.initialQuestions.contentContext,
       )
@@ -114,22 +114,34 @@ ${Object.entries(followUpInfo)
   .join('\\n')}
 
 ${
-  relevantPolicies
+  relevantPolicies && relevantPolicies.length > 0
     ? `PLATFORM POLICY CONTEXT:
-Platform-Specific polices Context for ${platformPolicy?.name} likely applicable to this letter:
+Platform-Specific policies Context for ${platformPolicies?.platform} likely applicable to this letter:
 
 ${relevantPolicies
   .map(
-    (policy) => `- * ${policy.policy}*
-  Documents: ${policy.documents.map((doc) => doc.title).join(', ')}
+    (policy) => `- Policy: ${policy.summary}
+  Reference: ${policy.reference || 'N/A'}
   Removal Criteria: ${policy.removalCriteria.join(', ')}
-  Evidence Requirements: ${policy.evidenceRequirements.join(', ')}`,
+  Evidence Requirements: ${policy.evidenceRequirements.map(req => req.description).join(', ')}`,
   )
   .join('\\n')}
 
-Timeframes:
-- Initial Response: ${platformPolicy?.timeframes.response}
-- Content Removal: ${platformPolicy?.timeframes.removal}
+Timeframes (if available):
+${relevantPolicies
+  .filter(policy => policy.timeframes)
+  .map(policy => {
+    const timeframes = policy.timeframes!;
+    let result = '';
+    if (timeframes.response) {
+      result += `- Response: ${timeframes.response.value} ${timeframes.response.unit} (${timeframes.response.description})\\n`;
+    }
+    if (timeframes.removal) {
+      result += `- Removal: ${timeframes.removal.value} ${timeframes.removal.unit} (${timeframes.removal.description})`;
+    }
+    return result;
+  })
+  .join('\\n')}
 `
     : ''
 }
@@ -148,7 +160,7 @@ The presence of any of these issues constitutes a fundamental failure.
 2.  **Inclusion of Unnecessary Sensitive Data**: The letter contains personal details beyond what is required or appropriate.
     * **Examples**: Specific medical conditions, third-party names, or graphic details that go beyond the summarized \`Impact Statement\`.
 3.  **Incorrect Policy Application**: The letter misrepresents or misuses the provided platform policies from the \`PLATFORM POLICY CONTEXT\`.
-    * **Examples**: Referencing policy codes instead of full titles, mentioning policies related to ID verification, or failing to clearly connect the content to a specific policy.
+    * **Examples**: Referencing policy codes instead of summaries, mentioning policies related to ID verification, or failing to clearly connect the content to a specific policy.
 4.  **Presence of Banned Terms**: The letter contains any term from the **Banned Terms** list.
 5.  **Aggressive or Threatening Language**: The letter uses hostile, demanding, or inappropriately legalistic language (e.g., "you must comply," "I demand action").
 6.  **Improper Tone or Style**: The language is unprofessional, not concise, or fails to be trauma-informed and respectful. Use **Banned Terms** list as guidance. 

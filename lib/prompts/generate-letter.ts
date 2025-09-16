@@ -12,15 +12,15 @@ export function generateLetterPrompt(request: LetterRequest) {
     isCustom: request.platformInfo.isCustom,
   });
 
-  let platformPolicy = null;
+  let platformPolicies = null;
   if (!request.platformInfo.isCustom) {
     const policyId = getPlatformPolicyId(request.platformInfo.platformId);
     if (policyId) {
-      platformPolicy = getPlatformPolicy(policyId);
+      platformPolicies = getPlatformPolicy(policyId);
       rollbar.info('generateLetterPrompt: Found platform policy', {
         platformId: request.platformInfo.platformId,
         policyId,
-        policyName: platformPolicy?.name,
+        platformName: platformPolicies?.platform,
       });
     } else {
       rollbar.warning('generateLetterPrompt: No policy ID found for platform', {
@@ -29,9 +29,9 @@ export function generateLetterPrompt(request: LetterRequest) {
     }
   }
 
-  const relevantPolicies = platformPolicy
+  const relevantPolicies = platformPolicies
     ? getRelevantPolicies(
-        platformPolicy,
+        platformPolicies,
         request.initialQuestions.contentType,
         request.initialQuestions.contentContext,
       )
@@ -67,10 +67,10 @@ export function generateLetterPrompt(request: LetterRequest) {
     ${QUALITY_CHECK_CRITERIA.MAJOR.SENSITIVE_TERMS.map(({ term, replacement }) => `- Do not use "${term}". Instead, use "${replacement}".`).join('\n')}
 
 ### **Information & Evidence**
-* **Policy Citations:** Cite policies using their exact \`title\` and \`document name\`.
-    * **Format:** \`Policy Title: Document Name\`
-    * **Example:** If the policy is "Bullying and Harassment" from the "Community Standards", cite it as \`Bullying and Harassment: Community Standards\`.
-    * **Constraint:** DO NOT use internal codes or abbreviations (e.g., \`FB-TOS-BH\`).
+* **Policy Citations:** Cite policies using their exact summary and document title.
+    * **Format:** \`Document Title: Policy Summary\`
+    * **Example:** If the policy summary is "Prohibits sharing non-consensual intimate images" from the "Community Standards", cite it as \`Community Standards: Prohibits sharing non-consensual intimate images\`.
+    * **Constraint:** DO NOT use internal codes, references, or abbreviations.
 * **Placeholders:** Maintain the existing placeholders from the \`# INPUTS \` data where the data supports the letter. Placeholders (e.g.\`[URL]\`, \`[Phone]\`) MUST be outputted with the exact same name and format. DO NOT create new placeholders.
 * **Confidentiality:** DO NOT mention or request identity verification, government IDs, proof of residence, or similar official documentation.
 
@@ -139,21 +139,33 @@ ${Object.entries(followUpInfo)
 ${
   relevantPolicies
     ? `
-Platform-Specific Policy Context for ${platformPolicy?.name}:
+Platform-Specific Policy Context for ${platformPolicies?.platform}:
 
-Platform applicable Policies:
+Applicable Policies:
 ${relevantPolicies
   .map(
-    (policy) => `- *${policy.policy}*
-  Documents: ${policy.documents.map((doc) => doc.title).join(', ')}
+    (policy) => `- Policy: ${policy.summary}
+  Reference: ${policy.reference || 'N/A'}
   Removal Criteria: ${policy.removalCriteria.join(', ')}
-  Evidence Requirements: ${policy.evidenceRequirements.join(', ')}`,
+  Evidence Requirements: ${policy.evidenceRequirements.map(req => req.description).join(', ')}`,
   )
   .join('\n')}
 
-Platform timeframes:
-- Initial Response: ${platformPolicy?.timeframes.response}
-- Content Removal: ${platformPolicy?.timeframes.removal}
+Platform timeframes (if available):
+${relevantPolicies
+  .filter(policy => policy.timeframes)
+  .map(policy => {
+    const timeframes = policy.timeframes!;
+    let result = '';
+    if (timeframes.response) {
+      result += `- Response: ${timeframes.response.value} ${timeframes.response.unit} (${timeframes.response.description})\n`;
+    }
+    if (timeframes.removal) {
+      result += `- Removal: ${timeframes.removal.value} ${timeframes.removal.unit} (${timeframes.removal.description})`;
+    }
+    return result;
+  })
+  .join('\n')}
 `
     : ''
 }

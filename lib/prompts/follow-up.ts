@@ -35,15 +35,15 @@ export function generateFollowUpPrompt(request: LetterRequest) {
     throw new Error('Missing platform name in platformInfo');
   }
 
-  let platformPolicy = null;
+  let platformPolicies = null;
   if (!request.platformInfo.isCustom) {
     const policyId = getPlatformPolicyId(request.platformInfo.platformId);
     if (policyId) {
-      platformPolicy = getPlatformPolicy(policyId);
+      platformPolicies = getPlatformPolicy(policyId);
       rollbar.info('generateFollowUpPrompt: Found platform policy', {
         platformId: request.platformInfo.platformId,
         policyId,
-        policyName: platformPolicy?.name,
+        platformName: platformPolicies?.platform,
       });
     } else {
       rollbar.warning('generateFollowUpPrompt: No policy ID found for platform', {
@@ -52,9 +52,9 @@ export function generateFollowUpPrompt(request: LetterRequest) {
     }
   }
 
-  const relevantPolicies = platformPolicy
+  const relevantPolicies = platformPolicies
     ? getRelevantPolicies(
-        platformPolicy,
+        platformPolicies,
         request.initialQuestions.contentType,
         request.initialQuestions.contentContext,
       )
@@ -96,17 +96,17 @@ Additional Steps Taken: ${reportingInfo.additionalStepsTaken || 'Not provided'}`
 
 ### Platform Policy Context
 ${
-  relevantPolicies
+  relevantPolicies && relevantPolicies.length > 0
     ? `
-Platform-Specific Policy Context for ${platformPolicy?.name}:
+Platform-Specific Policy Context for ${platformPolicies?.platform}:
 
 Applicable Policies:
 ${relevantPolicies
   .map(
-    (policy) => `- *${policy.policy}*
-  Documents: ${policy.documents.map((doc) => doc.title).join(', ')}
+    (policy) => `- Policy: ${policy.summary}
+  Reference: ${policy.reference || 'N/A'}
   Removal Criteria: ${policy.removalCriteria.join(', ')}
-  Evidence Requirements: ${policy.evidenceRequirements.join(', ')}`,
+  Evidence Requirements: ${policy.evidenceRequirements.map(req => req.description).join(', ')}`,
   )
   .join('\n')}`
     : ''

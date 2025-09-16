@@ -1,4 +1,5 @@
 import { PlatformId, PLATFORM_NAMES, PLATFORM_EMAILS } from './constants/platforms';
+import { getPlatformPolicy } from './platform-policies';
 
 export interface Platform {
   id: PlatformId;
@@ -142,4 +143,13 @@ export function getPlatformPolicyId(platformId: PlatformId): string | null {
     default:
       return null;
   }
+}
+
+// Helper function to check if platform has policies
+export function platformHasPolicies(platformId: PlatformId): boolean {
+  const policyId = getPlatformPolicyId(platformId);
+  if (!policyId) return false;
+  
+  const policies = getPlatformPolicy(policyId);
+  return policies !== null && policies.policyDocuments.length > 0;
 }
