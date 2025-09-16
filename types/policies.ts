@@ -75,3 +75,34 @@ export interface PolicyValidationQualityResult {
   }>;
   qualityScore: number;
 }
+
+// New types for the refactored system
+export interface LegalDocument {
+  reference: string;
+  title: string;
+  url: string;
+  accessTimestamp?: string;
+  notes?: string;
+}
+
+export interface ContentType {
+  type: string;
+  description: string;
+  examples: string[];
+}
+
+export interface ContentContext {
+  context: string;
+  description: string;
+  examples: string[];
+}
+
+export interface PlatformPolicy {
+  name: string;
+  legalDocuments: LegalDocument[];
+  contentTypes: ContentType[];
+  contentContexts: ContentContext[];
+  generalPolicies: Record<string, any>;
+  timeframes: Record<string, any>;
+  appealProcess: Record<string, any>;
+}
