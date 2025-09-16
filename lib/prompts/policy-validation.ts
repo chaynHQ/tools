@@ -18,10 +18,9 @@ export function generatePolicyValidationPrompt(data: PolicyValidationPromptData)
     platformId: data.platformId,
     platformName: data.platformPolicy.platform,
     documentsCount: data.platformPolicy.policyDocuments.length,
-  return `You are an AI assistant specialized in legal and policy analysis for image takedown requests. Your task is to analyze ALL legal documents for ${data.platformPolicy.platform} and determine if our current policy data needs updates.
   });
 
-  return `You are an AI assistant specialized in legal and policy analysis for image takedown requests. Your task is to analyze ALL legal documents for ${data.platformPolicy.name} and determine if our current policy data needs updates.
+  return `You are an AI assistant specialized in legal and policy analysis for image takedown requests. Your task is to analyze ALL legal documents for ${data.platformPolicy.platform} and determine if our current policy data needs updates.
 
 CRITICAL CONTEXT:
 The existing and future policies are used to generate automated image takedown requests. They must be accurate, comprehensive, and reflect the latest platform practices.
