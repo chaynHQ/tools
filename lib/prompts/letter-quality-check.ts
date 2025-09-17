@@ -117,6 +117,7 @@ ${request.followUp && request.followUp.length > 0
 Follow-up Information:
 ${request.followUp.map(({ question, answer }) => `${question}: ${answer || 'Not provided'}`).join('\n')}`
     : 'Follow-up Information: None provided'
+}
 
 ### PLATFORM POLICY CONTEXT:
 ${platformPolicies && documentsWithPolicies ? formatPolicyDataForAI(platformPolicies, documentsWithPolicies) : 'No relevant platform policies found.'}
