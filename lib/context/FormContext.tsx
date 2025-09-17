@@ -198,13 +198,14 @@ export function FormProvider({ children }: { children: ReactNode }) {
           platformInfo: prev.platformInfo,
           reportingDetails:
             Object.keys(prev.reportingDetails).length > 0 ? prev.reportingDetails : undefined,
-          followUp: prev.followUpData.answers,
+          followUp: prev.followUpData.answers.length > 0 ? prev.followUpData.answers : undefined,
         };
 
         rollbar.info('Complete form data updated', {
           platformId: prev.platformInfo?.platformId,
           platformName: platformName,
           isCustom: prev.platformInfo?.isCustom,
+          followUpCount: prev.followUpData.answers.length,
         });
 
         return {

@@ -33,6 +33,12 @@ export function generateLetterQualityCheckPrompt(
   const followUpInfo = request.followUp || [];
   const reportingInfo = request.reportingDetails || {};
 
+  rollbar.info('generateLetterQualityCheckPrompt: Follow-up data check', {
+    followUpProvided: !!request.followUp,
+    followUpLength: followUpInfo.length,
+    followUpData: followUpInfo,
+  });
+
   let platformPolicies = null;
   if (!request.platformInfo.isCustom) {
     const policyId = getPlatformPolicyId(request.platformInfo.platformId);
@@ -110,8 +116,10 @@ Additional Steps Taken: ${reportingInfo.additionalStepsTaken || 'Not provided'}
     : ''
 }
 ${followUpInfo.length > 0 
-  ? followUpInfo.map(({ question, answer }) => `${question}: ${answer || 'Not provided'}`).join('\\n')
-  : ''}
+  ? `
+Follow-up Information:
+${followUpInfo.map(({ question, answer }) => `${question}: ${answer || 'Not provided'}`).join('\n')}`
+  : 'Follow-up Information: None provided'}
 
 ### PLATFORM POLICY CONTEXT:
 ${platformPolicies && documentsWithPolicies ? formatPolicyDataForAI(platformPolicies, documentsWithPolicies) : 'No relevant platform policies found.'}

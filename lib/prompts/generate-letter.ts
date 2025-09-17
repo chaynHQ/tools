@@ -45,6 +45,12 @@ export function generateLetterPrompt(request: LetterRequest) {
   const followUpInfo = request.followUp || [];
   const reportingInfo = request.reportingDetails || {};
 
+  rollbar.info('generateLetterPrompt: Follow-up data check', {
+    followUpProvided: !!request.followUp,
+    followUpLength: followUpInfo.length,
+    followUpData: followUpInfo,
+  });
+
   const hasReportingHistory =
     reportingInfo.standardProcessDetails ||
     reportingInfo.escalatedProcessDetails ||
@@ -137,8 +143,10 @@ Additional Steps Taken: ${reportingInfo.additionalStepsTaken || 'Not provided'}`
     : ''
 }
 ${followUpInfo.length > 0 
-  ? followUpInfo.map(({ question, answer }) => `${question}: ${answer || 'Not provided'}`).join('\n')
-  : ''}
+  ? `
+Follow-up Information:
+${followUpInfo.map(({ question, answer }) => `${question}: ${answer || 'Not provided'}`).join('\n')}`
+  : 'Follow-up Information: None provided'}
 
 ${platformPolicies && documentsWithPolicies ? formatPolicyDataForAI(platformPolicies, documentsWithPolicies) : ''}
 
