@@ -65,33 +65,86 @@ export async function scrapeDocumentMarkdown(url: string): Promise<GaffaScraping
 
     const data = await response.json();
 
-    // Extract markdown from Gaffa response
-    const markdown = data.result?.markdown || data.markdown;
-
-    if (!markdown) {
-      rollbar.warning('scrapeDocumentMarkdown: No markdown content returned', {
+    // Extract markdown URL from Gaffa response
+    const actions = data.data?.actions || [];
+    const markdownAction = actions.find((action: any) => action.type === 'generate_markdown');
+    
+    if (!markdownAction || !markdownAction.output) {
+      rollbar.warning('scrapeDocumentMarkdown: No markdown action or output URL found', {
         url,
-        responseKeys: Object.keys(data),
+        responseStructure: Object.keys(data),
+        actions: actions.map((a: any) => ({ type: a.type, hasOutput: !!a.output })),
       });
       return {
         success: false,
-        error: 'No markdown content returned from Gaffa',
+        error: 'No markdown URL found in Gaffa response',
         url,
       };
     }
 
-    rollbar.info('scrapeDocumentMarkdown: Successfully scraped document', {
+    const markdownUrl = markdownAction.output;
+    rollbar.info('scrapeDocumentMarkdown: Found markdown URL, fetching content', {
       url,
-      markdownLength: markdown.length,
+      markdownUrl,
     });
 
-    return {
-      success: true,
-      markdown,
-      url,
-    };
+    // Fetch the actual markdown content from the URL
+    try {
+      const markdownResponse = await fetch(markdownUrl);
+      
+      if (!markdownResponse.ok) {
+        rollbar.error('scrapeDocumentMarkdown: Failed to fetch markdown content', {
+          url,
+          markdownUrl,
+          status: markdownResponse.status,
+          statusText: markdownResponse.statusText,
+        });
+        return {
+          success: false,
+          error: `Failed to fetch markdown content: ${markdownResponse.status} - ${markdownResponse.statusText}`,
+          url,
+        };
+      }
+
+      const markdown = await markdownResponse.text();
+      
+      if (!markdown || markdown.trim().length === 0) {
+        rollbar.warning('scrapeDocumentMarkdown: Empty markdown content returned', {
+          url,
+          markdownUrl,
+        });
+        return {
+          success: false,
+          error: 'Empty markdown content returned from Gaffa',
+          url,
+        };
+      }
+
+      rollbar.info('scrapeDocumentMarkdown: Successfully scraped document', {
+        url,
+        markdownUrl,
+        markdownLength: markdown.length,
+      });
+
+      return {
+        success: true,
+        markdown,
+        url,
+      };
+    } catch (markdownFetchError) {
+      rollbar.error('scrapeDocumentMarkdown: Error fetching markdown content', {
+        url,
+        markdownUrl,
+        error: markdownFetchError,
+      });
+      return {
+        success: false,
+        error: `Error fetching markdown content: ${markdownFetchError instanceof Error ? markdownFetchError.message : 'Unknown error'}`,
+        url,
+      };
+    }
   } catch (error) {
-    rollbar.error('scrapeDocumentMarkdown: Error during scraping', {
+    rollbar.error('scrapeDocumentMarkdown: Error during initial Gaffa request', {
       url,
       error,
     });
