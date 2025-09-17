@@ -181,17 +181,13 @@ export function FormProvider({ children }: { children: ReactNode }) {
   const updateCompleteFormData = () => {
     try {
       setFormState((prev) => {
-        // Get the platform name - either custom name or standard platform name
-        const platformName = prev.platformInfo?.isCustom
-          ? prev.platformInfo.customName
-          : prev.platformInfo?.platformName;
-
-        // Debug: Log the raw follow-up data structure
-        console.log('FormContext: Raw followUpData structure:', {
+        console.log('FormContext: updateCompleteFormData - Raw data:', {
           followUpData: prev.followUpData,
-          answersLength: prev.followUpData.answers.length,
-          answersContent: prev.followUpData.answers,
+          answersExists: !!prev.followUpData?.answers,
+          answersLength: prev.followUpData?.answers?.length || 0,
+          answersContent: prev.followUpData?.answers,
         });
+
         const completeData = {
           initialQuestions: {
             ...prev.initialQuestions,
@@ -204,23 +200,14 @@ export function FormProvider({ children }: { children: ReactNode }) {
           platformInfo: prev.platformInfo,
           reportingDetails:
             Object.keys(prev.reportingDetails).length > 0 ? prev.reportingDetails : undefined,
-          followUp: prev.followUpData.answers && prev.followUpData.answers.length > 0 ? prev.followUpData.answers : undefined,
+          followUp: prev.followUpData?.answers && prev.followUpData.answers.length > 0 ? prev.followUpData.answers : undefined,
         };
 
-        // Debug: Log the complete data structure
-        console.log('FormContext: Complete data structure:', {
+        console.log('FormContext: updateCompleteFormData - Complete data:', {
           hasFollowUp: !!completeData.followUp,
           followUpLength: completeData.followUp?.length || 0,
           followUpContent: completeData.followUp,
-        });
-        rollbar.info('Complete form data updated', {
-          platformId: prev.platformInfo?.platformId,
-          platformName: platformName,
-          isCustom: prev.platformInfo?.isCustom,
-          followUpCount: prev.followUpData.answers?.length || 0,
-          followUpData: prev.followUpData.answers,
-          completeDataFollowUp: completeData.followUp,
-          completeDataStructure: Object.keys(completeData),
+          completeDataKeys: Object.keys(completeData),
         });
 
         return {

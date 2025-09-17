@@ -9,16 +9,15 @@ import { getPlatformPolicyId } from '../platforms';
 import { serverInstance as rollbar } from '../rollbar';
 
 export function generateLetterPrompt(request: LetterRequest) {
-  rollbar.info('generateLetterPrompt: Generating takedown letter prompt', {
-    platformId: request.platformInfo.platformId,
-    platformName: request.platformInfo.platformName,
-    customName: request.platformInfo.customName,
-    isCustom: request.platformInfo.isCustom,
+  console.log('generateLetterPrompt: Debug request data:', {
+    requestKeys: Object.keys(request),
     hasFollowUp: !!request.followUp,
-    followUpLength: request.followUp?.length || 0,
-    followUpData: request.followUp,
     followUpType: typeof request.followUp,
     followUpIsArray: Array.isArray(request.followUp),
+    followUpLength: request.followUp?.length || 0,
+    followUpContent: request.followUp,
+    initialQuestions: Object.keys(request.initialQuestions || {}),
+    platformInfo: request.platformInfo,
   });
 
   let platformPolicies = null;
@@ -48,15 +47,6 @@ export function generateLetterPrompt(request: LetterRequest) {
 
   const initialInfo = request.initialQuestions;
   const reportingInfo = request.reportingDetails || {};
-
-  // Debug: Log the exact follow-up data being processed
-  console.log('generateLetterPrompt: Processing follow-up data:', {
-    requestFollowUp: request.followUp,
-    followUpExists: !!request.followUp,
-    followUpLength: request.followUp?.length || 0,
-    followUpType: typeof request.followUp,
-    followUpIsArray: Array.isArray(request.followUp),
-  });
 
   const hasReportingHistory =
     reportingInfo.standardProcessDetails ||
@@ -149,7 +139,7 @@ Response Received: ${reportingInfo.responseReceived || 'Not provided'}
 Additional Steps Taken: ${reportingInfo.additionalStepsTaken || 'Not provided'}`
     : ''
 }
-${request.followUp && request.followUp.length > 0 
+${request.followUp && Array.isArray(request.followUp) && request.followUp.length > 0 
   ? `
 Follow-up Information:
 ${request.followUp.map(({ question, answer }) => `${question}: ${answer || 'Not provided'}`).join('\n')}`
@@ -159,6 +149,10 @@ ${platformPolicies && documentsWithPolicies ? formatPolicyDataForAI(platformPoli
 
 `;
 
-  console.log(prompt);
+  console.log('generateLetterPrompt: Final prompt includes follow-up:', {
+    followUpSectionIncluded: !!(request.followUp && Array.isArray(request.followUp) && request.followUp.length > 0),
+    promptLength: prompt.length,
+  });
+
   return prompt;
 }
