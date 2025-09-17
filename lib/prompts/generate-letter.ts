@@ -61,7 +61,7 @@ export function generateLetterPrompt(request: LetterRequest) {
     ${QUALITY_CHECK_CRITERIA.MAJOR.SENSITIVE_TERMS.map(({ term, replacement }) => `- Do not use "${term}". Instead, use "${replacement}".`).join('\n')}
 
 ### **Information & Evidence**
-* **Policy Citations:** Cite policies using their exact summary and document title.
+* **Policy Citations:** Cite policies in a list, using their exact summary and document title.
     * **Format:** \`Document Title: Policy Summary\`
     * **Example:** If the policy summary is "Prohibits sharing non-consensual intimate images" from the "Community Standards", cite it as \`Community Standards: Prohibits sharing non-consensual intimate images\`.
     * **Constraint:** DO NOT use internal codes, references, or abbreviations.
