@@ -9,17 +9,6 @@ import { getPlatformPolicyId } from '../platforms';
 import { serverInstance as rollbar } from '../rollbar';
 
 export function generateLetterPrompt(request: LetterRequest) {
-  console.log('generateLetterPrompt: Debug request data:', {
-    requestKeys: Object.keys(request),
-    hasFollowUp: !!request.followUp,
-    followUpType: typeof request.followUp,
-    followUpIsArray: Array.isArray(request.followUp),
-    followUpLength: request.followUp?.length || 0,
-    followUpContent: request.followUp,
-    initialQuestions: Object.keys(request.initialQuestions || {}),
-    platformInfo: request.platformInfo,
-  });
-
   let platformPolicies = null;
   if (!request.platformInfo.isCustom) {
     const policyId = getPlatformPolicyId(request.platformInfo.platformId);
@@ -139,7 +128,7 @@ Response Received: ${reportingInfo.responseReceived || 'Not provided'}
 Additional Steps Taken: ${reportingInfo.additionalStepsTaken || 'Not provided'}`
     : ''
 }
-${request.followUp && Array.isArray(request.followUp) && request.followUp.length > 0 
+${request.followUp && request.followUp.length > 0 
   ? `
 Follow-up Information:
 ${request.followUp.map(({ question, answer }) => `${question}: ${answer || 'Not provided'}`).join('\n')}`
@@ -148,11 +137,6 @@ ${request.followUp.map(({ question, answer }) => `${question}: ${answer || 'Not 
 ${platformPolicies && documentsWithPolicies ? formatPolicyDataForAI(platformPolicies, documentsWithPolicies) : ''}
 
 `;
-
-  console.log('generateLetterPrompt: Final prompt includes follow-up:', {
-    followUpSectionIncluded: !!(request.followUp && Array.isArray(request.followUp) && request.followUp.length > 0),
-    promptLength: prompt.length,
-  });
 
   return prompt;
 }

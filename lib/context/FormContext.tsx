@@ -181,14 +181,6 @@ export function FormProvider({ children }: { children: ReactNode }) {
   const updateCompleteFormData = () => {
     try {
       setFormState((prev) => {
-        console.log('FormContext: updateCompleteFormData - Raw data:', {
-          followUpData: prev.followUpData,
-          answersExists: !!prev.followUpData?.answers,
-          answersLength: Array.isArray(prev.followUpData?.answers) ? prev.followUpData.answers.length : 0,
-          answersContent: prev.followUpData?.answers,
-          answersIsArray: Array.isArray(prev.followUpData?.answers),
-        });
-
         const completeData = {
           initialQuestions: {
             ...prev.initialQuestions,
@@ -201,17 +193,8 @@ export function FormProvider({ children }: { children: ReactNode }) {
           platformInfo: prev.platformInfo,
           reportingDetails:
             Object.keys(prev.reportingDetails).length > 0 ? prev.reportingDetails : undefined,
-          followUp: Array.isArray(prev.followUpData?.answers) && prev.followUpData.answers.length > 0 ? prev.followUpData.answers : undefined,
+          followUp: prev.followUpData?.answers?.length > 0 ? prev.followUpData.answers : undefined,
         };
-
-        console.log('FormContext: updateCompleteFormData - Complete data:', {
-          hasFollowUp: !!completeData.followUp,
-          followUpLength: completeData.followUp?.length || 0,
-          followUpContent: completeData.followUp,
-          completeDataKeys: Object.keys(completeData),
-          completeDataStructure: completeData,
-        });
-
         return {
           ...prev,
           completeFormData: completeData,

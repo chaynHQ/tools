@@ -13,16 +13,6 @@ interface GeneratedLetterResponse {
 export async function generateLetter(formData: LetterRequest): Promise<GeneratedLetterResponse> {
   let attempts = 0;
 
-  // Debug: Log the incoming formData structure
-  console.log('generateLetter: Incoming formData:', {
-    formDataKeys: Object.keys(formData),
-    hasFollowUp: !!formData.followUp,
-    followUpLength: formData.followUp?.length || 0,
-    followUpData: formData.followUp,
-    followUpIsArray: Array.isArray(formData.followUp),
-    completeFormDataStructure: formData,
-  });
-
   while (attempts < MAX_RETRIES) {
     attempts++;
 
