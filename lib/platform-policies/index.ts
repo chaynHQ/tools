@@ -1,4 +1,4 @@
-import { PlatformPolicies, Policy } from '../../types/policies';
+import { PlatformPolicies, Policy, PolicyDocument } from '../../types/policies';
 import { facebookPolicy } from './facebook';
 import { instagramPolicy } from './instagram';
 import { onlyfansPolicy } from './onlyfans';
@@ -29,10 +29,10 @@ function formatPolicyDataForAI(
 
   // Group policies by their source document
   const policiesByDocument = new Map<string, { document: PolicyDocument; policies: Policy[] }>();
-  
-  platformPolicies.policyDocuments.forEach(document => {
-    const documentPolicies = relevantPolicies.filter(policy => 
-      document.policies.some(docPolicy => docPolicy.id === policy.id)
+
+  platformPolicies.policyDocuments.forEach((document) => {
+    const documentPolicies = relevantPolicies.filter((policy) =>
+      document.policies.some((docPolicy) => docPolicy.id === policy.id),
     );
     if (documentPolicies.length > 0) {
       policiesByDocument.set(document.id, { document, policies: documentPolicies });
@@ -108,14 +108,14 @@ function getRelevantPolicies(
   if (!platformPolicies) return [];
 
   const allPolicies: Policy[] = [];
-  
+
   // Collect all policies from all documents
-  platformPolicies.policyDocuments.forEach(document => {
+  platformPolicies.policyDocuments.forEach((document) => {
     allPolicies.push(...document.policies);
   });
 
   // Filter policies that match the content type and context
-  return allPolicies.filter(policy => {
+  return allPolicies.filter((policy) => {
     const matchesContentType = policy.contentTypes.includes(contentType as any);
     const matchesContentContext = policy.contentContexts.includes(contentContext as any);
     return matchesContentType && matchesContentContext;
@@ -126,9 +126,9 @@ function getAllPoliciesForPlatform(platformPolicies: PlatformPolicies): Policy[]
   if (!platformPolicies) return [];
 
   const allPolicies: Policy[] = [];
-  
+
   // Collect all policies from all documents
-  platformPolicies.policyDocuments.forEach(document => {
+  platformPolicies.policyDocuments.forEach((document) => {
     allPolicies.push(...document.policies);
   });
 
@@ -139,7 +139,7 @@ function getPolicyById(platformPolicies: PlatformPolicies, policyId: string): Po
   if (!platformPolicies) return null;
 
   for (const document of platformPolicies.policyDocuments) {
-    const policy = document.policies.find(p => p.id === policyId);
+    const policy = document.policies.find((p) => p.id === policyId);
     if (policy) return policy;
   }
 
@@ -149,14 +149,14 @@ function getPolicyById(platformPolicies: PlatformPolicies, policyId: string): Po
 function getDocumentByReference(platformPolicies: PlatformPolicies, reference: string) {
   if (!platformPolicies) return null;
 
-  return platformPolicies.policyDocuments.find(doc => doc.reference === reference) || null;
+  return platformPolicies.policyDocuments.find((doc) => doc.reference === reference) || null;
 }
 
-export { 
-  getPlatformPolicy, 
-  getRelevantPolicies, 
+export {
+  formatPolicyDataForAI,
   getAllPoliciesForPlatform,
-  getPolicyById,
   getDocumentByReference,
-  formatPolicyDataForAI
+  getPlatformPolicy,
+  getPolicyById,
+  getRelevantPolicies,
 };
