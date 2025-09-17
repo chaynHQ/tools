@@ -42,7 +42,7 @@ interface ReportingDetailsData {
 
 interface FollowUpData {
   questions: FollowUpQuestion[];
-  answers: Array<{question: string, answer: string}>;
+  answers: Record<string, string>;
 }
 
 interface FormState {
@@ -72,7 +72,7 @@ const initialState: FormState = {
   reportingDetails: {},
   followUpData: {
     questions: [],
-    answers: [],
+    answers: {},
   },
   completeFormData: null,
 };
