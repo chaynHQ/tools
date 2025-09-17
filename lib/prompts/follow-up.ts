@@ -93,6 +93,9 @@ Response Received: ${reportingInfo.responseReceived || 'Not provided'}
 Additional Steps Taken: ${reportingInfo.additionalStepsTaken || 'Not provided'}`
     : ''
 }
+${followUpInfo.length > 0 
+  ? followUpInfo.map(({ question, answer }) => `${question}: ${answer || 'Not provided'}`).join('\\n')
+  : ''}
 
 ### Platform Policy Context
 ${platformPolicies && documentsWithPolicies ? formatPolicyDataForAI(platformPolicies, documentsWithPolicies) : 'No relevant platform policies found.'}

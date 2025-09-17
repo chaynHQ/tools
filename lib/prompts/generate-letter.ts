@@ -42,7 +42,7 @@ export function generateLetterPrompt(request: LetterRequest) {
     : null;
 
   const initialInfo = request.initialQuestions;
-  const followUpInfo = request.followUp || {};
+  const followUpInfo = request.followUp || [];
   const reportingInfo = request.reportingDetails || {};
 
   const hasReportingHistory =
@@ -136,9 +136,9 @@ Response Received: ${reportingInfo.responseReceived || 'Not provided'}
 Additional Steps Taken: ${reportingInfo.additionalStepsTaken || 'Not provided'}`
     : ''
 }
-${Object.entries(followUpInfo)
-  .map(([key, value]) => `${key}: ${value || 'Not provided'}`)
-  .join('\n')}
+${followUpInfo.length > 0 
+  ? followUpInfo.map(({ question, answer }) => `${question}: ${answer || 'Not provided'}`).join('\n')
+  : ''}
 
 ${platformPolicies && documentsWithPolicies ? formatPolicyDataForAI(platformPolicies, documentsWithPolicies) : ''}
 

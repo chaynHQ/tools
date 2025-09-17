@@ -30,7 +30,7 @@ export function generateLetterQualityCheckPrompt(
   request: LetterRequest,
 ) {
   const initialInfo = request.initialQuestions;
-  const followUpInfo = request.followUp || {};
+  const followUpInfo = request.followUp || [];
   const reportingInfo = request.reportingDetails || {};
 
   let platformPolicies = null;
@@ -109,9 +109,9 @@ Additional Steps Taken: ${reportingInfo.additionalStepsTaken || 'Not provided'}
 `
     : ''
 }
-${Object.entries(followUpInfo)
-  .map(([key, value]) => `${key}: ${value || 'Not provided'}`)
-  .join('\\n')}
+${followUpInfo.length > 0 
+  ? followUpInfo.map(({ question, answer }) => `${question}: ${answer || 'Not provided'}`).join('\\n')
+  : ''}
 
 ### PLATFORM POLICY CONTEXT:
 ${platformPolicies && documentsWithPolicies ? formatPolicyDataForAI(platformPolicies, documentsWithPolicies) : 'No relevant platform policies found.'}
