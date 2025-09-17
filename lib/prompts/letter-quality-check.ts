@@ -37,6 +37,13 @@ export function generateLetterQualityCheckPrompt(
     followUpProvided: !!request.followUp,
     followUpLength: followUpInfo.length,
     followUpData: followUpInfo,
+    requestStructure: {
+      hasInitialQuestions: !!request.initialQuestions,
+      hasReportingDetails: !!request.reportingDetails,
+      hasFollowUp: !!request.followUp,
+      followUpType: typeof request.followUp,
+      followUpIsArray: Array.isArray(request.followUp),
+    },
   });
 
   let platformPolicies = null;

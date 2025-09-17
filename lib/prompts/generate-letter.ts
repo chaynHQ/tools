@@ -14,6 +14,8 @@ export function generateLetterPrompt(request: LetterRequest) {
     platformName: request.platformInfo.platformName,
     customName: request.platformInfo.customName,
     isCustom: request.platformInfo.isCustom,
+    requestFollowUp: request.followUp,
+    requestFollowUpLength: request.followUp?.length || 0,
   });
 
   let platformPolicies = null;
@@ -49,6 +51,13 @@ export function generateLetterPrompt(request: LetterRequest) {
     followUpProvided: !!request.followUp,
     followUpLength: followUpInfo.length,
     followUpData: followUpInfo,
+    requestStructure: {
+      hasInitialQuestions: !!request.initialQuestions,
+      hasReportingDetails: !!request.reportingDetails,
+      hasFollowUp: !!request.followUp,
+      followUpType: typeof request.followUp,
+      followUpIsArray: Array.isArray(request.followUp),
+    },
   });
 
   const hasReportingHistory =

@@ -206,6 +206,8 @@ export function FormProvider({ children }: { children: ReactNode }) {
           platformName: platformName,
           isCustom: prev.platformInfo?.isCustom,
           followUpCount: prev.followUpData.answers.length,
+          followUpData: prev.followUpData.answers,
+          completeDataFollowUp: completeData.followUp,
         });
 
         return {

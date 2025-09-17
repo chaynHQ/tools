@@ -27,13 +27,6 @@ export function generateFollowUpPrompt(request: LetterRequest) {
     reportingInfo.responseReceived ||
     reportingInfo.additionalStepsTaken;
 
-  const followUpInfo = request.followUp || [];
-
-  rollbar.info('generateFollowUpPrompt: Follow-up data check', {
-    followUpProvided: !!request.followUp,
-    followUpLength: followUpInfo.length,
-    followUpData: followUpInfo,
-  });
 
   // Validate platformInfo
   if (!request.platformInfo.platformName && !request.platformInfo.customName) {
@@ -101,11 +94,6 @@ Response Received: ${reportingInfo.responseReceived || 'Not provided'}
 Additional Steps Taken: ${reportingInfo.additionalStepsTaken || 'Not provided'}`
     : ''
 }
-${followUpInfo.length > 0 
-  ? `
-Previous Follow-up Information:
-${followUpInfo.map(({ question, answer }) => `${question}: ${answer || 'Not provided'}`).join('\n')}`
-  : 'Previous Follow-up Information: None provided'}
 
 ### Platform Policy Context
 ${platformPolicies && documentsWithPolicies ? formatPolicyDataForAI(platformPolicies, documentsWithPolicies) : 'No relevant platform policies found.'}
