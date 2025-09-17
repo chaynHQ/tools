@@ -1,6 +1,10 @@
 import { LetterRequest } from '@/types/letter';
 import { QUALITY_CHECK_CRITERIA } from '../constants/ai';
-import { getPlatformPolicy, getDocumentsWithRelevantPolicies, formatPolicyDataForAI } from '../platform-policies';
+import {
+  formatPolicyDataForAI,
+  getDocumentsWithRelevantPolicies,
+  getPlatformPolicy,
+} from '../platform-policies';
 import { getPlatformPolicyId } from '../platforms';
 
 export interface QualityCheckResponse {
@@ -117,11 +121,13 @@ Additional Steps Taken: ${reportingInfo.additionalStepsTaken || 'Not provided'}
 `
     : ''
 }
-${request.followUp && request.followUp.length > 0 
-  ? `
+${
+  request.followUp && request.followUp.length > 0
+    ? `
 Follow-up Information:
 ${request.followUp.map(({ question, answer }) => `${question}: ${answer || 'Not provided'}`).join('\n')}`
-  : 'Follow-up Information: None provided'}
+    : 'Follow-up Information: None provided'
+}
 
 ### PLATFORM POLICY CONTEXT:
 ${platformPolicies && documentsWithPolicies ? formatPolicyDataForAI(platformPolicies, documentsWithPolicies) : 'No relevant platform policies found.'}

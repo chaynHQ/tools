@@ -66,8 +66,6 @@ function formatPolicyDataForAI(
 
   documentsWithPolicies.forEach((document) => {
     output += `### Document: ${document.title}\n`;
-    output += `- **Reference**: ${document.reference || 'N/A'}\n`;
-    output += `- **URL**: ${document.url}\n`;
     output += `- **Summary**: ${document.summary}\n\n`;
 
     if (document.appealProcess) {
@@ -87,10 +85,7 @@ function formatPolicyDataForAI(
 
     document.policies.forEach((policy, index) => {
       output += `#### Policy ${index + 1}: ${policy.summary}\n`;
-      output += `- **Reference**: ${policy.reference || 'N/A'}\n`;
       output += `- **Quote**: "${policy.quote}"\n`;
-      output += `- **Content Types**: ${policy.contentTypes.join(', ')}\n`;
-      output += `- **Content Contexts**: ${policy.contentContexts.join(', ')}\n\n`;
 
       if (policy.timeframes) {
         output += `**Timeframes**:\n`;
@@ -103,20 +98,24 @@ function formatPolicyDataForAI(
         output += '\n';
       }
 
-      output += `**Evidence Requirements**:\n`;
-      policy.evidenceRequirements.forEach((req, reqIndex) => {
-        output += `${reqIndex + 1}. **${req.description}**\n`;
-        if (req.example) {
-          output += `   - Example: ${req.example}\n`;
-        }
-        output += `   - Reason: ${req.reason}\n`;
-      });
-      output += '\n';
+      if (policy.evidenceRequirements) {
+        output += `**Evidence Requirements**:\n`;
+        policy.evidenceRequirements.forEach((req, reqIndex) => {
+          output += `${reqIndex + 1}. **${req.description}**\n`;
+          if (req.example) {
+            output += `   - Example: ${req.example}\n`;
+          }
+          output += `   - Reason: ${req.reason}\n`;
+        });
+        output += '\n';
+      }
 
-      output += `**Removal Criteria**:\n`;
-      policy.removalCriteria.forEach((criteria, criteriaIndex) => {
-        output += `${criteriaIndex + 1}. ${criteria}\n`;
-      });
+      if (policy.removalCriteria) {
+        output += `**Removal Criteria**:\n`;
+        policy.removalCriteria.forEach((criteria, criteriaIndex) => {
+          output += `${criteriaIndex + 1}. ${criteria}\n`;
+        });
+      }
       output += '\n---\n\n';
     });
   });
