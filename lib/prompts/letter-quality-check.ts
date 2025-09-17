@@ -1,6 +1,6 @@
 import { LetterRequest } from '@/types/letter';
 import { QUALITY_CHECK_CRITERIA } from '../constants/ai';
-import { getPlatformPolicy, getRelevantPolicies } from '../platform-policies';
+import { getPlatformPolicy, getRelevantPolicies, formatPolicyDataForAI } from '../platform-policies';
 import { getPlatformPolicyId } from '../platforms';
 
 export interface QualityCheckResponse {
@@ -113,38 +113,8 @@ ${Object.entries(followUpInfo)
   .map(([key, value]) => `${key}: ${value || 'Not provided'}`)
   .join('\\n')}
 
-${
-  relevantPolicies && relevantPolicies.length > 0
-    ? `PLATFORM POLICY CONTEXT:
-Platform-Specific policies Context for ${platformPolicies?.platform} likely applicable to this letter:
-
-${relevantPolicies
-  .map(
-    (policy) => `- Policy: ${policy.summary}
-  Reference: ${policy.reference || 'N/A'}
-  Removal Criteria: ${policy.removalCriteria.join(', ')}
-  Evidence Requirements: ${policy.evidenceRequirements.map(req => req.description).join(', ')}`,
-  )
-  .join('\\n')}
-
-Timeframes (if available):
-${relevantPolicies
-  .filter(policy => policy.timeframes)
-  .map(policy => {
-    const timeframes = policy.timeframes!;
-    let result = '';
-    if (timeframes.response) {
-      result += `- Response: ${timeframes.response.value} ${timeframes.response.unit} (${timeframes.response.description})\\n`;
-    }
-    if (timeframes.removal) {
-      result += `- Removal: ${timeframes.removal.value} ${timeframes.removal.unit} (${timeframes.removal.description})`;
-    }
-    return result;
-  })
-  .join('\\n')}
-`
-    : ''
-}
+### PLATFORM POLICY CONTEXT:
+${platformPolicies && relevantPolicies ? formatPolicyDataForAI(platformPolicies, relevantPolicies) : 'No relevant platform policies found.'}
 
 ### Part B: Quality Ruleset
 

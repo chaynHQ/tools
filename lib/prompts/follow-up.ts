@@ -1,6 +1,6 @@
 import { LetterRequest } from '@/types/letter';
 import { QUALITY_CHECK_CRITERIA } from '../constants/ai';
-import { getPlatformPolicy, getRelevantPolicies } from '../platform-policies';
+import { getPlatformPolicy, getRelevantPolicies, formatPolicyDataForAI } from '../platform-policies';
 import { getPlatformPolicyId } from '../platforms';
 import { serverInstance as rollbar } from '../rollbar';
 
@@ -95,22 +95,7 @@ Additional Steps Taken: ${reportingInfo.additionalStepsTaken || 'Not provided'}`
 }
 
 ### Platform Policy Context
-${
-  relevantPolicies && relevantPolicies.length > 0
-    ? `
-Platform-Specific Policy Context for ${platformPolicies?.platform}:
-
-Applicable Policies:
-${relevantPolicies
-  .map(
-    (policy) => `- Policy: ${policy.summary}
-  Reference: ${policy.reference || 'N/A'}
-  Removal Criteria: ${policy.removalCriteria.join(', ')}
-  Evidence Requirements: ${policy.evidenceRequirements.map(req => req.description).join(', ')}`,
-  )
-  .join('\n')}`
-    : ''
-}
+${platformPolicies && relevantPolicies ? formatPolicyDataForAI(platformPolicies, relevantPolicies) : 'No relevant platform policies found.'}
 
 ### Banned Terms
 ${QUALITY_CHECK_CRITERIA.MAJOR.SENSITIVE_TERMS.map(({ term, replacement }) => `- "${term}" (use "${replacement}")`).join('\n')}
