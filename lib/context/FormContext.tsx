@@ -72,7 +72,7 @@ const initialState: FormState = {
   reportingDetails: {},
   followUpData: {
     questions: [],
-    answers: {},
+    answers: [],
   },
   completeFormData: null,
 };
@@ -184,7 +184,7 @@ export function FormProvider({ children }: { children: ReactNode }) {
         console.log('FormContext: updateCompleteFormData - Raw data:', {
           followUpData: prev.followUpData,
           answersExists: !!prev.followUpData?.answers,
-          answersLength: prev.followUpData?.answers?.length || 0,
+          answersLength: Array.isArray(prev.followUpData?.answers) ? prev.followUpData.answers.length : 0,
           answersContent: prev.followUpData?.answers,
           answersIsArray: Array.isArray(prev.followUpData?.answers),
         });
@@ -201,7 +201,7 @@ export function FormProvider({ children }: { children: ReactNode }) {
           platformInfo: prev.platformInfo,
           reportingDetails:
             Object.keys(prev.reportingDetails).length > 0 ? prev.reportingDetails : undefined,
-          followUp: prev.followUpData?.answers && Array.isArray(prev.followUpData.answers) && prev.followUpData.answers.length > 0 ? prev.followUpData.answers : undefined,
+          followUp: Array.isArray(prev.followUpData?.answers) && prev.followUpData.answers.length > 0 ? prev.followUpData.answers : undefined,
         };
 
         console.log('FormContext: updateCompleteFormData - Complete data:', {
