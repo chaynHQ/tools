@@ -42,7 +42,7 @@ interface ReportingDetailsData {
 
 interface FollowUpData {
   questions: FollowUpQuestion[];
-  answers: Record<string, string>;
+  answers: Array<{question: string, answer: string}>;
 }
 
 interface FormState {
@@ -72,7 +72,7 @@ const initialState: FormState = {
   reportingDetails: {},
   followUpData: {
     questions: [],
-    answers: {},
+    answers: [],
   },
   completeFormData: null,
 };
@@ -160,7 +160,7 @@ export function FormProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const setFollowUpData = (questions: FollowUpQuestion[], answers: Record<string, string>) => {
+  const setFollowUpData = (questions: FollowUpQuestion[], answers: Array<{question: string, answer: string}>) => {
     try {
       setFormState((prev) => ({
         ...prev,
@@ -171,7 +171,7 @@ export function FormProvider({ children }: { children: ReactNode }) {
       }));
       rollbar.info('Follow-up data set', {
         questionCount: questions.length,
-        answerCount: Object.keys(answers).length,
+        answerCount: answers.length,
       });
     } catch (error) {
       rollbar.error('Error setting follow-up data', { error });
@@ -198,7 +198,7 @@ export function FormProvider({ children }: { children: ReactNode }) {
           platformInfo: prev.platformInfo,
           reportingDetails:
             Object.keys(prev.reportingDetails).length > 0 ? prev.reportingDetails : undefined,
-          followUp: prev.followUpData.answers,
+          followUp: prev.followUpData.answers.length > 0 ? prev.followUpData.answers : undefined,
         };
 
         rollbar.info('Complete form data updated', {
