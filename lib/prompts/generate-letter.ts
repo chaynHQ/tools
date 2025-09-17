@@ -1,6 +1,6 @@
 import { LetterRequest } from '@/types/letter';
 import { QUALITY_CHECK_CRITERIA } from '../constants/ai';
-import { getPlatformPolicy, getRelevantPolicies, formatPolicyDataForAI } from '../platform-policies';
+import { getPlatformPolicy, getDocumentsWithRelevantPolicies, formatPolicyDataForAI } from '../platform-policies';
 import { getPlatformPolicyId } from '../platforms';
 import { serverInstance as rollbar } from '../rollbar';
 
@@ -29,8 +29,8 @@ export function generateLetterPrompt(request: LetterRequest) {
     }
   }
 
-  const relevantPolicies = platformPolicies
-    ? getRelevantPolicies(
+  const documentsWithPolicies = platformPolicies
+    ? getDocumentsWithRelevantPolicies(
         platformPolicies,
         request.initialQuestions.contentType,
         request.initialQuestions.contentContext,
@@ -136,7 +136,7 @@ ${Object.entries(followUpInfo)
   .map(([key, value]) => `${key}: ${value || 'Not provided'}`)
   .join('\n')}
 
-${platformPolicies && relevantPolicies ? formatPolicyDataForAI(platformPolicies, relevantPolicies) : ''}
+${platformPolicies && documentsWithPolicies ? formatPolicyDataForAI(platformPolicies, documentsWithPolicies) : ''}
 
 `;
 

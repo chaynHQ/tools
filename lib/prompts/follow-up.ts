@@ -1,6 +1,6 @@
 import { LetterRequest } from '@/types/letter';
 import { QUALITY_CHECK_CRITERIA } from '../constants/ai';
-import { getPlatformPolicy, getRelevantPolicies, formatPolicyDataForAI } from '../platform-policies';
+import { getPlatformPolicy, getDocumentsWithRelevantPolicies, formatPolicyDataForAI } from '../platform-policies';
 import { getPlatformPolicyId } from '../platforms';
 import { serverInstance as rollbar } from '../rollbar';
 
@@ -52,8 +52,8 @@ export function generateFollowUpPrompt(request: LetterRequest) {
     }
   }
 
-  const relevantPolicies = platformPolicies
-    ? getRelevantPolicies(
+  const documentsWithPolicies = platformPolicies
+    ? getDocumentsWithRelevantPolicies(
         platformPolicies,
         request.initialQuestions.contentType,
         request.initialQuestions.contentContext,
@@ -95,7 +95,7 @@ Additional Steps Taken: ${reportingInfo.additionalStepsTaken || 'Not provided'}`
 }
 
 ### Platform Policy Context
-${platformPolicies && relevantPolicies ? formatPolicyDataForAI(platformPolicies, relevantPolicies) : 'No relevant platform policies found.'}
+${platformPolicies && documentsWithPolicies ? formatPolicyDataForAI(platformPolicies, documentsWithPolicies) : 'No relevant platform policies found.'}
 
 ### Banned Terms
 ${QUALITY_CHECK_CRITERIA.MAJOR.SENSITIVE_TERMS.map(({ term, replacement }) => `- "${term}" (use "${replacement}")`).join('\n')}

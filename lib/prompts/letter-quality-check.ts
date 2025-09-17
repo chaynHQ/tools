@@ -1,6 +1,6 @@
 import { LetterRequest } from '@/types/letter';
 import { QUALITY_CHECK_CRITERIA } from '../constants/ai';
-import { getPlatformPolicy, getRelevantPolicies, formatPolicyDataForAI } from '../platform-policies';
+import { getPlatformPolicy, getDocumentsWithRelevantPolicies, formatPolicyDataForAI } from '../platform-policies';
 import { getPlatformPolicyId } from '../platforms';
 
 export interface QualityCheckResponse {
@@ -41,8 +41,8 @@ export function generateLetterQualityCheckPrompt(
     }
   }
 
-  const relevantPolicies = platformPolicies
-    ? getRelevantPolicies(
+  const documentsWithPolicies = platformPolicies
+    ? getDocumentsWithRelevantPolicies(
         platformPolicies,
         request.initialQuestions.contentType,
         request.initialQuestions.contentContext,
@@ -114,7 +114,7 @@ ${Object.entries(followUpInfo)
   .join('\\n')}
 
 ### PLATFORM POLICY CONTEXT:
-${platformPolicies && relevantPolicies ? formatPolicyDataForAI(platformPolicies, relevantPolicies) : 'No relevant platform policies found.'}
+${platformPolicies && documentsWithPolicies ? formatPolicyDataForAI(platformPolicies, documentsWithPolicies) : 'No relevant platform policies found.'}
 
 ### Part B: Quality Ruleset
 
