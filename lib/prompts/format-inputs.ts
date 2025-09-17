@@ -1,5 +1,20 @@
-import { contentContexts, contentTypes } from '@/app/letter-generator/components/initial-questions';
 import { LetterRequest } from '@/types/letter';
+
+// Define content types and contexts locally to avoid import issues
+const contentTypes = [
+  { value: 'intimate', label: 'Intimate', description: 'Sexual or nude content' },
+  { value: 'personal', label: 'Personal', description: 'Private personal content' },
+  { value: 'private', label: 'Private', description: 'Private information or content' },
+  { value: 'other', label: 'Other', description: 'Other type of content' }
+];
+
+const contentContexts = [
+  { value: 'hacked', label: 'Hacked', description: 'Content from hacked account' },
+  { value: 'impersonation', label: 'Impersonation', description: 'Content used for impersonation' },
+  { value: 'relationship', label: 'Relationship', description: 'Content shared by ex-partner' },
+  { value: 'unknown', label: 'Unknown', description: 'Unknown source' },
+  { value: 'other', label: 'Other', description: 'Other context' }
+];
 
 export function formatInputsForAI(request: LetterRequest): string {
   const initialInfo = request.initialQuestions;
