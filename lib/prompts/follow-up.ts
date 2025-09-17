@@ -3,6 +3,7 @@ import { QUALITY_CHECK_CRITERIA } from '../constants/ai';
 import { getPlatformPolicy, getDocumentsWithRelevantPolicies, formatPolicyDataForAI } from '../platform-policies';
 import { getPlatformPolicyId } from '../platforms';
 import { serverInstance as rollbar } from '../rollbar';
+import { formatInputsForAI } from './format-inputs';
 
 export function generateFollowUpPrompt(request: LetterRequest) {
   rollbar.info('generateFollowUpPrompt: Generating follow-up questions prompt', {
@@ -35,30 +36,31 @@ export function generateFollowUpPrompt(request: LetterRequest) {
     throw new Error('Missing platform name in platformInfo');
   }
 
-  let platformPolicies = null;
+  // Get platform policies for context
+  let platformPolicyContext = '';
   if (!request.platformInfo.isCustom) {
     const policyId = getPlatformPolicyId(request.platformInfo.platformId);
     if (policyId) {
-      platformPolicies = getPlatformPolicy(policyId);
-      rollbar.info('generateFollowUpPrompt: Found platform policy', {
-        platformId: request.platformInfo.platformId,
-        policyId,
-        platformName: platformPolicies?.platform,
-      });
+      const platformPolicies = getPlatformPolicy(policyId);
+      if (platformPolicies) {
+        rollbar.info('generateFollowUpPrompt: Found platform policy', {
+          platformId: request.platformInfo.platformId,
+          policyId,
+          platformName: platformPolicies.platform,
+        });
+        const documentsWithPolicies = getDocumentsWithRelevantPolicies(
+          platformPolicies,
+          request.initialQuestions.contentType,
+          request.initialQuestions.contentContext,
+        );
+        platformPolicyContext = formatPolicyDataForAI(platformPolicies, documentsWithPolicies);
+      }
     } else {
       rollbar.warning('generateFollowUpPrompt: No policy ID found for platform', {
         platformId: request.platformInfo.platformId,
       });
     }
   }
-
-  const documentsWithPolicies = platformPolicies
-    ? getDocumentsWithRelevantPolicies(
-        platformPolicies,
-        request.initialQuestions.contentType,
-        request.initialQuestions.contentContext,
-      )
-    : null;
 
   return `# ROLE & OBJECTIVE
 
@@ -77,25 +79,12 @@ You are a strategic AI assistant specializing in platform policy enforcement. Yo
 This is the complete set of information provided by the user so far. You must review all of it before deciding if any questions are necessary.
 
 ### User-Provided Information
-Platform: ${request.platformInfo.platformName || request.platformInfo.customName}
-Content Location Type: ${initialInfo.contentLocationType || 'Not provided'}
-Content Location: ${initialInfo.imageIdentification || 'Not provided'}
-Upload Date: ${initialInfo.imageUploadDate || 'Not provided'}
-Creation Date: ${initialInfo.imageTakenDate || 'Not provided'}
-Ownership Evidence: ${initialInfo.ownershipEvidence || 'Not provided'}
-Impact Statement: ${initialInfo.impactStatement || 'Not provided'}
-${
-  hasReportingHistory
-    ? `
-Standard Process Details: ${reportingInfo.standardProcessDetails || 'Not provided'}
-Escalated Process Details: ${reportingInfo.escalatedProcessDetails || 'Not provided'}
-Response Received: ${reportingInfo.responseReceived || 'Not provided'}
-Additional Steps Taken: ${reportingInfo.additionalStepsTaken || 'Not provided'}`
-    : ''
-}
+${formatInputsForAI(request)}
+Content Location Type: ${request.initialQuestions.contentLocationType || 'Not provided'}
+Content Location: ${request.initialQuestions.imageIdentification || 'Not provided'}
 
 ### Platform Policy Context
-${platformPolicies && documentsWithPolicies ? formatPolicyDataForAI(platformPolicies, documentsWithPolicies) : 'No relevant platform policies found.'}
+${platformPolicyContext || 'No relevant platform policies found.'}
 
 ### Banned Terms
 ${QUALITY_CHECK_CRITERIA.MAJOR.SENSITIVE_TERMS.map(({ term, replacement }) => `- "${term}" (use "${replacement}")`).join('\n')}

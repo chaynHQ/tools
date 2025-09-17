@@ -2,6 +2,7 @@ import { LetterRequest } from '@/types/letter';
 import { QUALITY_CHECK_CRITERIA } from '../constants/ai';
 import { getPlatformPolicy, getDocumentsWithRelevantPolicies, formatPolicyDataForAI } from '../platform-policies';
 import { getPlatformPolicyId } from '../platforms';
+import { formatInputsForAI } from './format-inputs';
 
 export interface QualityCheckResponse {
   issues: {
@@ -29,31 +30,22 @@ export function generateLetterQualityCheckPrompt(
   letter: { subject: string; body: string },
   request: LetterRequest,
 ) {
-  const initialInfo = request.initialQuestions;
-  const followUpInfo = request.followUp || {};
-  const reportingInfo = request.reportingDetails || {};
-
-  let platformPolicies = null;
+  // Get platform policy context
+  let platformPolicyContext = '';
   if (!request.platformInfo.isCustom) {
     const policyId = getPlatformPolicyId(request.platformInfo.platformId);
     if (policyId) {
-      platformPolicies = getPlatformPolicy(policyId);
+      const platformPolicies = getPlatformPolicy(policyId);
+      if (platformPolicies) {
+        const documentsWithPolicies = getDocumentsWithRelevantPolicies(
+          platformPolicies,
+          request.initialQuestions.contentType,
+          request.initialQuestions.contentContext,
+        );
+        platformPolicyContext = formatPolicyDataForAI(platformPolicies, documentsWithPolicies);
+      }
     }
   }
-
-  const documentsWithPolicies = platformPolicies
-    ? getDocumentsWithRelevantPolicies(
-        platformPolicies,
-        request.initialQuestions.contentType,
-        request.initialQuestions.contentContext,
-      )
-    : null;
-
-  const hasReportingHistory =
-    reportingInfo.standardProcessDetails ||
-    reportingInfo.escalatedProcessDetails ||
-    reportingInfo.responseReceived ||
-    reportingInfo.additionalStepsTaken;
 
   return `
 # ROLE & OBJECTIVE
@@ -93,28 +85,10 @@ ${JSON.stringify(letter)}
 This section contains the *entire universe* of allowed information and rules for the letter. The letter is only valid if it is based exclusively on this specification.
 
 ### Part A: Factual Context
-Content Type: ${request.initialQuestions.contentType}
-Content Context: ${request.initialQuestions.contentContext}
-Platform: ${request.platformInfo.platformName || request.platformInfo.customName}
-Upload Date: ${initialInfo.imageUploadDate || 'Not provided'}
-Creation Date: ${initialInfo.imageTakenDate || 'Not provided'}
-Ownership Evidence: ${initialInfo.ownershipEvidence || 'Not provided'}
-Impact Statement: ${initialInfo.impactStatement || 'Not provided'}
-${
-  hasReportingHistory
-    ? `Standard Process Details: ${reportingInfo.standardProcessDetails || 'Not provided'}
-Escalated Process Details: ${reportingInfo.escalatedProcessDetails || 'Not provided'}
-Response Received: ${reportingInfo.responseReceived || 'Not provided'}
-Additional Steps Taken: ${reportingInfo.additionalStepsTaken || 'Not provided'}
-`
-    : ''
-}
-${followUpInfo
-  .map(({question, answer}) => `${question}: ${answer || 'Not provided'}`)
-  .join('\\n')}
+${formatInputsForAI(request)}
 
 ### PLATFORM POLICY CONTEXT:
-${platformPolicies && documentsWithPolicies ? formatPolicyDataForAI(platformPolicies, documentsWithPolicies) : 'No relevant platform policies found.'}
+${platformPolicyContext || 'No relevant platform policies found.'}
 
 ### Part B: Quality Ruleset
 

@@ -7,6 +7,7 @@ import {
 } from '../platform-policies';
 import { getPlatformPolicyId } from '../platforms';
 import { serverInstance as rollbar } from '../rollbar';
+import { formatInputsForAI } from './format-inputs';
 
 export function generateLetterPrompt(request: LetterRequest) {
   rollbar.info('generateLetterPrompt: Generating takedown letter prompt', {
@@ -33,24 +34,16 @@ export function generateLetterPrompt(request: LetterRequest) {
     }
   }
 
-  const documentsWithPolicies = platformPolicies
-    ? getDocumentsWithRelevantPolicies(
-        platformPolicies,
-        request.initialQuestions.contentType,
-        request.initialQuestions.contentContext,
-      )
-    : null;
-
-  const initialInfo = request.initialQuestions;
-  const followUpInfo = request.followUp || [];
-  const reportingInfo = request.reportingDetails || {};
-
-  console.log('followup qs', request.followUp);
-  const hasReportingHistory =
-    reportingInfo.standardProcessDetails ||
-    reportingInfo.escalatedProcessDetails ||
-    reportingInfo.responseReceived ||
-    reportingInfo.additionalStepsTaken;
+  // Get platform policy context
+  let platformPolicyContext = '';
+  if (platformPolicies) {
+    const documentsWithPolicies = getDocumentsWithRelevantPolicies(
+      platformPolicies,
+      request.initialQuestions.contentType,
+      request.initialQuestions.contentContext,
+    );
+    platformPolicyContext = formatPolicyDataForAI(platformPolicies, documentsWithPolicies);
+  }
 
   const prompt = `Act as an expert AI assistant specializing in platform policy enforcement and content takedown requests. Your objective is to generate a clear, factual, and compelling letter to a platform's (${request.platformInfo.platformName || request.platformInfo.customName}) support team, arguing for the removal of specific content based *exclusively* on the inputs provided.
 
@@ -121,27 +114,10 @@ You MUST respond with a single, valid JSON object. The response must be parseabl
 \`\`\`
 
 # INPUTS
-Content Type: ${request.initialQuestions.contentType}
-Content Context: ${request.initialQuestions.contentContext}
-Platform: ${request.platformInfo.platformName || request.platformInfo.customName}
-Upload Date: ${initialInfo.imageUploadDate || 'Not provided'}
-Creation Date: ${initialInfo.imageTakenDate || 'Not provided'}
-Ownership Evidence: ${initialInfo.ownershipEvidence || 'Not provided'}
-Impact Statement: ${initialInfo.impactStatement || 'Not provided'}
-${
-  hasReportingHistory
-    ? `
-Standard Process Details: ${reportingInfo.standardProcessDetails || 'Not provided'}
-Escalated Process Details: ${reportingInfo.escalatedProcessDetails || 'Not provided'}
-Response Received: ${reportingInfo.responseReceived || 'Not provided'}
-Additional Steps Taken: ${reportingInfo.additionalStepsTaken || 'Not provided'}`
-    : ''
-}
-${followUpInfo.map(({ question, answer }) => `${question}: ${answer || 'Not provided'}`).join('\n')}
+${formatInputsForAI(request)}
 
-${platformPolicies && documentsWithPolicies ? formatPolicyDataForAI(platformPolicies, documentsWithPolicies) : ''}
+${platformPolicyContext}
 
 `;
-  console.log(prompt);
   return prompt;
 }
