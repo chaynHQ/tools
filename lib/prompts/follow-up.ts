@@ -1,13 +1,9 @@
 import { LetterRequest } from '@/types/letter';
 import { QUALITY_CHECK_CRITERIA } from '../constants/ai';
-import {
-  formatPolicyDataForAI,
-  getDocumentsWithRelevantPolicies,
-  getPlatformPolicy,
-} from '../platform-policies';
+import { getDocumentsWithRelevantPolicies, getPlatformPolicy } from '../platform-policies';
 import { getPlatformPolicyId } from '../platforms';
 import { serverInstance as rollbar } from '../rollbar';
-import { formatInputsForAI } from './format-inputs';
+import { formatInputsForAI, formatPolicyDataForAI } from './format-inputs';
 
 export function generateFollowUpPrompt(request: LetterRequest) {
   rollbar.info('generateFollowUpPrompt: Generating follow-up questions prompt', {
@@ -119,7 +115,7 @@ Ensure the JSON is perfectly valid and can be parsed by \`JSON.parse()\` in Java
 [
   {
     "id": "context_of_sharing_1",
-    "question": "Can you describe the context in which this content was shared online, without sharing personal details?",
+    "question": "Can you describe the context in which this content was shared online?",
     "context": "This helps establish if the content was shared in a targeted way, which is relevant to harassment policies.",
     "reason": "essential"
   },
@@ -136,11 +132,9 @@ Ensure the JSON is perfectly valid and can be parsed by \`JSON.parse()\` in Java
 
 This is the complete set of information provided by the user so far. You must review all of it before deciding if any questions are necessary.
 
-## User-Provided Information
 ${formatInputsForAI(request)}
 
 ${platformPolicyContext}
----
 `;
   console.log(prompt);
   return prompt;

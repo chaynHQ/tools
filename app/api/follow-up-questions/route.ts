@@ -8,17 +8,14 @@ import { NextResponse } from 'next/server';
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    console.log(1);
 
     const generateQuestions = async () => {
       const response = await callAnthropic(generateFollowUpPrompt(body));
       return parseAIJson(response);
     };
-    console.log(2);
 
     const questions = await retryWithDelay(generateQuestions);
 
-    console.log(3);
     rollbar.info('FollowUpQuestions: Successfully generated follow-up questions', {
       questionCount: questions.length,
     });
@@ -40,7 +37,6 @@ export async function POST(request: Request) {
 
     return NextResponse.json(questions);
   } catch (error: any) {
-    console.log(error);
     rollbar.error('FollowUpQuestions: Error generating follow-up questions', {
       error: error.message,
       stack: error.stack,

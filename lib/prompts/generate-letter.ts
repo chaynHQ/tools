@@ -1,13 +1,9 @@
 import { LetterRequest } from '@/types/letter';
 import { QUALITY_CHECK_CRITERIA } from '../constants/ai';
-import {
-  formatPolicyDataForAI,
-  getDocumentsWithRelevantPolicies,
-  getPlatformPolicy,
-} from '../platform-policies';
+import { getDocumentsWithRelevantPolicies, getPlatformPolicy } from '../platform-policies';
 import { getPlatformPolicyId } from '../platforms';
 import { serverInstance as rollbar } from '../rollbar';
-import { formatInputsForAI } from './format-inputs';
+import { formatInputsForAI, formatPolicyDataForAI } from './format-inputs';
 
 export function generateLetterPrompt(request: LetterRequest) {
   rollbar.info('generateLetterPrompt: Generating takedown letter prompt', {
@@ -117,7 +113,6 @@ You MUST respond with a single, valid JSON object. The response must be parseabl
 ${formatInputsForAI(request)}
 
 ${platformPolicyContext}
-
 `;
   console.log(prompt);
   return prompt;
