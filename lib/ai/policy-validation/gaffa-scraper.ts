@@ -25,7 +25,7 @@ export async function scrapeDocumentMarkdown(url: string): Promise<GaffaScraping
       headers: {
         'X-API-Key': process.env.GAFFA_API_KEY,
         'Content-Type': 'application/json',
-        'Accept': '*/*',
+        Accept: '*/*',
       },
       body: JSON.stringify({
         url,
@@ -33,7 +33,7 @@ export async function scrapeDocumentMarkdown(url: string): Promise<GaffaScraping
         async: false,
         max_cache_age: 3600, // Cache for 1 hour
         settings: {
-          record_request: false,
+          record_request: true,
           actions: [
             {
               type: 'wait',
@@ -46,6 +46,8 @@ export async function scrapeDocumentMarkdown(url: string): Promise<GaffaScraping
         },
       }),
     });
+
+    console.log('gaffa response');
 
     if (!response.ok) {
       const errorText = await response.text();
@@ -62,10 +64,10 @@ export async function scrapeDocumentMarkdown(url: string): Promise<GaffaScraping
     }
 
     const data = await response.json();
-    
+
     // Extract markdown from Gaffa response
     const markdown = data.result?.markdown || data.markdown;
-    
+
     if (!markdown) {
       rollbar.warning('scrapeDocumentMarkdown: No markdown content returned', {
         url,
@@ -101,27 +103,25 @@ export async function scrapeDocumentMarkdown(url: string): Promise<GaffaScraping
   }
 }
 
-export async function scrapeMultipleDocuments(
-  urls: string[]
-): Promise<GaffaScrapingResult[]> {
+export async function scrapeMultipleDocuments(urls: string[]): Promise<GaffaScrapingResult[]> {
   rollbar.info('scrapeMultipleDocuments: Starting batch scraping', {
     urlCount: urls.length,
   });
 
   const results: GaffaScrapingResult[] = [];
-  
+
   // Process documents sequentially to avoid overwhelming the API
   for (const url of urls) {
     const result = await scrapeDocumentMarkdown(url);
     results.push(result);
-    
+
     // Add a small delay between requests to be respectful
     if (urls.indexOf(url) < urls.length - 1) {
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 1000));
     }
   }
 
-  const successCount = results.filter(r => r.success).length;
+  const successCount = results.filter((r) => r.success).length;
   rollbar.info('scrapeMultipleDocuments: Batch scraping completed', {
     totalUrls: urls.length,
     successCount,
