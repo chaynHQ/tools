@@ -1,6 +1,10 @@
 import { LetterRequest } from '@/types/letter';
 import { QUALITY_CHECK_CRITERIA } from '../constants/ai';
-import { getPlatformPolicy, getDocumentsWithRelevantPolicies, formatPolicyDataForAI } from '../platform-policies';
+import {
+  formatPolicyDataForAI,
+  getDocumentsWithRelevantPolicies,
+  getPlatformPolicy,
+} from '../platform-policies';
 import { getPlatformPolicyId } from '../platforms';
 import { serverInstance as rollbar } from '../rollbar';
 
@@ -38,9 +42,10 @@ export function generateLetterPrompt(request: LetterRequest) {
     : null;
 
   const initialInfo = request.initialQuestions;
-  const followUpInfo = request.followUp || {};
+  const followUpInfo = request.followUp || [];
   const reportingInfo = request.reportingDetails || {};
 
+  console.log('followup qs', request.followUp);
   const hasReportingHistory =
     reportingInfo.standardProcessDetails ||
     reportingInfo.escalatedProcessDetails ||
@@ -132,13 +137,11 @@ Response Received: ${reportingInfo.responseReceived || 'Not provided'}
 Additional Steps Taken: ${reportingInfo.additionalStepsTaken || 'Not provided'}`
     : ''
 }
-${followUpInfo
-  .map(({question, answer}) => `${question}: ${answer || 'Not provided'}`)
-  .join('\n')}
+${followUpInfo.map(({ question, answer }) => `${question}: ${answer || 'Not provided'}`).join('\n')}
 
 ${platformPolicies && documentsWithPolicies ? formatPolicyDataForAI(platformPolicies, documentsWithPolicies) : ''}
 
 `;
-
+  console.log(prompt);
   return prompt;
 }

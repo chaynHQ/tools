@@ -31,7 +31,7 @@ export async function callAnthropic(
       ...config,
     });
 
-    console.log(response);
+    // console.log(response);
     const responseText = response?.content?.filter((c) => c.type === 'text')[0]?.text;
 
     //@ts-ignore
