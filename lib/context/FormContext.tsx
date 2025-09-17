@@ -48,9 +48,9 @@ interface FollowUpData {
 interface FormState {
   platformInfo: PlatformInfo | null;
   reportingInfo: ReportingInfo | null;
+  followUpInfo: FollowUpData | null;
   initialQuestions: Partial<InitialQuestionsData>;
   reportingDetails: Partial<ReportingDetailsData>;
-  followUpData: FollowUpData;
   completeFormData: any;
 }
 
@@ -160,21 +160,18 @@ export function FormProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const setFollowUpData = (questions: FollowUpQuestion[], answers: Array<{ question: string; answer: string }>) => {
+  const setFollowUpInfo = (info: FollowUpData) => {
     try {
       setFormState((prev) => ({
         ...prev,
-        followUpData: {
-          questions,
-          answers,
-        },
+        followUpInfo: info,
       }));
-      rollbar.info('Follow-up data set', {
-        questionCount: questions.length,
-        answerCount: answers.length,
+      rollbar.info('Follow-up info set', {
+        questionCount: info.questions.length,
+        answerCount: info.answers.length,
       });
     } catch (error) {
-      rollbar.error('Error setting follow-up data', { error });
+      rollbar.error('Error setting follow-up info', { error });
     }
   };
 
@@ -193,7 +190,7 @@ export function FormProvider({ children }: { children: ReactNode }) {
           platformInfo: prev.platformInfo,
           reportingDetails:
             Object.keys(prev.reportingDetails).length > 0 ? prev.reportingDetails : undefined,
-          followUp: prev.followUpData?.answers?.length > 0 ? prev.followUpData.answers : undefined,
+          followUp: prev.followUpInfo?.answers?.length > 0 ? prev.followUpInfo.answers : undefined,
         };
         return {
           ...prev,
@@ -220,9 +217,9 @@ export function FormProvider({ children }: { children: ReactNode }) {
         formState,
         setPlatformInfo,
         setReportingInfo,
+        setFollowUpInfo,
         setInitialQuestions,
         setReportingDetails,
-        setFollowUpData,
         updateCompleteFormData,
         resetForm,
       }}

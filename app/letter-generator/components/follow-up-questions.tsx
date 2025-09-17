@@ -18,7 +18,7 @@ import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognitio
 import { VoiceInput } from './voice-input';
 
 const SUPPORTED_LANGUAGES = [
-  'en-US',
+  const { formState, setFollowUpInfo, updateCompleteFormData } = useFormContext();
   'es-ES',
   'fr-FR',
   'de-DE',
@@ -131,7 +131,10 @@ export function FollowUpQuestions({
     }
   }, [savedData, reset]);
 
-  useEffect(() => {
+    setFollowUpInfo({
+      questions,
+      answers: answersArray,
+    });
     if (transcript && activeField) {
       setValue(activeField, transcript);
     }
