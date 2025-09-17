@@ -186,6 +186,7 @@ export function FormProvider({ children }: { children: ReactNode }) {
           answersExists: !!prev.followUpData?.answers,
           answersLength: prev.followUpData?.answers?.length || 0,
           answersContent: prev.followUpData?.answers,
+          answersIsArray: Array.isArray(prev.followUpData?.answers),
         });
 
         const completeData = {
@@ -200,7 +201,7 @@ export function FormProvider({ children }: { children: ReactNode }) {
           platformInfo: prev.platformInfo,
           reportingDetails:
             Object.keys(prev.reportingDetails).length > 0 ? prev.reportingDetails : undefined,
-          followUp: prev.followUpData?.answers && prev.followUpData.answers.length > 0 ? prev.followUpData.answers : undefined,
+          followUp: prev.followUpData?.answers && Array.isArray(prev.followUpData.answers) && prev.followUpData.answers.length > 0 ? prev.followUpData.answers : undefined,
         };
 
         console.log('FormContext: updateCompleteFormData - Complete data:', {
@@ -208,6 +209,7 @@ export function FormProvider({ children }: { children: ReactNode }) {
           followUpLength: completeData.followUp?.length || 0,
           followUpContent: completeData.followUp,
           completeDataKeys: Object.keys(completeData),
+          completeDataStructure: completeData,
         });
 
         return {

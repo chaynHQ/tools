@@ -15,10 +15,12 @@ export async function generateLetter(formData: LetterRequest): Promise<Generated
 
   // Debug: Log the incoming formData structure
   console.log('generateLetter: Incoming formData:', {
+    formDataKeys: Object.keys(formData),
     hasFollowUp: !!formData.followUp,
     followUpLength: formData.followUp?.length || 0,
     followUpData: formData.followUp,
-    formDataKeys: Object.keys(formData),
+    followUpIsArray: Array.isArray(formData.followUp),
+    completeFormDataStructure: formData,
   });
 
   while (attempts < MAX_RETRIES) {
