@@ -30,20 +30,15 @@ export function generateLetterQualityCheckPrompt(
   request: LetterRequest,
 ) {
   const initialInfo = request.initialQuestions;
-  const followUpInfo = request.followUp || [];
   const reportingInfo = request.reportingDetails || {};
 
-  rollbar.info('generateLetterQualityCheckPrompt: Follow-up data check', {
-    followUpProvided: !!request.followUp,
-    followUpLength: followUpInfo.length,
-    followUpData: followUpInfo,
-    requestStructure: {
-      hasInitialQuestions: !!request.initialQuestions,
-      hasReportingDetails: !!request.reportingDetails,
-      hasFollowUp: !!request.followUp,
-      followUpType: typeof request.followUp,
-      followUpIsArray: Array.isArray(request.followUp),
-    },
+  // Debug: Log the exact follow-up data being processed
+  console.log('generateLetterQualityCheckPrompt: Processing follow-up data:', {
+    requestFollowUp: request.followUp,
+    followUpExists: !!request.followUp,
+    followUpLength: request.followUp?.length || 0,
+    followUpType: typeof request.followUp,
+    followUpIsArray: Array.isArray(request.followUp),
   });
 
   let platformPolicies = null;
@@ -122,10 +117,10 @@ Additional Steps Taken: ${reportingInfo.additionalStepsTaken || 'Not provided'}
 `
     : ''
 }
-${followUpInfo.length > 0 
+${request.followUp && request.followUp.length > 0 
   ? `
 Follow-up Information:
-${followUpInfo.map(({ question, answer }) => `${question}: ${answer || 'Not provided'}`).join('\n')}`
+${request.followUp.map(({ question, answer }) => `${question}: ${answer || 'Not provided'}`).join('\n')}`
   : 'Follow-up Information: None provided'}
 
 ### PLATFORM POLICY CONTEXT:

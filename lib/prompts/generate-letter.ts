@@ -14,8 +14,11 @@ export function generateLetterPrompt(request: LetterRequest) {
     platformName: request.platformInfo.platformName,
     customName: request.platformInfo.customName,
     isCustom: request.platformInfo.isCustom,
-    requestFollowUp: request.followUp,
-    requestFollowUpLength: request.followUp?.length || 0,
+    hasFollowUp: !!request.followUp,
+    followUpLength: request.followUp?.length || 0,
+    followUpData: request.followUp,
+    followUpType: typeof request.followUp,
+    followUpIsArray: Array.isArray(request.followUp),
   });
 
   let platformPolicies = null;
@@ -44,20 +47,15 @@ export function generateLetterPrompt(request: LetterRequest) {
     : null;
 
   const initialInfo = request.initialQuestions;
-  const followUpInfo = request.followUp || [];
   const reportingInfo = request.reportingDetails || {};
 
-  rollbar.info('generateLetterPrompt: Follow-up data check', {
-    followUpProvided: !!request.followUp,
-    followUpLength: followUpInfo.length,
-    followUpData: followUpInfo,
-    requestStructure: {
-      hasInitialQuestions: !!request.initialQuestions,
-      hasReportingDetails: !!request.reportingDetails,
-      hasFollowUp: !!request.followUp,
-      followUpType: typeof request.followUp,
-      followUpIsArray: Array.isArray(request.followUp),
-    },
+  // Debug: Log the exact follow-up data being processed
+  console.log('generateLetterPrompt: Processing follow-up data:', {
+    requestFollowUp: request.followUp,
+    followUpExists: !!request.followUp,
+    followUpLength: request.followUp?.length || 0,
+    followUpType: typeof request.followUp,
+    followUpIsArray: Array.isArray(request.followUp),
   });
 
   const hasReportingHistory =
@@ -151,10 +149,10 @@ Response Received: ${reportingInfo.responseReceived || 'Not provided'}
 Additional Steps Taken: ${reportingInfo.additionalStepsTaken || 'Not provided'}`
     : ''
 }
-${followUpInfo.length > 0 
+${request.followUp && request.followUp.length > 0 
   ? `
 Follow-up Information:
-${followUpInfo.map(({ question, answer }) => `${question}: ${answer || 'Not provided'}`).join('\n')}`
+${request.followUp.map(({ question, answer }) => `${question}: ${answer || 'Not provided'}`).join('\n')}`
   : 'Follow-up Information: None provided'}
 
 ${platformPolicies && documentsWithPolicies ? formatPolicyDataForAI(platformPolicies, documentsWithPolicies) : ''}
