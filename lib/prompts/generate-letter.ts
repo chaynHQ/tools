@@ -132,8 +132,8 @@ Response Received: ${reportingInfo.responseReceived || 'Not provided'}
 Additional Steps Taken: ${reportingInfo.additionalStepsTaken || 'Not provided'}`
     : ''
 }
-${Object.entries(followUpInfo)
-  .map(([key, value]) => `${key}: ${value || 'Not provided'}`)
+${followUpInfo
+  .map(({question, answer}) => `${question}: ${answer || 'Not provided'}`)
   .join('\n')}
 
 ${platformPolicies && documentsWithPolicies ? formatPolicyDataForAI(platformPolicies, documentsWithPolicies) : ''}
