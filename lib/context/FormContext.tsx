@@ -160,7 +160,7 @@ export function FormProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const setFollowUpData = (questions: FollowUpQuestion[], answers: Array<{question: string, answer: string}>) => {
+  const setFollowUpData = (questions: FollowUpQuestion[], answers: Record<string, string>) => {
     try {
       setFormState((prev) => ({
         ...prev,
@@ -171,7 +171,7 @@ export function FormProvider({ children }: { children: ReactNode }) {
       }));
       rollbar.info('Follow-up data set', {
         questionCount: questions.length,
-        answerCount: answers.length,
+        answerCount: Object.keys(answers).length,
       });
     } catch (error) {
       rollbar.error('Error setting follow-up data', { error });
@@ -198,7 +198,7 @@ export function FormProvider({ children }: { children: ReactNode }) {
           platformInfo: prev.platformInfo,
           reportingDetails:
             Object.keys(prev.reportingDetails).length > 0 ? prev.reportingDetails : undefined,
-          followUp: Object.keys(prev.followUpData.answers).length > 0 
+          followUp: Object.keys(prev.followUpData.answers).length > 0
             ? prev.followUpData.questions.map(q => ({
                 question: q.question,
                 answer: prev.followUpData.answers[q.id] || ''
