@@ -19,7 +19,7 @@ export interface LetterRequest {
     responseReceived?: string;
     additionalStepsTaken?: string;
   };
-  followUp?: Array<{ question: string; answer: string }>;
+  followUp?: Record<string, string>;
   platformInfo: PlatformInfo;
 }
 

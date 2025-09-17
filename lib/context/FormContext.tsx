@@ -42,15 +42,15 @@ interface ReportingDetailsData {
 
 interface FollowUpData {
   questions: FollowUpQuestion[];
-  answers: Array<{ question: string; answer: string }>;
+  answers: Record<string, string>;
 }
 
 interface FormState {
   platformInfo: PlatformInfo | null;
   reportingInfo: ReportingInfo | null;
-  followUpInfo: FollowUpData | null;
   initialQuestions: Partial<InitialQuestionsData>;
   reportingDetails: Partial<ReportingDetailsData>;
+  followUpData: FollowUpData;
   completeFormData: any;
 }
 
@@ -60,7 +60,7 @@ interface FormContextType {
   setReportingInfo: (info: ReportingInfo) => void;
   setInitialQuestions: (data: Partial<InitialQuestionsData>) => void;
   setReportingDetails: (data: Partial<ReportingDetailsData>) => void;
-  setFollowUpData: (questions: FollowUpQuestion[], answers: Array<{ question: string; answer: string }>) => void;
+  setFollowUpData: (questions: FollowUpQuestion[], answers: Record<string, string>) => void;
   updateCompleteFormData: () => void;
   resetForm: () => void;
 }
@@ -72,7 +72,7 @@ const initialState: FormState = {
   reportingDetails: {},
   followUpData: {
     questions: [],
-    answers: [],
+    answers: {},
   },
   completeFormData: null,
 };
@@ -160,24 +160,32 @@ export function FormProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const setFollowUpInfo = (info: FollowUpData) => {
+  const setFollowUpData = (questions: FollowUpQuestion[], answers: Record<string, string>) => {
     try {
       setFormState((prev) => ({
         ...prev,
-        followUpInfo: info,
+        followUpData: {
+          questions,
+          answers,
+        },
       }));
-      rollbar.info('Follow-up info set', {
-        questionCount: info.questions.length,
-        answerCount: info.answers.length,
+      rollbar.info('Follow-up data set', {
+        questionCount: questions.length,
+        answerCount: Object.keys(answers).length,
       });
     } catch (error) {
-      rollbar.error('Error setting follow-up info', { error });
+      rollbar.error('Error setting follow-up data', { error });
     }
   };
 
   const updateCompleteFormData = () => {
     try {
       setFormState((prev) => {
+        // Get the platform name - either custom name or standard platform name
+        const platformName = prev.platformInfo?.isCustom
+          ? prev.platformInfo.customName
+          : prev.platformInfo?.platformName;
+
         const completeData = {
           initialQuestions: {
             ...prev.initialQuestions,
@@ -190,8 +198,15 @@ export function FormProvider({ children }: { children: ReactNode }) {
           platformInfo: prev.platformInfo,
           reportingDetails:
             Object.keys(prev.reportingDetails).length > 0 ? prev.reportingDetails : undefined,
-          followUp: prev.followUpInfo?.answers?.length > 0 ? prev.followUpInfo.answers : undefined,
+          followUp: prev.followUpData.answers,
         };
+
+        rollbar.info('Complete form data updated', {
+          platformId: prev.platformInfo?.platformId,
+          platformName: platformName,
+          isCustom: prev.platformInfo?.isCustom,
+        });
+
         return {
           ...prev,
           completeFormData: completeData,
@@ -217,9 +232,9 @@ export function FormProvider({ children }: { children: ReactNode }) {
         formState,
         setPlatformInfo,
         setReportingInfo,
-        setFollowUpInfo,
         setInitialQuestions,
         setReportingDetails,
+        setFollowUpData,
         updateCompleteFormData,
         resetForm,
       }}

@@ -68,7 +68,7 @@ export async function POST(request: Request) {
 
       // Follow-up Data
       follow_up_questions_count: body.formData.followUpData?.questions?.length || 0,
-      follow_up_answers: JSON.stringify(body.formData.followUpData?.answers || []),
+      follow_up_answers: JSON.stringify(body.formData.followUpData?.answers || {}),
 
       // Generated Letter
       letter_subject: body.generatedLetter?.subject || '',

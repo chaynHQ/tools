@@ -1,14 +1,17 @@
 import { LetterRequest } from '@/types/letter';
 import { QUALITY_CHECK_CRITERIA } from '../constants/ai';
-import {
-  formatPolicyDataForAI,
-  getDocumentsWithRelevantPolicies,
-  getPlatformPolicy,
-} from '../platform-policies';
+import { getPlatformPolicy, getDocumentsWithRelevantPolicies, formatPolicyDataForAI } from '../platform-policies';
 import { getPlatformPolicyId } from '../platforms';
 import { serverInstance as rollbar } from '../rollbar';
 
 export function generateLetterPrompt(request: LetterRequest) {
+  rollbar.info('generateLetterPrompt: Generating takedown letter prompt', {
+    platformId: request.platformInfo.platformId,
+    platformName: request.platformInfo.platformName,
+    customName: request.platformInfo.customName,
+    isCustom: request.platformInfo.isCustom,
+  });
+
   let platformPolicies = null;
   if (!request.platformInfo.isCustom) {
     const policyId = getPlatformPolicyId(request.platformInfo.platformId);
@@ -35,6 +38,7 @@ export function generateLetterPrompt(request: LetterRequest) {
     : null;
 
   const initialInfo = request.initialQuestions;
+  const followUpInfo = request.followUp || {};
   const reportingInfo = request.reportingDetails || {};
 
   const hasReportingHistory =
@@ -63,7 +67,7 @@ export function generateLetterPrompt(request: LetterRequest) {
     ${QUALITY_CHECK_CRITERIA.MAJOR.SENSITIVE_TERMS.map(({ term, replacement }) => `- Do not use "${term}". Instead, use "${replacement}".`).join('\n')}
 
 ### **Information & Evidence**
-* **Policy Citations:** Cite policies as a list, using their exact summary and document title.
+* **Policy Citations:** Cite policies using their exact summary and document title.
     * **Format:** \`Document Title: Policy Summary\`
     * **Example:** If the policy summary is "Prohibits sharing non-consensual intimate images" from the "Community Standards", cite it as \`Community Standards: Prohibits sharing non-consensual intimate images\`.
     * **Constraint:** DO NOT use internal codes, references, or abbreviations.
@@ -128,11 +132,9 @@ Response Received: ${reportingInfo.responseReceived || 'Not provided'}
 Additional Steps Taken: ${reportingInfo.additionalStepsTaken || 'Not provided'}`
     : ''
 }
-${request.followUp && request.followUp.length > 0 
-  ? `
-Follow-up Information:
-${request.followUp.map(({ question, answer }) => `${question}: ${answer || 'Not provided'}`).join('\n')}`
-  : 'Follow-up Information: None provided'}
+${Object.entries(followUpInfo)
+  .map(([key, value]) => `${key}: ${value || 'Not provided'}`)
+  .join('\n')}
 
 ${platformPolicies && documentsWithPolicies ? formatPolicyDataForAI(platformPolicies, documentsWithPolicies) : ''}
 

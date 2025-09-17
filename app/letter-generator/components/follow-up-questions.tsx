@@ -47,7 +47,6 @@ export function FollowUpQuestions({
   savedData = {},
   onSubmit,
 }: FollowUpQuestionsProps) {
-  const { formState, setFollowUpInfo, updateCompleteFormData } = useFormContext();
   const startTime = useState(() => Date.now())[0];
   const [activeField, setActiveField] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -56,8 +55,8 @@ export function FollowUpQuestions({
   const [error, setError] = useState<string | null>(null);
   const { register, handleSubmit, setValue, reset } = useForm<FollowUpQuestionsForm>();
   const { toast } = useToast();
-  const { formState: formStateContext, setFollowUpData } = useFormContext();
-  const hasQuestionsInContext = formStateContext.followUpData.questions.length > 0;
+  const { formState, setFollowUpData } = useFormContext();
+  const hasQuestionsInContext = formState.followUpData.questions.length > 0;
   const initializationRef = useRef(false);
 
   const { transcript, listening, resetTranscript, browserSupportsSpeechRecognition } =
@@ -69,7 +68,7 @@ export function FollowUpQuestions({
 
     const initializeQuestions = async () => {
       if (hasQuestionsInContext) {
-        setFollowUpQuestions(formStateContext.followUpData.questions);
+        setFollowUpQuestions(formState.followUpData.questions);
         setIsLoading(false);
         setHasInitialized(true);
         return;
@@ -119,7 +118,7 @@ export function FollowUpQuestions({
   }, [
     initialData,
     hasQuestionsInContext,
-    formStateContext.followUpData.questions,
+    formState.followUpData.questions,
     setFollowUpData,
     savedData,
     toast,
@@ -133,20 +132,10 @@ export function FollowUpQuestions({
   }, [savedData, reset]);
 
   useEffect(() => {
-    const questions = followUpQuestions;
-    const answersArray = questions.map((question) => ({
-      question: question.question,
-      answer: savedData[question.id] || '',
-    }));
-
-    setFollowUpInfo({
-      questions,
-      answers: answersArray,
-    });
     if (transcript && activeField) {
       setValue(activeField, transcript);
     }
-  }, [transcript, activeField, setValue, followUpQuestions, savedData, setFollowUpInfo]);
+  }, [transcript, activeField, setValue]);
 
   const handleVoiceInput = (field: string) => {
     try {

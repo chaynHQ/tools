@@ -27,7 +27,6 @@ export function generateFollowUpPrompt(request: LetterRequest) {
     reportingInfo.responseReceived ||
     reportingInfo.additionalStepsTaken;
 
-
   // Validate platformInfo
   if (!request.platformInfo.platformName && !request.platformInfo.customName) {
     rollbar.error('generateFollowUpPrompt: Missing platform name in platformInfo', {
