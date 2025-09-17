@@ -1,6 +1,10 @@
 import { LetterRequest } from '@/types/letter';
 import { QUALITY_CHECK_CRITERIA } from '../constants/ai';
-import { getPlatformPolicy, getDocumentsWithRelevantPolicies, formatPolicyDataForAI } from '../platform-policies';
+import {
+  formatPolicyDataForAI,
+  getDocumentsWithRelevantPolicies,
+  getPlatformPolicy,
+} from '../platform-policies';
 import { getPlatformPolicyId } from '../platforms';
 import { serverInstance as rollbar } from '../rollbar';
 import { formatInputsForAI } from './format-inputs';
@@ -31,7 +35,7 @@ export function generateFollowUpPrompt(request: LetterRequest) {
   // Validate platformInfo
   if (!request.platformInfo.platformName && !request.platformInfo.customName) {
     rollbar.error('generateFollowUpPrompt: Missing platform name in platformInfo', {
-      platformInfo: request.platformInfo
+      platformInfo: request.platformInfo,
     });
     throw new Error('Missing platform name in platformInfo');
   }
@@ -62,7 +66,7 @@ export function generateFollowUpPrompt(request: LetterRequest) {
     }
   }
 
-  return `# ROLE & OBJECTIVE
+  const prompt = `# ROLE & OBJECTIVE
 
 You are a strategic AI assistant specializing in platform policy enforcement. Your objective is to intelligently identify critical information gaps in a user's takedown request. You will generate a small, targeted list of follow-up questions to gather only the most essential information needed to build the strongest possible case, based on specific platform policies ${request.platformInfo.platformName || request.platformInfo.customName}.
 
@@ -72,23 +76,8 @@ You are a strategic AI assistant specializing in platform policy enforcement. Yo
 2.  **Respect Privacy & Safety:** You MUST NOT ask for any personally identifiable information (name, email), sensitive personal details (medical, financial), or any form of official documentation/ID. All questions must use sensitive, trauma-informed language and MUST NOT contain any terms from the **Banned Terms** list below.
 3.  **Maximum of 4 Questions:** You must return a maximum of four questions. If a thorough analysis determines that no additional information is required to write a strong letter, you MUST return an empty array.
 
----
-
-# CONTEXT FOR ANALYSIS
-
-This is the complete set of information provided by the user so far. You must review all of it before deciding if any questions are necessary.
-
-### User-Provided Information
-${formatInputsForAI(request)}
-Content Location Type: ${request.initialQuestions.contentLocationType || 'Not provided'}
-Content Location: ${request.initialQuestions.imageIdentification || 'Not provided'}
-
-### Platform Policy Context
-${platformPolicyContext || 'No relevant platform policies found.'}
-
-### Banned Terms
+## Banned Terms
 ${QUALITY_CHECK_CRITERIA.MAJOR.SENSITIVE_TERMS.map(({ term, replacement }) => `- "${term}" (use "${replacement}")`).join('\n')}
-
 
 ---
 
@@ -142,5 +131,17 @@ Ensure the JSON is perfectly valid and can be parsed by \`JSON.parse()\` in Java
   }
 ]
 \`\`\`
+
+# INPUTS
+
+This is the complete set of information provided by the user so far. You must review all of it before deciding if any questions are necessary.
+
+## User-Provided Information
+${formatInputsForAI(request)}
+
+${platformPolicyContext}
+---
 `;
+  console.log(prompt);
+  return prompt;
 }

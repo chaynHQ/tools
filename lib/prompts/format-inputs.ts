@@ -1,3 +1,4 @@
+import { contentContexts, contentTypes } from '@/app/letter-generator/components/initial-questions';
 import { LetterRequest } from '@/types/letter';
 
 export function formatInputsForAI(request: LetterRequest): string {
@@ -11,21 +12,29 @@ export function formatInputsForAI(request: LetterRequest): string {
     reportingInfo.responseReceived ||
     reportingInfo.additionalStepsTaken;
 
-  return `Content Type: ${request.initialQuestions.contentType}
-Content Context: ${request.initialQuestions.contentContext}
-Platform: ${request.platformInfo.platformName || request.platformInfo.customName}
-Upload Date: ${initialInfo.imageUploadDate || 'Not provided'}
-Creation Date: ${initialInfo.imageTakenDate || 'Not provided'}
-Ownership Evidence: ${initialInfo.ownershipEvidence || 'Not provided'}
-Impact Statement: ${initialInfo.impactStatement || 'Not provided'}
+  const contentType =
+    contentTypes.find((t) => t.value === request.initialQuestions.contentType) || contentTypes[-1];
+  const contentContext =
+    contentContexts.find((t) => t.value === request.initialQuestions.contentContext) ||
+    contentContexts[-1];
+
+  return `Platform: ${request.platformInfo.platformName || request.platformInfo.customName}
+Content Type: ${contentType.label} - ${contentType.description}
+Content Context: ${contentContext.label} - ${contentContext.description}
+Upload Date: ${initialInfo.imageUploadDate || 'No answer provided'}
+Creation Date: ${initialInfo.imageTakenDate || 'No answer provided'}
+
+Ownership Evidence: ${initialInfo.ownershipEvidence || 'No answer provided'}
+Impact Statement: ${initialInfo.impactStatement || 'No answer provided'}
 ${
   hasReportingHistory
     ? `
-Standard Process Details: ${reportingInfo.standardProcessDetails || 'Not provided'}
-Escalated Process Details: ${reportingInfo.escalatedProcessDetails || 'Not provided'}
-Response Received: ${reportingInfo.responseReceived || 'Not provided'}
-Additional Steps Taken: ${reportingInfo.additionalStepsTaken || 'Not provided'}`
+Previous Reporting History: ${reportingInfo.standardProcessDetails || 'No answer provided'}
+Escalated Previous Reporting History: ${reportingInfo.escalatedProcessDetails || 'No answer provided'}
+Previous Reporting Response Received: ${reportingInfo.responseReceived || 'No answer provided'}
+Additional Reporting Steps Taken: ${reportingInfo.additionalStepsTaken || 'No answer provided'}`
     : ''
 }
-${followUpInfo.map(({ question, answer }) => `${question}: ${answer || 'Not provided'}`).join('\n')}`;
+
+${followUpInfo.map(({ question, answer }) => `${question}: ${answer || 'No answer provided'}`).join('\n')}`;
 }

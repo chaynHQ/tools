@@ -119,5 +119,6 @@ ${formatInputsForAI(request)}
 ${platformPolicyContext}
 
 `;
+  console.log(prompt);
   return prompt;
 }

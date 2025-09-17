@@ -35,7 +35,7 @@ interface InitialQuestionsProps {
   onComplete: () => void;
 }
 
-const contentTypes = [
+export const contentTypes = [
   {
     value: 'intimate',
     label: 'Intimate images',
@@ -58,7 +58,7 @@ const contentTypes = [
   },
 ];
 
-const contentContexts = [
+export const contentContexts = [
   {
     value: 'hacked',
     label: 'Account was compromised',

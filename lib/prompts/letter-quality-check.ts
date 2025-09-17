@@ -1,6 +1,10 @@
 import { LetterRequest } from '@/types/letter';
 import { QUALITY_CHECK_CRITERIA } from '../constants/ai';
-import { getPlatformPolicy, getDocumentsWithRelevantPolicies, formatPolicyDataForAI } from '../platform-policies';
+import {
+  formatPolicyDataForAI,
+  getDocumentsWithRelevantPolicies,
+  getPlatformPolicy,
+} from '../platform-policies';
 import { getPlatformPolicyId } from '../platforms';
 import { formatInputsForAI } from './format-inputs';
 
@@ -47,7 +51,7 @@ export function generateLetterQualityCheckPrompt(
     }
   }
 
-  return `
+  const prompt = `
 # ROLE & OBJECTIVE
 
 You are a meticulous and exacting Quality Assurance (QA) Analyst AI. Your primary objective is to audit a generated letter against a master set of rules and context. You will identify all deviations, provide a surgically corrected version of the letter that makes only the necessary changes, and produce a comprehensive audit report of all issues found.
@@ -149,4 +153,7 @@ You MUST respond with a single, valid JSON object. The object must have this exa
 }
 \`\`\`
 `;
+
+  console.log(prompt);
+  return prompt;
 }

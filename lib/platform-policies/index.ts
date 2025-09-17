@@ -1,4 +1,4 @@
-import { PlatformPolicies, Policy, PolicyDocument } from '../../types/policies';
+import { PlatformPolicies, PolicyDocument } from '../../types/policies';
 import { facebookPolicy } from './facebook';
 import { instagramPolicy } from './instagram';
 import { onlyfansPolicy } from './onlyfans';
@@ -120,27 +120,4 @@ function formatPolicyDataForAI(
   return output;
 }
 
-function getPolicyById(platformPolicies: PlatformPolicies, policyId: string): Policy | null {
-  if (!platformPolicies) return null;
-
-  for (const document of platformPolicies.policyDocuments) {
-    const policy = document.policies.find((p) => p.id === policyId);
-    if (policy) return policy;
-  }
-
-  return null;
-}
-
-function getDocumentByReference(platformPolicies: PlatformPolicies, reference: string) {
-  if (!platformPolicies) return null;
-
-  return platformPolicies.policyDocuments.find((doc) => doc.reference === reference) || null;
-}
-
-export {
-  formatPolicyDataForAI,
-  getDocumentByReference,
-  getDocumentsWithRelevantPolicies,
-  getPlatformPolicy,
-  getPolicyById,
-};
+export { formatPolicyDataForAI, getDocumentsWithRelevantPolicies, getPlatformPolicy };
