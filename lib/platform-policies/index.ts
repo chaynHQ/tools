@@ -122,6 +122,7 @@ function formatPolicyDataForAI(
   });
 
   return output;
+}
 
 function getPolicyById(platformPolicies: PlatformPolicies, policyId: string): Policy | null {
   if (!platformPolicies) return null;
