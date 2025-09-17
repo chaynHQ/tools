@@ -1,6 +1,10 @@
 import { LetterRequest } from '@/types/letter';
 import { QUALITY_CHECK_CRITERIA } from '../constants/ai';
-import { getPlatformPolicy, getDocumentsWithRelevantPolicies, formatPolicyDataForAI } from '../platform-policies';
+import {
+  formatPolicyDataForAI,
+  getDocumentsWithRelevantPolicies,
+  getPlatformPolicy,
+} from '../platform-policies';
 import { getPlatformPolicyId } from '../platforms';
 import { serverInstance as rollbar } from '../rollbar';
 
@@ -67,7 +71,7 @@ export function generateLetterPrompt(request: LetterRequest) {
     ${QUALITY_CHECK_CRITERIA.MAJOR.SENSITIVE_TERMS.map(({ term, replacement }) => `- Do not use "${term}". Instead, use "${replacement}".`).join('\n')}
 
 ### **Information & Evidence**
-* **Policy Citations:** Cite policies using their exact summary and document title.
+* **Policy Citations:** Cite policies as a list, using their exact summary and document title.
     * **Format:** \`Document Title: Policy Summary\`
     * **Example:** If the policy summary is "Prohibits sharing non-consensual intimate images" from the "Community Standards", cite it as \`Community Standards: Prohibits sharing non-consensual intimate images\`.
     * **Constraint:** DO NOT use internal codes, references, or abbreviations.
@@ -140,5 +144,6 @@ ${platformPolicies && documentsWithPolicies ? formatPolicyDataForAI(platformPoli
 
 `;
 
+  console.log(prompt);
   return prompt;
 }

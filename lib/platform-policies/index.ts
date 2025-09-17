@@ -142,10 +142,9 @@ function getDocumentByReference(platformPolicies: PlatformPolicies, reference: s
 }
 
 export {
-  getDocumentsWithRelevantPolicies,
   formatPolicyDataForAI,
-  getAllPoliciesForPlatform,
   getDocumentByReference,
+  getDocumentsWithRelevantPolicies,
   getPlatformPolicy,
   getPolicyById,
 };
