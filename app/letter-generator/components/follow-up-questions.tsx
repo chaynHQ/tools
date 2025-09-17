@@ -56,8 +56,8 @@ export function FollowUpQuestions({
   const [error, setError] = useState<string | null>(null);
   const { register, handleSubmit, setValue, reset } = useForm<FollowUpQuestionsForm>();
   const { toast } = useToast();
-  const { formState, setFollowUpData } = useFormContext();
-  const hasQuestionsInContext = formState.followUpData.questions.length > 0;
+  const { formState: formStateContext, setFollowUpData } = useFormContext();
+  const hasQuestionsInContext = formStateContext.followUpData.questions.length > 0;
   const initializationRef = useRef(false);
 
   const { transcript, listening, resetTranscript, browserSupportsSpeechRecognition } =
@@ -69,7 +69,7 @@ export function FollowUpQuestions({
 
     const initializeQuestions = async () => {
       if (hasQuestionsInContext) {
-        setFollowUpQuestions(formState.followUpData.questions);
+        setFollowUpQuestions(formStateContext.followUpData.questions);
         setIsLoading(false);
         setHasInitialized(true);
         return;
@@ -119,7 +119,7 @@ export function FollowUpQuestions({
   }, [
     initialData,
     hasQuestionsInContext,
-    formState.followUpData.questions,
+    formStateContext.followUpData.questions,
     setFollowUpData,
     savedData,
     toast,
@@ -133,10 +133,20 @@ export function FollowUpQuestions({
   }, [savedData, reset]);
 
   useEffect(() => {
+    const questions = followUpQuestions;
+    const answersArray = questions.map((question) => ({
+      question: question.question,
+      answer: savedData[question.id] || '',
+    }));
+
+    setFollowUpInfo({
+      questions,
+      answers: answersArray,
+    });
     if (transcript && activeField) {
       setValue(activeField, transcript);
     }
-  }, [transcript, activeField, setValue]);
+  }, [transcript, activeField, setValue, followUpQuestions, savedData, setFollowUpInfo]);
 
   const handleVoiceInput = (field: string) => {
     try {
