@@ -1,6 +1,6 @@
 import { serverInstance as rollbar } from '@/lib/rollbar';
-import { callAnthropic } from '../anthropic';
 import { parseAIJson } from '@/lib/utils';
+import { callAnthropic } from '../anthropic';
 
 export interface DocumentValidationResult {
   status: 'valid' | 'needs_update';
@@ -38,7 +38,7 @@ export async function validateDocuments(
     title: string;
     summary: string;
     url: string;
-  }>
+  }>,
 ): Promise<DocumentValidationResult> {
   rollbar.info('validateDocuments: Starting document validation', {
     platformId,
@@ -87,12 +87,12 @@ function generateDocumentValidationPrompt(
     title: string;
     summary: string;
     url: string;
-  }>
+  }>,
 ): string {
   return `You are an AI assistant specialized in validating legal and policy documents for content platforms. Your task is to verify the completeness and accuracy of our current document list for ${platformName} and identify any changes needed.
 
 CRITICAL CONTEXT:
-These documents are used to generate automated image takedown requests for non-consensual content, harassment, privacy violations, and impersonation. The document list must be comprehensive and current.
+These documents are used to generate automated image takedown requests for non-consensual content, harassment, privacy violations, and impersonation. The document list must be comprehensive and current but MUST be official policy documents and not be help pages that redirect to other pages.
 
 PLATFORM: ${platformName} (${platformId})
 
