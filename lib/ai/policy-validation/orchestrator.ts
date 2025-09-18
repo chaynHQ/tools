@@ -9,9 +9,9 @@ import {
 } from '../../prompts/policy-validation-quality-check';
 import { callAnthropic } from '../anthropic';
 import { validateDocuments } from './documents-validator';
-import { GaffaScrapingResult, scrapeMultipleDocuments } from './gaffa-scraper';
+import { GaffaScrapingResult, scrapeMultipleDocumentsWithRateLimit } from './gaffa-scraper';
 import { buildPlatformPolicies, comparePlatformPolicies } from './platform-policies-builder';
-import { abstractPoliciesFromDocument } from './policy-abstractor';
+import { abstractPoliciesFromDocument, abstractPoliciesFromMultipleDocuments } from './policy-abstractor';
 
 export interface PolicyValidationOrchestrationResult {
   status:
@@ -132,7 +132,12 @@ export async function orchestratePolicyValidation(
       ...documentValidation.newDocuments.map((doc) => doc.url),
     ];
 
-    const scrapingResults = await scrapeMultipleDocuments(documentsToScrape);
+    // Use rate-limited scraping with controlled concurrency
+    const scrapingResults = await scrapeMultipleDocumentsWithRateLimit(
+      documentsToScrape,
+      3, // Max 3 concurrent requests
+      1000 // 1 second delay between batches
+    );
     const failedScrapes = scrapingResults.filter((result) => !result.success);
 
     if (failedScrapes.length > 0) {
@@ -154,85 +159,95 @@ export async function orchestratePolicyValidation(
       documentsToProcess: documentValidation.validDocuments.length + documentValidation.newDocuments.length,
     });
     
-    const policyAbstractions: Array<{
+    // Prepare documents for parallel processing
+    const documentsForAbstraction: Array<{
+      url: string;
+      title: string;
+      reference: string;
+      markdown: string;
+      currentPolicies?: Policy[];
       documentId: string;
-      success: boolean;
-      result: PolicyAbstractionResult;
+      isNew: boolean;
     }> = [];
 
+    // Add existing documents
     for (let i = 0; i < documentValidation.validDocuments.length; i++) {
       const doc = documentValidation.validDocuments[i];
       const scrapingResult = scrapingResults[i];
 
-      if (!scrapingResult.success || !scrapingResult.markdown) {
-        policyAbstractions.push({
+      if (scrapingResult.success && scrapingResult.markdown) {
+        // Find current policies for this document
+        const currentDoc = currentPolicies.policyDocuments.find((d) => d.id === doc.id);
+        const currentDocPolicies = currentDoc?.policies;
+
+        documentsForAbstraction.push({
+          url: doc.url,
+          title: doc.title,
+          reference: doc.reference || doc.id,
+          markdown: scrapingResult.markdown,
+          currentPolicies: currentDocPolicies,
           documentId: doc.id,
-          success: false,
-          result: {
-            success: false,
-            policies: [],
-            appealProcess: null,
-            reasoning: `Failed to scrape document: ${scrapingResult.error}`,
-            error: scrapingResult.error,
-          },
+          isNew: false,
         });
-        continue;
       }
-
-      // Find current policies for this document
-      const currentDoc = currentPolicies.policyDocuments.find((d) => d.id === doc.id);
-      const currentDocPolicies = currentDoc?.policies;
-
-      const abstraction = await abstractPoliciesFromDocument(
-        doc.url,
-        doc.title,
-        doc.reference || doc.id,
-        scrapingResult.markdown,
-        currentDocPolicies,
-      );
-
-      console.log('orchestratePolicyValidation: Policy abstraction result', {
-        documentId: doc.id,
-        success: abstraction.success,
-        policiesFound: abstraction.policies.length,
-      });
-
-      policyAbstractions.push({
-        documentId: doc.id,
-        success: abstraction.success,
-        result: abstraction,
-      });
     }
 
-    // Handle new documents
+    // Add new documents
     const newDocStartIndex = documentValidation.validDocuments.length;
     for (let i = 0; i < documentValidation.newDocuments.length; i++) {
       const doc = documentValidation.newDocuments[i];
       const scrapingResult = scrapingResults[newDocStartIndex + i];
 
-      if (!scrapingResult.success || !scrapingResult.markdown) {
-        continue; // Skip failed new documents
+      if (scrapingResult.success && scrapingResult.markdown) {
+        documentsForAbstraction.push({
+          url: doc.url,
+          title: doc.title,
+          reference: doc.reference,
+          markdown: scrapingResult.markdown,
+          documentId: `new-${i}`,
+          isNew: true,
+        });
       }
-
-      const abstraction = await abstractPoliciesFromDocument(
-        doc.url,
-        doc.title,
-        doc.reference,
-        scrapingResult.markdown,
-      );
-
-      console.log('orchestratePolicyValidation: New document abstraction result', {
-        documentTitle: doc.title,
-        success: abstraction.success,
-        policiesFound: abstraction.policies.length,
-      });
-
-      policyAbstractions.push({
-        documentId: `new-${i}`, // Temporary ID for new documents
-        success: abstraction.success,
-        result: abstraction,
-      });
     }
+
+    console.log('orchestratePolicyValidation: Processing documents in parallel', {
+      totalDocuments: documentsForAbstraction.length,
+      existingDocuments: documentsForAbstraction.filter(d => !d.isNew).length,
+      newDocuments: documentsForAbstraction.filter(d => d.isNew).length,
+    });
+
+    // Process all documents in parallel
+    const parallelAbstractionResults = await abstractPoliciesFromMultipleDocuments(
+      documentsForAbstraction.map(doc => ({
+        url: doc.url,
+        title: doc.title,
+        reference: doc.reference,
+        markdown: doc.markdown,
+        currentPolicies: doc.currentPolicies,
+      }))
+    );
+
+    // Convert parallel results back to the expected format
+    const policyAbstractions: Array<{
+      documentId: string;
+      success: boolean;
+      result: PolicyAbstractionResult;
+    }> = parallelAbstractionResults.map((result, index) => {
+      const doc = documentsForAbstraction[index];
+      
+      console.log('orchestratePolicyValidation: Policy abstraction result', {
+        documentId: doc.documentId,
+        success: result.result.success,
+        policiesFound: result.result.policies.length,
+        isNew: doc.isNew,
+      });
+
+      return {
+        documentId: doc.documentId,
+        success: result.result.success,
+        result: result.result,
+      };
+    });
 
     // Step 4: Build new platform policies
     console.log('orchestratePolicyValidation: Step 4 - Building platform policies');

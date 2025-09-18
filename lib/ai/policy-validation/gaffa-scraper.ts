@@ -161,21 +161,94 @@ export async function scrapeMultipleDocuments(urls: string[]): Promise<GaffaScra
     urlCount: urls.length,
   });
 
+  // Process documents in parallel with controlled concurrency
+  const results = await Promise.allSettled(
+    urls.map(url => scrapeDocumentMarkdown(url))
+  );
+
+  // Convert Promise.allSettled results to GaffaScrapingResult[]
+  const finalResults: GaffaScrapingResult[] = results.map((result, index) => {
+    if (result.status === 'fulfilled') {
+      return result.value;
+    } else {
+      rollbar.error('scrapeMultipleDocuments: Document scraping failed', {
+        url: urls[index],
+        error: result.reason,
+      });
+      return {
+        success: false,
+        error: result.reason instanceof Error ? result.reason.message : 'Unknown scraping error',
+        url: urls[index],
+      };
+    }
+  });
+
+  const successCount = finalResults.filter((r) => r.success).length;
+  rollbar.info('scrapeMultipleDocuments: Batch scraping completed', {
+    totalUrls: urls.length,
+    successCount,
+    failureCount: urls.length - successCount,
+  });
+
+  return finalResults;
+}
+
+export async function scrapeMultipleDocumentsWithRateLimit(
+  urls: string[],
+  concurrency: number = 3,
+  delayMs: number = 500
+): Promise<GaffaScrapingResult[]> {
+  rollbar.info('scrapeMultipleDocumentsWithRateLimit: Starting rate-limited batch scraping', {
+    urlCount: urls.length,
+    concurrency,
+    delayMs,
+  });
+
   const results: GaffaScrapingResult[] = [];
+  
+  // Process URLs in batches to control concurrency
+  for (let i = 0; i < urls.length; i += concurrency) {
+    const batch = urls.slice(i, i + concurrency);
+    
+    rollbar.info('scrapeMultipleDocumentsWithRateLimit: Processing batch', {
+      batchNumber: Math.floor(i / concurrency) + 1,
+      batchSize: batch.length,
+      totalBatches: Math.ceil(urls.length / concurrency),
+    });
 
-  // Process documents sequentially to avoid overwhelming the API
-  for (const url of urls) {
-    const result = await scrapeDocumentMarkdown(url);
-    results.push(result);
+    // Process batch in parallel
+    const batchResults = await Promise.allSettled(
+      batch.map(url => scrapeDocumentMarkdown(url))
+    );
 
-    // Add a small delay between requests to be respectful
-    if (urls.indexOf(url) < urls.length - 1) {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+    // Convert results and add to final array
+    const processedBatchResults: GaffaScrapingResult[] = batchResults.map((result, batchIndex) => {
+      const urlIndex = i + batchIndex;
+      if (result.status === 'fulfilled') {
+        return result.value;
+      } else {
+        rollbar.error('scrapeMultipleDocumentsWithRateLimit: Document scraping failed', {
+          url: urls[urlIndex],
+          error: result.reason,
+        });
+        return {
+          success: false,
+          error: result.reason instanceof Error ? result.reason.message : 'Unknown scraping error',
+          url: urls[urlIndex],
+        };
+      }
+    });
+
+    results.push(...processedBatchResults);
+
+    // Add delay between batches (except for the last batch)
+    if (i + concurrency < urls.length) {
+      await new Promise((resolve) => setTimeout(resolve, delayMs));
     }
   }
 
   const successCount = results.filter((r) => r.success).length;
-  rollbar.info('scrapeMultipleDocuments: Batch scraping completed', {
+  rollbar.info('scrapeMultipleDocumentsWithRateLimit: Rate-limited batch scraping completed', {
     totalUrls: urls.length,
     successCount,
     failureCount: urls.length - successCount,
