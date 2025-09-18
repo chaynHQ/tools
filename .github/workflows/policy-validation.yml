@@ -2,8 +2,7 @@ name: Policy Validation Workflow
 
 on:
   push:
-    branches:
-      - 'validation-flow'
+    branches: [validation-flow, validation-flow-refactors]
   schedule:
     # Run every Monday at 9:00 AM UTC (weekly)
     - cron: '0 9 * * 1'
@@ -20,14 +19,20 @@ on:
           - tiktok
           - onlyfans
           - pornhub
+      force_rewrite:
+        description: 'Force complete rewrite of policies (ignores existing policies)'
+        required: false
+        type: boolean
+        default: true
 
 jobs:
   validate-policies:
     name: Validate Platform Policies
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
       pull-requests: write
+      repository-projects: write
     strategy:
       matrix:
         platform: ${{ github.event.inputs.platform && fromJson(format('["{0}"]', github.event.inputs.platform)) || fromJson('["facebook", "instagram", "tiktok", "onlyfans", "pornhub"]') }}
@@ -35,7 +40,6 @@ jobs:
 
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      NEXT_PUBLIC_BASE_URL: ${{ secrets.NEXT_PUBLIC_BASE_URL || 'https://tools-git-develop-chaynhq.vercel.app/' }}
       ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       ANTHROPIC_MODEL: ${{ secrets.ANTHROPIC_MODEL }}
       ANTHROPIC_TEMPERATURE: ${{ secrets.ANTHROPIC_TEMPERATURE }}
@@ -81,81 +85,60 @@ jobs:
       - name: Validate platform policies
         id: validate_platform
         run: |
-          PLATFORM="${{ matrix.platform }}"
-          echo "Validating policies for platform: $PLATFORM"
-
-          RESPONSE=$(curl -s -X POST \
-            -H "Content-Type: application/json" \
-            -d '{}' \
-            "https://tools-git-validation-flow-refactor-chaynhq.vercel.app/api/policy-validation/$PLATFORM" \
-            -w "HTTPSTATUS:%{http_code}")
-
-          HTTP_STATUS=$(echo $RESPONSE | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
-          RESPONSE_BODY=$(echo $RESPONSE | sed -e 's/HTTPSTATUS:.*//g')
-
-          echo "HTTP Status: $HTTP_STATUS"
-          echo "Response: $RESPONSE_BODY"
-
-          if [ $HTTP_STATUS -ne 200 ]; then
-            echo "Error: Policy validation failed for $PLATFORM"
-            echo "Response: $RESPONSE_BODY"
-            exit 1
+          FORCE_FLAG=""
+          if [ "${{ github.event.inputs.force_rewrite }}" = "true" ]; then
+            FORCE_FLAG="--force-rewrite"
           fi
-
-          # Extract results
-          STATUS=$(echo $RESPONSE_BODY | jq -r '.status // "unknown"')
-          PLATFORM_NAME=$(echo $RESPONSE_BODY | jq -r '.platform // "unknown"')
-
-          echo "platform=$PLATFORM" >> $GITHUB_OUTPUT
-          echo "platform_name=$PLATFORM_NAME" >> $GITHUB_OUTPUT
-          echo "status=$STATUS" >> $GITHUB_OUTPUT
-
-          # Extract additional data based on status
-          if [ "$STATUS" = "completed_with_pr_created" ]; then
-            PR_URL=$(echo $RESPONSE_BODY | jq -r '.data.pullRequest.url // "none"')
-            PR_NUMBER=$(echo $RESPONSE_BODY | jq -r '.data.pullRequest.number // "none"')
-            echo "pr_url=$PR_URL" >> $GITHUB_OUTPUT
-            echo "pr_number=$PR_NUMBER" >> $GITHUB_OUTPUT
-          fi
-
-          REASONING=$(echo $RESPONSE_BODY | jq -r '.data.analysis.reasoning // "No reasoning provided"')
-          echo "reasoning=$REASONING" >> $GITHUB_OUTPUT
-
-          echo "Policy validation completed for $PLATFORM with status: $STATUS"
+          npx tsx scripts/policy-validation.ts ${{ matrix.platform }} $FORCE_FLAG
 
       - name: Send completion notification
         if: always()
         run: |
           PLATFORM="${{ steps.validate_platform.outputs.platform }}"
           PLATFORM_NAME="${{ steps.validate_platform.outputs.platform_name }}"
-          STATUS="${{ steps.validate_platform.outputs.status }}"
+          VALIDATION_STATUS="${{ steps.validate_platform.outputs.status }}"
           REASONING="${{ steps.validate_platform.outputs.reasoning }}"
           PR_URL="${{ steps.validate_platform.outputs.pr_url }}"
           PR_NUMBER="${{ steps.validate_platform.outputs.pr_number }}"
-          STATUS="${{ job.status }}"
+          FORCE_REWRITE="${{ steps.validate_platform.outputs.force_rewrite }}"
+          JOB_STATUS="${{ job.status }}"
+          RUN_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
 
-          if [ "$STATUS" = "success" ]; then
-            VALIDATION_STATUS="${{ steps.validate_platform.outputs.status }}"
-            if [ "$VALIDATION_STATUS" = "completed_with_pr_created" ]; then
-              MESSAGE="🎉 Policy validation completed successfully for $PLATFORM_NAME! Quality check: PASSED. Pull Request created: $PR_URL (PR #$PR_NUMBER). Ready for review and merge."
-            elif [ "$VALIDATION_STATUS" = "completed_with_pr_error" ]; then
-              MESSAGE="⚠️ Policy validation completed for $PLATFORM_NAME, but PR creation failed. Quality check: PASSED. Manual PR creation required. Reasoning: $REASONING"
-            elif [ "$VALIDATION_STATUS" = "completed_with_valid_changes" ]; then
-              MESSAGE="✅ Policy validation completed for $PLATFORM_NAME with valid changes found. Quality check: PASSED. Ready for PR creation. Reasoning: $REASONING"
-            elif [ "$VALIDATION_STATUS" = "completed_with_invalid_changes" ]; then
-              MESSAGE="⚠️ Policy validation completed for $PLATFORM_NAME with issues. Quality check FAILED. Manual review required. Reasoning: $REASONING"
-            elif [ "$VALIDATION_STATUS" = "completed_no_changes" ]; then
-              MESSAGE="✅ Policy validation completed for $PLATFORM_NAME with no changes needed. All policies are up to date."
-            else
-              MESSAGE="✅ Policy validation completed for $PLATFORM_NAME. Status: $VALIDATION_STATUS"
-            fi
-          else
-            MESSAGE="❌ Policy validation failed for $PLATFORM_NAME"
+          # Format platform name with force rewrite indicator
+          PLATFORM_DISPLAY="$PLATFORM_NAME"
+          if [ "$FORCE_REWRITE" = "true" ]; then
+            PLATFORM_DISPLAY="$PLATFORM_NAME [FORCE-REWRITE]"
           fi
 
-          echo "Sending notification: $MESSAGE"
+          # Determine message based on job status and validation results
+          if [ "$JOB_STATUS" = "success" ]; then
+            case "$VALIDATION_STATUS" in
+              *"completed_with_pr_created"*)
+                MESSAGE="✅ $PLATFORM_DISPLAY: Policy updates merged → <$PR_URL|PR #$PR_NUMBER created and ready for review>"
+                ;;
+              *"completed_with_pr_error"*)
+                MESSAGE="❌ $PLATFORM_DISPLAY: Policy validation failed → <$RUN_URL|Re-run workflow manually> (PR creation failed)"
+                ;;
+              *"completed_with_valid_changes"*)
+                MESSAGE="⚠️ $PLATFORM_DISPLAY: Policy updates ready but PR creation failed → <$RUN_URL|Re-run workflow manually>"
+                ;;
+              *"completed_with_invalid_changes"*)
+                MESSAGE="❌ $PLATFORM_DISPLAY: Policy validation failed → <$RUN_URL|Re-run workflow manually> (Quality check failed)"
+                ;;
+              *"completed_no_changes"*)
+                MESSAGE="✅ $PLATFORM_DISPLAY: No policy updates needed → All policies current"
+                ;;
+              *)
+                MESSAGE="❌ $PLATFORM_DISPLAY: Policy validation failed → <$RUN_URL|Re-run workflow manually> (Unknown status: $VALIDATION_STATUS)"
+                ;;
+            esac
+          else
+            MESSAGE="❌ $PLATFORM_DISPLAY: Policy validation failed → <$RUN_URL|Re-run workflow manually> (Job failed)"
+          fi
+
+          echo "Sending Slack notification: $MESSAGE"
 
           # Send Slack notification
           curl -X POST -H 'Content-type: application/json' \
             --data "{\"text\":\"$MESSAGE\"}" \
-            "$SLACK_WEBHOOK_URL" || echo "Failed to send Slack notification"
+            "$SLACK_WEBHOOK_URL"

@@ -1,15 +1,15 @@
 import { PlatformPolicies } from '@/types/policies';
 import { serverInstance as rollbar } from '../rollbar';
 
-export interface PolicyValidationQualityCheckV2Result {
+export interface PolicyValidationQualityCheckResult {
   validationStatus: 'valid' | 'invalid' | 'no_update_needed';
   reasoning: string;
   overallQualityScore: number; // 1-10 scale
   issues: Array<{
     severity: 'critical' | 'major' | 'minor';
-    type: 
+    type:
       | 'hallucination'
-      | 'meaningless_rewording' 
+      | 'meaningless_rewording'
       | 'structural_error'
       | 'policy_accuracy'
       | 'evidence_requirements'
@@ -28,19 +28,13 @@ export interface PolicyValidationQualityCheckV2Result {
   };
 }
 
-export function generatePolicyValidationQualityCheckV2Prompt(
+export function generatePolicyValidationQualityCheckPrompt(
   platformId: string,
   platformName: string,
   originalPolicies: PlatformPolicies,
   updatedPolicies: PlatformPolicies,
-  changesSummary: string
+  changesSummary: string,
 ): string {
-  rollbar.info('generatePolicyValidationQualityCheckV2Prompt: Creating quality check prompt', {
-    platformId,
-    platformName,
-    originalDocuments: originalPolicies.policyDocuments.length,
-    updatedDocuments: updatedPolicies.policyDocuments.length,
-  });
 
   return `You are an AI assistant specialized in validating policy changes for automated image takedown systems. Your task is to perform a comprehensive A/B comparison of original vs updated platform policies to assess accuracy, completeness, and necessity of changes.
 

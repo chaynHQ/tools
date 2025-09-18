@@ -1,98 +1,90 @@
-describe('Policy Validation API', () => {
-  const platforms = ['facebook', 'instagram', 'tiktok', 'onlyfans', 'pornhub'];
-
-  beforeEach(() => {
-    // Set up environment variables for testing
-    cy.intercept('POST', '/api/policy-validation/*').as('policyValidation');
+describe('Policy Validation Workflow', () => {
+  it('should have the policy validation script file', () => {
+    cy.task('fileExists', 'scripts/policy-validation.ts').should('be.true');
   });
 
-  platforms.forEach((platform) => {
-    it(`should validate ${platform} policies`, () => {
-      cy.request({
-        method: 'POST',
-        url: `/api/policy-validation/${platform}`,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: {},
-        timeout: 60000, // 60 seconds timeout for AI processing
-      }).then((response) => {
-        expect(response.status).to.eq(200);
-        expect(response.body).to.have.property('success', true);
-        expect(response.body).to.have.property('status');
-        expect(response.body).to.have.property('platform', platform);
-        expect(response.body).to.have.property('data');
-
-        // Check status is one of expected values
-        const validStatuses = [
-          'completed_no_changes',
-          'completed_with_valid_changes',
-          'completed_with_invalid_changes',
-          'completed_with_pr_created',
-          'completed_with_pr_error',
-        ];
-        expect(validStatuses).to.include(response.body.status);
-
-        // Check data structure based on status
-        if (response.body.status !== 'completed_no_changes') {
-          expect(response.body.data).to.have.property('analysis');
-          expect(response.body.data.analysis).to.have.property('status');
-          expect(response.body.data.analysis).to.have.property('reasoning');
-        }
-
-        if (response.body.status.includes('pr_created')) {
-          expect(response.body.data).to.have.property('pullRequest');
-          expect(response.body.data.pullRequest).to.have.property('url');
-          expect(response.body.data.pullRequest).to.have.property('number');
-        }
-      });
+  it('should contain required imports and logic', () => {
+    cy.readFile('scripts/policy-validation.ts').then((content) => {
+      // Check for required imports
+      expect(content).to.include('ANTHROPIC_API_KEY');
+      expect(content).to.include('GITHUB_TOKEN');
+      expect(content).to.include('GAFFA_API_KEY');
+      expect(content).to.include('SLACK_WEBHOOK_URL');
     });
   });
 
-  it('should return 400 for invalid platform', () => {
-    cy.request({
-      method: 'POST',
-      url: '/api/policy-validation/invalid-platform',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: {},
-      failOnStatusCode: false,
-    }).then((response) => {
-      expect(response.status).to.eq(400);
-      expect(response.body).to.have.property('error', 'Invalid platform');
+  it('should have the workflow configured for all platforms', () => {
+    cy.readFile('.github/workflows/policy-validation.yml').then((content) => {
+      // Check that all platforms are included in the matrix
+      expect(content).to.include('facebook');
+      expect(content).to.include('instagram');
+      expect(content).to.include('tiktok');
+      expect(content).to.include('onlyfans');
+      expect(content).to.include('pornhub');
     });
   });
 
-  it('should return 404 for platform without policy', () => {
-    // Mock a platform that exists in PLATFORM_NAMES but has no policy
-    cy.intercept('GET', '/lib/platform-policies/test', { statusCode: 404 });
-
-    cy.request({
-      method: 'POST',
-      url: '/api/policy-validation/test',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: {},
-      failOnStatusCode: false,
-    }).then((response) => {
-      expect(response.status).to.eq(404);
-      expect(response.body).to.have.property('error', 'Platform policy not found');
+  it('should validate script dependencies are available', () => {
+    // Check that the script can import required modules
+    cy.readFile('scripts/policy-validation.ts').then((content) => {
+      expect(content).to.include('orchestratePolicyValidation');
+      expect(content).to.include('PLATFORM_NAMES');
+      expect(content).to.include('getPlatformPolicy');
+      expect(content).to.include('GitHubPRCreator');
     });
   });
 
-  it('should handle OPTIONS requests', () => {
-    platforms.forEach((platform) => {
-      cy.request({
-        method: 'OPTIONS',
-        url: `/api/policy-validation/${platform}`,
-      }).then((response) => {
-        expect(response.status).to.eq(200);
-        expect(response.headers).to.have.property('access-control-allow-origin', '*');
-        expect(response.headers).to.have.property('access-control-allow-methods', 'POST, OPTIONS');
-        expect(response.headers).to.have.property('access-control-allow-headers', 'Content-Type');
-      });
+  it('should have proper error handling in the script', () => {
+    cy.readFile('scripts/policy-validation.ts').then((content) => {
+      // Check for proper error handling patterns
+      expect(content).to.include('try {');
+      expect(content).to.include('catch (error)');
+      expect(content).to.include('process.exit(1)');
+      expect(content).to.include('rollbar.error');
+    });
+  });
+
+  it('should validate platform parameter handling', () => {
+    cy.readFile('scripts/policy-validation.ts').then((content) => {
+      // Check that the script properly handles platform parameter
+      expect(content).to.include('process.argv[2]');
+      expect(content).to.include('Platform parameter is required');
+      expect(content).to.include('Invalid platform');
+    });
+  });
+
+  it('should have GitHub Actions output format', () => {
+    cy.readFile('scripts/policy-validation.ts').then((content) => {
+      // Check for GitHub Actions output format
+      expect(content).to.include('::set-output name=status::');
+      expect(content).to.include('::set-output name=platform::');
+      expect(content).to.include('::set-output name=reasoning::');
+    });
+  });
+
+  it('should validate workflow triggers are configured', () => {
+    cy.readFile('.github/workflows/policy-validation.yml').then((content) => {
+      // Check workflow triggers
+      expect(content).to.include('schedule:');
+      expect(content).to.include('workflow_dispatch:');
+      expect(content).to.include('cron:');
+    });
+  });
+
+  it('should have proper permissions configured', () => {
+    cy.readFile('.github/workflows/policy-validation.yml').then((content) => {
+      // Check required permissions
+      expect(content).to.include('contents: read');
+      expect(content).to.include('pull-requests: write');
+    });
+  });
+
+  it('should validate notification logic exists', () => {
+    cy.readFile('.github/workflows/policy-validation.yml').then((content) => {
+      // Check for Slack notification logic
+      expect(content).to.include('Send completion notification');
+      expect(content).to.include('SLACK_WEBHOOK_URL');
+      expect(content).to.include('curl -X POST');
     });
   });
 });

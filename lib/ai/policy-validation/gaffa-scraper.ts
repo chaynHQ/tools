@@ -8,10 +8,9 @@ export interface GaffaScrapingResult {
 }
 
 export async function scrapeDocumentMarkdown(url: string): Promise<GaffaScrapingResult> {
-  rollbar.info('scrapeDocumentMarkdown: Starting document scraping', { url });
 
   if (!process.env.GAFFA_API_KEY) {
-    rollbar.error('scrapeDocumentMarkdown: GAFFA_API_KEY not configured');
+    rollbar.error('Policy validation: GAFFA_API_KEY not configured for document scraping');
     return {
       success: false,
       error: 'GAFFA_API_KEY not configured',
@@ -47,11 +46,10 @@ export async function scrapeDocumentMarkdown(url: string): Promise<GaffaScraping
       }),
     });
 
-    console.log('gaffa response');
 
     if (!response.ok) {
       const errorText = await response.text();
-      rollbar.error('scrapeDocumentMarkdown: Gaffa API error', {
+      rollbar.error('Policy validation: Document scraping API error', {
         url,
         status: response.status,
         error: errorText,
@@ -70,10 +68,8 @@ export async function scrapeDocumentMarkdown(url: string): Promise<GaffaScraping
     const markdownAction = actions.find((action: any) => action.type === 'generate_markdown');
     
     if (!markdownAction || !markdownAction.output) {
-      rollbar.warning('scrapeDocumentMarkdown: No markdown action or output URL found', {
+      rollbar.warning('Policy validation: Document scraping failed - no markdown output', {
         url,
-        responseStructure: Object.keys(data),
-        actions: actions.map((a: any) => ({ type: a.type, hasOutput: !!a.output })),
       });
       return {
         success: false,
@@ -83,21 +79,15 @@ export async function scrapeDocumentMarkdown(url: string): Promise<GaffaScraping
     }
 
     const markdownUrl = markdownAction.output;
-    rollbar.info('scrapeDocumentMarkdown: Found markdown URL, fetching content', {
-      url,
-      markdownUrl,
-    });
 
     // Fetch the actual markdown content from the URL
     try {
       const markdownResponse = await fetch(markdownUrl);
       
       if (!markdownResponse.ok) {
-        rollbar.error('scrapeDocumentMarkdown: Failed to fetch markdown content', {
+        rollbar.error('Policy validation: Failed to fetch markdown content', {
           url,
-          markdownUrl,
           status: markdownResponse.status,
-          statusText: markdownResponse.statusText,
         });
         return {
           success: false,
@@ -109,9 +99,8 @@ export async function scrapeDocumentMarkdown(url: string): Promise<GaffaScraping
       const markdown = await markdownResponse.text();
       
       if (!markdown || markdown.trim().length === 0) {
-        rollbar.warning('scrapeDocumentMarkdown: Empty markdown content returned', {
+        rollbar.warning('Policy validation: Empty markdown content returned', {
           url,
-          markdownUrl,
         });
         return {
           success: false,
@@ -120,11 +109,6 @@ export async function scrapeDocumentMarkdown(url: string): Promise<GaffaScraping
         };
       }
 
-      rollbar.info('scrapeDocumentMarkdown: Successfully scraped document', {
-        url,
-        markdownUrl,
-        markdownLength: markdown.length,
-      });
 
       return {
         success: true,
@@ -132,10 +116,9 @@ export async function scrapeDocumentMarkdown(url: string): Promise<GaffaScraping
         url,
       };
     } catch (markdownFetchError) {
-      rollbar.error('scrapeDocumentMarkdown: Error fetching markdown content', {
+      rollbar.error('Policy validation: Error fetching markdown content', {
         url,
-        markdownUrl,
-        error: markdownFetchError,
+        error: markdownFetchError instanceof Error ? markdownFetchError.message : String(markdownFetchError),
       });
       return {
         success: false,
@@ -144,9 +127,9 @@ export async function scrapeDocumentMarkdown(url: string): Promise<GaffaScraping
       };
     }
   } catch (error) {
-    rollbar.error('scrapeDocumentMarkdown: Error during initial Gaffa request', {
+    rollbar.error('Policy validation: Document scraping request failed', {
       url,
-      error,
+      error: error instanceof Error ? error.message : String(error),
     });
     return {
       success: false,
@@ -157,25 +140,89 @@ export async function scrapeDocumentMarkdown(url: string): Promise<GaffaScraping
 }
 
 export async function scrapeMultipleDocuments(urls: string[]): Promise<GaffaScrapingResult[]> {
-  rollbar.info('scrapeMultipleDocuments: Starting batch scraping', {
+
+  // Process documents in parallel with controlled concurrency
+  const results = await Promise.allSettled(
+    urls.map(url => scrapeDocumentMarkdown(url))
+  );
+
+  // Convert Promise.allSettled results to GaffaScrapingResult[]
+  const finalResults: GaffaScrapingResult[] = results.map((result, index) => {
+    if (result.status === 'fulfilled') {
+      return result.value;
+    } else {
+      rollbar.error('Policy validation: Document scraping failed in batch', {
+        url: urls[index],
+        error: result.reason instanceof Error ? result.reason.message : String(result.reason),
+      });
+      return {
+        success: false,
+        error: result.reason instanceof Error ? result.reason.message : 'Unknown scraping error',
+        url: urls[index],
+      };
+    }
+  });
+
+  const successCount = finalResults.filter((r) => r.success).length;
+  rollbar.info('Policy validation: Document scraping batch completed', {
+    totalUrls: urls.length,
+    successCount,
+    failureCount: urls.length - successCount,
+  });
+
+  return finalResults;
+}
+
+export async function scrapeMultipleDocumentsWithRateLimit(
+  urls: string[],
+  concurrency: number = 3,
+  delayMs: number = 500
+): Promise<GaffaScrapingResult[]> {
+  rollbar.info('Policy validation: Starting rate-limited document scraping', {
     urlCount: urls.length,
+    concurrency,
   });
 
   const results: GaffaScrapingResult[] = [];
+  
+  // Process URLs in batches to control concurrency
+  for (let i = 0; i < urls.length; i += concurrency) {
+    const batch = urls.slice(i, i + concurrency);
+    
 
-  // Process documents sequentially to avoid overwhelming the API
-  for (const url of urls) {
-    const result = await scrapeDocumentMarkdown(url);
-    results.push(result);
+    // Process batch in parallel
+    const batchResults = await Promise.allSettled(
+      batch.map(url => scrapeDocumentMarkdown(url))
+    );
 
-    // Add a small delay between requests to be respectful
-    if (urls.indexOf(url) < urls.length - 1) {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+    // Convert results and add to final array
+    const processedBatchResults: GaffaScrapingResult[] = batchResults.map((result, batchIndex) => {
+      const urlIndex = i + batchIndex;
+      if (result.status === 'fulfilled') {
+        return result.value;
+      } else {
+        rollbar.error('Policy validation: Document scraping failed in rate-limited batch', {
+          url: urls[urlIndex],
+          error: result.reason instanceof Error ? result.reason.message : String(result.reason),
+        });
+        return {
+          success: false,
+          error: result.reason instanceof Error ? result.reason.message : 'Unknown scraping error',
+          url: urls[urlIndex],
+        };
+      }
+    });
+
+    results.push(...processedBatchResults);
+
+    // Add delay between batches (except for the last batch)
+    if (i + concurrency < urls.length) {
+      await new Promise((resolve) => setTimeout(resolve, delayMs));
     }
   }
 
   const successCount = results.filter((r) => r.success).length;
-  rollbar.info('scrapeMultipleDocuments: Batch scraping completed', {
+  rollbar.info('Policy validation: Rate-limited document scraping completed', {
     totalUrls: urls.length,
     successCount,
     failureCount: urls.length - successCount,

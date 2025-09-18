@@ -36,13 +36,6 @@ export class GitHubPRCreator {
    */
   async createPolicyUpdatePR(data: PullRequestData): Promise<PullRequestResult> {
     try {
-      console.log('GitHubPRCreator: Starting PR creation', {
-        branchName: data.branchName,
-        filesCount: data.files.length,
-        owner: this.owner,
-        repo: this.repo,
-      });
-
       // Step 1: Get the default branch SHA
       const { data: repo } = await this.octokit.rest.repos.get({
         owner: this.owner,
@@ -57,22 +50,12 @@ export class GitHubPRCreator {
 
       const baseBranchSha = baseBranch.commit.sha;
 
-      // Step 2: Create a new branch
-      await this.octokit.rest.git.createRef({
-        owner: this.owner,
-        repo: this.repo,
-        ref: `refs/heads/${data.branchName}`,
-        sha: baseBranchSha,
-      });
-
-      console.log('GitHubPRCreator: Created branch', {
-        branchName: data.branchName,
-        baseSha: baseBranchSha.substring(0, 7),
-      });
+      // Step 2: Handle branch creation/update
+      const finalBranchName = await this.createOrUpdateBranch(data.branchName, baseBranchSha);
 
       // Step 3: Create/update files in the new branch
       for (const file of data.files) {
-        await this.createOrUpdateFile(file.path, file.content, data.branchName);
+        await this.createOrUpdateFile(file.path, file.content, finalBranchName);
       }
 
       // Step 4: Create the pull request
@@ -81,14 +64,15 @@ export class GitHubPRCreator {
         repo: this.repo,
         title: data.title,
         body: data.body,
-        head: data.branchName,
+        head: finalBranchName,
         base: repo.default_branch,
       });
 
-      console.log('GitHubPRCreator: Successfully created PR', {
+      rollbar.info('Policy validation: PR created successfully', {
         pullRequestNumber: pullRequest.number,
         pullRequestUrl: pullRequest.html_url,
-        branchName: data.branchName,
+        branchName: finalBranchName,
+        filesCount: data.files.length,
       });
 
       return {
@@ -97,11 +81,10 @@ export class GitHubPRCreator {
         pullRequestNumber: pullRequest.number,
       };
     } catch (error) {
-      rollbar.error('GitHubPRCreator: Error creating PR', {
+      rollbar.error('Policy validation: PR creation failed', {
         error: error instanceof Error ? error.message : String(error),
         branchName: data.branchName,
-        owner: this.owner,
-        repo: this.repo,
+        stack: error instanceof Error ? error.stack : undefined,
       });
 
       return {
@@ -110,6 +93,118 @@ export class GitHubPRCreator {
       };
     }
   }
+
+  /**
+   * Creates a new branch after cleaning up any existing policy update branches/PRs for this platform
+   */
+  private async createOrUpdateBranch(branchName: string, baseSha: string): Promise<string> {
+    // Extract platform from branch name (format: policy-update/{platformId}/{timestamp})
+    const platformMatch = branchName.match(/^policy-update\/([^\/]+)\//);
+    const platformId = platformMatch ? platformMatch[1] : null;
+
+    if (platformId) {
+      // Clean up any existing policy update branches/PRs for this platform
+      await this.cleanupExistingPolicyBranches(platformId);
+    }
+
+    // Create the new branch
+    try {
+      await this.octokit.rest.git.createRef({
+        owner: this.owner,
+        repo: this.repo,
+        ref: `refs/heads/${branchName}`,
+        sha: baseSha,
+      });
+
+      return branchName;
+    } catch (error: any) {
+      // If branch creation fails for any reason, log and re-throw
+      rollbar.error('Policy validation: Failed to create branch', {
+        branchName,
+        error: error instanceof Error ? error.message : String(error),
+      });
+      throw error;
+    }
+  }
+
+  /**
+   * Cleans up existing policy update branches and PRs for a specific platform
+   */
+  private async cleanupExistingPolicyBranches(platformId: string): Promise<void> {
+    try {
+      // Find all open PRs that match the policy update pattern for this platform
+      const { data: pulls } = await this.octokit.rest.pulls.list({
+        owner: this.owner,
+        repo: this.repo,
+        state: 'open',
+        per_page: 100, // Get more results to catch all policy PRs
+      });
+
+      // Filter PRs that match our policy update pattern for this platform
+      const policyPRs = pulls.filter(
+        (pr) =>
+          pr.head.ref.startsWith(`policy-update/${platformId}/`) ||
+          pr.title.includes(`Policy Update: `), // Fallback pattern matching
+      );
+
+      if (policyPRs.length > 0) {
+        rollbar.info('Policy validation: Cleaning up existing policy PRs', {
+          platformId,
+          prCount: policyPRs.length,
+          prNumbers: policyPRs.map((pr) => pr.number),
+        });
+
+        // Close existing PRs and delete their branches
+        for (const pr of policyPRs) {
+          try {
+            // Close the PR
+            await this.octokit.rest.pulls.update({
+              owner: this.owner,
+              repo: this.repo,
+              pull_number: pr.number,
+              state: 'closed',
+            });
+
+            // Add a comment explaining why it was closed
+            await this.octokit.rest.issues.createComment({
+              owner: this.owner,
+              repo: this.repo,
+              issue_number: pr.number,
+              body: '🤖 This PR was automatically closed because a new policy validation run has generated updated changes. A new PR will be created with the latest policy updates.',
+            });
+
+            // Delete the branch
+            try {
+              await this.octokit.rest.git.deleteRef({
+                owner: this.owner,
+                repo: this.repo,
+                ref: `heads/${pr.head.ref}`,
+              });
+            } catch (deleteError) {
+              // Branch deletion is not critical, just log the warning
+              rollbar.warning('Policy validation: Could not delete branch', {
+                branchName: pr.head.ref,
+                error: deleteError instanceof Error ? deleteError.message : String(deleteError),
+              });
+            }
+          } catch (prError) {
+            rollbar.warning('Policy validation: Could not close existing PR', {
+              prNumber: pr.number,
+              branchName: pr.head.ref,
+              error: prError instanceof Error ? prError.message : String(prError),
+            });
+          }
+        }
+      }
+    } catch (error) {
+      rollbar.warning('Policy validation: Error during cleanup', {
+        platformId,
+        error: error instanceof Error ? error.message : String(error),
+      });
+      // Don't throw - cleanup failure shouldn't prevent new PR creation
+    }
+  }
+
   /**
    * Creates or updates a file in the repository
    */
@@ -133,8 +228,6 @@ export class GitHubPRCreator {
         branch,
         sha: Array.isArray(existingFile) ? undefined : existingFile.sha,
       });
-
-      console.log('GitHubPRCreator: Updated existing file', { path, branch });
     } catch (error: any) {
       if (error.status === 404) {
         // File doesn't exist, create it
@@ -146,8 +239,6 @@ export class GitHubPRCreator {
           content: Buffer.from(content).toString('base64'),
           branch,
         });
-
-        console.log('GitHubPRCreator: Created new file', { path, branch });
       } else {
         throw error;
       }
@@ -161,17 +252,23 @@ export class GitHubPRCreator {
     platformId: string,
     updatedPolicy: PlatformPolicies,
     reasoning: string,
+    forceRewrite: boolean,
   ): Promise<{ url: string; number: number } | null> {
     if (!process.env.GITHUB_TOKEN) {
-      rollbar.warning('PolicyValidation: GitHub token not configured, skipping PR creation');
+      rollbar.warning('Policy validation: GitHub token not configured, skipping PR creation');
       return null;
     }
 
     try {
       const timestamp = new Date().toISOString().split('T')[0];
-      const branchName = `policy-update/${timestamp}-${platformId}`;
-      const prTitle = GitHubPRCreator.generatePRTitle(platformId, updatedPolicy.platform);
-      const prBody = GitHubPRCreator.generatePRBody(platformId, updatedPolicy.platform, reasoning);
+      const branchName = GitHubPRCreator.generateBranchName(platformId, timestamp);
+      const prTitle = GitHubPRCreator.generatePRTitle(updatedPolicy.platform, forceRewrite);
+      const prBody = GitHubPRCreator.generatePRBody(
+        updatedPolicy.platform,
+        reasoning,
+        forceRewrite,
+        timestamp,
+      );
 
       const policyFileName = `${platformId}.ts`;
       const files = [
@@ -189,20 +286,26 @@ export class GitHubPRCreator {
       });
 
       if (prResult.success) {
-        console.log('PolicyValidation: Successfully created PR', {
-          platformId,
-          pullRequestUrl: prResult.pullRequestUrl,
-          pullRequestNumber: prResult.pullRequestNumber,
-        });
-
         return {
           url: prResult.pullRequestUrl!,
           number: prResult.pullRequestNumber!,
         };
       } else {
-        throw new Error(prResult.error || 'Unknown PR creation error');
+        // Enhanced error with more context
+        const errorMessage = `PR creation failed: ${prResult.error || 'Unknown error'}`;
+        rollbar.error('Policy validation: PR creation failed with context', {
+          platformId,
+          error: prResult.error,
+          branchName,
+        });
+        throw new Error(errorMessage);
       }
     } catch (error) {
+      rollbar.error('Policy validation: Exception during PR creation', {
+        platformId,
+        error: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined,
+      });
       throw error;
     }
   }
@@ -210,19 +313,29 @@ export class GitHubPRCreator {
   /**
    * Generates PR body content
    */
-  static generatePRBody(platformId: string, platformName: string, reasoning: string): string {
-    const timestamp = new Date().toISOString();
-
+  static generatePRBody(
+    platformName: string,
+    reasoning: string,
+    forceRewrite: boolean,
+    timestamp: string,
+  ): string {
     return `## 🤖 Automated Policy Update
 
 This pull request contains policy updates identified by our automated validation system.
 
 ### 📊 Summary
-- **Platform**: ${platformName} (\`${platformId}\`)
+- **Platform**: ${platformName} 
 - **Generated**: ${timestamp}
 
 ### 🔍 Changes Made
-
+${
+  forceRewrite
+    ? `
+  
+**Forced rewrite mode**: The policies were fetched as new without providing our existing policies.
+  `
+    : ''
+}
 ${reasoning}
 
 ### ✅ Validation Status
@@ -242,21 +355,31 @@ This PR was automatically generated by the Policy Validation Workflow. The chang
 3. Automatically formatted and submitted as this PR
 
 ---
-*Generated by Policy Validation Workflow v1.0*`;
+`;
   }
 
   /**
    * Generates PR title
    */
-  static generatePRTitle(platformId: string, platformName: string): string {
-    return `🤖 Policy Update: ${platformName} (${platformId})`;
+  static generatePRTitle(platformName: string, forceRewrite: boolean): string {
+    return `Policy Update: ${platformName}${forceRewrite ? ' (Replace/rewrite)' : ''} `;
+  }
+
+  /**
+   * Generates Branch name
+   */
+  static generateBranchName(platformId: string, timestamp: string): string {
+    return `policy-update/${platformId}/${timestamp}`;
   }
 }
 
 /**
  * Generates the TypeScript file content for a platform policy
  */
-export function generatePolicyFileContent(updatedPolicy: PlatformPolicies, fileName: string): string {
+export function generatePolicyFileContent(
+  updatedPolicy: PlatformPolicies,
+  fileName: string,
+): string {
   const platformName = updatedPolicy.platform;
   const exportName = `${fileName.replace('.ts', '')}Policy`;
 

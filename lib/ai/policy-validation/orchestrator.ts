@@ -1,15 +1,17 @@
+import { DocumentValidationResult } from '@/lib/prompts/policy-validation-document-validation';
+import { PolicyAbstractionResult } from '@/lib/prompts/policy-validation-policy-abstraction';
 import { serverInstance as rollbar } from '@/lib/rollbar';
 import { parseAIJson } from '@/lib/utils';
-import { PlatformPolicies } from '@/types/policies';
+import { PlatformPolicies, Policy } from '@/types/policies';
 import {
-  generatePolicyValidationQualityCheckV2Prompt,
-  PolicyValidationQualityCheckV2Result,
-} from '../../prompts/policy-validation-quality-check-v2';
+  generatePolicyValidationQualityCheckPrompt,
+  PolicyValidationQualityCheckResult,
+} from '../../prompts/policy-validation-quality-check';
 import { callAnthropic } from '../anthropic';
-import { DocumentValidationResult, validateDocuments } from './documents-validator';
-import { GaffaScrapingResult, scrapeMultipleDocuments } from './gaffa-scraper';
+import { validateDocuments } from './documents-validator';
+import { GaffaScrapingResult, scrapeMultipleDocumentsWithRateLimit } from './gaffa-scraper';
 import { buildPlatformPolicies, comparePlatformPolicies } from './platform-policies-builder';
-import { abstractPoliciesFromDocument, PolicyAbstractionResult } from './policy-abstractor';
+import { abstractPoliciesFromMultipleDocuments } from './policy-abstractor';
 
 export interface PolicyValidationOrchestrationResult {
   status:
@@ -29,8 +31,11 @@ export interface PolicyValidationOrchestrationResult {
       result: PolicyAbstractionResult;
     }>;
     updatedPolicies?: PlatformPolicies;
-    qualityCheck?: PolicyValidationQualityCheckV2Result;
+    qualityCheck?: PolicyValidationQualityCheckResult;
     comparison?: ReturnType<typeof comparePlatformPolicies>;
+    analysis?: {
+      reasoning: string;
+    };
     error?: string;
   };
   reasoning: string;
@@ -49,7 +54,7 @@ export async function orchestratePolicyValidation(
 
   try {
     // Step 1: Validate current documents
-    rollbar.info('orchestratePolicyValidation: Step 1 - Document validation');
+
     const documentValidation = await validateDocuments(
       platformId,
       platformName,
@@ -62,7 +67,13 @@ export async function orchestratePolicyValidation(
       })),
     );
 
-    console.log('documentValidation', documentValidation);
+    rollbar.info('Policy validation: Document validation completed', {
+      platformId,
+      status: documentValidation.status,
+      newDocuments: documentValidation.newDocuments.length,
+      removedDocuments: documentValidation.removedDocuments.length,
+      validDocuments: documentValidation.validDocuments.length,
+    });
 
     if (
       documentValidation.status === 'valid' &&
@@ -70,110 +81,138 @@ export async function orchestratePolicyValidation(
       documentValidation.removedDocuments.length === 0 &&
       documentValidation.validDocuments.every((doc) => doc.status === 'valid')
     ) {
-      rollbar.info('orchestratePolicyValidation: No document changes needed');
+      rollbar.info('Policy validation: No changes needed - all documents current', {
+        platformId,
+      });
+
       return {
         status: 'completed_no_changes',
         platformId,
         platformName,
-        data: { documentValidation },
+        data: {
+          documentValidation,
+          analysis: {
+            reasoning:
+              'Document validation found no changes needed. All documents are current and accessible.',
+          },
+        },
         reasoning:
           'Document validation found no changes needed. All documents are current and accessible.',
       };
     }
 
     // Step 2: Scrape updated/new documents
-    rollbar.info('orchestratePolicyValidation: Step 2 - Document scraping');
+
     const documentsToScrape = [
       ...documentValidation.validDocuments.map((doc) => doc.newUrl || doc.url),
       ...documentValidation.newDocuments.map((doc) => doc.url),
     ];
 
-    const scrapingResults = await scrapeMultipleDocuments(documentsToScrape);
+    // Use rate-limited scraping with controlled concurrency
+    const scrapingResults = await scrapeMultipleDocumentsWithRateLimit(
+      documentsToScrape,
+      3, // Max 3 concurrent requests
+      1000, // 1 second delay between batches
+    );
     const failedScrapes = scrapingResults.filter((result) => !result.success);
 
     if (failedScrapes.length > 0) {
-      rollbar.warning('orchestratePolicyValidation: Some documents failed to scrape', {
+      rollbar.warning('Policy validation: Document scraping partially failed', {
+        platformId,
         failedCount: failedScrapes.length,
         totalCount: scrapingResults.length,
+        failedUrls: failedScrapes.map(f => f.url),
       });
     }
 
     // Step 3: Abstract policies from scraped documents
-    rollbar.info('orchestratePolicyValidation: Step 3 - Policy abstraction');
-    const policyAbstractions: Array<{
+
+    // Prepare documents for parallel processing
+    const documentsForAbstraction: Array<{
+      url: string;
+      title: string;
+      reference: string;
+      markdown: string;
+      currentPolicies?: Policy[];
       documentId: string;
-      success: boolean;
-      result: PolicyAbstractionResult;
+      isNew: boolean;
     }> = [];
 
+    // Add existing documents
     for (let i = 0; i < documentValidation.validDocuments.length; i++) {
       const doc = documentValidation.validDocuments[i];
       const scrapingResult = scrapingResults[i];
 
-      if (!scrapingResult.success || !scrapingResult.markdown) {
-        policyAbstractions.push({
+      if (scrapingResult.success && scrapingResult.markdown) {
+        // Find current policies for this document
+        const currentDoc = currentPolicies.policyDocuments.find((d) => d.id === doc.id);
+        const currentDocPolicies = currentDoc?.policies;
+
+        documentsForAbstraction.push({
+          url: doc.url,
+          title: doc.title,
+          reference: doc.reference || doc.id,
+          markdown: scrapingResult.markdown,
+          currentPolicies: currentDocPolicies,
           documentId: doc.id,
-          success: false,
-          result: {
-            success: false,
-            policies: [],
-            appealProcess: null,
-            reasoning: `Failed to scrape document: ${scrapingResult.error}`,
-            error: scrapingResult.error,
-          },
+          isNew: false,
         });
-        continue;
       }
-
-      // Find current policies for this document
-      const currentDoc = currentPolicies.policyDocuments.find((d) => d.id === doc.id);
-      const currentDocPolicies = currentDoc?.policies;
-
-      const abstraction = await abstractPoliciesFromDocument(
-        doc.url,
-        doc.title,
-        doc.reference || doc.id,
-        scrapingResult.markdown,
-        currentDocPolicies,
-      );
-
-      console.log('abstraction response', abstraction);
-
-      policyAbstractions.push({
-        documentId: doc.id,
-        success: abstraction.success,
-        result: abstraction,
-      });
     }
 
-    // Handle new documents
+    // Add new documents
     const newDocStartIndex = documentValidation.validDocuments.length;
     for (let i = 0; i < documentValidation.newDocuments.length; i++) {
       const doc = documentValidation.newDocuments[i];
       const scrapingResult = scrapingResults[newDocStartIndex + i];
 
-      if (!scrapingResult.success || !scrapingResult.markdown) {
-        continue; // Skip failed new documents
+      if (scrapingResult.success && scrapingResult.markdown) {
+        documentsForAbstraction.push({
+          url: doc.url,
+          title: doc.title,
+          reference: doc.reference,
+          markdown: scrapingResult.markdown,
+          documentId: `new-${i}`,
+          isNew: true,
+        });
       }
-
-      const abstraction = await abstractPoliciesFromDocument(
-        doc.url,
-        doc.title,
-        doc.reference,
-        scrapingResult.markdown,
-      );
-
-      console.log('new abstraction response', abstraction);
-
-      policyAbstractions.push({
-        documentId: `new-${i}`, // Temporary ID for new documents
-        success: abstraction.success,
-        result: abstraction,
-      });
     }
 
+
+    // Process all documents in parallel
+    const parallelAbstractionResults = await abstractPoliciesFromMultipleDocuments(
+      documentsForAbstraction.map((doc) => ({
+        url: doc.url,
+        title: doc.title,
+        reference: doc.reference,
+        markdown: doc.markdown,
+        currentPolicies: doc.currentPolicies,
+      })),
+    );
+
+    // Convert parallel results back to the expected format
+    const policyAbstractions: Array<{
+      documentId: string;
+      success: boolean;
+      result: PolicyAbstractionResult;
+    }> = parallelAbstractionResults.map((result, index) => {
+      const doc = documentsForAbstraction[index];
+
+
+      return {
+        documentId: doc.documentId,
+        success: result.result.success,
+        result: result.result,
+      };
+    });
+
     // Step 4: Build new platform policies
-    rollbar.info('orchestratePolicyValidation: Step 4 - Building platform policies');
+    rollbar.info('Policy validation: Building updated platform policies', {
+      platformId,
+      successfulAbstractions: policyAbstractions.filter((a) => a.success).length,
+      totalDocuments: documentsForAbstraction.length,
+    });
+
     const documentResults = [];
 
     // Add existing documents
@@ -218,11 +257,25 @@ export async function orchestratePolicyValidation(
     const updatedPolicies = buildPlatformPolicies(platformName, documentResults);
 
     // Step 5: Compare and quality check
-    rollbar.info('orchestratePolicyValidation: Step 5 - Quality check');
+
     const comparison = comparePlatformPolicies(currentPolicies, updatedPolicies);
 
+    rollbar.info('Policy validation: Policy comparison completed', {
+      platformId,
+      hasChanges: comparison.hasChanges,
+      documentsAdded: comparison.summary.documentsAdded,
+      documentsRemoved: comparison.summary.documentsRemoved,
+      documentsModified: comparison.summary.documentsModified,
+      policiesAdded: comparison.summary.policiesAdded,
+      policiesRemoved: comparison.summary.policiesRemoved,
+      policiesModified: comparison.summary.policiesModified,
+    });
+
     if (!comparison.hasChanges) {
-      rollbar.info('orchestratePolicyValidation: No meaningful changes detected');
+      rollbar.info('Policy validation: No meaningful changes detected', {
+        platformId,
+      });
+
       return {
         status: 'completed_no_changes',
         platformId,
@@ -233,13 +286,18 @@ export async function orchestratePolicyValidation(
           policyAbstractions,
           updatedPolicies,
           comparison,
+          analysis: {
+            reasoning:
+              'Policy analysis completed but no meaningful changes were detected in the platform policies.',
+          },
         },
         reasoning:
           'Policy analysis completed but no meaningful changes were detected in the platform policies.',
       };
     }
 
-    const qualityCheckPrompt = generatePolicyValidationQualityCheckV2Prompt(
+
+    const qualityCheckPrompt = generatePolicyValidationQualityCheckPrompt(
       platformId,
       platformName,
       currentPolicies,
@@ -248,7 +306,15 @@ export async function orchestratePolicyValidation(
     );
 
     const qualityCheckResponse = await callAnthropic(qualityCheckPrompt);
-    const qualityCheck: PolicyValidationQualityCheckV2Result = parseAIJson(qualityCheckResponse);
+    const qualityCheck: PolicyValidationQualityCheckResult = parseAIJson(qualityCheckResponse);
+
+    rollbar.info('Policy validation: Quality check completed', {
+      platformId,
+      validationStatus: qualityCheck.validationStatus,
+      overallQualityScore: qualityCheck.overallQualityScore,
+      issuesCount: qualityCheck.issues.length,
+      criticalIssues: qualityCheck.issues.filter(i => i.severity === 'critical').length,
+    });
 
     const result: PolicyValidationOrchestrationResult = {
       status:
@@ -264,11 +330,15 @@ export async function orchestratePolicyValidation(
         updatedPolicies,
         qualityCheck,
         comparison,
+        analysis: {
+          reasoning: qualityCheck.reasoning,
+        },
       },
       reasoning: qualityCheck.reasoning,
     };
 
-    rollbar.info('orchestratePolicyValidation: Policy validation orchestration completed', {
+    rollbar.info('Policy validation: Orchestration completed successfully', {
+      platformId,
       status: result.status,
       qualityScore: qualityCheck.overallQualityScore,
       issuesFound: qualityCheck.issues.length,
@@ -276,9 +346,10 @@ export async function orchestratePolicyValidation(
 
     return result;
   } catch (error) {
-    rollbar.error('orchestratePolicyValidation: Error during orchestration', {
+    rollbar.error('Policy validation: Orchestration failed', {
       platformId,
-      error,
+      error: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
     });
 
     return {
@@ -286,6 +357,9 @@ export async function orchestratePolicyValidation(
       platformId,
       platformName,
       data: {
+        analysis: {
+          reasoning: 'Policy validation failed due to an unexpected error during processing.',
+        },
         error: error instanceof Error ? error.message : 'Unknown orchestration error',
       },
       reasoning: 'Policy validation failed due to an unexpected error during processing.',
