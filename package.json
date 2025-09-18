@@ -29,7 +29,9 @@
     "type-check": "tsc --noEmit",
     "format": "prettier --write .",
     "cypress": "cypress open",
-    "cypress:headless": "cypress run --browser electron --config video=false"
+    "cypress:headless": "cypress run --browser electron --config video=false",
+    "policy-validation": "npx tsx scripts/policy-validation.ts",
+    "policy-validation:force-rewrite": "npx tsx scripts/policy-validation.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.53.0",

@@ -7,6 +7,7 @@ const { serverInstance: rollbar } = require('../lib/rollbar');
 async function validatePlatformPolicies() {
   try {
     const platform = process.argv[2];
+    const forceRewrite = process.argv.includes('--force-rewrite');
 
     if (!platform) {
       console.error('Error: Platform parameter is required');
@@ -20,8 +21,32 @@ async function validatePlatformPolicies() {
       process.exit(1);
     }
 
-    const platformPolicy = getPlatformPolicy(platform);
-    if (!platformPolicy) {
+    let platformPolicy;
+
+    if (forceRewrite) {
+      console.log(`Force rewrite mode enabled for platform: ${platform}`);
+      console.log('All policies will be treated as new and completely rewritten');
+
+      // Create empty platform policies object for force rewrite
+      platformPolicy = {
+        platform: PLATFORM_NAMES[platform],
+        policyDocuments: [],
+      };
+
+      rollbar.info('PolicyValidation: Force rewrite mode enabled', {
+        platform,
+        platformName: PLATFORM_NAMES[platform],
+      });
+    } else {
+      platformPolicy = getPlatformPolicy(platform);
+      if (!platformPolicy) {
+        rollbar.error('PolicyValidation: Platform policy not found', { platform });
+        console.error(`Error: Platform policy not found for: ${platform}`);
+        process.exit(1);
+      }
+    }
+
+    if (!forceRewrite && !platformPolicy) {
       rollbar.error('PolicyValidation: Platform policy not found', { platform });
       console.error(`Error: Platform policy not found for: ${platform}`);
       process.exit(1);
@@ -29,12 +54,17 @@ async function validatePlatformPolicies() {
 
     rollbar.info('PolicyValidation: Starting validation for platform', {
       platform,
+      forceRewrite,
       documentsCount: platformPolicy.policyDocuments.length,
     });
 
-    console.log(`Starting policy validation for platform: ${platform}`);
+    console.log(
+      `Starting policy validation for platform: ${platform}${forceRewrite ? ' (FORCE REWRITE MODE)' : ''}`,
+    );
     console.log(`Platform name: ${PLATFORM_NAMES[platform]}`);
-    console.log(`Current documents: ${platformPolicy.policyDocuments.length}`);
+    console.log(
+      `Current documents: ${platformPolicy.policyDocuments.length}${forceRewrite ? ' (will be ignored)' : ''}`,
+    );
 
     // Run the orchestrated policy validation flow
     console.log('PolicyValidation: Calling orchestratePolicyValidation', { platform });
@@ -46,6 +76,7 @@ async function validatePlatformPolicies() {
 
     console.log('PolicyValidation: Orchestration completed', {
       platform,
+      forceRewrite,
       status: validationResult.status,
       hasUpdatedPolicies: !!validationResult.data.updatedPolicies,
       hasGitHubToken: !!process.env.GITHUB_TOKEN,
@@ -53,6 +84,7 @@ async function validatePlatformPolicies() {
 
     rollbar.info('PolicyValidation: Orchestration completed', {
       platform,
+      forceRewrite,
       status: validationResult.status,
       hasUpdatedPolicies: !!validationResult.data.updatedPolicies,
       hasGitHubToken: !!process.env.GITHUB_TOKEN,
@@ -63,6 +95,7 @@ async function validatePlatformPolicies() {
       status: validationResult.status,
       hasUpdatedPolicies: !!validationResult.data.updatedPolicies,
       hasGitHubToken: !!process.env.GITHUB_TOKEN,
+      forceRewrite,
     });
 
     if (
@@ -70,56 +103,71 @@ async function validatePlatformPolicies() {
       validationResult.data.updatedPolicies &&
       process.env.GITHUB_TOKEN
     ) {
-      console.log('PolicyValidation: Creating PR for valid changes');
+      console.log(
+        `PolicyValidation: Creating PR for valid changes${forceRewrite ? ' (force rewrite)' : ''}`,
+      );
       rollbar.info('PolicyValidation: Creating PR for valid changes', {
         platform,
+        forceRewrite,
         updatedPoliciesCount: validationResult.data.updatedPolicies.policyDocuments.length,
       });
 
       try {
         const prCreator = new GitHubPRCreator();
+
         const pullRequest = await prCreator.createPolicyPullRequest(
           platform,
           validationResult.data.updatedPolicies,
           validationResult.reasoning,
+          forceRewrite,
         );
 
         console.log('PolicyValidation: PR created successfully', {
           platform,
+          forceRewrite,
           pullRequestUrl: pullRequest?.url,
           pullRequestNumber: pullRequest?.number,
         });
 
         rollbar.info('PolicyValidation: PR created successfully', {
           platform,
+          forceRewrite,
           pullRequestUrl: pullRequest?.url,
           pullRequestNumber: pullRequest?.number,
         });
 
         // Set GitHub Actions outputs
-        console.log(`::set-output name=status::completed_with_pr_created`);
+        console.log(
+          `::set-output name=status::completed_with_pr_created${forceRewrite ? '_force_rewrite' : ''}`,
+        );
         console.log(`::set-output name=platform::${platform}`);
         console.log(`::set-output name=platform_name::${PLATFORM_NAMES[platform]}`);
         console.log(`::set-output name=pr_url::${pullRequest?.url || 'none'}`);
         console.log(`::set-output name=pr_number::${pullRequest?.number || 'none'}`);
         console.log(`::set-output name=reasoning::${validationResult.reasoning}`);
+        console.log(`::set-output name=force_rewrite::${forceRewrite}`);
       } catch (error) {
         console.error('PolicyValidation: PR creation failed', {
           platform,
+          forceRewrite,
           error: error instanceof Error ? error.message : String(error),
         });
 
         rollbar.error('PolicyValidation: PR creation failed', {
           platform,
+          forceRewrite,
           error: error instanceof Error ? error.message : String(error),
           stack: error instanceof Error ? error.stack : undefined,
         });
 
         // Set GitHub Actions outputs for PR error
-        console.log(`::set-output name=status::completed_with_pr_error`);
+        console.log(
+          `::set-output name=status::completed_with_pr_error${forceRewrite ? '_force_rewrite' : ''}`,
+        );
         console.log(`::set-output name=platform::${platform}`);
         console.log(`::set-output name=platform_name::${PLATFORM_NAMES[platform]}`);
         console.log(`::set-output name=reasoning::${validationResult.reasoning}`);
+        console.log(`::set-output name=force_rewrite::${forceRewrite}`);
         console.log(
           `::set-output name=error::${error instanceof Error ? error.message : 'Unknown PR creation error'}`,
         );
@@ -129,30 +177,37 @@ async function validatePlatformPolicies() {
         status: validationResult.status,
         hasUpdatedPolicies: !!validationResult.data.updatedPolicies,
         hasGitHubToken: !!process.env.GITHUB_TOKEN,
+        forceRewrite,
         reasoning: 'One or more conditions for PR creation were not satisfied',
       });
 
       rollbar.info('PolicyValidation: PR creation conditions not met', {
         platform,
+        forceRewrite,
         status: validationResult.status,
         hasUpdatedPolicies: !!validationResult.data.updatedPolicies,
         hasGitHubToken: !!process.env.GITHUB_TOKEN,
       });
 
       // Set GitHub Actions outputs
-      console.log(`::set-output name=status::${validationResult.status}`);
+      console.log(
+        `::set-output name=status::${validationResult.status}${forceRewrite ? '_force_rewrite' : ''}`,
+      );
       console.log(`::set-output name=platform::${platform}`);
       console.log(`::set-output name=platform_name::${PLATFORM_NAMES[platform]}`);
       console.log(`::set-output name=reasoning::${validationResult.reasoning}`);
+      console.log(`::set-output name=force_rewrite::${forceRewrite}`);
     }
 
     console.log('PolicyValidation: Validation completed', {
       platform,
+      forceRewrite,
       status: validationResult.status,
     });
 
     rollbar.info('PolicyValidation: Validation completed', {
       platform,
+      forceRewrite,
       status: validationResult.status,
     });
   } catch (error) {

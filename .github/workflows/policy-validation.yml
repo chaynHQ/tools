@@ -19,6 +19,11 @@ on:
           - tiktok
           - onlyfans
           - pornhub
+      force_rewrite:
+        description: 'Force complete rewrite of policies (ignores existing policies)'
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   validate-policies:
@@ -80,7 +85,11 @@ jobs:
       - name: Validate platform policies
         id: validate_platform
         run: |
-          npx tsx scripts/policy-validation.ts ${{ matrix.platform }}
+          FORCE_FLAG=""
+          if [ "${{ github.event.inputs.force_rewrite }}" = "true" ]; then
+            FORCE_FLAG="--force-rewrite"
+          fi
+          npx tsx scripts/policy-validation.ts ${{ matrix.platform }} $FORCE_FLAG
 
       - name: Send completion notification
         if: always()
@@ -91,25 +100,36 @@ jobs:
           REASONING="${{ steps.validate_platform.outputs.reasoning }}"
           PR_URL="${{ steps.validate_platform.outputs.pr_url }}"
           PR_NUMBER="${{ steps.validate_platform.outputs.pr_number }}"
+          FORCE_REWRITE="${{ steps.validate_platform.outputs.force_rewrite }}"
           STATUS="${{ job.status }}"
 
           if [ "$STATUS" = "success" ]; then
             VALIDATION_STATUS="${{ steps.validate_platform.outputs.status }}"
-            if [ "$VALIDATION_STATUS" = "completed_with_pr_created" ]; then
-              MESSAGE="🎉 Policy validation completed successfully for $PLATFORM_NAME! Quality check: PASSED. Pull Request created: $PR_URL (PR #$PR_NUMBER). Ready for review and merge."
-            elif [ "$VALIDATION_STATUS" = "completed_with_pr_error" ]; then
-              MESSAGE="⚠️ Policy validation completed for $PLATFORM_NAME, but PR creation failed. Quality check: PASSED. Manual PR creation required. Reasoning: $REASONING"
-            elif [ "$VALIDATION_STATUS" = "completed_with_valid_changes" ]; then
-              MESSAGE="✅ Policy validation completed for $PLATFORM_NAME with valid changes found. Quality check: PASSED. Ready for PR creation. Reasoning: $REASONING"
-            elif [ "$VALIDATION_STATUS" = "completed_with_invalid_changes" ]; then
-              MESSAGE="⚠️ Policy validation completed for $PLATFORM_NAME with issues. Quality check FAILED. Manual review required. Reasoning: $REASONING"
-            elif [ "$VALIDATION_STATUS" = "completed_no_changes" ]; then
-              MESSAGE="✅ Policy validation completed for $PLATFORM_NAME with no changes needed. All policies are up to date."
+            
+            FORCE_SUFFIX=""
+            if [ "$FORCE_REWRITE" = "true" ]; then
+              FORCE_SUFFIX=" (🔄 FORCE REWRITE MODE)"
+            fi
+            
+            if [[ "$VALIDATION_STATUS" == *"completed_with_pr_created"* ]]; then
+              MESSAGE="🎉 Policy validation completed successfully for $PLATFORM_NAME$FORCE_SUFFIX! Quality check: PASSED. Pull Request created: $PR_URL (PR #$PR_NUMBER). Ready for review and merge."
+            elif [[ "$VALIDATION_STATUS" == *"completed_with_pr_error"* ]]; then
+              MESSAGE="⚠️ Policy validation completed for $PLATFORM_NAME$FORCE_SUFFIX, but PR creation failed. Quality check: PASSED. Manual PR creation required. Reasoning: $REASONING"
+            elif [[ "$VALIDATION_STATUS" == *"completed_with_valid_changes"* ]]; then
+              MESSAGE="✅ Policy validation completed for $PLATFORM_NAME$FORCE_SUFFIX with valid changes found. Quality check: PASSED. Ready for PR creation. Reasoning: $REASONING"
+            elif [[ "$VALIDATION_STATUS" == *"completed_with_invalid_changes"* ]]; then
+              MESSAGE="⚠️ Policy validation completed for $PLATFORM_NAME$FORCE_SUFFIX with issues. Quality check FAILED. Manual review required. Reasoning: $REASONING"
+            elif [[ "$VALIDATION_STATUS" == *"completed_no_changes"* ]]; then
+              MESSAGE="✅ Policy validation completed for $PLATFORM_NAME$FORCE_SUFFIX with no changes needed. All policies are up to date."
             else
-              MESSAGE="✅ Policy validation completed for $PLATFORM_NAME. Status: $VALIDATION_STATUS"
+              MESSAGE="✅ Policy validation completed for $PLATFORM_NAME$FORCE_SUFFIX. Status: $VALIDATION_STATUS"
             fi
           else
-            MESSAGE="❌ Policy validation failed for $PLATFORM_NAME"
+            FORCE_SUFFIX=""
+            if [ "$FORCE_REWRITE" = "true" ]; then
+              FORCE_SUFFIX=" (🔄 FORCE REWRITE MODE)"
+            fi
+            MESSAGE="❌ Policy validation failed for $PLATFORM_NAME$FORCE_SUFFIX"
           fi
 
           echo "Sending notification: $MESSAGE"
