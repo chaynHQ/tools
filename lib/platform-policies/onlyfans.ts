@@ -1,313 +1,579 @@
-import { ContentContext, ContentType, LegalDocument, PlatformPolicy } from './types';
+import { PlatformPolicies } from '../../types/policies';
 
-const legalDocuments: LegalDocument[] = [
+export const onlyfansPolicy: PlatformPolicies = {
+  platform: 'OnlyFans',
+  policyDocuments: [
   {
-    reference: 'OF-TOS',
-    title: 'Terms of Service',
-    url: 'https://onlyfans.com/terms',
-    accessTimestamp: '2025-06-06T00:00:00Z',
-    notes:
-      'Covers fundamental rules regarding account security, content ownership, copyright (DMCA), and the requirement for all users to comply with the Acceptable Use Policy.',
-  },
-  {
-    reference: 'OF-AUP',
-    title: 'Acceptable Use Policy',
-    url: 'https://onlyfans.com/aup',
-    accessTimestamp: '2025-06-06T00:00:00Z',
-    notes:
-      'This is the core rulebook for content and behavior. It contains specific, detailed prohibitions against non-consensual content, harassment, privacy violations, impersonation, and AI-generated deepfakes.',
-  },
-  {
-    reference: 'OF-PP',
-    title: 'Privacy Policy',
-    url: 'https://onlyfans.com/privacy',
-    accessTimestamp: '2025-06-06T00:00:00Z',
-    notes:
-      'Outlines data collection and use, particularly the personal information required for the mandatory creator identity verification process.',
-  },
-  {
-    reference: 'TAKE-IT-DOWN-ACT-2025',
-    title: 'TAKE IT DOWN Act of 2025',
-    url: 'https://www.congress.gov/bill/118th-congress/house-bill/7891',
-    accessTimestamp: '2025-06-06T00:00:00Z',
-    notes:
-      'A U.S. federal law signed on May 19, 2025. It legally mandates that platforms like OnlyFans remove non-consensual intimate imagery (NCII), including AI-generated deepfakes, within 48 hours of a valid report.',
-  },
-];
-
-const contentTypes: ContentType[] = [
-  {
-    type: 'intimate',
-    label: 'Intimate images',
-    description:
-      'Photos or videos of a private or sexual nature. This violation can simultaneously breach rules on consent, harassment, privacy, AI, and copyright.',
-    policies: [
+    "id": "of-acceptable-use-policy",
+    "reference": "OF-AUP",
+    "title": "Acceptable Use Policy",
+    "summary": "Comprehensive policy covering prohibited content and behavior on OnlyFans, including non-consensual content, illegal activities, harassment, and content restrictions.",
+    "url": "https://onlyfans.com/aup",
+    "accessTimestamp": "2025-09-18T19:50:11.501Z",
+    "policies": [
       {
-        reference: 'OF-AUP-NCSII',
-        policy:
-          'Strictly prohibits posting or sharing non-consensual intimate images (NCII). Consent can be withdrawn at any time, requiring content to be taken down.',
-        documents: [legalDocuments[1], legalDocuments[3]], // OF-AUP, TAKE-IT-DOWN-ACT-2025
-        removalCriteria: [
-          'Content is sexually explicit and shared without the consent of all depicted individuals.',
-          'A depicted individual withdraws their prior consent.',
-          'Content violates specific prohibitions in the AUP (e.g., incest, necrophilia, certain bodily fluids, extreme violence).',
+        "id": "of-co-authored-consent-policy",
+        "reference": "OF-TOU-16",
+        "summary": "Any individual appearing in Co-Authored Content may withdraw their consent at any time, requiring the content to be deleted.",
+        "quote": "Any individual(s) who appear in the Co-Authored Content may, at any time, withdraw their consent to appear in that Co-Authored Content. Co-Authored Content may be deleted where a participant withdraws consent.",
+        "contentTypes": [
+          "intimate",
+          "personal"
         ],
-        evidenceRequirements: [
-          'URL(s) of the infringing content.',
-          'A description of the violation and evidence of non-consent.',
-          "Contact support and select 'Law Enforcement/Legal Matters' for non-consensual content.",
+        "contentContexts": [
+          "relationship",
+          "unknown",
+          "other"
         ],
+        "timeframes": null,
+        "evidenceRequirements": [
+          {
+            "description": "Proof of identity of the individual appearing in the content",
+            "reason": "To verify you are the person depicted in the Co-Authored Content"
+          },
+          {
+            "description": "URL(s) of the Co-Authored Content",
+            "reason": "To locate and identify the specific content for removal"
+          },
+          {
+            "description": "Statement withdrawing consent to appear in the content",
+            "reason": "To establish that consent has been withdrawn"
+          }
+        ],
+        "removalCriteria": [
+          "An individual appearing in Co-Authored Content withdraws their consent",
+          "The Creator fails to provide necessary documents confirming consent requirements"
+        ]
       },
       {
-        reference: 'OF-AUP-AI',
-        policy:
-          'Prohibits AI-generated deepfakes that impersonate a real individual without their explicit consent.',
-        documents: [legalDocuments[1]], // OF-AUP
-        removalCriteria: [
-          'Content is an AI deepfake that impersonates another real individual without their explicit consent.',
-          'AI-generated content featuring the creator is not clearly labeled with #ai or #AIGenerated.',
+        "id": "of-identity-verification-policy",
+        "reference": "OF-TOU-6",
+        "summary": "All Creators must upload valid ID and photos for identity verification to prevent impersonation.",
+        "quote": "To open a Creator account, you must also: Upload a valid form of ID and two photos of you; Add a bank account, payment details for your bank account, or a payment method; Select a method (\"Payout Option\") for us to transfer Creator Earnings to you; If you are registered for VAT in the UK, provide your UK VAT number; Submit additional age or identity verification information any time we ask for it",
+        "contentTypes": [
+          "intimate",
+          "personal",
+          "private"
         ],
-        evidenceRequirements: [
-          'URL(s) of the content.',
-          'Description of the violation (e.g., unlabeled AI, deepfake impersonation).',
-          'Evidence of impersonation if applicable.',
+        "contentContexts": [
+          "impersonation"
         ],
+        "timeframes": null,
+        "evidenceRequirements": [
+          {
+            "description": "Evidence that an account is impersonating you",
+            "reason": "To establish that unauthorized impersonation is occurring"
+          },
+          {
+            "description": "Your own proof of identity",
+            "reason": "To verify you are the person being impersonated"
+          },
+          {
+            "description": "URL of the impersonating Creator account",
+            "reason": "To identify the account for investigation and potential removal"
+          }
+        ],
+        "removalCriteria": [
+          "A Creator account is found to be using fraudulent identity documents",
+          "An account is operated by someone other than the verified individual",
+          "Identity verification requirements are not met or maintained"
+        ]
       },
       {
-        reference: 'OF-AUP-HARASSMENT',
-        policy:
-          'Prohibits harassment. Sharing intimate content without consent is considered a severe form of harassment.',
-        documents: [legalDocuments[1]], // OF-AUP
-        removalCriteria: ['Content is used to threaten, intimidate, or degrade an individual.'],
-        evidenceRequirements: [
-          'URL(s) of the content.',
-          'Description of how the content is being used to harass.',
+        "id": "of-content-removal-policy",
+        "reference": "OF-TOU-12",
+        "summary": "OnlyFans reserves the right to suspend or remove Content that may breach Terms of Service and will try to notify users when taking such action.",
+        "quote": "We reserve the right to suspend or remove Content that may breach our Terms of Service. We comply with applicable laws requiring us to use proportionate measures to quickly remove illegal Content when we become aware it is on OnlyFans. We may suspend or delete Content and accounts according to our Terms of Service. If we do, we will try to Notify you.",
+        "contentTypes": [
+          "intimate",
+          "personal",
+          "private",
+          "other"
         ],
+        "contentContexts": [
+          "hacked",
+          "impersonation",
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": {
+          "response": null,
+          "removal": {
+            "value": null,
+            "unit": null,
+            "description": "Proportionate measures to quickly remove illegal Content"
+          }
+        },
+        "evidenceRequirements": [
+          {
+            "description": "URL(s) of the content that breaches Terms of Service",
+            "reason": "To locate and review the allegedly violating content"
+          },
+          {
+            "description": "Description of how the content violates Terms of Service",
+            "reason": "To assess the nature of the violation"
+          },
+          {
+            "description": "Evidence supporting the violation claim",
+            "reason": "To substantiate the removal request"
+          }
+        ],
+        "removalCriteria": [
+          "Content breaches the Terms of Service",
+          "Content is determined to be illegal under applicable laws",
+          "Content violates platform policies as determined by review"
+        ]
       },
       {
-        reference: 'OF-AUP-PRIVACY',
-        policy:
-          "Prohibits violating others' privacy. Sharing private, intimate media is a fundamental privacy violation.",
-        documents: [legalDocuments[1], legalDocuments[2]], // OF-AUP, OF-PP
-        removalCriteria: [
-          'Content consists of private media shared without consent.',
-          'The sharing violates a reasonable expectation of privacy.',
+        "id": "of-account-suspension-policy",
+        "reference": "OF-TOU-14",
+        "summary": "OnlyFans may suspend or delete accounts and content without warning when users seriously or repeatedly breach Terms of Service or engage in unlawful activity.",
+        "quote": "At any time, without warning or Notice and for as long as is necessary to review the relevant facts, we may: (i) suspend or delete your account and/or your Content; (ii) pause Fan Payments which would have been due during the suspension period; (iii) withhold any part of your Creator Earnings; and/or (iv) suspend, refund, or cancel Fan Payments if: we think you have or may have seriously or repeatedly breached the Terms of Service; you attempt, or threaten, to breach the Terms of Service in a way which we think has or could have serious consequences for us or another User; and/or we suspect that all or any part of the Creator Earnings result from unlawful or fraudulent activity",
+        "contentTypes": [
+          "intimate",
+          "personal",
+          "private",
+          "other"
         ],
-        evidenceRequirements: ['URL(s) of the content.', 'Description of the privacy violation.'],
-      },
-      {
-        reference: 'OF-TOS-COPYRIGHT',
-        policy:
-          'Prohibits copyright infringement. If the intimate image is owned by the victim or a photographer, posting it without permission is a copyright violation.',
-        documents: [legalDocuments[0]], // OF-TOS
-        removalCriteria: [
-          "Content is an original work posted without the copyright owner's permission.",
+        "contentContexts": [
+          "hacked",
+          "impersonation",
+          "relationship",
+          "unknown",
+          "other"
         ],
-        evidenceRequirements: [
-          "File a DMCA notice via the 'Reporting Stolen Content' contact form.",
-          'Proof of original ownership.',
-          'URL(s) of the infringing content.',
+        "timeframes": null,
+        "evidenceRequirements": [
+          {
+            "description": "Evidence of serious or repeated Terms of Service violations",
+            "reason": "To justify account suspension or deletion"
+          },
+          {
+            "description": "Documentation of unlawful or fraudulent activity",
+            "reason": "To support suspension based on suspected illegal activity"
+          },
+          {
+            "description": "Evidence of threats or attempts to breach Terms of Service",
+            "reason": "To establish serious consequences warranting immediate action"
+          }
         ],
-      },
+        "removalCriteria": [
+          "Serious or repeated breach of Terms of Service",
+          "Attempts or threats to breach Terms of Service with serious consequences",
+          "Suspected unlawful or fraudulent activity",
+          "Activity that poses risk to the platform or other users"
+        ]
+      }
     ],
+    "appealProcess": {
+      "url": "https://onlyfans.com/transparency-center/appeals",
+      "summary": "Users can dispute account termination or content deactivation decisions through the Appeals Policy, and Creator Earnings forfeiture decisions through the Complaints Policy.",
+      "steps": [
+        "For account termination or content deactivation: Follow the Appeals Policy process",
+        "For Creator Earnings forfeiture: Follow the Complaints Policy process",
+        "Disputes must be made within six months of notification or the right to dispute is waived",
+        "In certain jurisdictions, users may bring breach of contract claims for improper content removal"
+      ]
+    }
   },
   {
-    type: 'personal',
-    label: 'Personal content for harassment',
-    description:
-      'Non-intimate photos, videos, or text shared to bully or harass someone. This often overlaps with privacy violations.',
-    policies: [
+    "id": "of-terms-of-service",
+    "reference": "OF-TOS",
+    "title": "Terms of Service",
+    "summary": "Legal terms governing the use of OnlyFans, including content ownership, security responsibilities, copyright provisions, and user conduct requirements.",
+    "url": "https://onlyfans.com/terms",
+    "accessTimestamp": "2025-09-18T19:50:11.501Z",
+    "policies": [
       {
-        reference: 'OF-AUP-HARASSMENT',
-        policy:
-          'Prohibits using the platform to stalk, bully, abuse, harass, threaten, or intimidate anyone.',
-        documents: [legalDocuments[1]], // OF-AUP
-        removalCriteria: [
-          'Content or behavior constitutes targeted harassment or bullying.',
-          'Abusive or threatening language is used in posts or messages.',
+        "id": "of-copyright-policy",
+        "reference": "OF-TOS-COPYRIGHT",
+        "summary": "Prohibits copyright infringement. If the intimate image is owned by the victim or a photographer, posting it without permission is a copyright violation.",
+        "quote": "You confirm that your Content does not infringe or violate the intellectual property rights of any third-party and that you own or have obtained all rights necessary to distribute, copy, display, publicly perform or otherwise use the Content.",
+        "contentTypes": [
+          "intimate",
+          "personal"
         ],
-        evidenceRequirements: [
-          'URL(s) of the content or user profile.',
-          'Screenshots of harassing messages.',
-          'Description of the abusive behavior.',
+        "contentContexts": [
+          "hacked",
+          "impersonation",
+          "relationship",
+          "unknown",
+          "other"
         ],
+        "timeframes": null,
+        "evidenceRequirements": [
+          {
+            "description": "Proof of original ownership or copyright",
+            "reason": "To establish intellectual property rights"
+          },
+          {
+            "description": "URL(s) of the infringing content",
+            "reason": "To identify the specific content that infringes copyright"
+          },
+          {
+            "description": "File a DMCA notice via OnlyFans DMCA policy procedures",
+            "reason": "Legal requirement for copyright infringement claims"
+          }
+        ],
+        "removalCriteria": [
+          "Content infringes or violates intellectual property rights of third-party",
+          "User does not own or have rights necessary to distribute, copy, display, or use the Content"
+        ]
       },
       {
-        reference: 'OF-AUP-PRIVACY',
-        policy:
-          "Prohibits violating others' privacy by sharing their private information as a form of harassment.",
-        documents: [legalDocuments[1], legalDocuments[2]], // OF-AUP, OF-PP
-        removalCriteria: [
-          'Private information is exposed without consent to intimidate or harass.',
-          'The information poses a privacy or security risk.',
+        "id": "of-account-security-policy",
+        "reference": "OF-TOS-SECURITY",
+        "summary": "Platform is not responsible for lost, stolen, or compromised accounts, but users should contact support for unauthorized activities.",
+        "quote": "Any lost, stolen, or compromised User accounts, passwords, email accounts, or any resulting unauthorised activities or resulting unauthorised payments or withdrawals of funds.",
+        "contentTypes": [
+          "intimate",
+          "personal",
+          "private"
         ],
-        evidenceRequirements: [
-          'URL(s) of the content containing private information.',
-          'Description of how the information is being used to harass.',
+        "contentContexts": [
+          "hacked"
         ],
+        "timeframes": null,
+        "evidenceRequirements": [
+          {
+            "description": "Contact support@onlyfans.com with account details",
+            "reason": "To report unauthorized access and initiate recovery"
+          },
+          {
+            "description": "Description of unauthorized activities",
+            "reason": "To understand the scope of the compromise"
+          }
+        ],
+        "removalCriteria": [
+          "Evidence of unauthorized access or activity",
+          "Account posting content without owner's permission due to compromise"
+        ]
       },
+      {
+        "id": "of-content-removal-policy",
+        "reference": "OF-TOS-CONTENT",
+        "summary": "OnlyFans reserves the right to suspend or remove Content that may breach Terms of Service and will try to notify users when taking such action.",
+        "quote": "We reserve the right to suspend or remove Content that may breach our Terms of Service. We may suspend or delete Content and accounts according to our Terms of Service. If we do, we will try to Notify you.",
+        "contentTypes": [
+          "intimate",
+          "personal",
+          "private",
+          "other"
+        ],
+        "contentContexts": [
+          "hacked",
+          "impersonation",
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [
+          {
+            "description": "Evidence that content breaches Terms of Service",
+            "reason": "To demonstrate violation of platform policies"
+          },
+          {
+            "description": "Contact via support@onlyfans.com or Contact Form",
+            "reason": "Official reporting channel for policy violations"
+          }
+        ],
+        "removalCriteria": [
+          "Content breaches Terms of Service",
+          "Content violates platform policies"
+        ]
+      },
+      {
+        "id": "of-co-authored-consent-policy",
+        "reference": "OF-TOS-COAUTHORED",
+        "summary": "Content featuring others requires written, informed consent from all individuals, and consent can be withdrawn at any time, resulting in content deletion.",
+        "quote": "You warrant that each individual in Co-Authored Content you Upload is: an individual at least 18 years of age whose proof of identity and whose written, informed consent you have obtained to share the Content on OnlyFans. Any individual(s) who appear in the Co-Authored Content may, at any time, withdraw their consent to appear in that Co-Authored Content. Co-Authored Content may be deleted where a participant withdraws consent.",
+        "contentTypes": [
+          "intimate",
+          "personal"
+        ],
+        "contentContexts": [
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [
+          {
+            "description": "Proof of identity showing you appear in the content",
+            "reason": "To verify you are the individual in the Co-Authored Content"
+          },
+          {
+            "description": "Statement withdrawing consent for the content to be shared",
+            "reason": "To exercise right to withdraw consent for Co-Authored Content"
+          },
+          {
+            "description": "URL(s) of the specific Co-Authored Content",
+            "reason": "To identify the content for which consent is being withdrawn"
+          }
+        ],
+        "removalCriteria": [
+          "Individual appearing in Co-Authored Content withdraws consent",
+          "Co-Authored Content was uploaded without required written, informed consent",
+          "Creator cannot provide proof of consent when requested"
+        ]
+      },
+      {
+        "id": "of-illegal-content-policy",
+        "reference": "OF-TOS-ILLEGAL",
+        "summary": "OnlyFans complies with applicable laws requiring proportionate measures to quickly remove illegal Content when they become aware it is on the platform.",
+        "quote": "We comply with applicable laws requiring us to use proportionate measures to quickly remove illegal Content when we become aware it is on OnlyFans. You may report Content you suspect may be illegal by following our Complaints Policy.",
+        "contentTypes": [
+          "intimate",
+          "personal",
+          "private",
+          "other"
+        ],
+        "contentContexts": [
+          "hacked",
+          "impersonation",
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": {
+          "removal": {
+            "value": null,
+            "unit": null,
+            "description": "Quickly remove illegal content when aware"
+          }
+        },
+        "evidenceRequirements": [
+          {
+            "description": "Follow Complaints Policy procedures for reporting illegal content",
+            "reason": "Official process for reporting suspected illegal content"
+          },
+          {
+            "description": "Evidence demonstrating content is illegal",
+            "reason": "To establish that content violates applicable laws"
+          }
+        ],
+        "removalCriteria": [
+          "Content is illegal under applicable laws",
+          "Content violates legal requirements in relevant jurisdiction"
+        ]
+      }
     ],
+    "appealProcess": {
+      "url": "https://onlyfans.com/transparency-center/appeals",
+      "summary": "Users can dispute account termination or content deactivation decisions through the Appeals Policy, and Creator Earnings forfeiture decisions through the Complaints Policy.",
+      "steps": [
+        "Follow the Appeals Policy for account termination or content deactivation disputes",
+        "Follow the Complaints Policy for Creator Earnings forfeiture disputes",
+        "Submit dispute within six months of notification or waive right to dispute",
+        "Provide relevant information and evidence supporting your appeal"
+      ]
+    }
   },
   {
-    type: 'private',
-    label: 'Private information (Doxing)',
-    description:
-      'Sharing personal documents, contact information, or other identifying details without consent. This is a form of harassment.',
-    policies: [
+    "id": "of-privacy-policy",
+    "reference": "OF-PP",
+    "title": "Privacy Policy",
+    "summary": "Privacy policy explaining how OnlyFans collects, uses, and protects user data, including biometric data collection and GDPR compliance.",
+    "url": "https://onlyfans.com/privacy",
+    "accessTimestamp": "2025-09-18T19:50:11.501Z",
+    "policies": [
       {
-        reference: 'OF-AUP-PRIVACY',
-        policy:
-          "Prohibits violating others' privacy by sharing their private information without consent (doxing).",
-        documents: [legalDocuments[1], legalDocuments[2]], // OF-AUP, OF-PP
-        removalCriteria: [
-          'Private information (e.g., address, phone number) is exposed without consent.',
-          'The information poses a privacy or security risk.',
+        "id": "of-pp-dmca",
+        "reference": "OF-PP-10",
+        "summary": "OnlyFans investigates and responds to reports made through their DMCA takedown procedure to protect Creator's intellectual property rights.",
+        "quote": "We may process Personal Data if it is in our, or a third-party's, legitimate interests (as detailed in the table below). This may include, for example, investigating and responding to a report made through our DMCA takedown procedure, to protect a Creator's intellectual property rights.",
+        "contentTypes": [
+          "intimate",
+          "personal",
+          "private",
+          "other"
         ],
-        evidenceRequirements: [
-          'URL(s) of the content containing private information.',
-          'Description of the private information exposed.',
-          'Evidence that the information was shared without consent.',
+        "contentContexts": [
+          "unknown",
+          "other"
         ],
+        "timeframes": null,
+        "evidenceRequirements": [
+          {
+            "description": "DMCA takedown report through official procedure",
+            "example": "Copyright infringement notice following DMCA format",
+            "reason": "Required to establish intellectual property rights violation"
+          }
+        ],
+        "removalCriteria": [
+          "Content violates Creator's intellectual property rights",
+          "Valid DMCA takedown notice submitted"
+        ]
       },
       {
-        reference: 'OF-AUP-HARASSMENT',
-        policy:
-          'Prohibits harassment. Doxing is treated as a severe form of harassment intended to intimidate and endanger.',
-        documents: [legalDocuments[1]], // OF-AUP
-        removalCriteria: [
-          'Private information is shared with the clear intent to incite harassment or cause fear.',
+        "id": "of-pp-content-moderation",
+        "reference": "OF-PP-10",
+        "summary": "OnlyFans moderates and filters text and content uploaded to the platform, livestreaming, and chat messages to monitor and investigate violations of their Terms of Service.",
+        "quote": "Moderation and filtration: text and content uploaded to OnlyFans; livestreaming on OnlyFans; content sent in chat messages on OnlyFans to monitor and investigate violations of our Terms of Service.",
+        "contentTypes": [
+          "intimate",
+          "personal",
+          "private",
+          "other"
         ],
-        evidenceRequirements: [
-          'URL(s) of the content.',
-          'Description of how the doxing is being used to harass or threaten.',
+        "contentContexts": [
+          "hacked",
+          "impersonation",
+          "relationship",
+          "unknown",
+          "other"
         ],
+        "timeframes": null,
+        "evidenceRequirements": [
+          {
+            "description": "Report of Terms of Service violation",
+            "example": "Description of how content violates platform rules",
+            "reason": "Needed to investigate potential policy violations"
+          }
+        ],
+        "removalCriteria": [
+          "Content violates OnlyFans Terms of Service",
+          "Content identified as inappropriate through moderation process"
+        ]
       },
+      {
+        "id": "of-pp-illegal-content-removal",
+        "reference": "OF-PP-10",
+        "summary": "OnlyFans removes text and content uploaded by users that is identified as illegal and suspends or deactivates those user accounts.",
+        "quote": "Removal from the Services of text and content uploaded by users that is identified as illegal, and suspending or deactivating those user accounts.",
+        "contentTypes": [
+          "intimate",
+          "personal",
+          "private",
+          "other"
+        ],
+        "contentContexts": [
+          "hacked",
+          "impersonation",
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [
+          {
+            "description": "Evidence that content is illegal under applicable law",
+            "example": "Legal documentation or law enforcement report",
+            "reason": "Required to establish illegal nature of content"
+          }
+        ],
+        "removalCriteria": [
+          "Content is identified as illegal under applicable law",
+          "Content violates legal compliance requirements"
+        ]
+      },
+      {
+        "id": "of-pp-tos-violation-removal",
+        "reference": "OF-PP-10",
+        "summary": "OnlyFans removes text and content uploaded by users that violates their Terms of Service and may suspend or deactivate user accounts.",
+        "quote": "Removal from the Services of text and content uploaded by users that is identified as violating our Terms of Service and where appropriate, suspending or deactivating user accounts.",
+        "contentTypes": [
+          "intimate",
+          "personal",
+          "private",
+          "other"
+        ],
+        "contentContexts": [
+          "hacked",
+          "impersonation",
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [
+          {
+            "description": "Report demonstrating Terms of Service violation",
+            "example": "Specific citation of which terms were violated and how",
+            "reason": "Needed to verify policy violation and take appropriate action"
+          }
+        ],
+        "removalCriteria": [
+          "Content violates OnlyFans Terms of Service",
+          "Content violates Acceptable Use Policy"
+        ]
+      },
+      {
+        "id": "of-pp-law-enforcement-reporting",
+        "reference": "OF-PP-10",
+        "summary": "OnlyFans reports illegal activity to relevant law enforcement authorities, other governmental authorities and non-governmental organizations.",
+        "quote": "Reporting illegal activity to relevant law enforcement authorities, other governmental authorities and non-governmental organisations.",
+        "contentTypes": [
+          "intimate",
+          "personal",
+          "private",
+          "other"
+        ],
+        "contentContexts": [
+          "hacked",
+          "impersonation",
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [
+          {
+            "description": "Evidence of illegal activity requiring law enforcement involvement",
+            "example": "Documentation of criminal activity or child exploitation",
+            "reason": "Required for reporting to appropriate authorities"
+          }
+        ],
+        "removalCriteria": [
+          "Content involves illegal activity requiring law enforcement reporting",
+          "Content poses safety risk to users or third parties"
+        ]
+      },
+      {
+        "id": "of-pp-user-safety-protection",
+        "reference": "OF-PP-10",
+        "summary": "OnlyFans processes Personal Data as necessary to protect the rights and property of users and other third parties.",
+        "quote": "As necessary or appropriate to protect the rights and property of our users, us, and other third parties.",
+        "contentTypes": [
+          "intimate",
+          "personal",
+          "private",
+          "other"
+        ],
+        "contentContexts": [
+          "hacked",
+          "impersonation",
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [
+          {
+            "description": "Evidence that content threatens user rights or property",
+            "example": "Documentation of harassment, threats, or privacy violations",
+            "reason": "Needed to assess threat to user safety and rights"
+          }
+        ],
+        "removalCriteria": [
+          "Content threatens the rights or property of users",
+          "Content poses safety risk to platform users or third parties"
+        ]
+      }
     ],
-  },
-];
-
-const contentContexts: ContentContext[] = [
-  {
-    context: 'hacked',
-    label: 'Account was compromised',
-    description:
-      'Content was accessed or posted without authorization. The primary goal is account recovery, followed by removal of any content posted by the unauthorized user.',
-    policies: [
-      {
-        reference: 'OF-TOS-SECURITY',
-        policy:
-          'Users are responsible for their account security. If compromised, users should immediately change their password and contact support.',
-        documents: [legalDocuments[0]], // OF-TOS
-        removalCriteria: [
-          'Evidence of unauthorized access or activity.',
-          'Account is posting spam or fraudulent content.',
-          'Legitimate owner is locked out of the account.',
-        ],
-        evidenceRequirements: [
-          'Contact OnlyFans support immediately at support@onlyfans.com.',
-          'Provide account details (username, email) and a description of the unauthorized activity.',
-          'Enable Two-Factor Authentication (2FA) to secure the account after recovery.',
-        ],
-      },
-      {
-        reference: 'OF-AUP-PROHIBITED',
-        policy:
-          'All content, even that posted by an unauthorized user, must adhere to the Acceptable Use Policy and will be removed if it violates the rules.',
-        documents: [legalDocuments[1]], // OF-AUP
-        removalCriteria: [
-          'Content posted from the compromised account violates any rule in the AUP (e.g., spam, scams, illegal content).',
-        ],
-        evidenceRequirements: [
-          'After recovering the account, report any violating content through the standard reporting channels.',
-          'URL(s) of the content.',
-        ],
-      },
-    ],
-  },
-  {
-    context: 'impersonation',
-    label: 'Someone is impersonating me',
-    description:
-      "An account is pretending to be you or another entity. This is a severe violation due to OnlyFans' mandatory verification and can overlap with copyright and harassment.",
-    policies: [
-      {
-        reference: 'OF-AUP-IMPERSONATION',
-        policy:
-          'Prohibits impersonating any person or entity. This is strictly enforced through the mandatory creator identity verification process.',
-        documents: [legalDocuments[1]], // OF-AUP
-        removalCriteria: [
-          'An unverified account is impersonating a person or entity.',
-          'A verified account is found to have used fraudulent documents.',
-          'An account is proven to be operated by someone other than the verified individual.',
-        ],
-        evidenceRequirements: [
-          'All creators must pass verification with a government-issued ID and a live selfie.',
-          'To report impersonation, contact support with the URL of the impersonating profile and evidence of your own identity.',
-        ],
-      },
-      {
-        reference: 'OF-TOS-COPYRIGHT',
-        policy:
-          'Prohibits copyright infringement. Impersonators often steal and re-upload the content of the person they are impersonating.',
-        documents: [legalDocuments[0]], // OF-TOS
-        removalCriteria: ['The impersonating account is posting content you own the copyright to.'],
-        evidenceRequirements: [
-          "File a DMCA notice via the 'Reporting Stolen Content' contact form.",
-          'Proof of original ownership of the content.',
-          "URL(s) of the infringing content on the impersonator's page.",
-        ],
-      },
-      {
-        reference: 'OF-AUP-HARASSMENT',
-        policy:
-          'Prohibits harassment. An impersonating account may be used to harass the victim or to interact with others in a damaging way.',
-        documents: [legalDocuments[1]], // OF-AUP
-        removalCriteria: [
-          'The impersonating account is being used to send abusive messages or post harassing content.',
-        ],
-        evidenceRequirements: [
-          'URL(s) of the impersonating account and screenshots of harassing behavior.',
-        ],
-      },
-    ],
-  },
-];
-
-const generalPolicies = [
-  {
-    reference: 'OF-TOS-CONTENT',
-    policy:
-      'Creators must own the rights to all content they post. Posting content owned by others without permission is a violation.',
-    documents: [legalDocuments[0]], // OF-TOS
-    removalCriteria: [
-      "Content violates OnlyFans' Terms of Service or Acceptable Use Policy.",
-      "Content infringes on another person's copyright (DMCA).",
-    ],
-    evidenceRequirements: [
-      'URL(s) of the infringing content.',
-      'Description of the violation.',
-      "For copyright claims, file a DMCA notice or use the 'Reporting Stolen Content' contact form.",
-    ],
-  },
-];
-
-export const onlyfansPolicy: PlatformPolicy = {
-  name: 'OnlyFans',
-  legalDocuments,
-  contentTypes,
-  contentContexts,
-  generalPolicies,
-  timeframes: {
-    response:
-      'Varies. Creator verification takes 24-72 hours. Routine law enforcement requests are processed within 14 days. Appeal reviews can take several days or weeks.',
-    removal:
-      'For NCII, removal is mandated within 48 hours of a valid request under the TAKE IT DOWN Act. For other violations, removal occurs after a review confirms a violation, with no specific public timeframe guaranteed.',
-  },
-  appealProcess: [
-    'Decisions on content or account deactivation are communicated via email or account notification.',
-    "To appeal, the user must complete and submit the official 'Deactivation Appeal Form'.",
-    'Appeals must be filed within six months of the decision and include the account/content URL and detailed reasons why the content does not violate policies.',
-    'OnlyFans reviews the appeal and may request more information before making a decision.',
-    'For users in the EU, disputes may be eligible for referral to a certified out-of-court dispute settlement body under the Digital Services Act (DSA).',
-  ],
+    "appealProcess": {
+      "url": null,
+      "summary": "Users can exercise rights regarding Personal Data processing including requesting deletion, correction, or restriction of processing by contacting OnlyFans through their account ticket system or privacy email.",
+      "steps": [
+        "Submit a ticket through your OnlyFans account at /my/tickets/create",
+        "Alternatively, email privacy@onlyfans.com with your request",
+        "Provide sufficient information to confirm your identity",
+        "Include details about the specific content or processing you want addressed",
+        "OnlyFans will evaluate and respond to the request according to applicable privacy laws"
+      ]
+    }
+  }
+],
 };
