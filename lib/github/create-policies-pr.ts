@@ -95,11 +95,20 @@ export class GitHubPRCreator {
   }
 
   /**
-   * Creates a new branch or updates existing branch, handling conflicts gracefully
+   * Creates a new branch after cleaning up any existing policy update branches/PRs for this platform
    */
   private async createOrUpdateBranch(branchName: string, baseSha: string): Promise<string> {
+    // Extract platform from branch name (format: policy-update/{platformId}/{timestamp})
+    const platformMatch = branchName.match(/^policy-update\/([^\/]+)\//);
+    const platformId = platformMatch ? platformMatch[1] : null;
+
+    if (platformId) {
+      // Clean up any existing policy update branches/PRs for this platform
+      await this.cleanupExistingPolicyBranches(platformId);
+    }
+
+    // Create the new branch
     try {
-      // Try to create the branch first
       await this.octokit.rest.git.createRef({
         owner: this.owner,
         repo: this.repo,
@@ -109,87 +118,142 @@ export class GitHubPRCreator {
 
       return branchName;
     } catch (error: any) {
-      if (error.status === 422 && error.message?.includes('already exists')) {
-        // Check if there's an existing open PR for this branch
-        const existingPR = await this.findExistingPR(branchName);
-
-        if (existingPR) {
-          rollbar.info('Policy validation: Closing existing PR for branch update', {
-            branchName,
-            prNumber: existingPR.number,
-          });
-
-          // Close the existing PR
-          await this.octokit.rest.pulls.update({
-            owner: this.owner,
-            repo: this.repo,
-            pull_number: existingPR.number,
-            state: 'closed',
-          });
-
-          // Add a comment explaining why it was closed
-          await this.octokit.rest.issues.createComment({
-            owner: this.owner,
-            repo: this.repo,
-            issue_number: existingPR.number,
-            body: '🤖 This PR was automatically closed because a new policy validation run has generated updated changes. A new PR will be created with the latest policy updates.',
-          });
-        }
-
-        // Delete the existing branch
-        try {
-          await this.octokit.rest.git.deleteRef({
-            owner: this.owner,
-            repo: this.repo,
-            ref: `heads/${branchName}`,
-          });
-        } catch (deleteError) {
-          rollbar.warning('Policy validation: Could not delete existing branch', {
-            branchName,
-            error: deleteError instanceof Error ? deleteError.message : String(deleteError),
-          });
-        }
-
-        // Create the branch with a unique suffix to avoid any remaining conflicts
-        const timestamp = Date.now();
-        const uniqueBranchName = `${branchName}-${timestamp}`;
-
-        await this.octokit.rest.git.createRef({
-          owner: this.owner,
-          repo: this.repo,
-          ref: `refs/heads/${uniqueBranchName}`,
-          sha: baseSha,
-        });
-
-        return uniqueBranchName;
-      } else {
-        // Re-throw other errors
-        throw error;
-      }
+      // If branch creation fails for any reason, log and re-throw
+      rollbar.error('Policy validation: Failed to create branch', {
+        branchName,
+        error: error instanceof Error ? error.message : String(error),
+      });
+      throw error;
     }
   }
 
   /**
-   * Finds an existing open PR for the given branch
+   * Cleans up existing policy update branches and PRs for a specific platform
    */
-  private async findExistingPR(
-    branchName: string,
-  ): Promise<{ number: number; html_url: string } | null> {
+  private async cleanupExistingPolicyBranches(platformId: string): Promise<void> {
     try {
+      // Find all open PRs that match the policy update pattern for this platform
       const { data: pulls } = await this.octokit.rest.pulls.list({
         owner: this.owner,
         repo: this.repo,
-        head: `${this.owner}:${branchName}`,
         state: 'open',
+        per_page: 100, // Get more results to catch all policy PRs
       });
 
-      return pulls.length > 0 ? { number: pulls[0].number, html_url: pulls[0].html_url } : null;
+      // Filter PRs that match our policy update pattern for this platform
+      const policyPRs = pulls.filter(pr => 
+        pr.head.ref.startsWith(`policy-update/${platformId}/`) ||
+        pr.title.includes(`Policy Update: `) // Fallback pattern matching
+      );
+
+      if (policyPRs.length > 0) {
+        rollbar.info('Policy validation: Cleaning up existing policy PRs', {
+          platformId,
+          prCount: policyPRs.length,
+          prNumbers: policyPRs.map(pr => pr.number),
+        });
+
+        // Close existing PRs and delete their branches
+        for (const pr of policyPRs) {
+          try {
+            // Close the PR
+            await this.octokit.rest.pulls.update({
+              owner: this.owner,
+              repo: this.repo,
+              pull_number: pr.number,
+              state: 'closed',
+            });
+
+            // Add a comment explaining why it was closed
+            await this.octokit.rest.issues.createComment({
+              owner: this.owner,
+              repo: this.repo,
+              issue_number: pr.number,
+              body: '🤖 This PR was automatically closed because a new policy validation run has generated updated changes. A new PR will be created with the latest policy updates.',
+            });
+
+            // Delete the branch
+            try {
+              await this.octokit.rest.git.deleteRef({
+                owner: this.owner,
+                repo: this.repo,
+                ref: `heads/${pr.head.ref}`,
+              });
+            } catch (deleteError) {
+              // Branch deletion is not critical, just log the warning
+              rollbar.warning('Policy validation: Could not delete branch', {
+                branchName: pr.head.ref,
+                error: deleteError instanceof Error ? deleteError.message : String(deleteError),
+              });
+            }
+          } catch (prError) {
+            rollbar.warning('Policy validation: Could not close existing PR', {
+              prNumber: pr.number,
+              branchName: pr.head.ref,
+              error: prError instanceof Error ? prError.message : String(prError),
+            });
+          }
+        }
+      }
+
+      // Also clean up any orphaned branches that match the pattern
+      await this.cleanupOrphanedBranches(platformId);
+
     } catch (error) {
-      rollbar.warning('Policy validation: Error finding existing PR', {
-        branchName,
+      rollbar.warning('Policy validation: Error during cleanup', {
+        platformId,
         error: error instanceof Error ? error.message : String(error),
       });
-      return null;
+      // Don't throw - cleanup failure shouldn't prevent new PR creation
+    }
+  }
+
+  /**
+   * Cleans up orphaned branches that don't have associated PRs
+   */
+  private async cleanupOrphanedBranches(platformId: string): Promise<void> {
+    try {
+      // Get all branches
+      const { data: branches } = await this.octokit.rest.repos.listBranches({
+        owner: this.owner,
+        repo: this.repo,
+        per_page: 100,
+      });
+
+      // Find branches that match our policy update pattern for this platform
+      const policyBranches = branches.filter(branch => 
+        branch.name.startsWith(`policy-update/${platformId}/`)
+      );
+
+      if (policyBranches.length > 0) {
+        rollbar.info('Policy validation: Cleaning up orphaned policy branches', {
+          platformId,
+          branchCount: policyBranches.length,
+          branchNames: policyBranches.map(b => b.name),
+        });
+
+        // Delete orphaned branches
+        for (const branch of policyBranches) {
+          try {
+            await this.octokit.rest.git.deleteRef({
+              owner: this.owner,
+              repo: this.repo,
+              ref: `heads/${branch.name}`,
+            });
+          } catch (deleteError) {
+            rollbar.warning('Policy validation: Could not delete orphaned branch', {
+              branchName: branch.name,
+              error: deleteError instanceof Error ? deleteError.message : String(deleteError),
+            });
+          }
+        }
+      }
+    } catch (error) {
+      rollbar.warning('Policy validation: Error cleaning up orphaned branches', {
+        platformId,
+        error: error instanceof Error ? error.message : String(error),
+      });
+    }
     }
   }
 
