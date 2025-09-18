@@ -35,10 +35,10 @@ export async function POST(
 
     // Create PR if validation passed and changes are valid
     if (
-      validationResult &&
+      validationResult
       // if (validationResult.status === 'completed_with_valid_changes' &&
-      validationResult.data.updatedPolicies &&
-      process.env.GITHUB_TOKEN
+      // validationResult.data.updatedPolicies &&
+      // process.env.GITHUB_TOKEN
     ) {
       try {
         const prCreator = new GitHubPRCreator();
