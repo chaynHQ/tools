@@ -1,332 +1,1195 @@
-import { ContentContext, ContentType, LegalDocument, PlatformPolicy } from './types';
+import { PlatformPolicies } from '../../types/policies';
 
-const legalDocuments: LegalDocument[] = [
+export const instagramPolicy: PlatformPolicies = {
+  platform: 'Instagram',
+  policyDocuments: [
   {
-    reference: 'IG-TOU',
-    title: 'Instagram Terms of Use',
-    url: 'https://help.instagram.com/581066165581870',
-    accessTimestamp: '2025-06-06T00:00:00Z',
-    notes:
-      'Terms updated effective January 1, 2025. They require all users to comply with the Meta Community Standards and grant Instagram a license to use content posted on the platform.',
-  },
-  {
-    reference: 'META-CS',
-    title: 'Meta Community Standards',
-    url: 'https://transparency.fb.com/policies/community-standards/',
-    accessTimestamp: '2025-06-06T00:00:00Z',
-    notes:
-      'As of November 12, 2024, these unified standards replaced the separate Instagram Community Guidelines. They are the primary rulebook for all content on Instagram, covering NCII, bullying, impersonation, and more.',
-  },
-  {
-    reference: 'META-PP',
-    title: 'Meta Privacy Policy',
-    url: 'https://privacycenter.instagram.com/policy',
-    accessTimestamp: '2025-06-06T00:00:00Z',
-    notes:
-      'Governs how Meta handles user data across its products, including Instagram. It is directly relevant to violations involving the exposure of private information.',
-  },
-  {
-    reference: 'TAKE-IT-DOWN-ACT-2025',
-    title: 'TAKE IT DOWN Act of 2025',
-    url: 'https://www.congress.gov/bill/118th-congress/house-bill/7891',
-    accessTimestamp: '2025-06-06T00:00:00Z',
-    notes:
-      'A U.S. federal law signed on May 19, 2025. It legally mandates that platforms like Instagram remove non-consensual intimate imagery (NCII), including AI-generated deepfakes, within 48 hours of a valid report.',
-  },
-];
-
-const contentTypes: ContentType[] = [
-  {
-    type: 'intimate',
-    label: 'Intimate images',
-    description:
-      'Photos or videos of a private, intimate, or sexual nature, including authentic and AI-generated media. This is a severe violation that overlaps with bullying, privacy, and copyright rules.',
-    policies: [
+    "id": "ig-community-standards",
+    "reference": "META-CS",
+    "title": "Community Standards | Transparency Center",
+    "summary": "Comprehensive community standards outlining what is and isn't allowed on Facebook, Instagram, Messenger and Threads, including policies on safety, privacy, authenticity, dignity, and content enforcement.",
+    "url": "https://transparency.meta.com/policies/community-standards/",
+    "accessTimestamp": "2025-09-18T19:51:01.624Z",
+    "policies": [
       {
-        reference: 'META-CS-NCSII',
-        policy:
-          "Prohibits sharing non-consensual intimate images (NCII), including AI-generated or 'deepfake' content, and threatening to share them (sextortion).",
-        documents: [legalDocuments[1], legalDocuments[3]], // META-CS, TAKE-IT-DOWN-ACT-2025
-        removalCriteria: [
-          'Content depicts nudity or sexual activity.',
-          'Image/video is shared without the consent of the depicted individual.',
-          'The content is an authentic or AI-generated intimate depiction.',
-          'A threat to share intimate media exists.',
+        "id": "meta-cs-privacy-violations",
+        "reference": "META-CS-PRIVACY",
+        "summary": "Prohibits sharing private content without consent, including intimate images and personal information that violates privacy expectations.",
+        "quote": "We're committed to protecting personal privacy and information. Privacy gives people the freedom to be themselves, choose how and when to share on our services and connect more easily.",
+        "contentTypes": [
+          "intimate",
+          "personal",
+          "private"
         ],
-        evidenceRequirements: [
-          'URL(s) of the infringing content or threatening messages.',
-          'A statement made in good faith that the content is non-consensual.',
-          'Information to identify the victim and locate the content.',
-          'Meta partners with StopNCII.org to proactively block intimate images from being shared.',
+        "contentContexts": [
+          "hacked",
+          "impersonation",
+          "relationship",
+          "unknown",
+          "other"
         ],
+        "timeframes": null,
+        "evidenceRequirements": [
+          {
+            "description": "URL(s) of the content violating privacy",
+            "reason": "To locate and identify the specific privacy-violating content"
+          },
+          {
+            "description": "Description of how the content violates privacy expectations",
+            "reason": "To assess the nature and severity of the privacy violation"
+          },
+          {
+            "description": "Information identifying the affected individual",
+            "reason": "To verify the privacy violation claim and process removal"
+          }
+        ],
+        "removalCriteria": [
+          "Content shares private information without consent",
+          "Content violates reasonable expectation of privacy",
+          "Sharing is done without authorization from the depicted individual"
+        ]
       },
       {
-        reference: 'META-CS-BULLYING',
-        policy:
-          'Prohibits bullying and harassment. Sharing intimate images of someone without their consent is considered a severe form of bullying.',
-        documents: [legalDocuments[1]], // META-CS
-        removalCriteria: [
-          'Content targets a private individual for abuse or degradation.',
-          'Content includes shaming material, such as non-consensual intimate imagery.',
+        "id": "meta-cs-bullying-harassment",
+        "reference": "META-CS-BULLYING",
+        "summary": "Prohibits bullying and harassment, including targeted abuse and degrading content that silences or intimidates individuals.",
+        "quote": "We believe that all people are equal in dignity and rights. We expect that people will respect the dignity of others and not harass or degrade others.",
+        "contentTypes": [
+          "intimate",
+          "personal",
+          "other"
         ],
-        evidenceRequirements: [
-          'URL(s) of the content.',
-          'Description of how the content constitutes targeted harassment.',
-          'Information identifying the victim.',
+        "contentContexts": [
+          "impersonation",
+          "relationship",
+          "unknown",
+          "other"
         ],
+        "timeframes": null,
+        "evidenceRequirements": [
+          {
+            "description": "URL(s) of the harassing content",
+            "reason": "To locate and review the bullying or harassing material"
+          },
+          {
+            "description": "Description of how the content constitutes harassment or bullying",
+            "reason": "To assess the nature and impact of the harassment"
+          },
+          {
+            "description": "Information identifying the target of harassment",
+            "reason": "To verify the harassment claim and process the report"
+          }
+        ],
+        "removalCriteria": [
+          "Content targets an individual for abuse or degradation",
+          "Content is intended to intimidate, exclude or silence others",
+          "Content threatens people or creates risk of harm"
+        ]
       },
       {
-        reference: 'META-CS-PRIVACY',
-        policy:
-          "Prohibits violations of privacy. Sharing someone's private, intimate media without their consent is a fundamental breach of privacy.",
-        documents: [legalDocuments[1], legalDocuments[2]], // META-CS, META-PP
-        removalCriteria: [
-          'Content consists of private media shared without consent.',
-          'The sharing of the content violates a reasonable expectation of privacy.',
+        "id": "meta-cs-authentic-identity",
+        "reference": "META-CS-AUTHENTICITY",
+        "summary": "Prohibits misrepresenting identity or impersonating others, ensuring authentic representation on the platform.",
+        "quote": "We want to make sure the content people see is authentic. We believe that authenticity creates a better environment for sharing, and that's why we don't want people using our services to misrepresent who they are or what they're doing.",
+        "contentTypes": [
+          "personal",
+          "private",
+          "other"
         ],
-        evidenceRequirements: [
-          'URL(s) of the content.',
-          "Description of how the content violates the victim's privacy.",
+        "contentContexts": [
+          "impersonation"
         ],
+        "timeframes": null,
+        "evidenceRequirements": [
+          {
+            "description": "URL of the account or content misrepresenting identity",
+            "reason": "To identify the inauthentic account or content"
+          },
+          {
+            "description": "Proof of your authentic identity",
+            "example": "Government-issued ID or official documentation",
+            "reason": "To verify you are the person being impersonated or misrepresented"
+          },
+          {
+            "description": "Description of how the account/content misrepresents identity",
+            "reason": "To understand the nature and extent of the misrepresentation"
+          }
+        ],
+        "removalCriteria": [
+          "Account or content misrepresents who is behind it",
+          "Uses another person's identity without authorization",
+          "Intended to deceive or mislead others about identity"
+        ]
       },
       {
-        reference: 'IG-TOU-IP',
-        policy:
-          'Prohibits copyright infringement. If the intimate image was created and owned by the victim or a photographer, its unauthorized posting is a copyright violation.',
-        documents: [legalDocuments[0]], // IG-TOU
-        removalCriteria: [
-          "Content is an original work (photo, video) posted without the copyright owner's permission.",
+        "id": "meta-cs-safety-threats",
+        "reference": "META-CS-SAFETY",
+        "summary": "Prohibits content that threatens people or contributes to risk of physical harm, including intimidating content.",
+        "quote": "We're committed to making Facebook, Instagram, Messenger and Threads safe places. We remove content that could contribute to a risk of harm to the physical security of persons. Content that threatens people has the potential to intimidate, exclude or silence others and isn't allowed on our services.",
+        "contentTypes": [
+          "intimate",
+          "personal",
+          "other"
         ],
-        evidenceRequirements: [
-          "A formal DMCA takedown notice submitted through Instagram's copyright form.",
-          'Proof of original ownership of the content.',
-          'URL(s) of the infringing content.',
+        "contentContexts": [
+          "hacked",
+          "relationship",
+          "unknown",
+          "other"
         ],
-      },
+        "timeframes": null,
+        "evidenceRequirements": [
+          {
+            "description": "URL(s) of the threatening content",
+            "reason": "To locate and assess the threatening material"
+          },
+          {
+            "description": "Description of the threat or risk of harm",
+            "reason": "To evaluate the severity and nature of the threat"
+          },
+          {
+            "description": "Information about the target of the threat",
+            "reason": "To verify the threat and assess risk to physical security"
+          }
+        ],
+        "removalCriteria": [
+          "Content threatens physical security of persons",
+          "Content contributes to risk of harm",
+          "Content is intended to intimidate, exclude or silence others"
+        ]
+      }
     ],
+    "appealProcess": null
   },
   {
-    type: 'personal',
-    label: 'Personal content for harassment',
-    description:
-      'Non-intimate photos, videos, or text shared to bully or harass someone. This can overlap with privacy violations if the content includes personal data.',
-    policies: [
+    "id": "ig-terms-of-use",
+    "reference": "IG-TOU",
+    "title": "Instagram Terms of Use",
+    "summary": "Legal terms governing the use of Instagram, including content ownership and intellectual property rights.",
+    "url": "https://help.instagram.com/581066165581870",
+    "accessTimestamp": "2025-09-18T19:51:01.624Z",
+    "policies": [
       {
-        reference: 'META-CS-BULLYING',
-        policy:
-          'Prohibits targeted harassment, bullying, and threats, which can include posting personal content without consent to degrade or shame an individual.',
-        documents: [legalDocuments[1]], // META-CS
-        removalCriteria: [
-          'Content is used to target an individual with unwanted and harassing contact.',
-          'Content contains degrading or shaming material about a private individual.',
+        "id": "ig-intellectual-property-policy",
+        "reference": "IG-TOU-4.2",
+        "summary": "Prohibits posting someone else's private or confidential information without permission and violations of intellectual property rights including copyright infringement.",
+        "quote": "You can't post someone else's private or confidential information without permission or do anything that violates someone else's rights, including intellectual property rights (e.g., copyright infringement, trademark infringement, counterfeit, or pirated goods).",
+        "contentTypes": [
+          "intimate",
+          "personal",
+          "private",
+          "other"
         ],
-        evidenceRequirements: [
-          'Link to harassing content (posts, comments, DMs).',
-          'Description of the harassment and its targeted nature.',
-          'Information identifying the victim.',
+        "contentContexts": [
+          "hacked",
+          "impersonation",
+          "relationship",
+          "unknown",
+          "other"
         ],
+        "timeframes": null,
+        "evidenceRequirements": [
+          {
+            "description": "Documentation showing ownership or authorization to the content",
+            "reason": "To establish rights to the content being shared without permission"
+          },
+          {
+            "description": "URL(s) of the infringing content on Instagram",
+            "reason": "To identify the specific content that violates intellectual property rights"
+          }
+        ],
+        "removalCriteria": [
+          "Content contains someone else's private or confidential information posted without permission",
+          "Content violates intellectual property rights including copyright infringement"
+        ]
       },
       {
-        reference: 'META-CS-PRIVACY',
-        policy:
-          'Prohibits sharing personally identifiable information (PII) to harass or blackmail (doxing). Harassing content often includes or leads to privacy violations.',
-        documents: [legalDocuments[1], legalDocuments[2]], // META-CS, META-PP
-        removalCriteria: [
-          'Content contains PII used maliciously.',
-          'Information is shared without consent and is intended to harass or incite harassment.',
+        "id": "ig-impersonation-policy",
+        "reference": "IG-TOU-4.2",
+        "summary": "Prohibits impersonating others or providing inaccurate information, including creating accounts for someone else without express permission.",
+        "quote": "You can't impersonate others or provide inaccurate information. You don't have to disclose your identity on Instagram, but you must provide us with accurate and up to date information (including registration information), which may include providing personal data. Also, you may not impersonate someone or something you aren't, and you can't create an account for someone else unless you have their express permission.",
+        "contentTypes": [
+          "personal",
+          "other"
         ],
-        evidenceRequirements: [
-          'URL(s) of the content.',
-          'Description of how privacy was violated.',
-          'Identification of the specific PII that was shared.',
+        "contentContexts": [
+          "impersonation",
+          "other"
         ],
+        "timeframes": null,
+        "evidenceRequirements": [
+          {
+            "description": "Proof of identity of the person being impersonated",
+            "reason": "To verify the legitimate identity being misrepresented"
+          },
+          {
+            "description": "Evidence showing the account is impersonating without permission",
+            "example": "Screenshots of the impersonating account using your photos or information",
+            "reason": "To demonstrate unauthorized impersonation"
+          }
+        ],
+        "removalCriteria": [
+          "Account is impersonating someone or something they are not",
+          "Account was created for someone else without their express permission"
+        ]
       },
+      {
+        "id": "ig-content-removal-policy",
+        "reference": "IG-TOU-6",
+        "summary": "Instagram can remove any content or information shared on the Service if it violates Terms of Use, policies, or Community Standards.",
+        "quote": "We can remove any content or information you share on the Service if we believe that it violates these Terms of Use, our policies (including our Community Standards), or we are permitted or required to do so by law.",
+        "contentTypes": [
+          "intimate",
+          "personal",
+          "private",
+          "other"
+        ],
+        "contentContexts": [
+          "hacked",
+          "impersonation",
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": {
+          "removal": {
+            "value": 30,
+            "unit": "days",
+            "description": "Deletion process begins no more than 30 days after request, may take up to 90 days to complete"
+          }
+        },
+        "evidenceRequirements": [
+          {
+            "description": "Explanation of how the content violates Instagram's Terms of Use or Community Standards",
+            "reason": "To establish grounds for content removal under platform policies"
+          },
+          {
+            "description": "URL(s) of the violating content",
+            "reason": "To identify the specific content for removal"
+          }
+        ],
+        "removalCriteria": [
+          "Content violates Instagram's Terms of Use",
+          "Content violates Instagram's Community Standards",
+          "Content violates applicable laws"
+        ]
+      },
+      {
+        "id": "ig-account-termination-policy",
+        "reference": "IG-TOU-6",
+        "summary": "Instagram can terminate or disable accounts that create risk, violate terms or policies, or repeatedly infringe intellectual property rights.",
+        "quote": "We can refuse to provide or stop providing all or part of the Service to you (including terminating or disabling your access to the Meta Products and Meta Company Products) immediately to protect our community or services, or if you create risk or legal exposure for us, violate these Terms of Use or our policies (including our Community Standards), if you repeatedly infringe other people's intellectual property rights, or where we are permitted or required to do so by law.",
+        "contentTypes": [
+          "intimate",
+          "personal",
+          "private",
+          "other"
+        ],
+        "contentContexts": [
+          "hacked",
+          "impersonation",
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [
+          {
+            "description": "Documentation of repeated violations or policy breaches",
+            "reason": "To demonstrate pattern of behavior warranting account termination"
+          },
+          {
+            "description": "Evidence of risk or legal exposure created by the account",
+            "reason": "To justify immediate termination for community protection"
+          }
+        ],
+        "removalCriteria": [
+          "Account creates risk or legal exposure for Instagram",
+          "Account violates Terms of Use or Community Standards",
+          "Account repeatedly infringes other people's intellectual property rights"
+        ]
+      }
     ],
+    "appealProcess": {
+      "url": "https://help.instagram.com/",
+      "summary": "Users can consult Instagram's Help Center if they believe their account has been terminated in error or want to disable/delete their account.",
+      "steps": [
+        "Access Instagram's Help Center",
+        "Report the issue or request account review",
+        "Provide necessary information about the termination error"
+      ]
+    }
   },
   {
-    type: 'private',
-    label: 'Private information (Doxing)',
-    description:
-      'Sharing personal documents, contact information, or other identifying details without consent. This is a form of harassment.',
-    policies: [
+    "id": "ig-privacy-policy",
+    "reference": "META-PP",
+    "title": "Meta Privacy Policy",
+    "summary": "Privacy policy explaining how Meta collects, uses, and protects user data across its platforms including Instagram.",
+    "url": "https://privacycenter.instagram.com/policy",
+    "accessTimestamp": "2025-09-18T19:51:01.624Z",
+    "policies": [
       {
-        reference: 'META-CS-PRIVACY',
-        policy:
-          'Prohibits sharing Personally Identifiable Information (PII) without consent to harass or threaten, a practice known as doxing.',
-        documents: [legalDocuments[1], legalDocuments[2]], // META-CS, META-PP
-        removalCriteria: [
-          'Content reveals private information (e.g., home address, personal phone number, financial information) without consent.',
-          'Information is shared with malicious or harassing intent.',
-          'The sharing of information poses a privacy or security risk to an individual.',
+        "id": "meta-pp-content-removal",
+        "reference": "META-PP-SAFETY-SECURITY",
+        "summary": "Meta removes content that violates terms or policies, including harmful or unlawful behavior, through automated and manual review processes.",
+        "quote": "We process information we have associated with you and apply automated processing techniques and, in some instances, conduct manual (human) review to: Verify accounts and activity, Find and address violations of our terms or policies. In some cases, the decisions we make about violations are reviewed by the Oversight Board, Investigate suspicious activity, Detect, prevent and combat harmful or unlawful behavior, such as to review and, in some cases, remove content reported to us",
+        "contentTypes": [
+          "intimate",
+          "personal",
+          "private",
+          "other"
         ],
-        evidenceRequirements: [
-          'Link to content containing PII.',
-          'Description of the private information exposed.',
-          'Evidence of the privacy violation and its impact.',
+        "contentContexts": [
+          "hacked",
+          "impersonation",
+          "relationship",
+          "unknown",
+          "other"
         ],
+        "timeframes": null,
+        "evidenceRequirements": [
+          {
+            "description": "Content reported to Meta through their reporting systems",
+            "example": "Reports of policy violations through platform reporting tools",
+            "reason": "To identify content that violates terms or policies"
+          }
+        ],
+        "removalCriteria": [
+          "Content that violates Meta's terms or policies",
+          "Harmful or unlawful behavior",
+          "Content identified through user reports",
+          "Content detected through automated systems"
+        ]
       },
       {
-        reference: 'META-CS-BULLYING',
-        policy:
-          'Prohibits bullying and harassment. Doxing is considered a form of severe harassment intended to intimidate, endanger, or silence an individual.',
-        documents: [legalDocuments[1]], // META-CS
-        removalCriteria: [
-          'Content targets a private individual for abuse by exposing their private information.',
-          'The intent is to incite harassment or cause fear.',
+        "id": "meta-pp-legal-requests",
+        "reference": "META-PP-LEGAL-COMPLIANCE",
+        "summary": "Meta responds to legal requests from law enforcement and other authorities, and may access, preserve, and share user information to comply with applicable law and prevent harm.",
+        "quote": "We access, preserve, use and share your information: In response to legal requests, like search warrants, court orders, production orders or subpoenas. These requests come from third parties such as civil litigants, law enforcement and other government authorities. Learn more about when we respond to legal requests. In accordance with applicable law To promote the safety, security and integrity of Meta Products, users, employees, property and the public.",
+        "contentTypes": [
+          "intimate",
+          "personal",
+          "private",
+          "other"
         ],
-        evidenceRequirements: [
-          'URL(s) of the content.',
-          'Description of how the doxing is being used to harass or threaten.',
-          'Information identifying the victim.',
+        "contentContexts": [
+          "hacked",
+          "impersonation",
+          "relationship",
+          "unknown",
+          "other"
         ],
+        "timeframes": null,
+        "evidenceRequirements": [
+          {
+            "description": "Valid legal request such as search warrant, court order, production order, or subpoena",
+            "example": "Court order from civil litigation or law enforcement search warrant",
+            "reason": "To comply with legal obligations and applicable law"
+          }
+        ],
+        "removalCriteria": [
+          "Content subject to valid legal requests",
+          "Content that violates applicable law",
+          "Content that threatens safety, security and integrity of platform or users",
+          "Content that poses threat to personnel and property"
+        ]
       },
+      {
+        "id": "meta-pp-safety-integrity",
+        "reference": "META-PP-SAFETY-MEASURES",
+        "summary": "Meta promotes safety, security and integrity by detecting and preventing harmful conduct, spam, and threats to users and the platform through automated and manual review.",
+        "quote": "To promote safety, security and integrity We use information we collect to help protect people from harm and provide safe, secure Products. We process information we have associated with you and apply automated processing techniques and, in some instances, conduct manual (human) review to: Verify accounts, identity and activity, Find and address violations of our terms or policies, Investigate suspicious activity, Detect, prevent and combat harmful or unlawful behavior, Detect and prevent spam and other bad experiences, Detect and stop threats to our personnel and property, and Maintain the integrity of our Products.",
+        "contentTypes": [
+          "intimate",
+          "personal",
+          "private",
+          "other"
+        ],
+        "contentContexts": [
+          "hacked",
+          "impersonation",
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [
+          {
+            "description": "Information indicating harmful or unlawful behavior",
+            "example": "Reports of harassment, threats, or policy violations",
+            "reason": "To protect users from harm and maintain platform safety"
+          },
+          {
+            "description": "Evidence of account or identity verification issues",
+            "example": "Suspicious account activity or impersonation reports",
+            "reason": "To verify accounts and prevent fraudulent activity"
+          }
+        ],
+        "removalCriteria": [
+          "Harmful or unlawful behavior",
+          "Violations of terms or policies",
+          "Suspicious activity",
+          "Spam and other bad experiences",
+          "Threats to personnel and property",
+          "Content that compromises platform integrity"
+        ]
+      },
+      {
+        "id": "meta-pp-user-rights",
+        "reference": "META-PP-USER-RIGHTS",
+        "summary": "Users have rights to access, correct, download, erase their information, withdraw consent, port data, object to processing, and make complaints under GDPR and other data protection laws.",
+        "quote": "You have the following rights under GDPR and other relevant data protection laws: Access and correct information, Withdraw consent, Port your information, Download your information, Erase information, Object, Make a complaint",
+        "contentTypes": [
+          "intimate",
+          "personal",
+          "private",
+          "other"
+        ],
+        "contentContexts": [
+          "hacked",
+          "impersonation",
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [
+          {
+            "description": "User identity verification for rights requests",
+            "example": "Account credentials or identity verification",
+            "reason": "To ensure requests are made by legitimate account holders"
+          }
+        ],
+        "removalCriteria": [
+          "User requests erasure of their information",
+          "User withdraws consent for processing",
+          "User objects to processing based on legitimate interests"
+        ]
+      },
+      {
+        "id": "meta-pp-information-sharing",
+        "reference": "META-PP-SHARING-CONTROL",
+        "summary": "Meta provides controls for users to manage how their information is shared, including content others share about them and public content visibility.",
+        "quote": "On Meta Products Learn more about the different cases when your information can be shared on our Products: People and accounts you share and communicate with, Content others share or reshare about you, Public content",
+        "contentTypes": [
+          "intimate",
+          "personal",
+          "private",
+          "other"
+        ],
+        "contentContexts": [
+          "hacked",
+          "impersonation",
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [
+          {
+            "description": "Evidence that content was shared without permission",
+            "example": "Screenshots showing unauthorized sharing of private content",
+            "reason": "To address privacy violations and unauthorized content sharing"
+          }
+        ],
+        "removalCriteria": [
+          "Content shared without user permission",
+          "Private content made public without consent",
+          "Content that violates user privacy settings"
+        ]
+      }
     ],
+    "appealProcess": {
+      "url": "https://www.oversightboard.com/",
+      "summary": "Some content removal decisions are reviewed by the independent Oversight Board, which can overturn Meta's decisions on content policy violations.",
+      "steps": [
+        "Submit case to Oversight Board for review",
+        "Oversight Board reviews Meta's content decision",
+        "Board issues binding decision on whether content should be restored or removed"
+      ]
+    }
   },
-];
-
-const contentContexts: ContentContext[] = [
   {
-    context: 'hacked',
-    label: 'Account was compromised',
-    description:
-      'Content was accessed or posted without authorization. The primary goal is account recovery, followed by removal of any content posted by the unauthorized user.',
-    policies: [
+    "id": "instagram-new-1758225061624-0",
+    "reference": "IG-HARASSMENT",
+    "title": "Bullying and Harassment Policy",
+    "summary": "Specific policy covering bullying, harassment, threats, and unwanted malicious contact on Instagram.",
+    "url": "https://transparency.meta.com/policies/community-standards/bullying-harassment/",
+    "accessTimestamp": "2025-09-18T19:51:01.624Z",
+    "policies": [
       {
-        reference: 'IG-HC-HACKED',
-        policy:
-          'Provides a centralized process to report and recover compromised accounts via instagram.com/hacked.',
-        documents: [],
-        removalCriteria: [
-          'Evidence of unauthorized access (e.g., changed username, password, or email).',
-          'Suspicious account activity, such as posts or messages not made by the owner.',
-          'The legitimate owner is locked out of the account.',
+        "id": "ig-harassment-unwanted-contact",
+        "reference": "IG-HARASSMENT-TIER1",
+        "summary": "Meta removes unwanted contact that is repeated, sexually harassing, or directed at large numbers of individuals without prior solicitation.",
+        "quote": "Everyone is protected from: Unwanted contact that is: Repeated, OR Sexually harassing, OR Is directed at a large number of individuals with no prior solicitation.",
+        "contentTypes": [
+          "intimate",
+          "personal",
+          "other"
         ],
-        evidenceRequirements: [
-          'Access to a previously linked email or phone number to receive a recovery code.',
-          'If standard recovery fails, users may be asked to verify their identity via a selfie video to confirm ownership.',
-          'For some users, paid Meta Verified support offers a faster channel for recovery assistance.',
+        "contentContexts": [
+          "hacked",
+          "relationship",
+          "unknown",
+          "other"
         ],
+        "timeframes": null,
+        "evidenceRequirements": [
+          {
+            "description": "Evidence of repeated unwanted contact or sexually harassing messages",
+            "example": "Screenshots of multiple unwanted messages or sexually explicit communications",
+            "reason": "To demonstrate pattern of harassment or sexual nature of contact"
+          }
+        ],
+        "removalCriteria": [
+          "Contact is repeated in nature",
+          "Contact is sexually harassing",
+          "Contact is directed at large numbers without solicitation"
+        ]
       },
       {
-        reference: 'META-CS-ALL',
-        policy:
-          'All content must adhere to the full scope of the unified Meta Community Standards. Content posted from a hacked account is still subject to removal if it violates any rule.',
-        documents: [legalDocuments[1]], // META-CS
-        removalCriteria: [
-          'Content posted by the unauthorized user violates any Community Standard (e.g., spam, scams, harassment, NCII).',
+        "id": "ig-harassment-sexual-activity-statements",
+        "reference": "IG-HARASSMENT-TIER1",
+        "summary": "Meta removes statements of intent to engage in sexual activity or advocating to engage in sexual activity directed at individuals.",
+        "quote": "Everyone is protected from: Statements of intent to engage in a sexual activity or advocating to engage in a sexual activity.",
+        "contentTypes": [
+          "intimate",
+          "other"
         ],
-        evidenceRequirements: [
-          'Once account access is restored, report the specific content through the standard reporting flows.',
-          'URL(s) of the violating content.',
-          'Identification of the specific Community Standard violated.',
+        "contentContexts": [
+          "relationship",
+          "unknown",
+          "other"
         ],
+        "timeframes": null,
+        "evidenceRequirements": [
+          {
+            "description": "Evidence of statements expressing intent or advocacy for sexual activity",
+            "example": "Screenshots of posts or messages containing sexual propositions",
+            "reason": "To verify the sexual nature and intent of the statements"
+          }
+        ],
+        "removalCriteria": [
+          "Content contains statements of intent to engage in sexual activity",
+          "Content advocates for engaging in sexual activity with the target"
+        ]
       },
+      {
+        "id": "ig-harassment-severe-sexualized-commentary",
+        "reference": "IG-HARASSMENT-TIER1",
+        "summary": "Meta removes severe sexualized commentary and derogatory sexualized photoshop or drawings targeting individuals.",
+        "quote": "Everyone is protected from: Severe sexualized commentary. Derogatory sexualized photoshop or drawings",
+        "contentTypes": [
+          "intimate",
+          "other"
+        ],
+        "contentContexts": [
+          "impersonation",
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [
+          {
+            "description": "Evidence of severe sexualized commentary or manipulated sexual imagery",
+            "example": "Screenshots of sexually explicit comments or manipulated images",
+            "reason": "To demonstrate the severe and sexualized nature of the harassment"
+          }
+        ],
+        "removalCriteria": [
+          "Content contains severe sexualized commentary",
+          "Content includes derogatory sexualized photoshop or drawings"
+        ]
+      },
+      {
+        "id": "ig-harassment-sexual-activity-attacks",
+        "reference": "IG-HARASSMENT-TIER1",
+        "summary": "Meta removes attacks through derogatory terms related to sexual activity (e.g., whore, slut) targeting individuals.",
+        "quote": "Everyone is protected from: Attacks through derogatory terms related to sexual activity (for example: whore, slut).",
+        "contentTypes": [
+          "other"
+        ],
+        "contentContexts": [
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [
+          {
+            "description": "Evidence of attacks using derogatory sexual terms",
+            "example": "Screenshots of posts or comments using terms like 'whore' or 'slut'",
+            "reason": "To verify the use of derogatory sexual terminology in attacks"
+          }
+        ],
+        "removalCriteria": [
+          "Content attacks individuals using derogatory terms related to sexual activity"
+        ]
+      },
+      {
+        "id": "ig-harassment-private-info-threats",
+        "reference": "IG-HARASSMENT-TIER1",
+        "summary": "Meta removes threats to release an individual's private phone number, residential address, email address or medical records.",
+        "quote": "Threats to release an individual's private phone number, residential address, email address or medical records (as defined in the Privacy Violations policy).",
+        "contentTypes": [
+          "private",
+          "personal"
+        ],
+        "contentContexts": [
+          "hacked",
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [
+          {
+            "description": "Evidence of threats to release private contact information or medical records",
+            "example": "Screenshots of messages threatening to share phone numbers, addresses, or medical information",
+            "reason": "To verify the threatening nature and private information involved"
+          }
+        ],
+        "removalCriteria": [
+          "Content threatens to release private phone numbers",
+          "Content threatens to release residential addresses",
+          "Content threatens to release email addresses",
+          "Content threatens to release medical records"
+        ]
+      },
+      {
+        "id": "ig-harassment-claims-sexual-activity",
+        "reference": "IG-HARASSMENT-TIER2",
+        "summary": "Meta removes claims about sexual activity targeting minors, private adults, and limited scope public figures, except in criminal allegation contexts.",
+        "quote": "all minors (private individuals and public figures), private adults and limited scope public figures are protected from: Claims about sexual activity, except in the context of criminal allegations against adults (non-consensual sexual touching).",
+        "contentTypes": [
+          "intimate",
+          "personal"
+        ],
+        "contentContexts": [
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [
+          {
+            "description": "Evidence of claims about sexual activity and confirmation of target's status as minor, private adult, or limited scope public figure",
+            "example": "Screenshots of posts making sexual claims about the individual",
+            "reason": "To verify the sexual nature of claims and eligibility for protection"
+          }
+        ],
+        "removalCriteria": [
+          "Content makes claims about sexual activity of protected individuals",
+          "Target is a minor, private adult, or limited scope public figure",
+          "Claims are not in context of criminal allegations against adults"
+        ]
+      },
+      {
+        "id": "ig-harassment-adult-sexualization",
+        "reference": "IG-HARASSMENT-TIER2",
+        "summary": "Meta removes content sexualizing adults when targeting minors, private adults, and limited scope public figures.",
+        "quote": "all minors (private individuals and public figures), private adults and limited scope public figures are protected from: Content sexualizing another adult",
+        "contentTypes": [
+          "intimate",
+          "other"
+        ],
+        "contentContexts": [
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [
+          {
+            "description": "Evidence of sexualizing content and confirmation of target's protected status",
+            "example": "Screenshots of sexually objectifying posts or comments",
+            "reason": "To verify the sexualizing nature and protected status of target"
+          }
+        ],
+        "removalCriteria": [
+          "Content sexualizes an adult",
+          "Target is a minor, private adult, or limited scope public figure"
+        ]
+      },
+      {
+        "id": "ig-harassment-manipulated-imagery",
+        "reference": "IG-HARASSMENT-TIER2",
+        "summary": "Meta removes content manipulated to highlight or negatively draw attention to specific physical characteristics of protected individuals.",
+        "quote": "Content manipulated to highlight, circle, or otherwise negatively draw attention to specific physical characteristics (nose, ear, and so on).",
+        "contentTypes": [
+          "personal",
+          "other"
+        ],
+        "contentContexts": [
+          "impersonation",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [
+          {
+            "description": "Evidence of manipulated imagery highlighting physical characteristics and confirmation of target's protected status",
+            "example": "Screenshots of edited photos with circles or arrows pointing to body parts",
+            "reason": "To verify image manipulation and protected status of individual"
+          }
+        ],
+        "removalCriteria": [
+          "Content is manipulated to highlight specific physical characteristics",
+          "Manipulation negatively draws attention to physical features",
+          "Target is a minor, private adult, or limited scope public figure"
+        ]
+      },
+      {
+        "id": "ig-harassment-unwanted-pages-groups",
+        "reference": "IG-HARASSMENT-REPORTING",
+        "summary": "Meta removes content targeting private individuals through unwanted Pages, Groups and Events when reported by the target or authorized representative.",
+        "quote": "Post content that targets private individuals through unwanted Pages, Groups and Events. We remove this content when it is reported by the target or an authorized representative of the target.",
+        "contentTypes": [
+          "personal",
+          "private",
+          "other"
+        ],
+        "contentContexts": [
+          "impersonation",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [
+          {
+            "description": "Report from target or authorized representative confirming content is unwanted",
+            "example": "Statement from individual or legal representative that the Page/Group is unwanted",
+            "reason": "To confirm the content is unwanted by the targeted individual"
+          }
+        ],
+        "removalCriteria": [
+          "Content targets private individuals through Pages, Groups, or Events",
+          "Content is reported by target or authorized representative as unwanted"
+        ]
+      },
+      {
+        "id": "ig-harassment-public-figure-sexualization",
+        "reference": "IG-HARASSMENT-REPORTING",
+        "summary": "Meta removes content sexualizing public figures when confirmed as unwanted by the target or authorized representative.",
+        "quote": "Post content sexualizing a public figure. We will remove this content when we have confirmation from the target or an authorized representative of the target that the content is unwanted.",
+        "contentTypes": [
+          "intimate",
+          "other"
+        ],
+        "contentContexts": [
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [
+          {
+            "description": "Confirmation from public figure or authorized representative that sexualizing content is unwanted",
+            "example": "Statement from the public figure or their representative requesting removal",
+            "reason": "To verify the content is unwanted by the targeted public figure"
+          }
+        ],
+        "removalCriteria": [
+          "Content sexualizes a public figure",
+          "Target or authorized representative confirms content is unwanted"
+        ]
+      },
+      {
+        "id": "ig-harassment-sexual-harassment-contact",
+        "reference": "IG-HARASSMENT-REPORTING",
+        "summary": "Meta removes sexually harassing contact when confirmed as unwanted by the recipient or authorized representative.",
+        "quote": "Initiate contact that is sexually harassing the recipient. We will remove any content shared in an unwanted context when we have a confirmation from the recipient, or an authorized representative of the recipient that contact is unwanted.",
+        "contentTypes": [
+          "intimate",
+          "personal"
+        ],
+        "contentContexts": [
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [
+          {
+            "description": "Confirmation from recipient or authorized representative that sexually harassing contact is unwanted",
+            "example": "Statement from recipient that the sexual contact is unwanted and harassing",
+            "reason": "To verify the contact is both sexual in nature and unwanted"
+          }
+        ],
+        "removalCriteria": [
+          "Contact is sexually harassing in nature",
+          "Recipient or authorized representative confirms contact is unwanted"
+        ]
+      }
     ],
+    "appealProcess": {
+      "url": null,
+      "summary": "Users can appeal content decisions through Meta's standard appeal process, with reviews conducted and final responses provided through the Support Inbox.",
+      "steps": [
+        "Report the content through Meta's reporting system",
+        "Receive notification of review decision via notifications and Support Inbox",
+        "If disagreeing with decision, request another review through appeal option",
+        "Provide additional context or information during appeal",
+        "Receive final response after re-review through Support Inbox"
+      ]
+    }
   },
   {
-    context: 'impersonation',
-    label: 'Someone is impersonating me',
-    description:
-      'An account is pretending to be you or your organization. The content posted by this account may also violate other policies like harassment or NCII.',
-    policies: [
+    "id": "instagram-new-1758225061624-1",
+    "reference": "IG-NCII",
+    "title": "Non-Consensual Intimate Images Policy",
+    "summary": "Policy addressing intimate image abuse and non-consensual sharing of intimate content.",
+    "url": "https://about.fb.com/news/2019/03/protecting-intimate-images/",
+    "accessTimestamp": "2025-09-18T19:51:01.624Z",
+    "policies": [
       {
-        reference: 'META-CS-IMPERSONATION',
-        policy:
-          'Prohibits impersonating others (individuals, organizations) with an intent to deceive or mislead.',
-        documents: [legalDocuments[1]], // META-CS
-        removalCriteria: [
-          "Account uses another's name, photos, or other identifying information without authorization.",
-          'The profile is intended to mislead or deceive others about who is behind it.',
-          'The account is not clearly marked as a parody or fan account.',
+        "id": "meta-ncii-general",
+        "reference": "IG-NCII-001",
+        "summary": "Meta prohibits non-consensual intimate images (NCII) across Facebook, Messenger, and Instagram, and provides reporting tools for victims and third parties.",
+        "quote": "Over the last year, we've conducted our own research and partnered with many international safety organizations to review and improve our response to the sharing of what we call non-consensual intimate images (NCII) anywhere on Facebook, Messenger or Instagram.",
+        "contentTypes": [
+          "intimate"
         ],
-        evidenceRequirements: [
-          'URL of the impersonating profile.',
-          'Proof of identity, such as a government-issued ID for a person or business documents for an organization.',
-          'Description of how the account is impersonating you or your entity.',
+        "contentContexts": [
+          "relationship",
+          "unknown",
+          "other"
         ],
+        "timeframes": null,
+        "evidenceRequirements": [
+          {
+            "description": "Report can be made by anyone, not just the victim",
+            "example": "Third party reporting on behalf of victim",
+            "reason": "To ensure victims have support and don't have to report themselves"
+          }
+        ],
+        "removalCriteria": [
+          "Images shared without consent of the person depicted",
+          "Content qualifies as intimate imagery"
+        ]
       },
       {
-        reference: 'META-CS-BULLYING',
-        policy:
-          'Prohibits bullying and harassment. Impersonation is often used as a tool to harass the person being impersonated or to deceive and harass others.',
-        documents: [legalDocuments[1]], // META-CS
-        removalCriteria: [
-          'The impersonating account is being used to send abusive messages or post harassing content.',
+        "id": "meta-ncii-proactive-reporting",
+        "reference": "IG-NCII-002",
+        "summary": "Meta offers a proactive reporting tool allowing potential victims to submit photos before they are shared to prevent distribution across platforms.",
+        "quote": "We built a proactive reporting tool in partnership with international safety organizations, survivors, and victim advocates to provide an emergency option for people to provide a photo proactively to Facebook, so it never gets shared on our platforms in the first place.",
+        "contentTypes": [
+          "intimate"
         ],
-        evidenceRequirements: [
-          'URL(s) of the impersonating account and the harassing content.',
-          'Description of the harassment.',
+        "contentContexts": [
+          "relationship",
+          "unknown",
+          "other"
         ],
+        "timeframes": null,
+        "evidenceRequirements": [
+          {
+            "description": "Proactive submission of intimate image by potential victim",
+            "example": "User submits photo they fear may be shared without consent",
+            "reason": "To create hash and prevent future sharing before it occurs"
+          }
+        ],
+        "removalCriteria": [
+          "Image submitted proactively by person depicted",
+          "Image qualifies as intimate content that could be shared non-consensually"
+        ]
       },
       {
-        reference: 'META-CS-NCSII',
-        policy:
-          'Prohibits sharing non-consensual intimate images. An impersonating account might be created specifically to share such content.',
-        documents: [legalDocuments[1], legalDocuments[3]], // META-CS, TAKE-IT-DOWN-ACT-2025
-        removalCriteria: [
-          'The impersonating account has posted intimate images or videos of someone without their consent.',
+        "id": "meta-ncii-reporting-improvements",
+        "reference": "IG-NCII-003",
+        "summary": "Meta is improving reporting tools to be more accessible, empathetic, and provide faster personalized responses to NCII victims.",
+        "quote": "Based on this research, we are re-evaluating our reporting tools and processes to ensure they are straightforward, clear and empathetic. Anyone, not just the victim, can report NCII and we are working to better educate people who use Facebook on how to do that.",
+        "contentTypes": [
+          "intimate"
         ],
-        evidenceRequirements: [
-          'URL(s) of the infringing content.',
-          'A statement that the content is non-consensual.',
-          'Evidence of your identity to prove both impersonation and that you are the victim.',
+        "contentContexts": [
+          "relationship",
+          "unknown",
+          "other"
         ],
-      },
+        "timeframes": null,
+        "evidenceRequirements": [
+          {
+            "description": "NCII report through improved reporting interface",
+            "example": "Using streamlined reporting process",
+            "reason": "To reduce barriers and trauma for victims during reporting"
+          }
+        ],
+        "removalCriteria": [
+          "Content reported as non-consensual intimate imagery",
+          "Content meets NCII policy definitions"
+        ]
+      }
     ],
+    "appealProcess": null
   },
-];
-
-const generalPolicies = [
   {
-    reference: 'IG-TOU-CONTENT',
-    policy:
-      'Users grant Instagram a license to use their content but retain ownership. Instagram can remove any content that violates its Terms of Use or Community Standards.',
-    documents: [legalDocuments[0]], // IG-TOU
-    removalCriteria: [
-      'Content violates any part of the Terms of Use.',
-      'Content infringes on intellectual property rights.',
-      'Content is illegal or violates other platform policies.',
+    "id": "instagram-new-1758225061624-2",
+    "reference": "IG-REPORT-HARASSMENT",
+    "title": "Reporting Harassment or Bullying",
+    "summary": "Help center guidance on reporting harassment and bullying content on Instagram.",
+    "url": "https://help.instagram.com/547601325292351",
+    "accessTimestamp": "2025-09-18T19:51:01.624Z",
+    "policies": [
+      {
+        "id": "ig-harassment-photo-reporting",
+        "reference": "IG-REPORT-HARASSMENT-001",
+        "summary": "Instagram prohibits photos intended to bully or harass someone and provides reporting mechanisms for such content.",
+        "quote": "If an account is established with the intent of bullying or harassing another person or if a photo or comment is intended to bully or harass someone, please report it.",
+        "contentTypes": [
+          "personal",
+          "private",
+          "other"
+        ],
+        "contentContexts": [
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [
+          {
+            "description": "Report through Instagram's reporting system",
+            "example": "Use the report function on the specific photo or account",
+            "reason": "To initiate Instagram's review process for harassment content"
+          }
+        ],
+        "removalCriteria": [
+          "Photo is intended to bully or harass someone",
+          "Account is established with intent of bullying or harassing another person"
+        ]
+      },
+      {
+        "id": "ig-impersonation-reporting",
+        "reference": "IG-REPORT-HARASSMENT-002",
+        "summary": "Instagram provides reporting mechanisms for accounts pretending to be someone else, which may involve unauthorized use of personal images.",
+        "quote": "You can also learn what to do if you think someone is pretending to be you or someone else on Instagram.",
+        "contentTypes": [
+          "personal",
+          "private",
+          "other"
+        ],
+        "contentContexts": [
+          "impersonation",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [
+          {
+            "description": "Report through Instagram's impersonation reporting process",
+            "example": "Follow the specific reporting flow for impersonation cases",
+            "reason": "To verify identity and establish unauthorized use of personal information or images"
+          }
+        ],
+        "removalCriteria": [
+          "Account is pretending to be you or someone else"
+        ]
+      },
+      {
+        "id": "ig-community-standards-violation",
+        "reference": "IG-REPORT-HARASSMENT-003",
+        "summary": "Instagram enforces Community Standards and provides reporting for accounts or posts that violate these standards.",
+        "quote": "Learn how to report other accounts or posts that don't follow our Community Standards.",
+        "contentTypes": [
+          "intimate",
+          "personal",
+          "private",
+          "other"
+        ],
+        "contentContexts": [
+          "hacked",
+          "impersonation",
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [
+          {
+            "description": "Report through Instagram's general reporting system",
+            "example": "Use the report function to flag Community Standards violations",
+            "reason": "To initiate review against Instagram's comprehensive content policies"
+          }
+        ],
+        "removalCriteria": [
+          "Content violates Instagram's Community Standards"
+        ]
+      }
     ],
-    evidenceRequirements: [
-      'Link to the content.',
-      'Description of the specific violation.',
-      'Evidence of ownership or rights, if applicable.',
-    ],
+    "appealProcess": null
   },
   {
-    reference: 'META-CS-ALL',
-    policy:
-      'All content must adhere to the full scope of the unified Meta Community Standards. This is a catch-all policy for any violation not covered by a more specific rule.',
-    documents: [legalDocuments[1]], // META-CS
-    removalCriteria: [
-      'Content violates any Community Standard (e.g., hate speech, violence, scams).',
-      'Content poses a risk to platform or user safety.',
+    "id": "instagram-new-1758225061624-3",
+    "reference": "IG-IMPERSONATION",
+    "title": "Impersonation Account Reporting",
+    "summary": "Guidelines for reporting accounts that impersonate individuals or entities.",
+    "url": "https://help.instagram.com/370054663112398",
+    "accessTimestamp": "2025-09-18T19:51:01.624Z",
+    "policies": [
+      {
+        "id": "ig-impersonation-report",
+        "reference": "IG-IMPERSONATION-001",
+        "summary": "Instagram allows users to report accounts that are impersonating them, requiring government-issued ID verification and only accepting reports from the impersonated person or their representative.",
+        "quote": "Instagram takes safety seriously. If someone created an Instagram account pretending to be you, you can report it to us. Make sure to provide all the requested info, including a photo of your government-issued ID. We only respond to reports sent to us from the person who's being impersonated or a representative of the person who's being impersonated (example: a parent).",
+        "contentTypes": [
+          "personal",
+          "private",
+          "other"
+        ],
+        "contentContexts": [
+          "impersonation",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [
+          {
+            "description": "Photo of government-issued ID",
+            "example": "Driver's license, passport, or state ID",
+            "reason": "To verify the identity of the person being impersonated"
+          },
+          {
+            "description": "All requested information in the report form",
+            "example": "Details about the impersonating account and evidence of impersonation",
+            "reason": "To provide complete information for Instagram to investigate the impersonation claim"
+          }
+        ],
+        "removalCriteria": [
+          "Account is pretending to be another person",
+          "Report is submitted by the person being impersonated or their authorized representative",
+          "Proper identification documentation is provided"
+        ]
+      },
+      {
+        "id": "ig-impersonation-reporting-eligibility",
+        "reference": "IG-IMPERSONATION-002",
+        "summary": "Instagram only accepts impersonation reports from the actual person being impersonated or their authorized representative, and reports are kept anonymous except for intellectual property cases.",
+        "quote": "We only respond to reports sent to us from the person who's being impersonated or a representative of the person who's being impersonated (example: a parent). If someone you know is being impersonated, please encourage that person to report it. Keep in mind that your report is anonymous, except if you're reporting an intellectual property infringement.",
+        "contentTypes": [
+          "personal",
+          "other"
+        ],
+        "contentContexts": [
+          "impersonation",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [
+          {
+            "description": "Proof of authorization if reporting on behalf of someone else",
+            "example": "Parent reporting for minor child",
+            "reason": "To ensure only authorized individuals can report impersonation on behalf of others"
+          }
+        ],
+        "removalCriteria": [
+          "Reporter is the person being impersonated",
+          "Reporter is an authorized representative of the person being impersonated",
+          "Third-party reports are not accepted unless from authorized representatives"
+        ]
+      }
     ],
-    evidenceRequirements: [
-      'Link to the content.',
-      'Identification of the specific Community Standard that was violated.',
-      'Description of the violation.',
+    "appealProcess": null
+  },
+  {
+    "id": "instagram-new-1758225061624-4",
+    "reference": "IG-APPEAL-PROCESS",
+    "title": "Content Removal Appeals",
+    "summary": "Process for appealing content removal decisions and accessing the Oversight Board.",
+    "url": "https://help.instagram.com/675885993348720",
+    "accessTimestamp": "2025-09-18T19:51:01.624Z",
+    "policies": [
+      {
+        "id": "ig-appeal-content-removal",
+        "reference": "IG-APPEAL-PROCESS",
+        "summary": "Users can appeal Instagram's content removal decisions through a two-step process: first requesting a review, then appealing to the Oversight Board if still unsatisfied.",
+        "quote": "If you don't think that your content should have been taken down and you want to appeal to the Oversight Board, you must first go through the request a review process. Before you can appeal Instagram's content decision to the Oversight Board, you must first request a review of your content or the content you reported twice and you still disagree with our decision, you may be eligible to appeal that decision to the Oversight Board.",
+        "contentTypes": [
+          "intimate",
+          "personal",
+          "private",
+          "other"
+        ],
+        "contentContexts": [
+          "hacked",
+          "impersonation",
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": {
+          "response": null,
+          "removal": null
+        },
+        "evidenceRequirements": [
+          {
+            "description": "Must first complete the request a review process",
+            "example": "Submit initial review request through Instagram's standard process",
+            "reason": "Required prerequisite before Oversight Board appeal"
+          },
+          {
+            "description": "Reference number from appeal submission",
+            "example": "Appeal reference number provided after submission",
+            "reason": "To track appeal status on Oversight Board website"
+          }
+        ],
+        "removalCriteria": [
+          "Content must have been reviewed twice by Instagram",
+          "User must still disagree with Instagram's decision after two reviews",
+          "Appeal must be submitted within 15 days of the decision",
+          "Content and decision must be eligible for Oversight Board review"
+        ]
+      },
+      {
+        "id": "ig-appeal-reported-content",
+        "reference": "IG-APPEAL-PROCESS",
+        "summary": "Users can appeal Instagram's decision not to remove content they reported by first requesting a review, then appealing to the Oversight Board if the content remains up.",
+        "quote": "If you reported content from others that wasn't taken down and you want to appeal to the Oversight Board to have the content removed, you must first go through the request a review process. If we've reviewed your content or the content you reported twice and you still disagree with our decision, you may be eligible to appeal that decision to the Oversight Board.",
+        "contentTypes": [
+          "intimate",
+          "personal",
+          "private",
+          "other"
+        ],
+        "contentContexts": [
+          "hacked",
+          "impersonation",
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": {
+          "response": null,
+          "removal": null
+        },
+        "evidenceRequirements": [
+          {
+            "description": "Must have originally reported the content through Instagram's reporting system",
+            "example": "Initial report submitted about harmful content",
+            "reason": "Required to establish standing for appeal"
+          },
+          {
+            "description": "Must complete request a review process first",
+            "example": "Submit review request for Instagram's decision not to remove content",
+            "reason": "Required prerequisite before Oversight Board appeal"
+          }
+        ],
+        "removalCriteria": [
+          "Content must have been reported and reviewed twice by Instagram",
+          "Instagram must have decided not to remove the content",
+          "User must still disagree with Instagram's decision after two reviews",
+          "Appeal must be submitted within 15 days of the decision"
+        ]
+      }
     ],
-  },
-];
-
-export const instagramPolicy: PlatformPolicy = {
-  name: 'Instagram',
-  legalDocuments,
-  contentTypes,
-  contentContexts,
-  generalPolicies,
-  timeframes: {
-    response:
-      'Varies; aims to review reports efficiently, with priority given to severe harms like NCII.',
-    removal:
-      'For NCII, removal is mandated within 48 hours of a valid request under the TAKE IT DOWN Act. For other violations, removal typically occurs promptly after a violation is confirmed, but no specific timeframe is publicly guaranteed.',
-  },
-  appealProcess: [
-    "A notification of the content decision is sent via in-app notification in 'Support Requests'.",
-    "Users must first appeal the decision internally by selecting the 'Request a Review' option.",
-    'If the internal review is unsuccessful, the user may be eligible to appeal the decision to the independent Oversight Board.',
-    'An appeal to the Oversight Board requires a reference ID provided by Meta in the Support Requests inbox after its final decision.',
-    "The Oversight Board's decisions are binding, and Meta will reverse its original decision unless doing so would violate the law.",
-  ],
+    "appealProcess": {
+      "url": null,
+      "summary": "Two-tier appeal process: first request review through Instagram, then appeal to independent Oversight Board if unsatisfied. Appeals must be submitted within 15 days and Oversight Board selects only certain cases for review.",
+      "steps": [
+        "First go through Instagram's request a review process for your content or content you reported",
+        "If still unsatisfied after Instagram reviews twice, submit appeal to Oversight Board",
+        "Oversight Board decides whether to review the appeal (only selects certain eligible appeals)",
+        "Check appeal status on Oversight Board website using reference number",
+        "Must submit appeal within 15 days of Instagram's decision"
+      ]
+    }
+  }
+],
 };
