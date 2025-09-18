@@ -77,6 +77,12 @@ jobs:
 
           echo "Environment validation completed successfully"
 
+      # New Debugging Step: Run the test script to verify environment variables
+      - name: Debug GITHUB_TOKEN in Node.js
+        run: |
+          echo "Running Node.js script to check GITHUB_TOKEN..."
+          node test.js
+
       - name: Validate platform policies
         id: validate_platform
         run: |

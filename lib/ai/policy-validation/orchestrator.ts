@@ -2,7 +2,7 @@ import { DocumentValidationResult } from '@/lib/prompts/policy-validation-docume
 import { PolicyAbstractionResult } from '@/lib/prompts/policy-validation-policy-abstraction';
 import { serverInstance as rollbar } from '@/lib/rollbar';
 import { parseAIJson } from '@/lib/utils';
-import { PlatformPolicies } from '@/types/policies';
+import { PlatformPolicies, Policy } from '@/types/policies';
 import {
   generatePolicyValidationQualityCheckPrompt,
   PolicyValidationQualityCheckResult,
@@ -11,7 +11,7 @@ import { callAnthropic } from '../anthropic';
 import { validateDocuments } from './documents-validator';
 import { GaffaScrapingResult, scrapeMultipleDocumentsWithRateLimit } from './gaffa-scraper';
 import { buildPlatformPolicies, comparePlatformPolicies } from './platform-policies-builder';
-import { abstractPoliciesFromDocument, abstractPoliciesFromMultipleDocuments } from './policy-abstractor';
+import { abstractPoliciesFromMultipleDocuments } from './policy-abstractor';
 
 export interface PolicyValidationOrchestrationResult {
   status:
@@ -51,7 +51,7 @@ export async function orchestratePolicyValidation(
     platformName,
     currentDocuments: currentPolicies.policyDocuments.length,
   });
-  
+
   rollbar.info('orchestratePolicyValidation: Starting policy validation orchestration', {
     platformId,
     platformName,
@@ -65,7 +65,7 @@ export async function orchestratePolicyValidation(
       platformId,
       platformName,
     });
-    
+
     const documentValidation = await validateDocuments(
       platformId,
       platformName,
@@ -84,7 +84,7 @@ export async function orchestratePolicyValidation(
       removedDocuments: documentValidation.removedDocuments.length,
       validDocuments: documentValidation.validDocuments.length,
     });
-    
+
     rollbar.info('orchestratePolicyValidation: Document validation completed', {
       platformId,
       status: documentValidation.status,
@@ -104,16 +104,17 @@ export async function orchestratePolicyValidation(
         platformId,
         platformName,
       });
-      
+
       return {
         status: 'completed_no_changes',
         platformId,
         platformName,
-        data: { 
+        data: {
           documentValidation,
           analysis: {
-            reasoning: 'Document validation found no changes needed. All documents are current and accessible.'
-          }
+            reasoning:
+              'Document validation found no changes needed. All documents are current and accessible.',
+          },
         },
         reasoning:
           'Document validation found no changes needed. All documents are current and accessible.',
@@ -124,9 +125,10 @@ export async function orchestratePolicyValidation(
     console.log('orchestratePolicyValidation: Step 2 - Document scraping');
     rollbar.info('orchestratePolicyValidation: Step 2 - Document scraping', {
       platformId,
-      documentsToScrape: documentValidation.validDocuments.length + documentValidation.newDocuments.length,
+      documentsToScrape:
+        documentValidation.validDocuments.length + documentValidation.newDocuments.length,
     });
-    
+
     const documentsToScrape = [
       ...documentValidation.validDocuments.map((doc) => doc.newUrl || doc.url),
       ...documentValidation.newDocuments.map((doc) => doc.url),
@@ -136,7 +138,7 @@ export async function orchestratePolicyValidation(
     const scrapingResults = await scrapeMultipleDocumentsWithRateLimit(
       documentsToScrape,
       3, // Max 3 concurrent requests
-      1000 // 1 second delay between batches
+      1000, // 1 second delay between batches
     );
     const failedScrapes = scrapingResults.filter((result) => !result.success);
 
@@ -156,9 +158,10 @@ export async function orchestratePolicyValidation(
     console.log('orchestratePolicyValidation: Step 3 - Policy abstraction');
     rollbar.info('orchestratePolicyValidation: Step 3 - Policy abstraction', {
       platformId,
-      documentsToProcess: documentValidation.validDocuments.length + documentValidation.newDocuments.length,
+      documentsToProcess:
+        documentValidation.validDocuments.length + documentValidation.newDocuments.length,
     });
-    
+
     // Prepare documents for parallel processing
     const documentsForAbstraction: Array<{
       url: string;
@@ -212,19 +215,19 @@ export async function orchestratePolicyValidation(
 
     console.log('orchestratePolicyValidation: Processing documents in parallel', {
       totalDocuments: documentsForAbstraction.length,
-      existingDocuments: documentsForAbstraction.filter(d => !d.isNew).length,
-      newDocuments: documentsForAbstraction.filter(d => d.isNew).length,
+      existingDocuments: documentsForAbstraction.filter((d) => !d.isNew).length,
+      newDocuments: documentsForAbstraction.filter((d) => d.isNew).length,
     });
 
     // Process all documents in parallel
     const parallelAbstractionResults = await abstractPoliciesFromMultipleDocuments(
-      documentsForAbstraction.map(doc => ({
+      documentsForAbstraction.map((doc) => ({
         url: doc.url,
         title: doc.title,
         reference: doc.reference,
         markdown: doc.markdown,
         currentPolicies: doc.currentPolicies,
-      }))
+      })),
     );
 
     // Convert parallel results back to the expected format
@@ -234,7 +237,7 @@ export async function orchestratePolicyValidation(
       result: PolicyAbstractionResult;
     }> = parallelAbstractionResults.map((result, index) => {
       const doc = documentsForAbstraction[index];
-      
+
       console.log('orchestratePolicyValidation: Policy abstraction result', {
         documentId: doc.documentId,
         success: result.result.success,
@@ -253,9 +256,9 @@ export async function orchestratePolicyValidation(
     console.log('orchestratePolicyValidation: Step 4 - Building platform policies');
     rollbar.info('orchestratePolicyValidation: Step 4 - Building platform policies', {
       platformId,
-      successfulAbstractions: policyAbstractions.filter(a => a.success).length,
+      successfulAbstractions: policyAbstractions.filter((a) => a.success).length,
     });
-    
+
     const documentResults = [];
 
     // Add existing documents
@@ -305,14 +308,14 @@ export async function orchestratePolicyValidation(
       platformId,
       updatedDocuments: updatedPolicies.policyDocuments.length,
     });
-    
+
     const comparison = comparePlatformPolicies(currentPolicies, updatedPolicies);
 
     console.log('orchestratePolicyValidation: Policy comparison result', {
       hasChanges: comparison.hasChanges,
       summary: comparison.summary,
     });
-    
+
     rollbar.info('orchestratePolicyValidation: Policy comparison completed', {
       platformId,
       hasChanges: comparison.hasChanges,
@@ -324,7 +327,7 @@ export async function orchestratePolicyValidation(
         platformId,
         platformName,
       });
-      
+
       return {
         status: 'completed_no_changes',
         platformId,
@@ -336,8 +339,9 @@ export async function orchestratePolicyValidation(
           updatedPolicies,
           comparison,
           analysis: {
-            reasoning: 'Policy analysis completed but no meaningful changes were detected in the platform policies.'
-          }
+            reasoning:
+              'Policy analysis completed but no meaningful changes were detected in the platform policies.',
+          },
         },
         reasoning:
           'Policy analysis completed but no meaningful changes were detected in the platform policies.',
@@ -366,7 +370,7 @@ export async function orchestratePolicyValidation(
       overallQualityScore: qualityCheck.overallQualityScore,
       issuesCount: qualityCheck.issues.length,
     });
-    
+
     rollbar.info('orchestratePolicyValidation: Quality check completed', {
       platformId,
       validationStatus: qualityCheck.validationStatus,
@@ -399,7 +403,7 @@ export async function orchestratePolicyValidation(
       qualityScore: qualityCheck.overallQualityScore,
       issuesFound: qualityCheck.issues.length,
     });
-    
+
     rollbar.info('orchestratePolicyValidation: Policy validation orchestration completed', {
       platformId,
       platformName,
@@ -414,7 +418,7 @@ export async function orchestratePolicyValidation(
       platformId,
       error,
     });
-    
+
     rollbar.error('orchestratePolicyValidation: Error during orchestration', {
       platformId,
       platformName,
