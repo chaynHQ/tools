@@ -79,7 +79,7 @@ jobs:
       - name: Validate platform policies
         id: validate_platform
         run: |
-          node scripts/policy-validation.js ${{ matrix.platform }}
+          npx tsx scripts/policy-validation.ts ${{ matrix.platform }}
 
       - name: Send completion notification
         if: always()
