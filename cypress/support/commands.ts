@@ -123,3 +123,8 @@ Cypress.Commands.add(
     cy.contains('Review and send', { timeout: 100000 }).should('be.visible');
   },
 );
+
+// Custom command to check if a file exists
+Cypress.Commands.add('fileExists', (filePath: string) => {
+  return cy.task('fileExists', filePath);
+});
