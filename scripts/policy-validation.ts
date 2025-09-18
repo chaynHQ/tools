@@ -160,7 +160,7 @@ async function validatePlatformPolicies() {
           stack: error instanceof Error ? error.stack : undefined,
         });
 
-        // Set GitHub Actions outputs for PR error
+        // Set GitHub Actions outputs for PR error and exit with failure
         console.log(
           `::set-output name=status::completed_with_pr_error${forceRewrite ? '_force_rewrite' : ''}`,
         );
@@ -171,6 +171,11 @@ async function validatePlatformPolicies() {
         console.log(
           `::set-output name=error::${error instanceof Error ? error.message : 'Unknown PR creation error'}`,
         );
+        
+        // CRITICAL: Exit with failure when PR creation fails for valid policy updates
+        // This ensures the GitHub Actions job fails and alerts are sent
+        console.error('PolicyValidation: CRITICAL FAILURE - Valid policy updates found but PR creation failed');
+        process.exit(1);
       }
     } else {
       console.log('PolicyValidation: PR creation conditions not met', {

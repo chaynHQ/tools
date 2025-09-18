@@ -57,22 +57,17 @@ export class GitHubPRCreator {
 
       const baseBranchSha = baseBranch.commit.sha;
 
-      // Step 2: Create a new branch
-      await this.octokit.rest.git.createRef({
-        owner: this.owner,
-        repo: this.repo,
-        ref: `refs/heads/${data.branchName}`,
-        sha: baseBranchSha,
-      });
+      // Step 2: Handle branch creation/update
+      const finalBranchName = await this.createOrUpdateBranch(data.branchName, baseBranchSha);
 
       console.log('GitHubPRCreator: Created branch', {
-        branchName: data.branchName,
+        branchName: finalBranchName,
         baseSha: baseBranchSha.substring(0, 7),
       });
 
       // Step 3: Create/update files in the new branch
       for (const file of data.files) {
-        await this.createOrUpdateFile(file.path, file.content, data.branchName);
+        await this.createOrUpdateFile(file.path, file.content, finalBranchName);
       }
 
       // Step 4: Create the pull request
@@ -81,14 +76,14 @@ export class GitHubPRCreator {
         repo: this.repo,
         title: data.title,
         body: data.body,
-        head: data.branchName,
+        head: finalBranchName,
         base: repo.default_branch,
       });
 
       console.log('GitHubPRCreator: Successfully created PR', {
         pullRequestNumber: pullRequest.number,
         pullRequestUrl: pullRequest.html_url,
-        branchName: data.branchName,
+        branchName: finalBranchName,
       });
 
       return {
@@ -110,6 +105,111 @@ export class GitHubPRCreator {
       };
     }
   }
+
+  /**
+   * Creates a new branch or updates existing branch, handling conflicts gracefully
+   */
+  private async createOrUpdateBranch(branchName: string, baseSha: string): Promise<string> {
+    try {
+      // Try to create the branch first
+      await this.octokit.rest.git.createRef({
+        owner: this.owner,
+        repo: this.repo,
+        ref: `refs/heads/${branchName}`,
+        sha: baseSha,
+      });
+      
+      console.log('GitHubPRCreator: Created new branch', { branchName });
+      return branchName;
+    } catch (error: any) {
+      if (error.status === 422 && error.message?.includes('already exists')) {
+        console.log('GitHubPRCreator: Branch already exists, handling conflict', { branchName });
+        
+        // Check if there's an existing open PR for this branch
+        const existingPR = await this.findExistingPR(branchName);
+        
+        if (existingPR) {
+          console.log('GitHubPRCreator: Found existing PR, closing it', {
+            branchName,
+            prNumber: existingPR.number,
+            prUrl: existingPR.html_url,
+          });
+          
+          // Close the existing PR
+          await this.octokit.rest.pulls.update({
+            owner: this.owner,
+            repo: this.repo,
+            pull_number: existingPR.number,
+            state: 'closed',
+          });
+          
+          // Add a comment explaining why it was closed
+          await this.octokit.rest.issues.createComment({
+            owner: this.owner,
+            repo: this.repo,
+            issue_number: existingPR.number,
+            body: '🤖 This PR was automatically closed because a new policy validation run has generated updated changes. A new PR will be created with the latest policy updates.',
+          });
+        }
+        
+        // Delete the existing branch
+        try {
+          await this.octokit.rest.git.deleteRef({
+            owner: this.owner,
+            repo: this.repo,
+            ref: `heads/${branchName}`,
+          });
+          console.log('GitHubPRCreator: Deleted existing branch', { branchName });
+        } catch (deleteError) {
+          console.warn('GitHubPRCreator: Could not delete existing branch', {
+            branchName,
+            error: deleteError,
+          });
+        }
+        
+        // Create the branch with a unique suffix to avoid any remaining conflicts
+        const timestamp = Date.now();
+        const uniqueBranchName = `${branchName}-${timestamp}`;
+        
+        await this.octokit.rest.git.createRef({
+          owner: this.owner,
+          repo: this.repo,
+          ref: `refs/heads/${uniqueBranchName}`,
+          sha: baseSha,
+        });
+        
+        console.log('GitHubPRCreator: Created unique branch after conflict', {
+          originalBranch: branchName,
+          uniqueBranch: uniqueBranchName,
+        });
+        
+        return uniqueBranchName;
+      } else {
+        // Re-throw other errors
+        throw error;
+      }
+    }
+  }
+  
+  /**
+   * Finds an existing open PR for the given branch
+   */
+  private async findExistingPR(branchName: string): Promise<{ number: number; html_url: string } | null> {
+    try {
+      const { data: pulls } = await this.octokit.rest.pulls.list({
+        owner: this.owner,
+        repo: this.repo,
+        head: `${this.owner}:${branchName}`,
+        state: 'open',
+      });
+      
+      return pulls.length > 0 ? { number: pulls[0].number, html_url: pulls[0].html_url } : null;
+    } catch (error) {
+      console.warn('GitHubPRCreator: Error finding existing PR', { branchName, error });
+      return null;
+    }
+  }
+
   /**
    * Creates or updates a file in the repository
    */
@@ -210,9 +310,23 @@ export class GitHubPRCreator {
           number: prResult.pullRequestNumber!,
         };
       } else {
-        throw new Error(prResult.error || 'Unknown PR creation error');
+        // Enhanced error with more context
+        const errorMessage = `PR creation failed: ${prResult.error || 'Unknown error'}`;
+        rollbar.error('PolicyValidation: PR creation failed with detailed context', {
+          platformId,
+          error: prResult.error,
+          branchName,
+          prTitle,
+          filesCount: files.length,
+        });
+        throw new Error(errorMessage);
       }
     } catch (error) {
+      rollbar.error('PolicyValidation: Exception during PR creation', {
+        platformId,
+        error: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined,
+      });
       throw error;
     }
   }
