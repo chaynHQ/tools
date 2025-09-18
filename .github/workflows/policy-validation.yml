@@ -25,8 +25,7 @@ jobs:
     name: Validate Platform Policies
     runs-on: ubuntu-latest
     permissions:
-      contents: read
-      pull-requests: write
+      contents: write
     strategy:
       matrix:
         platform: ${{ github.event.inputs.platform && fromJson(format('["{0}"]', github.event.inputs.platform)) || fromJson('["facebook", "instagram", "tiktok", "onlyfans", "pornhub"]') }}
