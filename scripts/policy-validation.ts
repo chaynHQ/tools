@@ -175,3 +175,9 @@ async function validatePlatformPolicies() {
     process.exit(1);
   }
 }
+
+// Run the validation
+validatePlatformPolicies().catch((error) => {
+  console.error('PolicyValidation: Fatal error', error);
+  process.exit(1);
+});
