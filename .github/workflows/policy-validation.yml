@@ -26,6 +26,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      pull-requests: write
+      repository-projects: write
     strategy:
       matrix:
         platform: ${{ github.event.inputs.platform && fromJson(format('["{0}"]', github.event.inputs.platform)) || fromJson('["facebook", "instagram", "tiktok", "onlyfans", "pornhub"]') }}
