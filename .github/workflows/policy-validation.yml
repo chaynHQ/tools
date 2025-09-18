@@ -34,7 +34,6 @@ jobs:
 
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      NEXT_PUBLIC_BASE_URL: ${{ secrets.NEXT_PUBLIC_BASE_URL || 'https://tools-git-develop-chaynhq.vercel.app/' }}
       ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       ANTHROPIC_MODEL: ${{ secrets.ANTHROPIC_MODEL }}
       ANTHROPIC_TEMPERATURE: ${{ secrets.ANTHROPIC_TEMPERATURE }}
@@ -77,56 +76,10 @@ jobs:
 
           echo "Environment validation completed successfully"
 
-      # New Debugging Step: Run the test script to verify environment variables
-      - name: Debug GITHUB_TOKEN in Node.js
-        run: |
-          echo "Running Node.js script to check GITHUB_TOKEN..."
-          node test-env-var.js
-
       - name: Validate platform policies
         id: validate_platform
         run: |
-          PLATFORM="${{ matrix.platform }}"
-          echo "Validating policies for platform: $PLATFORM"
-
-          RESPONSE=$(curl -s -X POST \
-            -H "Content-Type: application/json" \
-            -d '{}' \
-            "https://tools-git-validation-flow-refactors-chaynhq.vercel.app/api/policy-validation/$PLATFORM" \
-            -w "HTTPSTATUS:%{http_code}")
-
-          HTTP_STATUS=$(echo $RESPONSE | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
-          RESPONSE_BODY=$(echo $RESPONSE | sed -e 's/HTTPSTATUS:.*//g')
-
-          echo "HTTP Status: $HTTP_STATUS"
-          echo "Response: $RESPONSE_BODY"
-
-          if [ $HTTP_STATUS -ne 200 ]; then
-            echo "Error: Policy validation failed for $PLATFORM"
-            echo "Response: $RESPONSE_BODY"
-            exit 1
-          fi
-
-          # Extract results
-          STATUS=$(echo $RESPONSE_BODY | jq -r '.status // "unknown"')
-          PLATFORM_NAME=$(echo $RESPONSE_BODY | jq -r '.platform // "unknown"')
-
-          echo "platform=$PLATFORM" >> $GITHUB_OUTPUT
-          echo "platform_name=$PLATFORM_NAME" >> $GITHUB_OUTPUT
-          echo "status=$STATUS" >> $GITHUB_OUTPUT
-
-          # Extract additional data based on status
-          if [ "$STATUS" = "completed_with_pr_created" ]; then
-            PR_URL=$(echo $RESPONSE_BODY | jq -r '.data.pullRequest.url // "none"')
-            PR_NUMBER=$(echo $RESPONSE_BODY | jq -r '.data.pullRequest.number // "none"')
-            echo "pr_url=$PR_URL" >> $GITHUB_OUTPUT
-            echo "pr_number=$PR_NUMBER" >> $GITHUB_OUTPUT
-          fi
-
-          REASONING=$(echo $RESPONSE_BODY | jq -r '.data.analysis.reasoning // "No reasoning provided"')
-          echo "reasoning=$REASONING" >> $GITHUB_OUTPUT
-
-          echo "Policy validation completed for $PLATFORM with status: $STATUS"
+          node scripts/policy-validation.js ${{ matrix.platform }}
 
       - name: Send completion notification
         if: always()
