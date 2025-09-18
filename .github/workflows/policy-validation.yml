@@ -96,45 +96,48 @@ jobs:
         run: |
           PLATFORM="${{ steps.validate_platform.outputs.platform }}"
           PLATFORM_NAME="${{ steps.validate_platform.outputs.platform_name }}"
-          STATUS="${{ steps.validate_platform.outputs.status }}"
+          VALIDATION_STATUS="${{ steps.validate_platform.outputs.status }}"
           REASONING="${{ steps.validate_platform.outputs.reasoning }}"
           PR_URL="${{ steps.validate_platform.outputs.pr_url }}"
           PR_NUMBER="${{ steps.validate_platform.outputs.pr_number }}"
           FORCE_REWRITE="${{ steps.validate_platform.outputs.force_rewrite }}"
-          STATUS="${{ job.status }}"
+          JOB_STATUS="${{ job.status }}"
+          RUN_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
 
-          if [ "$STATUS" = "success" ]; then
-            VALIDATION_STATUS="${{ steps.validate_platform.outputs.status }}"
-            
-            FORCE_SUFFIX=""
-            if [ "$FORCE_REWRITE" = "true" ]; then
-              FORCE_SUFFIX=" (🔄 FORCE REWRITE MODE)"
-            fi
-            
-            if [[ "$VALIDATION_STATUS" == *"completed_with_pr_created"* ]]; then
-              MESSAGE="🎉 Policy validation completed successfully for $PLATFORM_NAME$FORCE_SUFFIX! Quality check: PASSED. Pull Request created: $PR_URL (PR #$PR_NUMBER)."
-            elif [[ "$VALIDATION_STATUS" == *"completed_with_pr_error"* ]]; then
-              MESSAGE="⚠️ Policy validation completed for $PLATFORM_NAME$FORCE_SUFFIX, but PR creation failed. Quality check: PASSED. Manual PR creation required. Reasoning: $REASONING"
-            elif [[ "$VALIDATION_STATUS" == *"completed_with_valid_changes"* ]]; then
-              MESSAGE="✅ Policy validation completed for $PLATFORM_NAME$FORCE_SUFFIX with valid changes found. Quality check: PASSED. Ready for PR creation. Reasoning: $REASONING"
-            elif [[ "$VALIDATION_STATUS" == *"completed_with_invalid_changes"* ]]; then
-              MESSAGE="⚠️ Policy validation completed for $PLATFORM_NAME$FORCE_SUFFIX with issues. Quality check FAILED. Manual review required. Reasoning: $REASONING"
-            elif [[ "$VALIDATION_STATUS" == *"completed_no_changes"* ]]; then
-              MESSAGE="✅ Policy validation completed for $PLATFORM_NAME$FORCE_SUFFIX with no changes needed. All policies are up to date."
-            else
-              MESSAGE="✅ Policy validation completed for $PLATFORM_NAME$FORCE_SUFFIX. Status: $VALIDATION_STATUS"
-            fi
-          else
-            FORCE_SUFFIX=""
-            if [ "$FORCE_REWRITE" = "true" ]; then
-              FORCE_SUFFIX=" (🔄 FORCE REWRITE MODE)"
-            fi
-            MESSAGE="❌ Policy validation failed for $PLATFORM_NAME$FORCE_SUFFIX"
+          # Format platform name with force rewrite indicator
+          PLATFORM_DISPLAY="$PLATFORM_NAME"
+          if [ "$FORCE_REWRITE" = "true" ]; then
+            PLATFORM_DISPLAY="$PLATFORM_NAME [FORCE-REWRITE]"
           fi
 
-          echo "Sending notification: $MESSAGE"
+          # Determine message based on job status and validation results
+          if [ "$JOB_STATUS" = "success" ]; then
+            case "$VALIDATION_STATUS" in
+              *"completed_with_pr_created"*)
+                MESSAGE="✅ $PLATFORM_DISPLAY: Policy updates merged → <$PR_URL|PR #$PR_NUMBER created and ready for review>"
+                ;;
+              *"completed_with_pr_error"*)
+                MESSAGE="❌ $PLATFORM_DISPLAY: Policy validation failed → <$RUN_URL|Re-run workflow manually> (PR creation failed)"
+                ;;
+              *"completed_with_valid_changes"*)
+                MESSAGE="⚠️ $PLATFORM_DISPLAY: Policy updates ready but PR creation failed → <$RUN_URL|Re-run workflow manually>"
+                ;;
+              *"completed_with_invalid_changes"*)
+                MESSAGE="❌ $PLATFORM_DISPLAY: Policy validation failed → <$RUN_URL|Re-run workflow manually> (Quality check failed)"
+                ;;
+              *"completed_no_changes"*)
+                MESSAGE="✅ $PLATFORM_DISPLAY: No policy updates needed → All policies current"
+                ;;
+              *)
+                MESSAGE="❌ $PLATFORM_DISPLAY: Policy validation failed → <$RUN_URL|Re-run workflow manually> (Unknown status: $VALIDATION_STATUS)"
+                ;;
+            esac
+          else
+            MESSAGE="❌ $PLATFORM_DISPLAY: Policy validation failed → <$RUN_URL|Re-run workflow manually> (Job failed)"
+          fi
+
+          echo "Sending Slack notification: $MESSAGE"
 
           # Send Slack notification
           curl -X POST -H 'Content-type: application/json' \
             --data "{\"text\":\"$MESSAGE\"}" \
-            "$SLACK_WEBHOOK_URL" || echo "Failed to send Slack notification"
