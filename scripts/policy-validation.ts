@@ -54,7 +54,6 @@ async function validatePlatformPolicies() {
       documentsCount: platformPolicy.policyDocuments.length,
     });
 
-
     // Run the orchestrated policy validation flow
     const validationResult = await orchestratePolicyValidation(
       platform,
@@ -90,7 +89,6 @@ async function validatePlatformPolicies() {
           forceRewrite,
         );
 
-
         // Set GitHub Actions outputs
         console.log(
           `::set-output name=status::completed_with_pr_created${forceRewrite ? '_force_rewrite' : ''}`,
@@ -120,7 +118,7 @@ async function validatePlatformPolicies() {
         console.log(
           `::set-output name=error::${error instanceof Error ? error.message : 'Unknown PR creation error'}`,
         );
-        
+
         // CRITICAL: Exit with failure when PR creation fails for valid policy updates
         // This ensures the GitHub Actions job fails and alerts are sent
         console.error('CRITICAL FAILURE: Valid policy updates found but PR creation failed');
@@ -160,13 +158,13 @@ async function validatePlatformPolicies() {
       `::set-output name=error::${error instanceof Error ? error.message : 'Unknown error'}`,
     );
 
-    console.error('FATAL ERROR: Policy validation script failed');
+    console.error('Policy validation: Fatal error - script failed');
     process.exit(1);
   }
 }
 
 // Run the validation
 validatePlatformPolicies().catch((error) => {
-  console.error('FATAL ERROR: Policy validation script crashed', error);
+  console.error('Policy validation: Fatal error - script crashed', error);
   process.exit(1);
 });
