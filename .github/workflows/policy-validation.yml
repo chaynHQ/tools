@@ -40,6 +40,7 @@ jobs:
       ANTHROPIC_MODEL: ${{ secrets.ANTHROPIC_MODEL }}
       ANTHROPIC_TEMPERATURE: ${{ secrets.ANTHROPIC_TEMPERATURE }}
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      GAFFA_API_KEY: ${{ secrets.GAFFA_API_KEY }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
