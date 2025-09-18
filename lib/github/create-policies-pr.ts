@@ -254,7 +254,6 @@ export class GitHubPRCreator {
         error: error instanceof Error ? error.message : String(error),
       });
     }
-    }
   }
 
   /**
