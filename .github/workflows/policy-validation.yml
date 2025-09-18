@@ -81,7 +81,7 @@ jobs:
       - name: Debug GITHUB_TOKEN in Node.js
         run: |
           echo "Running Node.js script to check GITHUB_TOKEN..."
-          node test.js
+          node test-env-var.js
 
       - name: Validate platform policies
         id: validate_platform
