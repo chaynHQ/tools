@@ -20,12 +20,6 @@ export function generatePolicyAbstractionPrompt(
   documentMarkdown: string,
   currentPolicies?: Policy[]
 ): string {
-  rollbar.info('generatePolicyAbstractionPrompt: Creating policy abstraction prompt', {
-    documentUrl,
-    documentTitle,
-    markdownLength: documentMarkdown.length,
-    currentPoliciesCount: currentPolicies?.length || 0,
-  });
 
   const currentPoliciesContext = currentPolicies && currentPolicies.length > 0
     ? `

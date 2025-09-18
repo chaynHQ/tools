@@ -35,12 +35,6 @@ export function generatePolicyValidationQualityCheckPrompt(
   updatedPolicies: PlatformPolicies,
   changesSummary: string,
 ): string {
-  rollbar.info('generatePolicyValidationQualityCheckPrompt: Creating quality check prompt', {
-    platformId,
-    platformName,
-    originalDocuments: originalPolicies.policyDocuments.length,
-    updatedDocuments: updatedPolicies.policyDocuments.length,
-  });
 
   return `You are an AI assistant specialized in validating policy changes for automated image takedown systems. Your task is to perform a comprehensive A/B comparison of original vs updated platform policies to assess accuracy, completeness, and necessity of changes.
 

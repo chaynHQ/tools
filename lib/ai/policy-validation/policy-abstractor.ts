@@ -14,12 +14,6 @@ export async function abstractPoliciesFromDocument(
   documentMarkdown: string,
   currentPolicies?: Policy[]
 ): Promise<PolicyAbstractionResult> {
-  rollbar.info('abstractPoliciesFromDocument: Starting policy abstraction', {
-    documentUrl,
-    documentTitle,
-    markdownLength: documentMarkdown.length,
-    currentPoliciesCount: currentPolicies?.length || 0,
-  });
 
   try {
     const prompt = generatePolicyAbstractionPrompt(
@@ -33,18 +27,12 @@ export async function abstractPoliciesFromDocument(
     const response = await callAnthropic(prompt);
     const result: PolicyAbstractionResult = parseAIJson(response);
 
-    rollbar.info('abstractPoliciesFromDocument: Policy abstraction completed', {
-      documentUrl,
-      success: result.success,
-      policiesFound: result.policies?.length || 0,
-      hasAppealProcess: !!result.appealProcess,
-    });
 
     return result;
   } catch (error) {
-    rollbar.error('abstractPoliciesFromDocument: Error during policy abstraction', {
+    rollbar.error('Policy validation: Policy abstraction failed for document', {
       documentUrl,
-      error,
+      error: error instanceof Error ? error.message : String(error),
     });
     return {
       success: false,
@@ -68,7 +56,7 @@ export async function abstractPoliciesFromMultipleDocuments(
   documentUrl: string;
   result: PolicyAbstractionResult;
 }>> {
-  rollbar.info('abstractPoliciesFromMultipleDocuments: Starting parallel policy abstraction', {
+  rollbar.info('Policy validation: Starting parallel policy abstraction', {
     documentCount: documents.length,
   });
 
@@ -94,9 +82,9 @@ export async function abstractPoliciesFromMultipleDocuments(
     if (result.status === 'fulfilled') {
       return result.value;
     } else {
-      rollbar.error('abstractPoliciesFromMultipleDocuments: Policy abstraction failed', {
+      rollbar.error('Policy validation: Policy abstraction failed in parallel processing', {
         documentUrl: documents[index].url,
-        error: result.reason,
+        error: result.reason instanceof Error ? result.reason.message : String(result.reason),
       });
       return {
         documentUrl: documents[index].url,
@@ -112,7 +100,7 @@ export async function abstractPoliciesFromMultipleDocuments(
   });
 
   const successCount = finalResults.filter(r => r.result.success).length;
-  rollbar.info('abstractPoliciesFromMultipleDocuments: Parallel policy abstraction completed', {
+  rollbar.info('Policy validation: Parallel policy abstraction completed', {
     totalDocuments: documents.length,
     successCount,
     failureCount: documents.length - successCount,

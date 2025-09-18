@@ -16,7 +16,7 @@ async function validatePlatformPolicies() {
 
     // Validate platform
     if (!PLATFORM_NAMES[platform]) {
-      rollbar.warning('PolicyValidation: Invalid platform requested', { platform });
+      rollbar.error('Policy validation: Invalid platform requested', { platform });
       console.error(`Error: Invalid platform: ${platform}`);
       process.exit(1);
     }
@@ -24,92 +24,60 @@ async function validatePlatformPolicies() {
     let platformPolicy;
 
     if (forceRewrite) {
-      console.log(`Force rewrite mode enabled for platform: ${platform}`);
-      console.log('All policies will be treated as new and completely rewritten');
-
       // Create empty platform policies object for force rewrite
       platformPolicy = {
         platform: PLATFORM_NAMES[platform],
         policyDocuments: [],
       };
 
-      rollbar.info('PolicyValidation: Force rewrite mode enabled', {
+      rollbar.info('Policy validation: Force rewrite mode enabled', {
         platform,
-        platformName: PLATFORM_NAMES[platform],
       });
     } else {
       platformPolicy = getPlatformPolicy(platform);
       if (!platformPolicy) {
-        rollbar.error('PolicyValidation: Platform policy not found', { platform });
+        rollbar.error('Policy validation: Platform policy not found', { platform });
         console.error(`Error: Platform policy not found for: ${platform}`);
         process.exit(1);
       }
     }
 
     if (!forceRewrite && !platformPolicy) {
-      rollbar.error('PolicyValidation: Platform policy not found', { platform });
+      rollbar.error('Policy validation: Platform policy not found', { platform });
       console.error(`Error: Platform policy not found for: ${platform}`);
       process.exit(1);
     }
 
-    rollbar.info('PolicyValidation: Starting validation for platform', {
+    rollbar.info('Policy validation: Starting validation', {
       platform,
       forceRewrite,
       documentsCount: platformPolicy.policyDocuments.length,
     });
 
-    console.log(
-      `Starting policy validation for platform: ${platform}${forceRewrite ? ' (FORCE REWRITE MODE)' : ''}`,
-    );
-    console.log(`Platform name: ${PLATFORM_NAMES[platform]}`);
-    console.log(
-      `Current documents: ${platformPolicy.policyDocuments.length}${forceRewrite ? ' (will be ignored)' : ''}`,
-    );
 
     // Run the orchestrated policy validation flow
-    console.log('PolicyValidation: Calling orchestratePolicyValidation', { platform });
     const validationResult = await orchestratePolicyValidation(
       platform,
       PLATFORM_NAMES[platform],
       platformPolicy,
     );
 
-    console.log('PolicyValidation: Orchestration completed', {
+    rollbar.info('Policy validation: Orchestration completed', {
       platform,
       forceRewrite,
       status: validationResult.status,
-      hasUpdatedPolicies: !!validationResult.data.updatedPolicies,
-      hasGitHubToken: !!process.env.GITHUB_TOKEN,
-    });
-
-    rollbar.info('PolicyValidation: Orchestration completed', {
-      platform,
-      forceRewrite,
-      status: validationResult.status,
-      hasUpdatedPolicies: !!validationResult.data.updatedPolicies,
-      hasGitHubToken: !!process.env.GITHUB_TOKEN,
     });
 
     // Create PR if validation passed and changes are valid
-    console.log('PolicyValidation: Checking PR creation conditions', {
-      status: validationResult.status,
-      hasUpdatedPolicies: !!validationResult.data.updatedPolicies,
-      hasGitHubToken: !!process.env.GITHUB_TOKEN,
-      forceRewrite,
-    });
 
     if (
       validationResult.status === 'completed_with_valid_changes' &&
       validationResult.data.updatedPolicies &&
       process.env.GITHUB_TOKEN
     ) {
-      console.log(
-        `PolicyValidation: Creating PR for valid changes${forceRewrite ? ' (force rewrite)' : ''}`,
-      );
-      rollbar.info('PolicyValidation: Creating PR for valid changes', {
+      rollbar.info('Policy validation: Creating PR for valid changes', {
         platform,
         forceRewrite,
-        updatedPoliciesCount: validationResult.data.updatedPolicies.policyDocuments.length,
       });
 
       try {
@@ -122,19 +90,6 @@ async function validatePlatformPolicies() {
           forceRewrite,
         );
 
-        console.log('PolicyValidation: PR created successfully', {
-          platform,
-          forceRewrite,
-          pullRequestUrl: pullRequest?.url,
-          pullRequestNumber: pullRequest?.number,
-        });
-
-        rollbar.info('PolicyValidation: PR created successfully', {
-          platform,
-          forceRewrite,
-          pullRequestUrl: pullRequest?.url,
-          pullRequestNumber: pullRequest?.number,
-        });
 
         // Set GitHub Actions outputs
         console.log(
@@ -147,13 +102,7 @@ async function validatePlatformPolicies() {
         console.log(`::set-output name=reasoning::${validationResult.reasoning}`);
         console.log(`::set-output name=force_rewrite::${forceRewrite}`);
       } catch (error) {
-        console.error('PolicyValidation: PR creation failed', {
-          platform,
-          forceRewrite,
-          error: error instanceof Error ? error.message : String(error),
-        });
-
-        rollbar.error('PolicyValidation: PR creation failed', {
+        rollbar.error('Policy validation: PR creation failed', {
           platform,
           forceRewrite,
           error: error instanceof Error ? error.message : String(error),
@@ -174,21 +123,12 @@ async function validatePlatformPolicies() {
         
         // CRITICAL: Exit with failure when PR creation fails for valid policy updates
         // This ensures the GitHub Actions job fails and alerts are sent
-        console.error('PolicyValidation: CRITICAL FAILURE - Valid policy updates found but PR creation failed');
+        console.error('CRITICAL FAILURE: Valid policy updates found but PR creation failed');
         process.exit(1);
       }
     } else {
-      console.log('PolicyValidation: PR creation conditions not met', {
-        status: validationResult.status,
-        hasUpdatedPolicies: !!validationResult.data.updatedPolicies,
-        hasGitHubToken: !!process.env.GITHUB_TOKEN,
-        forceRewrite,
-        reasoning: 'One or more conditions for PR creation were not satisfied',
-      });
-
-      rollbar.info('PolicyValidation: PR creation conditions not met', {
+      rollbar.info('Policy validation: PR creation conditions not met', {
         platform,
-        forceRewrite,
         status: validationResult.status,
         hasUpdatedPolicies: !!validationResult.data.updatedPolicies,
         hasGitHubToken: !!process.env.GITHUB_TOKEN,
@@ -204,24 +144,12 @@ async function validatePlatformPolicies() {
       console.log(`::set-output name=force_rewrite::${forceRewrite}`);
     }
 
-    console.log('PolicyValidation: Validation completed', {
+    rollbar.info('Policy validation: Validation completed successfully', {
       platform,
-      forceRewrite,
-      status: validationResult.status,
-    });
-
-    rollbar.info('PolicyValidation: Validation completed', {
-      platform,
-      forceRewrite,
       status: validationResult.status,
     });
   } catch (error) {
-    console.error('PolicyValidation: Unexpected error', {
-      error: error instanceof Error ? error.message : String(error),
-      stack: error instanceof Error ? error.stack : undefined,
-    });
-
-    rollbar.error('PolicyValidation: Unexpected error in script', {
+    rollbar.error('Policy validation: Unexpected error in script', {
       error: error instanceof Error ? error.message : String(error),
       stack: error instanceof Error ? error.stack : undefined,
     });
@@ -232,12 +160,13 @@ async function validatePlatformPolicies() {
       `::set-output name=error::${error instanceof Error ? error.message : 'Unknown error'}`,
     );
 
+    console.error('FATAL ERROR: Policy validation script failed');
     process.exit(1);
   }
 }
 
 // Run the validation
 validatePlatformPolicies().catch((error) => {
-  console.error('PolicyValidation: Fatal error', error);
+  console.error('FATAL ERROR: Policy validation script crashed', error);
   process.exit(1);
 });

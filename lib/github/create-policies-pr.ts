@@ -36,12 +36,6 @@ export class GitHubPRCreator {
    */
   async createPolicyUpdatePR(data: PullRequestData): Promise<PullRequestResult> {
     try {
-      console.log('GitHubPRCreator: Starting PR creation', {
-        branchName: data.branchName,
-        filesCount: data.files.length,
-        owner: this.owner,
-        repo: this.repo,
-      });
 
       // Step 1: Get the default branch SHA
       const { data: repo } = await this.octokit.rest.repos.get({
@@ -60,10 +54,6 @@ export class GitHubPRCreator {
       // Step 2: Handle branch creation/update
       const finalBranchName = await this.createOrUpdateBranch(data.branchName, baseBranchSha);
 
-      console.log('GitHubPRCreator: Created branch', {
-        branchName: finalBranchName,
-        baseSha: baseBranchSha.substring(0, 7),
-      });
 
       // Step 3: Create/update files in the new branch
       for (const file of data.files) {
@@ -80,10 +70,11 @@ export class GitHubPRCreator {
         base: repo.default_branch,
       });
 
-      console.log('GitHubPRCreator: Successfully created PR', {
+      rollbar.info('Policy validation: PR created successfully', {
         pullRequestNumber: pullRequest.number,
         pullRequestUrl: pullRequest.html_url,
         branchName: finalBranchName,
+        filesCount: data.files.length,
       });
 
       return {
@@ -92,11 +83,10 @@ export class GitHubPRCreator {
         pullRequestNumber: pullRequest.number,
       };
     } catch (error) {
-      rollbar.error('GitHubPRCreator: Error creating PR', {
+      rollbar.error('Policy validation: PR creation failed', {
         error: error instanceof Error ? error.message : String(error),
         branchName: data.branchName,
-        owner: this.owner,
-        repo: this.repo,
+        stack: error instanceof Error ? error.stack : undefined,
       });
 
       return {
@@ -119,20 +109,17 @@ export class GitHubPRCreator {
         sha: baseSha,
       });
 
-      console.log('GitHubPRCreator: Created new branch', { branchName });
       return branchName;
     } catch (error: any) {
       if (error.status === 422 && error.message?.includes('already exists')) {
-        console.log('GitHubPRCreator: Branch already exists, handling conflict', { branchName });
 
         // Check if there's an existing open PR for this branch
         const existingPR = await this.findExistingPR(branchName);
 
         if (existingPR) {
-          console.log('GitHubPRCreator: Found existing PR, closing it', {
+          rollbar.info('Policy validation: Closing existing PR for branch update', {
             branchName,
             prNumber: existingPR.number,
-            prUrl: existingPR.html_url,
           });
 
           // Close the existing PR
@@ -159,11 +146,10 @@ export class GitHubPRCreator {
             repo: this.repo,
             ref: `heads/${branchName}`,
           });
-          console.log('GitHubPRCreator: Deleted existing branch', { branchName });
         } catch (deleteError) {
-          console.warn('GitHubPRCreator: Could not delete existing branch', {
+          rollbar.warning('Policy validation: Could not delete existing branch', {
             branchName,
-            error: deleteError,
+            error: deleteError instanceof Error ? deleteError.message : String(deleteError),
           });
         }
 
@@ -178,10 +164,6 @@ export class GitHubPRCreator {
           sha: baseSha,
         });
 
-        console.log('GitHubPRCreator: Created unique branch after conflict', {
-          originalBranch: branchName,
-          uniqueBranch: uniqueBranchName,
-        });
 
         return uniqueBranchName;
       } else {
@@ -207,7 +189,10 @@ export class GitHubPRCreator {
 
       return pulls.length > 0 ? { number: pulls[0].number, html_url: pulls[0].html_url } : null;
     } catch (error) {
-      console.warn('GitHubPRCreator: Error finding existing PR', { branchName, error });
+      rollbar.warning('Policy validation: Error finding existing PR', {
+        branchName,
+        error: error instanceof Error ? error.message : String(error),
+      });
       return null;
     }
   }
@@ -236,7 +221,6 @@ export class GitHubPRCreator {
         sha: Array.isArray(existingFile) ? undefined : existingFile.sha,
       });
 
-      console.log('GitHubPRCreator: Updated existing file', { path, branch });
     } catch (error: any) {
       if (error.status === 404) {
         // File doesn't exist, create it
@@ -249,7 +233,6 @@ export class GitHubPRCreator {
           branch,
         });
 
-        console.log('GitHubPRCreator: Created new file', { path, branch });
       } else {
         throw error;
       }
@@ -266,7 +249,7 @@ export class GitHubPRCreator {
     forceRewrite: boolean,
   ): Promise<{ url: string; number: number } | null> {
     if (!process.env.GITHUB_TOKEN) {
-      rollbar.warning('PolicyValidation: GitHub token not configured, skipping PR creation');
+      rollbar.warning('Policy validation: GitHub token not configured, skipping PR creation');
       return null;
     }
 
@@ -301,11 +284,6 @@ export class GitHubPRCreator {
       });
 
       if (prResult.success) {
-        console.log('PolicyValidation: Successfully created PR', {
-          platformId,
-          pullRequestUrl: prResult.pullRequestUrl,
-          pullRequestNumber: prResult.pullRequestNumber,
-        });
 
         return {
           url: prResult.pullRequestUrl!,
@@ -314,17 +292,15 @@ export class GitHubPRCreator {
       } else {
         // Enhanced error with more context
         const errorMessage = `PR creation failed: ${prResult.error || 'Unknown error'}`;
-        rollbar.error('PolicyValidation: PR creation failed with detailed context', {
+        rollbar.error('Policy validation: PR creation failed with context', {
           platformId,
           error: prResult.error,
           branchName,
-          prTitle,
-          filesCount: files.length,
         });
         throw new Error(errorMessage);
       }
     } catch (error) {
-      rollbar.error('PolicyValidation: Exception during PR creation', {
+      rollbar.error('Policy validation: Exception during PR creation', {
         platformId,
         error: error instanceof Error ? error.message : String(error),
         stack: error instanceof Error ? error.stack : undefined,

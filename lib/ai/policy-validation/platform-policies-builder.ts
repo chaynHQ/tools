@@ -22,19 +22,14 @@ export function buildPlatformPolicies(
     abstraction: PolicyAbstractionResult;
   }>,
 ): PlatformPolicies {
-  rollbar.info('buildPlatformPolicies: Starting platform policies construction', {
-    platformName,
-    documentCount: documentResults.length,
-  });
 
   const policyDocuments: PolicyDocument[] = [];
   const currentTimestamp = new Date().toISOString();
 
   for (const { document, abstraction } of documentResults) {
     if (!abstraction.success) {
-      rollbar.warning('buildPlatformPolicies: Skipping failed document abstraction', {
+      rollbar.warning('Policy validation: Skipping failed document abstraction', {
         documentId: document.id,
-        error: abstraction.error,
       });
       continue;
     }
@@ -52,11 +47,6 @@ export function buildPlatformPolicies(
 
     policyDocuments.push(policyDocument);
 
-    rollbar.info('buildPlatformPolicies: Added document to platform policies', {
-      documentId: document.id,
-      policiesCount: abstraction.policies.length,
-      hasAppealProcess: !!abstraction.appealProcess,
-    });
   }
 
   const platformPolicies: PlatformPolicies = {
@@ -64,7 +54,7 @@ export function buildPlatformPolicies(
     policyDocuments,
   };
 
-  rollbar.info('buildPlatformPolicies: Platform policies construction completed', {
+  rollbar.info('Policy validation: Platform policies construction completed', {
     platformName,
     totalDocuments: policyDocuments.length,
     totalPolicies: policyDocuments.reduce((sum, doc) => sum + doc.policies.length, 0),
@@ -95,10 +85,6 @@ export function comparePlatformPolicies(
     }>;
   };
 } {
-  rollbar.info('comparePlatformPolicies: Starting platform policies comparison', {
-    oldDocumentsCount: oldPolicies.policyDocuments.length,
-    newDocumentsCount: newPolicies.policyDocuments.length,
-  });
 
   const oldDocMap = new Map(oldPolicies.policyDocuments.map((doc) => [doc.id, doc]));
   const newDocMap = new Map(newPolicies.policyDocuments.map((doc) => [doc.id, doc]));
@@ -196,7 +182,6 @@ export function comparePlatformPolicies(
     },
   };
 
-  rollbar.info('comparePlatformPolicies: Platform policies comparison completed', result.summary);
 
   return result;
 }

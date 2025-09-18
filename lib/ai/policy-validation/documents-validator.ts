@@ -17,9 +17,8 @@ export async function validateDocuments(
     url: string;
   }>,
 ): Promise<DocumentValidationResult> {
-  rollbar.info('validateDocuments: Starting document validation', {
+  rollbar.info('Policy validation: Starting document validation', {
     platformId,
-    platformName,
     documentsCount: currentDocuments.length,
   });
 
@@ -37,7 +36,7 @@ export async function validateDocuments(
 
     const result: DocumentValidationResult = parseAIJson(response);
 
-    rollbar.info('validateDocuments: Document validation completed', {
+    rollbar.info('Policy validation: Document validation completed', {
       platformId,
       status: result.status,
       validDocuments: result.validDocuments.length,
@@ -47,9 +46,10 @@ export async function validateDocuments(
 
     return result;
   } catch (error) {
-    rollbar.error('validateDocuments: Error during document validation', {
+    rollbar.error('Policy validation: Document validation failed', {
       platformId,
-      error,
+      error: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
     });
     throw error;
   }

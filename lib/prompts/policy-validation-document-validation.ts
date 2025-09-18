@@ -38,11 +38,6 @@ export function generateDocumentValidationPrompt(
     url: string;
   }>,
 ): string {
-  rollbar.info('generateDocumentValidationPrompt: Creating document validation prompt', {
-    platformId,
-    platformName,
-    documentsCount: currentDocuments.length,
-  });
 
   return `You are an AI assistant specialized in validating legal and policy documents for content platforms. Your task is to verify the completeness and accuracy of our current document list for ${platformName} and identify any changes needed.
 
