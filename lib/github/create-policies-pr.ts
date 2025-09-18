@@ -141,16 +141,17 @@ export class GitHubPRCreator {
       });
 
       // Filter PRs that match our policy update pattern for this platform
-      const policyPRs = pulls.filter(pr => 
-        pr.head.ref.startsWith(`policy-update/${platformId}/`) ||
-        pr.title.includes(`Policy Update: `) // Fallback pattern matching
+      const policyPRs = pulls.filter(
+        (pr) =>
+          pr.head.ref.startsWith(`policy-update/${platformId}/`) ||
+          pr.title.includes(`Policy Update: `), // Fallback pattern matching
       );
 
       if (policyPRs.length > 0) {
         rollbar.info('Policy validation: Cleaning up existing policy PRs', {
           platformId,
           prCount: policyPRs.length,
-          prNumbers: policyPRs.map(pr => pr.number),
+          prNumbers: policyPRs.map((pr) => pr.number),
         });
 
         // Close existing PRs and delete their branches
@@ -195,64 +196,12 @@ export class GitHubPRCreator {
           }
         }
       }
-
-      // Also clean up any orphaned branches that match the pattern
-      await this.cleanupOrphanedBranches(platformId);
-
     } catch (error) {
       rollbar.warning('Policy validation: Error during cleanup', {
         platformId,
         error: error instanceof Error ? error.message : String(error),
       });
       // Don't throw - cleanup failure shouldn't prevent new PR creation
-    }
-  }
-
-  /**
-   * Cleans up orphaned branches that don't have associated PRs
-   */
-  private async cleanupOrphanedBranches(platformId: string): Promise<void> {
-    try {
-      // Get all branches
-      const { data: branches } = await this.octokit.rest.repos.listBranches({
-        owner: this.owner,
-        repo: this.repo,
-        per_page: 100,
-      });
-
-      // Find branches that match our policy update pattern for this platform
-      const policyBranches = branches.filter(branch => 
-        branch.name.startsWith(`policy-update/${platformId}/`)
-      );
-
-      if (policyBranches.length > 0) {
-        rollbar.info('Policy validation: Cleaning up orphaned policy branches', {
-          platformId,
-          branchCount: policyBranches.length,
-          branchNames: policyBranches.map(b => b.name),
-        });
-
-        // Delete orphaned branches
-        for (const branch of policyBranches) {
-          try {
-            await this.octokit.rest.git.deleteRef({
-              owner: this.owner,
-              repo: this.repo,
-              ref: `heads/${branch.name}`,
-            });
-          } catch (deleteError) {
-            rollbar.warning('Policy validation: Could not delete orphaned branch', {
-              branchName: branch.name,
-              error: deleteError instanceof Error ? deleteError.message : String(deleteError),
-            });
-          }
-        }
-      }
-    } catch (error) {
-      rollbar.warning('Policy validation: Error cleaning up orphaned branches', {
-        platformId,
-        error: error instanceof Error ? error.message : String(error),
-      });
     }
   }
 
