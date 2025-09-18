@@ -1,8 +1,7 @@
-import { callAnthropic } from '@/lib/ai/anthropic';
+import { orchestratePolicyValidation } from '@/lib/ai/policy-validation/orchestrator';
 import { PLATFORM_NAMES } from '@/lib/constants/platforms';
 import { GitHubPRCreator } from '@/lib/github/create-policies-pr';
 import { getPlatformPolicy } from '@/lib/platform-policies';
-import { orchestratePolicyValidation } from '@/lib/ai/policy-validation/orchestrator';
 import { handleApiError, serverInstance as rollbar } from '@/lib/rollbar';
 import { NextResponse } from 'next/server';
 
@@ -31,14 +30,16 @@ export async function POST(
     const validationResult = await orchestratePolicyValidation(
       platform,
       PLATFORM_NAMES[platform as keyof typeof PLATFORM_NAMES],
-      platformPolicy
+      platformPolicy,
     );
 
     // Create PR if validation passed and changes are valid
-    if (validationResult.status === 'completed_with_valid_changes' && 
-        validationResult.data.updatedPolicies &&
-        process.env.GITHUB_TOKEN) {
-      
+    if (
+      validationResult &&
+      // if (validationResult.status === 'completed_with_valid_changes' &&
+      validationResult.data.updatedPolicies &&
+      process.env.GITHUB_TOKEN
+    ) {
       try {
         const prCreator = new GitHubPRCreator();
         const pullRequest = await prCreator.createPolicyPullRequest(

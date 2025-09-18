@@ -2,8 +2,7 @@ name: Policy Validation Workflow
 
 on:
   push:
-    branches:
-      - 'validation-flow'
+    branches: [validation-flow, validation-flow-refactors]
   schedule:
     # Run every Monday at 9:00 AM UTC (weekly)
     - cron: '0 9 * * 1'
