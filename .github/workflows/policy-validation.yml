@@ -23,7 +23,7 @@ on:
         description: 'Force complete rewrite of policies (ignores existing policies)'
         required: false
         type: boolean
-        default: false
+        default: true
 
 jobs:
   validate-policies:
@@ -112,7 +112,7 @@ jobs:
             fi
             
             if [[ "$VALIDATION_STATUS" == *"completed_with_pr_created"* ]]; then
-              MESSAGE="🎉 Policy validation completed successfully for $PLATFORM_NAME$FORCE_SUFFIX! Quality check: PASSED. Pull Request created: $PR_URL (PR #$PR_NUMBER). Ready for review and merge."
+              MESSAGE="🎉 Policy validation completed successfully for $PLATFORM_NAME$FORCE_SUFFIX! Quality check: PASSED. Pull Request created: $PR_URL (PR #$PR_NUMBER)."
             elif [[ "$VALIDATION_STATUS" == *"completed_with_pr_error"* ]]; then
               MESSAGE="⚠️ Policy validation completed for $PLATFORM_NAME$FORCE_SUFFIX, but PR creation failed. Quality check: PASSED. Manual PR creation required. Reasoning: $REASONING"
             elif [[ "$VALIDATION_STATUS" == *"completed_with_valid_changes"* ]]; then
