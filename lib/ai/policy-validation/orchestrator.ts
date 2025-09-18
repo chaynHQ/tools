@@ -1,15 +1,17 @@
+import { DocumentValidationResult } from '@/lib/prompts/policy-validation-document-validation';
+import { PolicyAbstractionResult } from '@/lib/prompts/policy-validation-policy-abstraction';
 import { serverInstance as rollbar } from '@/lib/rollbar';
 import { parseAIJson } from '@/lib/utils';
 import { PlatformPolicies } from '@/types/policies';
 import {
-  generatePolicyValidationQualityCheckV2Prompt,
-  PolicyValidationQualityCheckV2Result,
-} from '../../prompts/policy-validation-quality-check-v2';
+  generatePolicyValidationQualityCheckPrompt,
+  PolicyValidationQualityCheckResult,
+} from '../../prompts/policy-validation-quality-check';
 import { callAnthropic } from '../anthropic';
-import { DocumentValidationResult, validateDocuments } from './documents-validator';
+import { validateDocuments } from './documents-validator';
 import { GaffaScrapingResult, scrapeMultipleDocuments } from './gaffa-scraper';
 import { buildPlatformPolicies, comparePlatformPolicies } from './platform-policies-builder';
-import { abstractPoliciesFromDocument, PolicyAbstractionResult } from './policy-abstractor';
+import { abstractPoliciesFromDocument } from './policy-abstractor';
 
 export interface PolicyValidationOrchestrationResult {
   status:
@@ -29,7 +31,7 @@ export interface PolicyValidationOrchestrationResult {
       result: PolicyAbstractionResult;
     }>;
     updatedPolicies?: PlatformPolicies;
-    qualityCheck?: PolicyValidationQualityCheckV2Result;
+    qualityCheck?: PolicyValidationQualityCheckResult;
     comparison?: ReturnType<typeof comparePlatformPolicies>;
     error?: string;
   };
@@ -239,7 +241,7 @@ export async function orchestratePolicyValidation(
       };
     }
 
-    const qualityCheckPrompt = generatePolicyValidationQualityCheckV2Prompt(
+    const qualityCheckPrompt = generatePolicyValidationQualityCheckPrompt(
       platformId,
       platformName,
       currentPolicies,
@@ -248,7 +250,7 @@ export async function orchestratePolicyValidation(
     );
 
     const qualityCheckResponse = await callAnthropic(qualityCheckPrompt);
-    const qualityCheck: PolicyValidationQualityCheckV2Result = parseAIJson(qualityCheckResponse);
+    const qualityCheck: PolicyValidationQualityCheckResult = parseAIJson(qualityCheckResponse);
 
     const result: PolicyValidationOrchestrationResult = {
       status:

@@ -1,6 +1,6 @@
+import { PolicyAbstractionResult } from '@/lib/prompts/policy-validation-policy-abstraction';
 import { serverInstance as rollbar } from '@/lib/rollbar';
 import { PlatformPolicies, PolicyDocument } from '@/types/policies';
-import { PolicyAbstractionResult } from './policy-abstractor';
 
 export interface DocumentProcessingResult {
   documentId: string;
@@ -20,7 +20,7 @@ export function buildPlatformPolicies(
       url: string;
     };
     abstraction: PolicyAbstractionResult;
-  }>
+  }>,
 ): PlatformPolicies {
   rollbar.info('buildPlatformPolicies: Starting platform policies construction', {
     platformName,
@@ -51,7 +51,7 @@ export function buildPlatformPolicies(
     };
 
     policyDocuments.push(policyDocument);
-    
+
     rollbar.info('buildPlatformPolicies: Added document to platform policies', {
       documentId: document.id,
       policiesCount: abstraction.policies.length,
@@ -75,7 +75,7 @@ export function buildPlatformPolicies(
 
 export function comparePlatformPolicies(
   oldPolicies: PlatformPolicies,
-  newPolicies: PlatformPolicies
+  newPolicies: PlatformPolicies,
 ): {
   hasChanges: boolean;
   summary: {
@@ -100,8 +100,8 @@ export function comparePlatformPolicies(
     newDocumentsCount: newPolicies.policyDocuments.length,
   });
 
-  const oldDocMap = new Map(oldPolicies.policyDocuments.map(doc => [doc.id, doc]));
-  const newDocMap = new Map(newPolicies.policyDocuments.map(doc => [doc.id, doc]));
+  const oldDocMap = new Map(oldPolicies.policyDocuments.map((doc) => [doc.id, doc]));
+  const newDocMap = new Map(newPolicies.policyDocuments.map((doc) => [doc.id, doc]));
 
   const addedDocuments: string[] = [];
   const removedDocuments: string[] = [];
@@ -139,8 +139,8 @@ export function comparePlatformPolicies(
       if (oldDoc.url !== newDoc.url) changes.push('url');
 
       // Check policies
-      const oldPolicyMap = new Map(oldDoc.policies.map(p => [p.id, p]));
-      const newPolicyMap = new Map(newDoc.policies.map(p => [p.id, p]));
+      const oldPolicyMap = new Map(oldDoc.policies.map((p) => [p.id, p]));
+      const newPolicyMap = new Map(newDoc.policies.map((p) => [p.id, p]));
 
       for (const [policyId] of newPolicyMap) {
         if (!oldPolicyMap.has(policyId)) {
@@ -176,9 +176,8 @@ export function comparePlatformPolicies(
     }
   }
 
-  const hasChanges = addedDocuments.length > 0 || 
-                    removedDocuments.length > 0 || 
-                    modifiedDocuments.length > 0;
+  const hasChanges =
+    addedDocuments.length > 0 || removedDocuments.length > 0 || modifiedDocuments.length > 0;
 
   const result = {
     hasChanges,
