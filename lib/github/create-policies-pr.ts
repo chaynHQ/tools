@@ -145,10 +145,8 @@ export class GitHubPRCreator {
       });
 
       // Filter PRs that match our policy update pattern for this platform
-      const policyPRs = pulls.filter(
-        (pr) =>
-          pr.head.ref.startsWith(`policy-update/${platformId}/`) ||
-          pr.title.includes(`Policy Update: `), // Fallback pattern matching
+      const policyPRs = pulls.filter((pr) =>
+        pr.head.ref.startsWith(`policy-update/${platformId}/`),
       );
 
       if (policyPRs.length > 0) {
