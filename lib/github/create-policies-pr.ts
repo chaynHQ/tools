@@ -113,6 +113,7 @@ export class GitHubPRCreator {
     }
 
     const timestampTime = new Date().toISOString().split('T')[1];
+    const ref = `refs/heads/${branchName}${includeUniqueStamp ? `-${timestampTime}` : ''}`;
 
     // Create the new branch
     try {
@@ -268,7 +269,8 @@ export class GitHubPRCreator {
     }
 
     try {
-      const timestamp = new Date().toISOString().split('T')[0];
+      const time = new Date().toISOString();
+      const timestamp = `${time.split('T')[0]} ${time.split('T')[1].split('.')[0]}`;
       const branchName = GitHubPRCreator.generateBranchName(platformId, timestamp);
       const prTitle = GitHubPRCreator.generatePRTitle(updatedPolicy.platform, forceRewrite);
       const prBody = GitHubPRCreator.generatePRBody(
