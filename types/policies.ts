@@ -1,6 +1,6 @@
 export type ContentType = 'intimate' | 'personal' | 'private' | 'other';
 export type ContentContext = 'hacked' | 'impersonation' | 'relationship' | 'unknown' | 'other';
-
+export type TimeUnit = 'minutes' | 'hours' | 'days' | 'weeks' | 'months' | 'years';
 export interface Policy {
   id: string;
   reference: string | null;
@@ -9,8 +9,8 @@ export interface Policy {
   contentTypes: ContentType[];
   contentContexts: ContentContext[];
   timeframes: {
-    response: { value: number; unit: 'hours' | 'days' | 'weeks'; description: string } | null;
-    removal: { value: number; unit: 'hours' | 'days' | 'weeks'; description: string } | null;
+    response?: { value: number | null; unit: TimeUnit | null; description: string } | null;
+    removal?: { value: number | null; unit: TimeUnit | null; description: string } | null;
   } | null;
   evidenceRequirements: {
     description: string; // e.g., "Government-issued Photo ID"
@@ -29,7 +29,7 @@ export interface PolicyDocument {
   accessTimestamp: string;
   policies: Policy[];
   appealProcess: {
-    url?: string; // URL to the appeals page/form.
+    url?: string | null; // URL to the appeals page/form.
     summary: string; // A summary of the appeal process.
     steps: string[]; // A list of steps to follow.
   } | null;
