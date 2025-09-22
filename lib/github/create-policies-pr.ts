@@ -123,8 +123,8 @@ export class GitHubPRCreator {
 
     // Create the new branch
     try {
-      const timestampTime = new Date().toISOString().split('T')[1];
-      const ref = `refs/heads/${branchName}${includeUniqueStamp ? `-${timestampTime}` : ''}`;
+      const timestamp = Date.now();
+      const ref = `refs/heads/${branchName}${includeUniqueStamp ? `-${timestamp}` : ''}`;
       await this.octokit.rest.git.createRef({
         owner: this.owner,
         repo: this.repo,
@@ -132,7 +132,7 @@ export class GitHubPRCreator {
         sha: baseSha,
       });
 
-      return branchName;
+      return ref;
     } catch (error: any) {
       // If branch creation fails for any reason, log and re-throw
       rollbar.error('Policy validation: Failed to create branch', {
@@ -277,8 +277,7 @@ export class GitHubPRCreator {
     }
 
     try {
-      const time = new Date().toISOString();
-      const timestamp = `${time.split('T')[0]} ${time.split('T')[1].split('.')[0]}`;
+      const timestamp = new Date().toISOString().split('T')[0];
       const branchName = GitHubPRCreator.generateBranchName(platformId, timestamp);
       const prTitle = GitHubPRCreator.generatePRTitle(updatedPolicy.platform, forceRewrite);
       const prBody = GitHubPRCreator.generatePRBody(
