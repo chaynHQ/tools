@@ -24,7 +24,7 @@ on:
         description: 'Force complete rewrite of policies (ignores existing policies)'
         required: false
         type: boolean
-        default: true
+        default: false
 
 jobs:
   validate-policies:
@@ -86,7 +86,7 @@ jobs:
       - name: Validate platform policies
         id: validate_platform
         run: |
-          FORCE_FLAG=""
+          FORCE_FLAG="true"
           if [ "${{ github.event.inputs.force_rewrite }}" = "true" ]; then
             FORCE_FLAG="--force-rewrite"
           fi
