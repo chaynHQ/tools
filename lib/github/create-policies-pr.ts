@@ -102,25 +102,33 @@ export class GitHubPRCreator {
    * Creates a new branch after cleaning up any existing policy update branches/PRs for this platform
    */
   private async createOrUpdateBranch(branchName: string, baseSha: string): Promise<string> {
-    // Extract platform from branch name (format: policy-update/{platformId}/{timestamp})
-    const platformMatch = branchName.match(/^policy-update\/([^\/]+)\//);
-    const platformId = platformMatch ? platformMatch[1] : null;
-
     let includeUniqueStamp = false;
-    if (platformId) {
-      // Clean up any existing policy update branches/PRs for this platform
-      includeUniqueStamp = await this.cleanupExistingPolicyBranches(platformId);
-    }
+    try {
+      // Extract platform from branch name (format: policy-update/{platformId}/{timestamp})
+      const platformMatch = branchName.match(/^policy-update\/([^\/]+)\//);
+      const platformId = platformMatch ? platformMatch[1] : null;
 
-    const timestampTime = new Date().toISOString().split('T')[1];
-    const ref = `refs/heads/${branchName}${includeUniqueStamp ? `-${timestampTime}` : ''}`;
+      if (platformId) {
+        // Clean up any existing policy update branches/PRs for this platform
+        includeUniqueStamp = await this.cleanupExistingPolicyBranches(platformId);
+      }
+    } catch (error: any) {
+      // If branch creation fails for any reason, log and re-throw
+      rollbar.error('Policy validation: Failed to create branch', {
+        branchName,
+        error: error instanceof Error ? error.message : String(error),
+      });
+      throw error;
+    }
 
     // Create the new branch
     try {
+      const timestampTime = new Date().toISOString().split('T')[1];
+      const ref = `refs/heads/${branchName}${includeUniqueStamp ? `-${timestampTime}` : ''}`;
       await this.octokit.rest.git.createRef({
         owner: this.owner,
         repo: this.repo,
-        ref: `refs/heads/${branchName}-1`,
+        ref: ref,
         sha: baseSha,
       });
 
