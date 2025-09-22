@@ -120,7 +120,7 @@ export class GitHubPRCreator {
       await this.octokit.rest.git.createRef({
         owner: this.owner,
         repo: this.repo,
-        ref: `refs/heads/${branchName}${includeUniqueStamp && `-${timestampTime}`}`,
+        ref: ref,
         sha: baseSha,
       });
 
