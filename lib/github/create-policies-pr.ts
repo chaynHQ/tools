@@ -106,17 +106,20 @@ export class GitHubPRCreator {
     const platformMatch = branchName.match(/^policy-update\/([^\/]+)\//);
     const platformId = platformMatch ? platformMatch[1] : null;
 
+    let includeUniqueStamp = false;
     if (platformId) {
       // Clean up any existing policy update branches/PRs for this platform
-      await this.cleanupExistingPolicyBranches(platformId);
+      includeUniqueStamp = await this.cleanupExistingPolicyBranches(platformId);
     }
+
+    const timestampTime = new Date().toISOString().split('T')[1];
 
     // Create the new branch
     try {
       await this.octokit.rest.git.createRef({
         owner: this.owner,
         repo: this.repo,
-        ref: `refs/heads/${branchName}`,
+        ref: `refs/heads/${branchName}${includeUniqueStamp && `-${timestampTime}`}`,
         sha: baseSha,
       });
 
@@ -134,7 +137,7 @@ export class GitHubPRCreator {
   /**
    * Cleans up existing policy update branches and PRs for a specific platform
    */
-  private async cleanupExistingPolicyBranches(platformId: string): Promise<void> {
+  private async cleanupExistingPolicyBranches(platformId: string): Promise<boolean> {
     try {
       // Find all open PRs that match the policy update pattern for this platform
       const { data: pulls } = await this.octokit.rest.pulls.list({
@@ -197,13 +200,16 @@ export class GitHubPRCreator {
             });
           }
         }
+        return true;
       }
+      return false;
     } catch (error) {
+      // Don't throw - cleanup failure shouldn't prevent new PR creation
       rollbar.warning('Policy validation: Error during cleanup', {
         platformId,
         error: error instanceof Error ? error.message : String(error),
       });
-      // Don't throw - cleanup failure shouldn't prevent new PR creation
+      return true;
     }
   }
 
