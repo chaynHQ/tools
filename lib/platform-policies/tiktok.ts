@@ -9,7 +9,7 @@ export const tiktokPolicy: PlatformPolicies = {
     "title": "TAKE IT DOWN Act",
     "summary": "US federal law that criminalizes the nonconsensual publication of intimate images, including AI-generated deepfakes, and requires covered platforms to implement notice-and-removal processes for such content.",
     "url": "https://www.congress.gov/bill/119th-congress/senate-bill/146/text",
-    "accessTimestamp": "2025-09-23T20:26:40.366Z",
+    "accessTimestamp": "2025-09-23T20:34:06.379Z",
     "policies": [
       {
         "id": "take-it-down-authentic-adults",
@@ -233,9 +233,9 @@ export const tiktokPolicy: PlatformPolicies = {
     "id": "tiktok-new-1758659200366-0",
     "reference": "TIKTOK-CG-2025",
     "title": "TikTok Community Guidelines",
-    "summary": "Comprehensive policy document outlining TikTok's content standards, including prohibitions on non-consensual intimate imagery, harassment, bullying, and sexually explicit content. Updated August 2025 with enhanced policies for AI content and live streaming.",
+    "summary": "Comprehensive policy document outlining TikTok's content standards, including prohibitions on non-consensual intimate imagery, harassment, bullying, and sexually explicit content. Updated September 2025 with enhanced policies for AI content and live streaming.",
     "url": "https://www.tiktok.com/community-guidelines/en",
-    "accessTimestamp": "2025-09-23T20:26:40.366Z",
+    "accessTimestamp": "2025-09-23T20:34:06.379Z",
     "policies": [
       {
         "id": "tt-cg-harassment-bullying",
@@ -401,14 +401,7 @@ export const tiktokPolicy: PlatformPolicies = {
         ]
       }
     ],
-    "appealProcess": {
-      "url": null,
-      "summary": "TikTok provides notice and appeals processes for enforcement actions, though specific details are not provided in this overview document",
-      "steps": [
-        "Users receive notice of enforcement actions",
-        "Appeals process is available for enforcement decisions"
-      ]
-    }
+    "appealProcess": null
   },
   {
     "id": "tiktok-new-1758659200366-1",
@@ -416,7 +409,7 @@ export const tiktokPolicy: PlatformPolicies = {
     "title": "TikTok Terms of Service",
     "summary": "Legal agreement between TikTok and users establishing platform rules, user obligations, and enforcement mechanisms. Incorporates Community Guidelines by reference and establishes TikTok's authority to remove violating content.",
     "url": "https://www.tiktok.com/legal/page/us/terms-of-service/en",
-    "accessTimestamp": "2025-09-23T20:26:40.366Z",
+    "accessTimestamp": "2025-09-23T20:34:06.379Z",
     "policies": [
       {
         "id": "tt-tos-harassment-intimidation",
@@ -718,16 +711,48 @@ export const tiktokPolicy: PlatformPolicies = {
           "Material that infringes copyrights or intellectual property rights",
           "Accounts of users who repeatedly infringe may be disabled or terminated"
         ]
+      },
+      {
+        "id": "tt-tos-counter-notice-process",
+        "reference": "Section 11",
+        "summary": "Provides counter-notice process for content removal disputes with potential restoration after ten business days",
+        "quote": "If a counter-notice is received by TikTok's Copyright Agent, we may send a copy of the counter-notice to the original complaining party informing that person that we may replace the removed content or cease disabling it. Unless the original complaining party files an action seeking a court order against the Content Provider, member or user, the removed content may be replaced, or access to it restored, in ten business days or more after receipt of the counter-notice, at TikTok's sole discretion.",
+        "contentTypes": [
+          "intimate",
+          "personal",
+          "private",
+          "other"
+        ],
+        "contentContexts": [
+          "hacked",
+          "impersonation",
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": {
+          "response": {
+            "value": 10,
+            "unit": "days",
+            "description": "Content may be restored in ten business days or more after receipt of counter-notice"
+          },
+          "removal": null
+        },
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Counter-notice received by TikTok's Copyright Agent",
+          "Original complaining party does not file court action within specified timeframe"
+        ]
       }
     ],
     "appealProcess": {
       "url": "https://www.tiktok.com/legal/report/feedback",
-      "summary": "Users can file complaints about content uploaded by other users and request removal of their own content through TikTok's feedback system. Counter-notices may be filed for copyright claims, with potential restoration of content after 10 business days unless legal action is taken.",
+      "summary": "Users can contact TikTok through their feedback system for complaints about content or account issues, with specific processes for counter-notices regarding copyright claims",
       "steps": [
-        "Contact TikTok at https://www.tiktok.com/legal/report/feedback to file a complaint about information or materials uploaded by other users",
-        "For copyright counter-notices, TikTok may send a copy to the original complaining party",
-        "Unless the original complaining party files legal action, removed content may be replaced or access restored in ten business days or more after receipt of counter-notice",
-        "California residents under 18 can request removal by contacting TikTok with 'California Removal Request' in the subject line and providing description and location information of the content"
+        "Contact TikTok at https://www.tiktok.com/legal/report/feedback",
+        "For counter-notices, submit to TikTok's Copyright Agent",
+        "TikTok may send copy of counter-notice to original complaining party",
+        "Content may be restored in ten business days unless court action is filed"
       ]
     }
   },
@@ -735,9 +760,9 @@ export const tiktokPolicy: PlatformPolicies = {
     "id": "tiktok-new-1758659200366-2",
     "reference": "TIKTOK-PP-2025",
     "title": "TikTok Privacy Policy",
-    "summary": "Policy governing collection, use, and protection of user personal information, including provisions for data sharing with law enforcement and content moderation processes. Last updated August 2024.",
-    "url": "https://www.tiktok.com/legal/page/us/privacy-policy/en",
-    "accessTimestamp": "2025-09-23T20:26:40.366Z",
+    "summary": "Policy governing collection, use, and protection of user personal information, including provisions for data sharing with law enforcement and content moderation processes. Last updated July 2025.",
+    "url": "https://www.tiktok.com/legal/page/row/privacy-policy/en",
+    "accessTimestamp": "2025-09-23T20:34:06.379Z",
     "policies": [
       {
         "id": "tiktok-pp-user-content-moderation",
@@ -793,7 +818,7 @@ export const tiktokPolicy: PlatformPolicies = {
       },
       {
         "id": "tiktok-pp-child-protection",
-        "reference": "Children and Teens",
+        "reference": "Information relating to children and teens",
         "summary": "Prohibits collection of personal information from children and requires immediate account termination and data deletion when discovered",
         "quote": "If we become aware that personal information has been collected on the Platform from a Child, we will delete this information and terminate the Child's account.",
         "contentTypes": [
@@ -829,7 +854,7 @@ export const tiktokPolicy: PlatformPolicies = {
       },
       {
         "id": "tiktok-pp-content-removal-under-18",
-        "reference": "Content Removal for Users Under 18",
+        "reference": "Supplemental Terms - Jurisdiction-Specific",
         "summary": "Allows users under 18 in California to request removal of their posted content",
         "quote": "Users of the Platform who are California residents and are under 18 years of age may request and obtain removal of User Content they posted by contacting us at: https://www.tiktok.com/legal/report/privacy.",
         "contentTypes": [
@@ -865,7 +890,7 @@ export const tiktokPolicy: PlatformPolicies = {
       },
       {
         "id": "tiktok-pp-connecticut-minor-removal",
-        "reference": "Content Removal for Users Under 18",
+        "reference": "Supplemental Terms - Jurisdiction-Specific",
         "summary": "Allows Connecticut users under 18 and parents of users under 16 to request account deletion or unpublishing",
         "quote": "Users of the Platform who are Connecticut residents and are under 18 years of age, and parents and guardians of users of the Platform who are Connecticut residents under 16 years of age, may request that we unpublish or delete their own account (for users aged 13 through 17) or their child's account (for parents and guardians with teen users under 16).",
         "contentTypes": [
@@ -890,9 +915,9 @@ export const tiktokPolicy: PlatformPolicies = {
     ],
     "appealProcess": {
       "url": "https://www.tiktok.com/legal/report/privacy",
-      "summary": "Users can appeal decisions about their privacy requests through instructions provided in decision communications",
+      "summary": "Users can appeal decisions by following instructions in communications received from TikTok",
       "steps": [
-        "Submit initial request through the privacy reporting system",
+        "Submit initial request through the privacy reporting form",
         "Receive decision communication from TikTok",
         "Follow appeal instructions provided in the decision communication"
       ]
@@ -902,9 +927,9 @@ export const tiktokPolicy: PlatformPolicies = {
     "id": "tiktok-new-1758659200366-3",
     "reference": "TIKTOK-IP-2025",
     "title": "TikTok Intellectual Property Policy",
-    "summary": "Comprehensive policy covering copyright infringement, DMCA takedown procedures, trademark violations, and repeat infringer policies. Includes specific processes for reporting and appealing IP violations.",
+    "summary": "Comprehensive policy covering copyright infringement, DMCA takedown procedures, trademark violations, and repeat infringer policies. Includes specific processes for reporting and appealing IP violations. Updated April 2025.",
     "url": "https://www.tiktok.com/legal/page/global/copyright-policy/en",
-    "accessTimestamp": "2025-09-23T20:26:40.366Z",
+    "accessTimestamp": "2025-09-23T20:34:06.379Z",
     "policies": [
       {
         "id": "tt-ip-copyright-infringement",
@@ -1017,15 +1042,14 @@ export const tiktokPolicy: PlatformPolicies = {
     ],
     "appealProcess": {
       "url": "https://www.tiktok.com/legal/report/Copyright",
-      "summary": "Users can submit appeals through in-app notifications for both copyright and trademark removals, with different processes for EU and non-EU users",
+      "summary": "Users can appeal copyright removals through in-app notifications or contact copyright owners directly. Appeals require contact information and supporting evidence. For trademark violations, users can also appeal through in-app notifications with required information and evidence.",
       "steps": [
         "Receive in-app notification about content removal",
-        "Access appeal option from the in-app notification",
+        "Submit appeal within the TikTok app accessed from the notification",
         "Provide all required information including contact details and supporting evidence",
-        "Submit appeal through TikTok app",
-        "TikTok may contact you for additional questions",
-        "Appeal forwarded to original reporter where appropriate",
-        "Content may be reinstated at TikTok's discretion based on evaluation"
+        "TikTok may contact you for additional questions about your appeal",
+        "Appeal is forwarded to original reporter where appropriate",
+        "Content may be reinstated at TikTok's discretion if no infringement found or no court action filed"
       ]
     }
   },
@@ -1035,7 +1059,7 @@ export const tiktokPolicy: PlatformPolicies = {
     "title": "TikTok Safety and Civility Guidelines",
     "summary": "Detailed policies on harassment, bullying, hate speech, and violent content. Includes specific provisions for protecting minors and public figures, with enhanced enforcement mechanisms.",
     "url": "https://www.tiktok.com/community-guidelines/en/safety-civility",
-    "accessTimestamp": "2025-09-23T20:26:40.366Z",
+    "accessTimestamp": "2025-09-23T20:34:06.379Z",
     "policies": [
       {
         "id": "tt-cg-ncii",
@@ -1236,14 +1260,7 @@ export const tiktokPolicy: PlatformPolicies = {
         ]
       }
     ],
-    "appealProcess": {
-      "url": null,
-      "summary": "TikTok provides notice and appeals processes for enforcement actions, with details referenced in their enforcement section",
-      "steps": [
-        "Users can appeal enforcement decisions",
-        "Appeals process details are provided in the enforcement section of community guidelines"
-      ]
-    }
+    "appealProcess": null
   },
   {
     "id": "tiktok-new-1758659200366-5",
@@ -1251,7 +1268,7 @@ export const tiktokPolicy: PlatformPolicies = {
     "title": "TikTok Sensitive and Mature Themes Policy",
     "summary": "Policy governing sexually suggestive content, adult themes, and age-restricted material. Includes content levels system and restrictions for teen accounts.",
     "url": "https://www.tiktok.com/community-guidelines/en/sensitive-mature-themes",
-    "accessTimestamp": "2025-09-23T20:26:40.366Z",
+    "accessTimestamp": "2025-09-23T20:34:06.379Z",
     "policies": [
       {
         "id": "tt-cg-nudity-sexual-activity",
@@ -1367,12 +1384,292 @@ export const tiktokPolicy: PlatformPolicies = {
           "Content shows young people in clothing that reveals cleavage",
           "Content depicts young people in clothing that outlines intimate body parts"
         ]
+      },
+      {
+        "id": "tt-cg-adult-explicit-language-products",
+        "reference": "Body Exposure and Sexualized Behaviors - NOT ALLOWED / FYF INELIGIBLE & AGE-RESTRICTED",
+        "summary": "Prohibits or age-restricts adults using sexually explicit language or showing sex products in some regions",
+        "quote": "In some regions, adults using sexually explicit language or showing or promoting sex products",
+        "contentTypes": [
+          "other"
+        ],
+        "contentContexts": [
+          "hacked",
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Content shows adults using sexually explicit language in certain regions",
+          "Content depicts adults showing or promoting sex products in certain regions"
+        ]
+      }
+    ],
+    "appealProcess": null
+  },
+  {
+    "id": "tiktok-new-1758659646379-0",
+    "reference": "TIKTOK-LAW-2025",
+    "title": "TikTok Law Enforcement Guidelines",
+    "summary": "Guidelines for law enforcement officials seeking user data from TikTok, including requirements for valid legal requests, emergency disclosure procedures, and data retention policies. Updated April 2025.",
+    "url": "https://www.tiktok.com/legal/page/global/law-enforcement/en",
+    "accessTimestamp": "2025-09-23T20:34:06.379Z",
+    "policies": [
+      {
+        "id": "tt-law-emergency-disclosure",
+        "reference": "Section 6",
+        "summary": "Provides user data in emergency situations involving imminent harm or risk of death or serious physical injury to prevent that harm",
+        "quote": "if as part of an emergency request we receive information that is sufficient in our assessment to establish a good faith belief that there is an emergency involving imminent harm or the risk of death or serious physical injury to a person, we may provide user data necessary to prevent that harm, as permitted by applicable law.",
+        "contentTypes": [
+          "intimate",
+          "personal",
+          "private",
+          "other"
+        ],
+        "contentContexts": [
+          "hacked",
+          "impersonation",
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [
+          {
+            "description": "Request must be submitted by sworn law enforcement official from official law enforcement email domain",
+            "example": "Official law enforcement email address and badge/identification number",
+            "reason": "To verify legitimacy of emergency request and requesting authority"
+          },
+          {
+            "description": "Information sufficient to establish good faith belief of emergency involving imminent harm or risk of death or serious physical injury",
+            "example": "Details of the emergency situation and imminent threat",
+            "reason": "To assess whether emergency disclosure criteria are met"
+          }
+        ],
+        "removalCriteria": [
+          "Emergency involving imminent harm or risk of death or serious physical injury to a person",
+          "Good faith belief that disclosure is necessary to prevent that harm",
+          "Request made by sworn law enforcement official"
+        ]
+      },
+      {
+        "id": "tt-law-content-data-disclosure",
+        "reference": "Section 2",
+        "summary": "Requires domestic court/judicial order, warrant or equivalent for disclosure of content data including video content, comments, and direct message content",
+        "quote": "Content data: Video content, Comments, Direct message content... If the request does not meet the applicable legal requirements for the requested data (as listed in Section 3 below), the data will not be disclosed. This is in particular the case for requests relating to content data (which generally require a domestic court / judicial order, warrant or equivalent).",
+        "contentTypes": [
+          "intimate",
+          "personal",
+          "private",
+          "other"
+        ],
+        "contentContexts": [
+          "hacked",
+          "impersonation",
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [
+          {
+            "description": "Domestic court/judicial order, warrant or equivalent legal process",
+            "example": "Court order, warrant, or equivalent judicial authorization",
+            "reason": "Legal requirement for disclosure of content data including private messages and video content"
+          },
+          {
+            "description": "Request must specify legal process authorizing law enforcement to request and collect information",
+            "example": "Citation to relevant article or section of Act/Statute/Code",
+            "reason": "To verify legal authority for the request"
+          },
+          {
+            "description": "Clear specification of scope of data requested with date ranges",
+            "example": "Specific content types and time periods requested",
+            "reason": "To prevent overly broad requests and ensure proportionality"
+          }
+        ],
+        "removalCriteria": [
+          "Valid domestic court/judicial order, warrant or equivalent",
+          "Request meets applicable legal requirements",
+          "Request is not overly broad and includes specific data scope and date ranges"
+        ]
+      },
+      {
+        "id": "tt-law-preservation-request",
+        "reference": "Section 5",
+        "summary": "Preserves user data for 90 days upon formal law enforcement request to prevent deletion during investigation",
+        "quote": "TikTok will honor formal requests to preserve user data for 90 days only if it fulfils the criteria above... TikTok will preserve information for an initial 90 day period (and may extend for an additional 90-day period upon receipt of a formal request to extend the preservation).",
+        "contentTypes": [
+          "intimate",
+          "personal",
+          "private",
+          "other"
+        ],
+        "contentContexts": [
+          "hacked",
+          "impersonation",
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": {
+          "response": null,
+          "removal": {
+            "value": 90,
+            "unit": "days",
+            "description": "Initial preservation period of 90 days, extendable for additional 90 days"
+          }
+        },
+        "evidenceRequirements": [
+          {
+            "description": "Formal preservation request on law enforcement letterhead, signed",
+            "example": "Official law enforcement letterhead with authorized signature",
+            "reason": "To verify legitimacy of preservation request"
+          },
+          {
+            "description": "Clear identification of specific user data to be preserved by username, data type and date ranges",
+            "example": "TikTok username, specific data categories, and relevant time periods",
+            "reason": "To identify exactly what data needs to be preserved"
+          }
+        ],
+        "removalCriteria": [
+          "Formal request meets criteria in guidelines",
+          "Request clearly identifies specific user data to be preserved",
+          "Request is not overly broad or unspecific"
+        ]
+      }
+    ],
+    "appealProcess": null
+  },
+  {
+    "id": "tiktok-new-1758659646379-1",
+    "reference": "TIKTOK-PRIVACY-SEC-2025",
+    "title": "TikTok Privacy and Security Guidelines",
+    "summary": "Comprehensive policy covering personal information protection, high-risk and moderate-risk personal information definitions, and security measures to prevent unauthorized access and data breaches.",
+    "url": "https://www.tiktok.com/community-guidelines/en/privacy-security",
+    "accessTimestamp": "2025-09-23T20:34:06.379Z",
+    "policies": [
+      {
+        "id": "tt-privacy-personal-info-high-risk",
+        "reference": "Personal Information - High Risk",
+        "summary": "Prohibits content containing high-risk personal information that could lead to stalking, identity theft, fraud, or other harm",
+        "quote": "we don't allow content with personal information that could lead to stalking, identity theft, fraud, or other harm. This includes content that someone has posted themselves or that they consented to being shared by others.",
+        "contentTypes": [
+          "private",
+          "personal",
+          "other"
+        ],
+        "contentContexts": [
+          "hacked",
+          "impersonation",
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Content contains home address",
+          "Content contains account login information",
+          "Content contains sensitive payment information",
+          "Content contains identity numbers",
+          "Information could lead to stalking, identity theft, fraud, or other harm"
+        ]
+      },
+      {
+        "id": "tt-privacy-personal-info-moderate-risk",
+        "reference": "Personal Information - Moderate Risk",
+        "summary": "Prohibits moderate-risk personal information shared without consent when it puts someone at risk of psychological harm",
+        "quote": "We may also remove moderate risk personal information shared without consent if it puts someone at risk of psychological harm. We generally require additional context to remove these types of personal information.",
+        "contentTypes": [
+          "private",
+          "personal",
+          "intimate",
+          "other"
+        ],
+        "contentContexts": [
+          "hacked",
+          "impersonation",
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [
+          {
+            "description": "Additional context demonstrating psychological harm risk",
+            "example": "Evidence showing how the shared information causes emotional distress or reputational damage",
+            "reason": "Platform requires additional context to assess moderate risk personal information removal requests"
+          }
+        ],
+        "removalCriteria": [
+          "Information shared without consent",
+          "Information puts someone at risk of psychological harm",
+          "Content contains contact details or date of birth",
+          "Content contains medical information",
+          "Content contains image/audio likeness shared without consent",
+          "Content contains private communications on sensitive subjects disclosed by non-participants"
+        ]
+      },
+      {
+        "id": "tt-security-account-compromise",
+        "reference": "Platform Security - Account Access",
+        "summary": "Prohibits unauthorized access to accounts and sharing of login information that enables rule violations",
+        "quote": "Giving someone else your login information or letting them break TikTok's rules on your account",
+        "contentTypes": [
+          "private",
+          "personal",
+          "intimate",
+          "other"
+        ],
+        "contentContexts": [
+          "hacked",
+          "impersonation",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Login information was shared with unauthorized parties",
+          "Account was used by others to break platform rules",
+          "Unauthorized access to user account occurred"
+        ]
+      },
+      {
+        "id": "tt-security-phishing-data-theft",
+        "reference": "Platform Security - Data Theft",
+        "summary": "Prohibits attempts to steal personal information, hack accounts, or access data through deceptive means",
+        "quote": "Trying to steal personal information, hack accounts, or access data using tricks like phishing, smishing, or automated tools",
+        "contentTypes": [
+          "private",
+          "personal",
+          "other"
+        ],
+        "contentContexts": [
+          "hacked",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Content attempts to steal personal information",
+          "Content facilitates account hacking",
+          "Content uses phishing techniques",
+          "Content uses automated tools for unauthorized data access"
+        ]
       }
     ],
     "appealProcess": {
-      "url": null,
-      "summary": "The document references a general appeals process under Notice and Appeals section but does not provide specific details in this excerpt",
-      "steps": []
+      "url": "https://www.tiktok.com/legal/report/privacy?lang=en",
+      "summary": "Users can report privacy violations through TikTok's dedicated privacy reporting system",
+      "steps": [
+        "Access the privacy violation reporting form",
+        "Submit details about the privacy violation",
+        "Provide necessary context and evidence"
+      ]
     }
   }
 ],
