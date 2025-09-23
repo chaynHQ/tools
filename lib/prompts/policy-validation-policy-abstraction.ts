@@ -50,7 +50,7 @@ ${documentMarkdown}
 
 # 2. EXTRACTION TASK & GUIDELINES
 
-Your task is to process the source document and produce a JSON object containing all relevant policies and any appeal process found within.
+Your task is to process the source document and produce a JSON object containing all policies and any appeal process found within, relevant to image-based-based (IBA) or Gender Based Violence (GBV).
 
 ## Step 1: Identify Relevant Policies
 First, scan the entire document and identify all policy statements relevant to the following areas of abuse:
@@ -64,7 +64,7 @@ First, scan the entire document and identify all policy statements relevant to t
 -   Account security and hacking
 -   Associated content removal and appeal processes
 
-All unrelated policies (e.g. policies related to animal abuse) should not be included
+**IMPORTANT**: All unrelated policies (e.g. policies related to animal abuse) should not be included. Ensure every policy record is a policy statement and not instructions to the user related to a policy or how to report.
 
 ## Step 2: Extract and Structure Each Policy
 For each policy you identify, create a JSON object that strictly conforms to the \`Policy\` interface. You must follow these field-by-field instructions:
@@ -88,7 +88,7 @@ export interface Policy {
 -   **\`id\`**: A unique, machine-readable identifier (e.g., "platform-doc-policy").
 -   **\`reference\`**: The section number or heading from the document, if available.
 -   **\`quote\`**: The **exact, verbatim text** from the document that serves as the evidence for the policy.
--   **\`summary\`**: A critical field. It must be a strong, clear, and active statement (e.g., "Prohibits...") that is a factual brief summary of the quote used in takedown letters. MUST be equivalent/representative of the quote/policy.
+-   **\`summary\`**: A critical field. It must be a strong, clear, and active statement (e.g., "Prohibits...") that is a factual brief summary of the quote used in takedown letters. MUST be equivalent/representative of the quote/policy. MUST NOT use explicit language related to nudity and should instead summarise to remain trauma-informed.
 -   **\`contentTypes\` & \`contentContexts\`**: To populate these arrays, you MUST use the definitions and follow the mandatory process below. This is a critical step for accuracy.
     -   **Content Type Definitions**: ${JSON.stringify(contentTypes, null, 2)}
     -   **Content Context Definitions**: ${JSON.stringify(contentContexts, null, 2)}
@@ -97,15 +97,16 @@ export interface Policy {
         2.  **Be Comprehensive**: Include ALL applicable values in the arrays, not just the most obvious one.
         3.  **Prioritize Specificity**: Always use the most specific categories that fit. Include 'other' and/or 'unknown' where policies are applicable to all/most content types/contexts or do not match more specific types.
 -   **\`timeframes\`**: Extract timeframes **only if explicitly stated** in the document. Otherwise, the object must be \`null\`.
--   **\`evidenceRequirements\`**: Detail what a user must provide.
--   **\`removalCriteria\`**: List the specific conditions from the policy text that trigger removal.
+-   **\`evidenceRequirements\`**: Detail what a user must provide to support a takedown request related to this policy, if provided. 
+-   **\`removalCriteria\`**: List the specific conditions from the policy text that trigger removal, if provided.
 
 ## Step 3: Extract Appeal Process
 If the document describes an appeals process, extract the URL, a summary of the process, and a list of the specific steps.
 
 ## Overall Guiding Principles
--   **Comprehensiveness**: Do not miss any relevant sections or policies.
--   **Trauma-Informed Evidence**: \`evidenceRequirements\` must be realistic and must NOT request sensitive data like government IDs unless the platform makes it absolutely mandatory.
+-   **Comprehensiveness**: Do not miss any RELEVANT policies.
+-   **Relevance**: Only include policies applicable to our image takedown letters related to IBA and GBV.
+-   **Trauma-Informed**: Ensure that the \`summary\`, \`evidenceRequirements\`, \`removalCriteria\`, \`appealProcess\` language is appropriate for our trauma-informed takedown letters.
 
 ---
 

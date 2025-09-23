@@ -479,7 +479,7 @@ export function LetterReview({
                 platform: platform?.name || 'unknown',
               });
             }}
-            href="https://bloom.chayn.co/courses/image-based-abuse-and-rebuilding-ourselves?utm_source=tools.chayn.co&utm_medium=referral&utm_campaign=tools.chayn.co-iba-referral"
+            href="https://bloom.chayn.co/courses/Image Based Abuse-and-rebuilding-ourselves?utm_source=tools.chayn.co&utm_medium=referral&utm_campaign=tools.chayn.co-iba-referral"
             target="_blank"
             className="underline underline-offset-2 hover:text-primary/80"
           >

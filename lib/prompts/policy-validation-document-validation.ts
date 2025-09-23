@@ -74,7 +74,7 @@ ${
     -   Privacy policies
     -   Harassment and bullying
     -   Impersonation
-    -   Copyright/DMCA
+    -   Copyright/DMCA 
     -   Appeal/counter-notice processes
 
 ---

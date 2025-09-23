@@ -41,7 +41,7 @@ export function generatePolicyValidationQualityCheckPrompt(
   return `You are a meticulous AI Policy Quality Assurance Analyst. Your role is to conduct a rigorous audit of a set of policies against the full source text from all platform documents.
 
 CRITICAL CONTEXT:
-The policies you validate are used to generate automated takedown letters for non-consensual content, reviewed be online platform content moderators. 100% accuracy is mandatory. Every policy must be a direct and verifiable representation of the source text.
+The policies you validate are used to generate automated takedown letters for non-consensual content related to Image Based Abuse (IBA) and Gender Based Violence (GBV), reviewed be online platform content moderators. 100% accuracy is mandatory. Every policy must be a direct and verifiable representation of the source text.
 
 # CONTENT CLASSIFICATION DEFINITIONS
 You MUST use these exact definitions as the ground truth when validating the accuracy of the \`contentTypes\` and \`contentContexts\` fields for each policy.
@@ -108,13 +108,14 @@ You must check for the following issues and classify them by severity.
 
 ### CRITICAL ISSUES (Result in "invalid" status)
 1.  **Hallucination**: The \`quote\` of a policy is not found in the source documents, or any other information is invented.
-2.  **Policy Accuracy**: The \`summary\` or \`removalCriteria\` misrepresents or is not equal in meaning to the original \`quote\`.
+2.  **Policy Accuracy**: The \`summary\` or misrepresents or is not equal in meaning to the original \`quote\`.
 3.  **Evidence Requirements**: The policy extracts an evidence requirement that asks for inappropriate sensitive data (e.g., government IDs, private photos for verification) that could create a barrier for vulnerable users.
 4.  **Structural Errors**: The JSON is malformed, or the data types do not match the schema (e.g., incorrect \`TimeUnit\` enum).
-5.  **Language & Tone**: The \`summary\` contains victim-blaming, non-neutral, or otherwise inappropriate language.
+5.  **Language & Tone**: The \`summary\`, \`evidenceRequirements\`, \`removalCriteria\`, \`appealProcess\` contains victim-blaming, non-neutral, or otherwise inappropriate language that is not trauma-informed.
+6.  **No unrelated policies & instructions:** ALL unrelated policies (e.g. policies related to animal abuse) should not be included. Ensure every policy record is a policy statement and not instructions to the user related to a policy or how to report.
 
 ### MAJOR ISSUES (Reduce quality score significantly)
-1.  **Completeness**: A relevant policy clearly stated in the source documents was missed and is not present in the updated policies.
+1.  **Completeness**: A relevant policy (related to IBA or GBV) clearly stated in the source documents was missed and is not present in the updated policies.
 2.  **Content Mapping**: Incorrect or incomplete assignment of \`contentTypes\` or \`contentContexts\`. Using the definitions provided, you must verify:
     -   **Completeness:** All applicable categories are included. For example, a policy on "non-consensual intimate imagery" must include relevant contexts like 'hacked' and 'relationship', not just the 'intimate' content type.
     -   **Specificity:** The most specific categories are used. 'other' or 'unknown' should be used if no more specific definition applies or where the policy is general and applies to most contexts.
