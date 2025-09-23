@@ -1,5 +1,5 @@
 import { PlatformPolicies } from '@/types/policies';
-import { serverInstance as rollbar } from '../rollbar';
+import { GaffaScrapingResult } from '../ai/policy-validation/gaffa-scraper';
 
 export interface PolicyValidationQualityCheckResult {
   validationStatus: 'valid' | 'invalid' | 'no_update_needed';
@@ -15,8 +15,10 @@ export interface PolicyValidationQualityCheckResult {
       | 'evidence_requirements'
       | 'content_mapping'
       | 'timeframe_accuracy'
-      | 'completeness';
+      | 'completeness'
+      | 'language_issue';
     description: string;
+    field?: string;
     affectedPolicies?: string[];
     recommendation?: string;
   }>;
@@ -33,75 +35,102 @@ export function generatePolicyValidationQualityCheckPrompt(
   platformName: string,
   originalPolicies: PlatformPolicies,
   updatedPolicies: PlatformPolicies,
-  changesSummary: string,
+  sourceDocuments: GaffaScrapingResult[], // Assuming GaffaScrapingResult contains the markdown
 ): string {
-
-  return `You are an AI assistant specialized in validating policy changes for automated image takedown systems. Your task is to perform a comprehensive A/B comparison of original vs updated platform policies to assess accuracy, completeness, and necessity of changes.
+  return `You are a meticulous AI Policy Quality Assurance Analyst. Your role is to conduct a rigorous audit of a set of policies against the full source text from all platform documents.
 
 CRITICAL CONTEXT:
-These policies are used to generate automated takedown letters for non-consensual content. Every policy, evidence requirement, and removal criterion directly impacts the effectiveness of takedown requests. Changes must be meaningful, accurate, and based on actual platform policy updates.
+The policies you validate are used to generate automated takedown letters for gender-based violence and non-consensual content. 100% accuracy is mandatory. Every policy must be a direct and verifiable representation of the source text.
 
-PLATFORM: ${platformName} (${platformId})
+# DATA SCHEMA
+The policy objects you are auditing MUST conform to this TypeScript schema. Your validation should enforce this structure.
 
-CHANGES SUMMARY:
-${changesSummary}
+\`\`\`typescript
+export type ContentType = 'intimate' | 'personal' | 'private' | 'other';
+export type ContentContext = 'hacked' | 'impersonation' | 'relationship' | 'unknown' | 'other';
+export type TimeUnit = 'minutes' | 'hours' | 'days' | 'weeks' | 'months' | 'years';
 
-ORIGINAL PLATFORM POLICIES:
-${JSON.stringify(originalPolicies, null, 2)}
+export interface Policy {
+  id: string;
+  reference: string | null;
+  summary: string;
+  quote: string;
+  contentTypes: ContentType[];
+  contentContexts: ContentContext[];
+  timeframes: {
+    response?: { value: number | null; unit: TimeUnit | null; description: string } | null;
+    removal?: { value: number | null; unit: TimeUnit | null; description: string } | null;
+  } | null;
+  evidenceRequirements: { description: string; example?: string; reason: string; }[];
+  removalCriteria: string[];
+}
+\`\`\`
 
-UPDATED PLATFORM POLICIES:
-${JSON.stringify(updatedPolicies, null, 2)}
+# AUDIT MATERIALS
 
-VALIDATION CRITERIA:
+1.  **PLATFORM:** ${platformName} (${platformId})
+2.  **SOURCE DOCUMENTS (MARKDOWN):**
+    ${JSON.stringify(sourceDocuments, null, 2)}
+3.  **UPDATED / NEW POLICIES (For validation):**
+    ${JSON.stringify(updatedPolicies, null, 2)}
+4.  **ORIGINAL POLICIES (For comparison, may be empty):**
+    ${JSON.stringify(originalPolicies, null, 2)}
 
-**CRITICAL ISSUES (Mark as invalid):**
-1. **Hallucinations**: Policies, requirements, or criteria not supported by actual platform documents
-2. **Policy Accuracy**: Misrepresentation of platform policies or incorrect policy summaries
-3. **Evidence Requirements**: Requesting inappropriate documentation (IDs, sensitive info) or inaccurate requirements
-4. **Structural Errors**: Malformed data, incorrect content type/context mappings, invalid timeframes
+---
 
-**MAJOR ISSUES (Reduce quality score):**
-1. **Completeness**: Missing relevant policies that should be included for comprehensive coverage
-2. **Content Mapping**: Incorrect assignment of content types or contexts to policies
-3. **Timeframe Accuracy**: Incorrect or unsupported response/removal timeframes
+# VALIDATION PROCESS
+${
+  originalPolicies
+    ? `
+## MODE: Change Validation
+Your task is to perform a comprehensive A/B comparison of the "ORIGINAL POLICIES" vs. the "UPDATED POLICIES", using the "SOURCE DOCUMENTS" as the ground truth. You must check for all issues listed in the #ISSUE CLASSIFICATION section.
+`
+    : `
+## MODE: Initial Validation
+You have been provided with a newly generated set of policies. The "ORIGINAL POLICIES" set is empty. Your task is to validate this new set against the "SOURCE DOCUMENTS". Your focus is on accuracy, completeness, and adherence to all quality standards.
+`
+}
 
-**MINOR ISSUES (Note but may not invalidate):**
-1. **Meaningless Rewording**: Cosmetic changes that don't improve policy effectiveness
-2. **Inconsistent Formatting**: Style inconsistencies that don't affect functionality
+---
 
-**VALIDATION PROCESS:**
-1. **Document-by-Document Analysis**: Compare each document's policies against the original
-2. **Policy Accuracy Check**: Verify policy summaries accurately reflect platform rules
-3. **Evidence Requirements Review**: Ensure requirements are appropriate and achievable
-4. **Completeness Assessment**: Check if all relevant policies are captured
-5. **Change Necessity Evaluation**: Determine if changes meaningfully improve takedown effectiveness
+# ISSUE CLASSIFICATION
+You must check for the following issues and classify them by severity.
 
-**QUALITY SCORING (1-10 scale):**
-- 9-10: Excellent - Accurate, comprehensive, meaningful improvements
-- 7-8: Good - Mostly accurate with minor issues
-- 5-6: Acceptable - Some issues but usable
-- 3-4: Poor - Significant issues requiring revision
-- 1-2: Unacceptable - Major inaccuracies or structural problems
+### CRITICAL ISSUES (Result in "invalid" status)
+1.  **Hallucination**: The \`quote\` of a policy is not found in the source documents, or any other information is invented.
+2.  **Policy Accuracy**: The \`summary\` or \`removalCriteria\` significantly misrepresents the meaning of the original \`quote\`.
+3.  **Evidence Requirements**: The policy extracts an evidence requirement that asks for inappropriate sensitive data (e.g., government IDs, private photos for verification) that could create a barrier for vulnerable users.
+4.  **Structural Errors**: The JSON is malformed, or the data types do not match the schema (e.g., incorrect \`TimeUnit\` enum).
+5.  **Language & Tone**: The \`summary\` contains victim-blaming, non-neutral, or otherwise inappropriate language.
 
-**CHANGE ASSESSMENT:**
-- **Meaningful Changes**: Updates that improve takedown request effectiveness
-- **Cosmetic Changes**: Rewording without functional impact
-- **Potential Issues**: Changes that may cause problems or inaccuracies
+### MAJOR ISSUES (Reduce quality score significantly)
+1.  **Completeness**: A relevant policy clearly stated in the source documents was missed and is not present in the updated policies.
+2.  **Content Mapping**: Grossly incorrect assignment of \`contentTypes\` or \`contentContexts\` (e.g., labeling a harassment policy as only 'intimate').
+3.  **Timeframe Accuracy**: Extracting a response or removal timeframe that is not explicitly stated in the source text.
 
-OUTPUT FORMAT:
-Respond with valid JSON only:
+### MINOR ISSUES (Note for improvement)
+1.  **Meaningless Rewording**: A policy was changed, but the new wording offers no functional improvement or clarity.
+2.  **Inconsistent Formatting**: Minor style inconsistencies that do not affect functionality.
 
+---
+
+# OUTPUT FORMAT
+
+CRITICAL: You MUST respond with a single, valid JSON object that strictly conforms to the following structure. Do not add, remove, or rename any fields.
+
+\`\`\`json
 {
   "validationStatus": "valid" | "invalid" | "no_update_needed",
-  "reasoning": "Comprehensive explanation of validation decision, including specific findings from document comparison and assessment of change necessity",
-  "overallQualityScore": 8,
+  "reasoning": "Comprehensive explanation of your validation decision, referencing specific findings and the source documents. Explain the counts in the changeAssessment.",
+  "overallQualityScore": 8.5,
   "issues": [
     {
-      "severity": "critical" | "major" | "minor",
-      "type": "hallucination" | "meaningless_rewording" | "structural_error" | "policy_accuracy" | "evidence_requirements" | "content_mapping" | "timeframe_accuracy" | "completeness",
-      "description": "Specific description of the issue found",
-      "affectedPolicies": ["policy-id-1", "policy-id-2"],
-      "recommendation": "How to fix this issue"
+      "severity": "critical",
+      "type": "hallucination",
+      "description": "Specific description of the issue found.",
+      "field": "quote",
+      "affectedPolicies": ["policy-id-1"],
+      "recommendation": "How to fix this issue."
     }
   ],
   "changeAssessment": {
@@ -111,13 +140,12 @@ Respond with valid JSON only:
     "recommendUpdate": true
   }
 }
+\`\`\`
 
 **DECISION LOGIC:**
-- Return "invalid" if critical issues are found
-- Return "no_update_needed" if changes are purely cosmetic or unnecessary
-- Return "valid" if changes are meaningful and accurate
-
-Focus on ensuring the updated policies will generate more effective takedown requests while maintaining accuracy to actual platform policies.
+-   Return **"invalid"** if any CRITICAL issues are found.
+-   (Change Validation Mode Only) Return **"no_update_needed"** if changes are purely cosmetic or introduce errors.
+-   Return **"valid"** if the policies are accurate, meaningful, and fully justified by the source document.
 
 RESPOND WITH VALID JSON ONLY:`;
 }

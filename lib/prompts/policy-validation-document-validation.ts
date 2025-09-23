@@ -1,5 +1,3 @@
-import { serverInstance as rollbar } from '../rollbar';
-
 export interface DocumentValidationResult {
   status: 'valid' | 'needs_update';
   validDocuments: Array<{
@@ -38,52 +36,70 @@ export function generateDocumentValidationPrompt(
     url: string;
   }>,
 ): string {
-
-  return `You are an AI assistant specialized in validating legal and policy documents for content platforms. Your task is to verify the completeness and accuracy of our current document list for ${platformName} and identify any changes needed.
+  return `You are an expert AI assistant specialized in auditing the legal and policy documents for major online platforms. Your task is to validate our existing list of documents for ${platformName}, discover any new or updated policies, and produce a structured report that strictly adheres to the required JSON schema.
 
 CRITICAL CONTEXT:
-These documents are used to generate automated image takedown requests for non-consensual content, harassment, privacy violations, and impersonation. The document list must be comprehensive and current but MUST be official policy documents and not be help pages that redirect to other pages.
+The documents you identify are the sole source of truth for an automated system generating image takedown requests. It is essential that the list is comprehensive, current, and contains only canonical policy documents (e.g., Terms of Service, Community Guidelines), not secondary help articles.
 
 PLATFORM: ${platformName} (${platformId})
 
-CURRENT DOCUMENTS TO VALIDATE:
-${JSON.stringify(currentDocuments, null, 2)}
+# TASK MODE
+${
+  currentDocuments && currentDocuments.length > 0
+    ? `
+**MODE: Revalidation**
+- **CURRENT DOCUMENTS TO VALIDATE:** ${JSON.stringify(currentDocuments, null, 2)}
+- **INSTRUCTIONS:** Validate the provided list of documents. Check for dead links, redirects, and content changes. For each document, you must determine its status. You will also search for any new documents that may have been added since the last check.
+`
+    : `
+**MODE: Initial Discovery**
+- **CURRENT DOCUMENTS TO VALIDATE:** None.
+- **INSTRUCTIONS:** This is a new platform. Your task is to perform a comprehensive search to discover the initial set of all relevant policy documents.
+`
+}
 
-VALIDATION REQUIREMENTS:
+---
 
-1. **Document Accessibility**: Verify each URL is accessible and content matches expectations
-2. **Document Discovery**: Search for additional relevant policy documents on the platform
-3. **URL Updates**: Check if any documents have moved to new locations
-4. **Content Relevance**: Focus on documents covering:
-   - Non-consensual intimate imagery (NCII)
-   - Content removal policies
-   - Community guidelines/standards
-   - Terms of service
-   - Privacy policies
-   - Harassment and bullying policies
-   - Impersonation policies
-   - Copyright/DMCA policies
-   - Appeal processes
+# VALIDATION REQUIREMENTS
 
-5. **Document Status**: Identify documents that are:
-   - Still valid and accessible
-   - Moved to new URLs
-   - Updated with new titles/content
-   - No longer available/relevant
-   - Newly created since last check
+1.  **Document Accessibility & Verification**: For each URL in "CURRENT DOCUMENTS", verify it is accessible and the content appears to be the correct policy document.
+2.  **Determine Document Status**: For each document from the original list, you MUST classify its status as one of the following: \`valid\` (unchanged), \`updated\` (content or title has changed), \`moved\` (URL has changed), or \`invalid\` (no longer accessible or relevant). This is a mandatory field for each document in the \`validDocuments\` array.
+3.  **Comprehensive Document Discovery**: Perform a thorough search to find any additional relevant policy documents not on our current list.
+4.  **Intelligent Navigation**: You may start your search in help or safety centers, but you MUST follow links to find the primary, official policy documents. Do not treat a help article that links to the Terms of Service as a policy document itself.
+5.  **Target Documents**: Focus on documents covering:
+    -   Non-consensual intimate imagery (NCII)
+    -   Content removal policies & enforcement philosophy
+    -   Community guidelines/standards/rules
+    -   Terms of service/use
+    -   Privacy policies
+    -   Harassment and bullying
+    -   Impersonation
+    -   Copyright/DMCA
+    -   Appeal/counter-notice processes
 
-SEARCH STRATEGY:
-- Search for "${platformName} community guidelines"
-- Search for "${platformName} terms of service"
-- Search for "${platformName} content policy"
-- Search for "${platformName} NCII policy"
-- Search for "${platformName} harassment policy"
-- Search for "${platformName} privacy policy"
-- Search for "${platformName} help center content removal"
+---
 
-OUTPUT FORMAT:
-Respond with valid JSON only:
+# SEARCH STRATEGY
 
+Use a multi-pronged search approach. Start with the provided terms and then intelligently expand your search using common industry synonyms.
+
+-   **Primary Searches:**
+    -   "${platformName} community guidelines"
+    -   "${platformName} terms of service"
+    -   "${platformName} privacy policy"
+-   **Synonym-Based Searches (if initial results are sparse):**
+    -   Search for variations like "community standards", "community rules", "acceptable use policy".
+    -   Search for specific abuse types like "${platformName} non-consensual imagery policy", "${platformName} harassment policy".
+-   **Follow-up Searches:**
+    -   Explore the legal, policy, or safety sections linked in the footer of the platform's main website.
+
+---
+
+# OUTPUT FORMAT
+
+CRITICAL: You MUST respond with a single, valid JSON object that strictly conforms to the following structure. Do not add, remove, or rename any fields.
+
+\`\`\`json
 {
   "status": "valid" | "needs_update",
   "validDocuments": [
@@ -116,6 +132,7 @@ Respond with valid JSON only:
   ],
   "reasoning": "Detailed explanation of validation findings and recommended changes"
 }
+\`\`\`
 
 RESPOND WITH VALID JSON ONLY:`;
 }

@@ -41,31 +41,38 @@ export function generateLetterPrompt(request: LetterRequest) {
     platformPolicyContext = formatPolicyDataForAI(platformPolicies, documentsWithPolicies);
   }
 
-  const prompt = `Act as an expert AI assistant specializing in platform policy enforcement and content takedown requests. Your objective is to generate a clear, factual, and compelling letter to a platform's (${request.platformInfo.platformName || request.platformInfo.customName}) support team, arguing for the removal of specific content based *exclusively* on the inputs provided.
+  const prompt = `You are an expert AI assistant specializing in platform policy enforcement and strategic communication for content takedown requests. Your dual task is to first, analyze a user's situation to formulate the most effective takedown strategy, and second, to immediately execute that strategy by writing a clear, factual, and compelling takedown letter.
 
-# CRITICAL RULES
+# INTERNAL THOUGHT PROCESS & EXECUTION PLAN
 
-1.  **Single Source of Truth:** You MUST base the entire response *only* on the variables provided in the \`# INPUTS\` section. Do not invent, assume, or infer any information not explicitly stated there.
-2.  **Professional Tone:** The tone must always be professional, direct, and respectful. Avoid demanding, aggressive, threatening, or overly legalistic language that impersonates a legal representative.
-3.  **Content Location:** Every letter MUST include this exact statement: \`Content location: [Content Location]\` after the opening paragraph and alongside timeline dates. Do NOT use an existing placeholder like \`[URL]\` that may have been provided for extra evidence.
-4.  **Final Output Only:** Generate only the final, ready-to-send letter. The body MUST NOT contain any of your own notes, comments, or newly generated placeholder descriptions (e.g., \`[Insert evidence description here]\`).
+Before writing, you MUST follow these internal steps:
+1.  **Analyze the Case**: Thoroughly review the \`userInputs\` to understand the content, context, and harm.
+2.  **Formulate Strategy**: Scan the \`platformPolicyContext\`. Select up to 4 of most direct and powerful policies that apply. For each selected policy, formulate a concise reason that explicitly connects the policy to a specific detail in the user's report.
+3.  **Construct the Letter**: Use your formulated strategy and all guidelines below to write the letter, ensuring every rule is followed.
 
 ---
 
-# CONTENT GENERATION GUIDELINES
+# GUIDELINES & CRITICAL RULES
+
+You must adhere to all of the following rules when generating the letter.
+
+### **Core Directives**
+1.  **Single Source of Truth:** You MUST base the entire response *only* on the variables provided in the \`# INPUTS\` section. Do not invent, assume, or infer any information not explicitly stated there.
+2.  **Professional Tone:** The tone must always be professional, direct, and respectful. Avoid demanding, aggressive, threatening, or overly legalistic language that impersonates a legal representative.
+3.  **Content Location:** The letter MUST include this exact statement: \`Content location: [Content Location]\` after the opening paragraph.
+4.  **Optimised For Content Moderators:** The letter should be optimised for content moderators to effectively and efficiently process this request.
+5.  **Final Output Only:** Generate only the final, ready-to-send letter. The body MUST NOT contain any of your own notes or comments.
 
 ### **Style & Language**
 * **Language:** All text must be in British English (en-GB).
-* **Sensitivity:** Adopt a trauma-informed and respectful approach. Be sensitive to the users experience and ensure feminist principles are applied including avoiding accusatory or derogatory language related to the user.
-* **Banned Terms:** The following terms are banned due to not being aligned with trauma-informed and/or feminist principles. Use the suggested replacements for these examples.
-    ${QUALITY_CHECK_CRITERIA.MAJOR.SENSITIVE_TERMS.map(({ term, replacement }) => `- Do not use "${term}". Instead, use "${replacement}".`).join('\n')}
+* **Sensitivity:** Adopt a trauma-informed and respectful approach. Be sensitive to the user's experience and ensure feminist principles are applied, including avoiding accusatory or derogatory language related to the user.
+* **Banned Terms:** The following terms are banned due to not being aligned with trauma-informed and/or feminist principles. The presence of any of these is a critical failure.
+    ${QUALITY_CHECK_CRITERIA.MAJOR.SENSITIVE_TERMS.map(
+      ({ term, replacement }) => `- Do not use "${term}". Instead, use "${replacement}".`,
+    ).join('\n')}
 
 ### **Information & Evidence**
-* **Policy Citations:** Cite policies in a list, using their exact summary and document title.
-    * **Format:** \`Document Title: Policy Summary\`
-    * **Example:** If the policy summary is "Prohibits sharing non-consensual intimate images" from the "Community Standards", cite it as \`Community Standards: Prohibits sharing non-consensual intimate images\`.
-    * **Constraint:** DO NOT use internal codes, references, or abbreviations.
-* **Placeholders:** Maintain the existing placeholders from the \`# INPUTS \` data where the data supports the letter. Placeholders (e.g.\`[URL]\`, \`[Phone]\`) MUST be outputted with the exact same name and format. DO NOT create new placeholders.
+* **Placeholders:** Maintain the existing placeholders from the \`# INPUTS\` data where the data supports the letter. Placeholders (e.g., \`[URL]\`, \`[Phone]\`) MUST be outputted with the exact same name and format. DO NOT create new placeholders.
 * **Confidentiality:** DO NOT mention or request identity verification, government IDs, proof of residence, or similar official documentation.
 
 ### **Impact Statements**
@@ -83,14 +90,18 @@ export function generateLetterPrompt(request: LetterRequest) {
 
 Construct the letter following this exact structure. Omit any section if the corresponding input is not provided.
 
-1.  **Introduction:** State the letter's purpose and briefly summarise the core policy violations.
-2a.  **Content Location:** Every letter MUST include this exact statement: \`Content location: [Content Location]\`. Do NOT use an existing placeholder like \`[URL]\` that may have been provided for extra evidence.
-2b.  **Content Timeline:**  If \`Upload Date\` and/or \`Creation Date\` are provided in the \`# INPUTS\` section, clearly state these e.g. \`Date uploaded: \`. Format the value provided by the user e.g. "10 March last year" to "10/03/24". Todays date is ${new Date()}.
-3.  **Policy Violations:** List the specific policies violated, using the citation format defined in the guidelines.
-4.  **Supporting Evidence:** Reference any links or evidence provided by the user. Mention previous reporting processes if available in \`# INPUTS\` \`Standard Process Details\` and/or \`Escalated Process Details\`.
-6.  **Impact statement:** Include the privacy-preserving impact summary (see guidelines above). Use this statement to demonstrate the importance of the takedown request.
-5.  **Requested Action:** Clearly state the requested actions (e.g., "I request the immediate removal of this content," "I ask for a review of this user's account status"). If platform timeframes are provided in the \`# INPUTS\`, include a reference to them in this paragraph, to set response expectations.
-7.  **Closing:** End with \`Sincerely,\` followed by a new line. Avoid repeating
+1.  **Introduction:** State the letter's purpose, briefly summarizing the core of the case based on your internal analysis.
+2.  **Content Location & Timeline:** State the \`Content location: [Content Location]\`. If \`Upload Date\` and/or \`Creation Date\` are provided, state them clearly. Format user-provided values like "10 March last year" to a specific date format like "10/03/2024". Today's date is ${new Date().toLocaleDateString(
+    'en-GB',
+  )}.
+3.  **Policy Violations:** Create a **bulleted "Narrative List"**.
+    * **Do not use policy \`reference\` or \`id\` values:** - Values are internal only and are not relevant to content moderators.
+    * **Format for each list item:** \`- **Violation of [Policy Document Title]:** [Policy Summary] – [Your concise reasoning connecting the policy to the case].\`
+    * **Example:** \`- **Violation of Community Guidelines:** Prohibits non-consensual intimate imagery – this policy is violated as the content is an intimate photo shared without consent.\`
+4.  **Supporting Evidence:** Reference any links or evidence provided by the user. Mention previous reporting processes if available in \`Standard Process Details\` and/or \`Escalated Process Details\`.
+5.  **Impact Statement:** Include the privacy-preserving impact summary.
+6.  **Requested Action:** Clearly state the requested actions (e.g., "I request the immediate removal of this content and a review of the user's account"). If platform timeframes are provided, reference them to set expectations.
+7.  **Closing:** End with \`Sincerely,\` followed by a new line.
 
 ---
 
@@ -99,7 +110,7 @@ Construct the letter following this exact structure. Omit any section if the cor
 You MUST respond with a single, valid JSON object. The response must be parseable by \`JSON.parse()\`.
 
 * The JSON object must contain exactly two keys: \`subject\` and \`body\`.
-* The \`body\` value must be a single string with all new lines represented by \`\n\`.
+* The \`body\` value must be a single string with all new lines represented by \`\\n\`.
 
 **Example:**
 \`\`\`json
@@ -114,6 +125,5 @@ ${formatInputsForAI(request)}
 
 ${platformPolicyContext}
 `;
-  console.log(prompt);
   return prompt;
 }
