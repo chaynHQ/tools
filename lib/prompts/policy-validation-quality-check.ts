@@ -35,23 +35,8 @@ export function generatePolicyValidationQualityCheckPrompt(
   platformId: string,
   platformName: string,
   originalPolicies: PlatformPolicies,
-  updatedPolicies: PlatformPolicies,
-  sourceDocuments: GaffaScrapingResult[], // Assuming GaffaScrapingResult contains the markdown
-): string {
-  return `You are a meticulous AI Policy Quality Assurance Analyst. Your role is to conduct a rigorous audit of a set of policies against the full source text from all platform documents.
 
-CRITICAL CONTEXT:
-The policies you validate are used to generate automated takedown letters for gender-based violence and non-consensual content. 100% accuracy is mandatory. Every policy must be a direct and verifiable representation of the source text.
-
-# CONTENT CLASSIFICATION DEFINITIONS
-
-The following definitions are used for policy categorization and MUST be validated for accuracy:
-
-## Content Types (What type of content was shared)
 ${JSON.stringify(contentTypes, null, 2)}
-
-## Content Contexts (The context in which the content was shared)
-${JSON.stringify(contentContexts, null, 2)}
 
 # DATA SCHEMA
 The policy objects you are auditing MUST conform to this TypeScript schema. Your validation should enforce this structure.

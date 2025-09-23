@@ -49,18 +49,7 @@ export type ContentContext = 'hacked' | 'impersonation' | 'relationship' | 'unkn
 export type TimeUnit = 'minutes' | 'hours' | 'days' | 'weeks' | 'months' | 'years';
 
 export interface Policy {
-  id: string; // e.g., "tt-cg-ncii"
-  reference: string | null; // e.g., "Section 5a"
-  summary: string;
-  quote: string;
-  contentTypes: ContentType[];
-  contentContexts: ContentContext[];
-  timeframes: {
-    response?: { value: number | null; unit: TimeUnit | null; description: string } | null;
     removal?: { value: number | null; unit: TimeUnit | null; description: string } | null;
-  } | null;
-  evidenceRequirements: { description: string; example?: string; reason: string; }[];
-  removalCriteria: string[];
 }
 \`\`\`
 
@@ -135,7 +124,6 @@ For each policy identified, you MUST populate the fields according to the \`Poli
     - **Intimate Content**: Include if policy mentions nudity, sexual acts, private body parts, intimate imagery, or sexual content
     - **Personal Content**: Include if policy mentions personal photos, private communications, personal documents, or non-intimate private content
     - **Private Information**: Include if policy mentions personal data, contact details, private documents, or identifying information
-    - **Hacked Context**: Include if policy mentions unauthorized access, compromised accounts, stolen credentials, or security breaches
     - **Impersonation Context**: Include if policy mentions fake profiles, identity theft, pretending to be someone else, or using someone's identity
     - **Relationship Context**: Include if policy mentions ex-partners, known persons, domestic abuse, or revenge scenarios
     - **Unknown Context**: Include if policy applies regardless of how content was obtained or who shared it
