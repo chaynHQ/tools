@@ -7,7 +7,7 @@ export interface PolicyValidationQualityCheckResult {
   reasoning: string;
   overallQualityScore: number; // 1-10 scale
   issues: Array<{
-    severity: 'critical' | 'major' | 'minor';
+    severity: 'critical' | 'minor';
     type:
       | 'hallucination'
       | 'meaningless_rewording'
@@ -108,19 +108,16 @@ You must check for the following issues and classify them by severity.
 
 ### CRITICAL ISSUES (Result in "invalid" status)
 1.  **Hallucination**: The \`quote\` of a policy is not found in the source documents, or any other information is invented.
-2.  **Policy Accuracy**: The \`summary\` or misrepresents or is not equal in meaning to the original \`quote\`.
-3.  **Evidence Requirements**: The policy extracts an evidence requirement that asks for inappropriate sensitive data (e.g., government IDs, private photos for verification) that could create a barrier for vulnerable users.
-4.  **Structural Errors**: The JSON is malformed, or the data types do not match the schema (e.g., incorrect \`TimeUnit\` enum).
-5.  **Language & Tone**: The \`summary\`, \`evidenceRequirements\`, \`removalCriteria\`, \`appealProcess\` contains victim-blaming, non-neutral, or otherwise inappropriate language that is not trauma-informed.
-6.  **No unrelated policies & instructions:** ALL unrelated policies (e.g. policies related to animal abuse) should not be included. Ensure every policy record is a policy statement and not instructions to the user related to a policy or how to report.
-
-### MAJOR ISSUES (Reduce quality score significantly)
-1.  **Completeness**: A relevant policy (related to IBA or GBV) clearly stated in the source documents was missed and is not present in the updated policies.
-2.  **Content Mapping**: Incorrect or incomplete assignment of \`contentTypes\` or \`contentContexts\`. Using the definitions provided, you must verify:
+2.  **Unrelated policies & instructions:** Includes unrelated policies e.g. policies related to animal abuse. Or policies quote/summary is an instruction/information instead of a policy statement.
+3.  **Policy Summary Accuracy**: The \`summary\` or misrepresents or is not equal in meaning to the original \`quote\`.
+4.  **Policy Data Accuracy**: Extracting a response or removal timeframe, appeal process or evidence requirements that are not explicitly stated in the source text.
+5.  **Content Mapping**: Incorrect or incomplete assignment of \`contentTypes\` or \`contentContexts\`. Using the definitions provided, you must verify:
     -   **Completeness:** All applicable categories are included. For example, a policy on "non-consensual intimate imagery" must include relevant contexts like 'hacked' and 'relationship', not just the 'intimate' content type.
     -   **Specificity:** The most specific categories are used. 'other' or 'unknown' should be used if no more specific definition applies or where the policy is general and applies to most contexts.
     -   **Accuracy:** No incorrect categories are assigned based on the policy's \`quote\`.
-3.  **Timeframe Accuracy**: Extracting a response or removal timeframe that is not explicitly stated in the source text.
+6.  **Structural Errors**: The JSON is malformed, or the data types do not match the schema (e.g., incorrect \`TimeUnit\` enum).
+7.  **Trama-informed language**: The \`summary\`, \`evidenceRequirements\`, \`removalCriteria\`, \`appealProcess\` contains victim-blaming, non-neutral, or otherwise inappropriate language that is not trauma-informed. Explicit language (specific body parts or sexual activities) are used which are insensitive.
+
 
 ### MINOR ISSUES (Note for improvement)
 1.  **Meaningless Rewording**: A policy was changed, but the new wording offers no functional improvement or clarity.

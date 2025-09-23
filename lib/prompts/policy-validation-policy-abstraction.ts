@@ -55,7 +55,7 @@ Your task is to process the source document and produce a JSON object containing
 ## Overall Guiding Principles
 -   **Policy Definition:** EVERY policy must be a legal policy/statement or community guideline/rule. Do NOT create policies for instructions related to how to report or handle situations - e.g. statements within documents like "users can...", "we encourage..." and "we use your data..." are NOT policies. Ensure the policies are not consolidated per independent policy/rule, not per subtopic or page section.
 -   **Relevance**: Only include policies applicable to our image takedown letters related to IBA, GBV. Use our related \`contentTypes\` and \`contentContexts\` as guidance. 
--   **Trauma-Informed**: Ensure that the \`summary\`, \`evidenceRequirements\`, \`removalCriteria\`, \`appealProcess\` language is appropriate for our trauma-informed takedown letters.
+-   **Trauma-Informed**: Ensure that the \`summary\`, \`evidenceRequirements\`, \`removalCriteria\`, \`appealProcess\` language is appropriate for our trauma-informed takedown letters. DO NOT use explicit language (specific body parts or sexual activities) and instead summarise/rephrase to remain sensitive.
 
 ## Step 1: Identify Relevant Policies
 First, scan the entire document and identify all policy statements relevant to the following areas of Image Based Abuse:
@@ -92,7 +92,7 @@ export interface Policy {
 -   **\`id\`**: A unique, machine-readable identifier (e.g., "platform-doc-policy").
 -   **\`reference\`**: The section number or heading from the document, if available.
 -   **\`quote\`**: The **exact, verbatim text** from the document that serves as the evidence for the policy.
--   **\`summary\`**: A critical field. It must be a strong, clear, and active statement (e.g., "Prohibits...") that is a factual brief summary of the quote used in takedown letters. MUST be equivalent/representative of the quote/policy. MUST NOT use explicit language related to nudity and should instead summarise to remain trauma-informed.
+-   **\`summary\`**: A critical field. It must be a strong, clear, and active statement (e.g., "Prohibits...") that is a factual brief summary of the quote used in takedown letters. MUST be equivalent/representative of the quote/policy whilst remaining trauma-informed.
 -   **\`contentTypes\` & \`contentContexts\`**: To populate these arrays, you MUST use the definitions and follow the mandatory process below. This is a critical step for accuracy.
     -   **Content Type Definitions**: ${JSON.stringify(contentTypes, null, 2)}
     -   **Content Context Definitions**: ${JSON.stringify(contentContexts, null, 2)}

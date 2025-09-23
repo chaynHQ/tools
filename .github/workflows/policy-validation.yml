@@ -118,13 +118,13 @@ jobs:
                 MESSAGE="✅ $PLATFORM_DISPLAY: Policy updates merged → <$PR_URL|PR #$PR_NUMBER created and ready for review>"
                 ;;
               *"completed_with_pr_error"*)
-                MESSAGE="❌ $PLATFORM_DISPLAY: Policy validation completed but PR creation failed → <$RUN_URL|Re-run workflow manually> (PR creation failed)"
+                MESSAGE="❌ $PLATFORM_DISPLAY: Policy validation failed → <$RUN_URL|Re-run workflow manually> (PR creation failed)"
                 ;;
               *"completed_with_valid_changes"*)
                 MESSAGE="⚠️ $PLATFORM_DISPLAY: Policy updates ready but PR creation failed → <$RUN_URL|Re-run workflow manually>"
                 ;;
               *"completed_with_invalid_changes"*)
-                MESSAGE="❌ $PLATFORM_DISPLAY: Policy validation failed with invalid changes → <$RUN_URL|Re-run workflow manually> (Quality check failed)"
+                MESSAGE="❌ $PLATFORM_DISPLAY: Policy validation failed → <$RUN_URL|Re-run workflow manually> (Quality check failed)"
                 ;;
               *"completed_no_changes"*)
                 MESSAGE="✅ $PLATFORM_DISPLAY: No policy updates needed → All policies current"
@@ -134,7 +134,7 @@ jobs:
                 ;;
             esac
           else
-            MESSAGE="❌ $PLATFORM_DISPLAY: Policy validation job failed → <$RUN_URL|Re-run workflow manually> (Job failed)"
+            MESSAGE="❌ $PLATFORM_DISPLAY: Policy validation failed → <$RUN_URL|Re-run workflow manually> (Job failed)"
           fi
 
           echo "Sending Slack notification: $MESSAGE"
