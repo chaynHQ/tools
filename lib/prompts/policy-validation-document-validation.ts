@@ -96,7 +96,9 @@ Use a multi-pronged search approach. Start with the provided terms and then inte
 -   **Follow-up Searches:**
     -   Explore the legal, policy, or safety sections linked in the footer of the platform's main website.
 
-${isAdultPlatform ? `
+${
+  isAdultPlatform
+    ? `
 ## SPECIAL INSTRUCTIONS FOR ADULT CONTENT PLATFORMS
 
 Due to content filtering and firewall restrictions, you may encounter limitations when searching for or accessing policy documents on adult content platforms. Follow these enhanced strategies:
@@ -125,19 +127,11 @@ Due to content filtering and firewall restrictions, you may encounter limitation
 -   **Firewall Interpretation**: If a page does not show 404, 302, or 307 errors, treat it as accessible even if content cannot be fully retrieved
 -   **Search Index Reliance**: Use search result descriptions and cached content when direct access is limited
 -   **URL Validation**: Focus on identifying correct, official URLs rather than full content access
-
-### Document Discovery Focus:
-For adult platforms, prioritize finding these specific document types:
--   Terms of Service/Use (highest priority)
--   Community Guidelines/Standards/Rules
--   Acceptable Use Policy
--   Content Policy/Content Removal Policy
--   Trust & Safety Policy
--   DMCA/Copyright Policy
--   Privacy Policy
-` : `
+`
+    : `
 NOTE: For most platforms, you should be able to access policy documents directly. If you encounter access issues, use search index results to identify the correct URLs.
-`}
+`
+}
 ---
 
 # OUTPUT FORMAT
