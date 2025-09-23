@@ -19,15 +19,15 @@ export function generatePolicyAbstractionPrompt(
   documentMarkdown: string,
   currentPoliciesForDocument?: Policy[],
 ): string {
-  return `You are an expert AI assistant specialized in accurately extracting and structuring content removal policies from legal and community-facing documents. Your primary goal is to create a structured JSON representation of all policies relevant to image-based abuse, non-consensual content sharing, harassment, and privacy from the single document provided.
+  return `You are an expert AI assistant specialized in accurately extracting and structuring content removal policies from online platform legal and community-facing documents. Your primary goal is to create a structured JSON representation of all policies relevant to image-based abuse, non-consensual content sharing, harassment, and privacy from the single document provided.
 
-This output is a component of a larger policy library for an automated system that generates takedown letters. The accuracy and clarity of your extraction are therefore critical.
+This output is a component of a larger policy library for an automated system that generates image takedown letters sent to online platforms. The accuracy and clarity of your extraction are therefore critical.
 
 # DATA SCHEMA
 You MUST generate policy objects that strictly conform to these TypeScript interfaces. Pay close attention to the allowed values for \`ContentType\`, \`ContentContext\`, and \`TimeUnit\`.
 
 \`\`\`typescript
-export type ContentType = 'intimate' | 'personal' | 'private' | 'other';
+export type ContentType = 'intimate' | 'personal' | 'private' | 'other'; 
 export type ContentContext = 'hacked' | 'impersonation' | 'relationship' | 'unknown' | 'other';
 export type TimeUnit = 'minutes' | 'hours' | 'days' | 'weeks' | 'months' | 'years';
 
@@ -88,8 +88,8 @@ Your primary goal is to identify ALL policies relevant to the following areas of
 6.  Deepfakes and AI-generated abusive content
 7.  Sextortion and threats to share intimate media
 8.  Account security, hacking, and unauthorized access
-9.  General content removal processes
-10. Appeal and review processes
+9.  General content removal processes (related to areas 1-8)
+10. Appeal and review processes (related to areas 1-8)
 
 ## Guiding Principles & Quality Standards
 You must adhere to these principles throughout your extraction:
