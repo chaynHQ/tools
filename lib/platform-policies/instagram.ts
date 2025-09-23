@@ -7,14 +7,14 @@ export const instagramPolicy: PlatformPolicies = {
     "id": "us-take-it-down-act",
     "reference": "S.146",
     "title": "TAKE IT DOWN Act",
-    "summary": "US federal law that criminalizes nonconsensual publication of intimate images and requires covered platforms to implement notice-and-removal processes. Signed into law on May 19, 2025 as Public Law No. 119-12.",
+    "summary": "US federal law that criminalizes the nonconsensual publication of intimate images, including AI-generated deepfakes, and requires covered platforms to implement notice-and-removal processes for such content.",
     "url": "https://www.congress.gov/bill/119th-congress/senate-bill/146/text",
-    "accessTimestamp": "2025-09-23T20:27:16.640Z",
+    "accessTimestamp": "2025-09-23T20:32:50.429Z",
     "policies": [
       {
         "id": "take-it-down-authentic-adults",
         "reference": "Section 2(h)(2)(A)",
-        "summary": "Prohibits knowingly publishing authentic intimate visual depictions of adults without consent when obtained under circumstances with reasonable expectation of privacy, not voluntarily exposed publicly, not a matter of public concern, and intended to cause or causing harm",
+        "summary": "Prohibits knowingly publishing authentic intimate visual depictions of adults without consent when obtained under circumstances with reasonable expectation of privacy, not voluntarily exposed publicly, not a matter of public concern, and intended to cause harm or causes harm",
         "quote": "it shall be unlawful for any person, in interstate or foreign commerce, to use an interactive computer service to knowingly publish an intimate visual depiction of an identifiable individual who is not a minor if— (i) the intimate visual depiction was obtained or created under circumstances in which the person knew or reasonably should have known the identifiable individual had a reasonable expectation of privacy; (ii) what is depicted was not voluntarily exposed by the identifiable individual in a public or commercial setting; (iii) what is depicted is not a matter of public concern; and (iv) publication of the intimate visual depiction— (I) is intended to cause harm; or (II) causes harm, including psychological, financial, or reputational harm, to the identifiable individual.",
         "contentTypes": [
           "intimate"
@@ -28,10 +28,10 @@ export const instagramPolicy: PlatformPolicies = {
         "timeframes": null,
         "evidenceRequirements": [],
         "removalCriteria": [
-          "Intimate visual depiction was obtained or created under circumstances with reasonable expectation of privacy",
-          "Content was not voluntarily exposed by the individual in a public or commercial setting",
+          "Intimate visual depiction obtained under circumstances with reasonable expectation of privacy",
+          "Content was not voluntarily exposed in public or commercial setting",
           "Content is not a matter of public concern",
-          "Publication is intended to cause harm or causes psychological, financial, or reputational harm"
+          "Publication intended to cause harm or causes psychological, financial, or reputational harm"
         ]
       },
       {
@@ -51,22 +51,21 @@ export const instagramPolicy: PlatformPolicies = {
         "timeframes": null,
         "evidenceRequirements": [],
         "removalCriteria": [
-          "Content depicts an identifiable minor",
-          "Publication is intended to abuse, humiliate, harass, or degrade the minor",
-          "Publication is intended to arouse or gratify sexual desire"
+          "Intimate visual depiction of a minor",
+          "Intent to abuse, humiliate, harass, or degrade the minor",
+          "Intent to arouse or gratify sexual desire"
         ]
       },
       {
         "id": "take-it-down-deepfake-adults",
         "reference": "Section 2(h)(3)(A)",
-        "summary": "Prohibits knowingly publishing digitally forged intimate visual depictions of adults without consent when not voluntarily exposed publicly, not a matter of public concern, and intended to cause or causing harm",
+        "summary": "Prohibits knowingly publishing digital forgeries (deepfakes) of adults without consent when not voluntarily exposed publicly, not a matter of public concern, and intended to cause harm or causes harm",
         "quote": "it shall be unlawful for any person, in interstate or foreign commerce, to use an interactive computer service to knowingly publish a digital forgery of an identifiable individual who is not a minor if— (i) the digital forgery was published without the consent of the identifiable individual; (ii) what is depicted was not voluntarily exposed by the identifiable individual in a public or commercial setting; (iii) what is depicted is not a matter of public concern; and (iv) publication of the digital forgery— (I) is intended to cause harm; or (II) causes harm, including psychological, financial, or reputational harm, to the identifiable individual.",
         "contentTypes": [
           "intimate"
         ],
         "contentContexts": [
           "hacked",
-          "impersonation",
           "relationship",
           "unknown",
           "other"
@@ -74,23 +73,22 @@ export const instagramPolicy: PlatformPolicies = {
         "timeframes": null,
         "evidenceRequirements": [],
         "removalCriteria": [
-          "Content is a digital forgery published without consent",
-          "Content was not voluntarily exposed by the individual in a public or commercial setting",
+          "Digital forgery published without consent of the individual",
+          "Content was not voluntarily exposed in public or commercial setting",
           "Content is not a matter of public concern",
-          "Publication is intended to cause harm or causes psychological, financial, or reputational harm"
+          "Publication intended to cause harm or causes psychological, financial, or reputational harm"
         ]
       },
       {
         "id": "take-it-down-deepfake-minors",
         "reference": "Section 2(h)(3)(B)",
-        "summary": "Prohibits knowingly publishing digitally forged intimate visual depictions of minors with intent to abuse, humiliate, harass, degrade, or arouse sexual desire",
+        "summary": "Prohibits knowingly publishing digital forgeries (deepfakes) of minors with intent to abuse, humiliate, harass, degrade, or arouse sexual desire",
         "quote": "it shall be unlawful for any person, in interstate or foreign commerce, to use an interactive computer service to knowingly publish a digital forgery of an identifiable individual who is a minor with intent to— (i) abuse, humiliate, harass, or degrade the minor; or (ii) arouse or gratify the sexual desire of any person.",
         "contentTypes": [
           "intimate"
         ],
         "contentContexts": [
           "hacked",
-          "impersonation",
           "relationship",
           "unknown",
           "other"
@@ -98,66 +96,15 @@ export const instagramPolicy: PlatformPolicies = {
         "timeframes": null,
         "evidenceRequirements": [],
         "removalCriteria": [
-          "Content is a digital forgery depicting an identifiable minor",
-          "Publication is intended to abuse, humiliate, harass, or degrade the minor",
-          "Publication is intended to arouse or gratify sexual desire"
-        ]
-      },
-      {
-        "id": "take-it-down-platform-removal",
-        "reference": "Section 3(a)(3)",
-        "summary": "Requires covered platforms to remove nonconsensual intimate visual depictions within 48 hours of receiving a valid removal request and make reasonable efforts to identify and remove identical copies",
-        "quote": "Upon receiving a valid removal request from an identifiable individual (or an authorized person acting on behalf of such individual) using the process described in paragraph (1)(A)(ii), a covered platform shall, as soon as possible, but not later than 48 hours after receiving such request— (A) remove the intimate visual depiction; and (B) make reasonable efforts to identify and remove any known identical copies of such depiction.",
-        "contentTypes": [
-          "intimate"
-        ],
-        "contentContexts": [
-          "hacked",
-          "impersonation",
-          "relationship",
-          "unknown",
-          "other"
-        ],
-        "timeframes": {
-          "response": null,
-          "removal": {
-            "value": 48,
-            "unit": "hours",
-            "description": "Platform must remove content as soon as possible, but not later than 48 hours after receiving valid removal request"
-          }
-        },
-        "evidenceRequirements": [
-          {
-            "description": "Physical or electronic signature of the identifiable individual or authorized person",
-            "example": "Digital signature or scanned signature",
-            "reason": "To verify the identity of the person making the request"
-          },
-          {
-            "description": "Identification of and information reasonably sufficient to locate the intimate visual depiction",
-            "example": "URL or specific location of the content on the platform",
-            "reason": "To enable the platform to locate the specific content for removal"
-          },
-          {
-            "description": "Brief statement of good faith belief that the intimate visual depiction is not consensual",
-            "example": "Statement explaining why the content was published without consent",
-            "reason": "To establish that the content violates the platform's policies"
-          },
-          {
-            "description": "Contact information sufficient to enable platform communication",
-            "example": "Email address or phone number",
-            "reason": "To allow the platform to communicate about the removal request"
-          }
-        ],
-        "removalCriteria": [
-          "Valid removal request received from identifiable individual or authorized person",
-          "Request includes required signature, content identification, good faith statement, and contact information",
-          "Content is an intimate visual depiction published without consent"
+          "Digital forgery of a minor",
+          "Intent to abuse, humiliate, harass, or degrade the minor",
+          "Intent to arouse or gratify sexual desire"
         ]
       },
       {
         "id": "take-it-down-threats-authentic",
         "reference": "Section 2(h)(6)(A)",
-        "summary": "Prohibits intentionally threatening to publish authentic intimate visual depictions for purposes of intimidation, coercion, extortion, or to create mental distress",
+        "summary": "Prohibits intentionally threatening to publish authentic intimate visual depictions for intimidation, coercion, extortion, or to create mental distress",
         "quote": "Any person who intentionally threatens to commit an offense under paragraph (2) for the purpose of intimidation, coercion, extortion, or to create mental distress shall be punished as provided in paragraph (4).",
         "contentTypes": [
           "intimate"
@@ -171,19 +118,18 @@ export const instagramPolicy: PlatformPolicies = {
         "evidenceRequirements": [],
         "removalCriteria": [
           "Intentional threat to publish authentic intimate visual depictions",
-          "Threat made for purpose of intimidation, coercion, extortion, or to create mental distress"
+          "Purpose of intimidation, coercion, extortion, or creating mental distress"
         ]
       },
       {
         "id": "take-it-down-threats-deepfake",
         "reference": "Section 2(h)(6)(B)",
-        "summary": "Prohibits intentionally threatening to publish digitally forged intimate visual depictions for purposes of intimidation, coercion, extortion, or to create mental distress",
+        "summary": "Prohibits intentionally threatening to publish digital forgeries (deepfakes) for intimidation, coercion, extortion, or to create mental distress",
         "quote": "Any person who intentionally threatens to commit an offense under paragraph (3)(A) for the purpose of intimidation, coercion, extortion, or to create mental distress shall be fined under title 18, United States Code, imprisoned not more than 18 months, or both. Any person who intentionally threatens to commit an offense under paragraph (3)(B) for the purpose of intimidation, coercion, extortion, or to create mental distress shall be fined under title 18, United States Code, imprisoned not more than 30 months, or both.",
         "contentTypes": [
           "intimate"
         ],
         "contentContexts": [
-          "impersonation",
           "relationship",
           "unknown",
           "other"
@@ -191,40 +137,113 @@ export const instagramPolicy: PlatformPolicies = {
         "timeframes": null,
         "evidenceRequirements": [],
         "removalCriteria": [
-          "Intentional threat to publish digitally forged intimate visual depictions",
-          "Threat made for purpose of intimidation, coercion, extortion, or to create mental distress"
+          "Intentional threat to publish digital forgeries",
+          "Purpose of intimidation, coercion, extortion, or creating mental distress"
+        ]
+      },
+      {
+        "id": "take-it-down-platform-removal",
+        "reference": "Section 3(a)(3)",
+        "summary": "Requires covered platforms to remove nonconsensual intimate visual depictions within 48 hours of receiving a valid removal request and make reasonable efforts to identify and remove identical copies",
+        "quote": "Upon receiving a valid removal request from an identifiable individual (or an authorized person acting on behalf of such individual) using the process described in paragraph (1)(A)(ii), a covered platform shall, as soon as possible, but not later than 48 hours after receiving such request— (A) remove the intimate visual depiction; and (B) make reasonable efforts to identify and remove any known identical copies of such depiction.",
+        "contentTypes": [
+          "intimate"
+        ],
+        "contentContexts": [
+          "hacked",
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": {
+          "response": null,
+          "removal": {
+            "value": 48,
+            "unit": "hours",
+            "description": "Platform must remove content within 48 hours of receiving valid removal request"
+          }
+        },
+        "evidenceRequirements": [
+          {
+            "description": "Physical or electronic signature of the individual or authorized person",
+            "example": "Digital signature or scanned signature",
+            "reason": "To verify identity and authorization"
+          },
+          {
+            "description": "Identification and information sufficient to locate the intimate visual depiction",
+            "example": "URL, screenshot, or detailed description of content location",
+            "reason": "To enable platform to find and remove the specific content"
+          },
+          {
+            "description": "Brief statement of good faith belief that content is nonconsensual",
+            "example": "Statement explaining why the content was published without consent",
+            "reason": "To establish that the content violates the policy"
+          },
+          {
+            "description": "Contact information for the individual or authorized person",
+            "example": "Email address, phone number, or mailing address",
+            "reason": "To enable platform communication regarding the request"
+          }
+        ],
+        "removalCriteria": [
+          "Valid removal request received from identifiable individual or authorized person",
+          "Content includes depiction of the identifiable individual",
+          "Content was published without consent of the identifiable individual"
+        ]
+      },
+      {
+        "id": "take-it-down-platform-process",
+        "reference": "Section 3(a)(1)",
+        "summary": "Requires covered platforms to establish a notice and removal process for individuals to request removal of nonconsensual intimate visual depictions",
+        "quote": "Not later than 1 year after the date of enactment of this Act, a covered platform shall establish a process whereby an identifiable individual (or an authorized person acting on behalf of such individual) may— (i) notify the covered platform of an intimate visual depiction published on the covered platform that— (I) includes a depiction of the identifiable individual; and (II) was published without the consent of the identifiable individual; and (ii) submit a request for the covered platform to remove such intimate visual depiction.",
+        "contentTypes": [
+          "intimate"
+        ],
+        "contentContexts": [
+          "hacked",
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Content includes depiction of the identifiable individual",
+          "Content was published without consent of the identifiable individual"
         ]
       }
     ],
     "appealProcess": null
   },
   {
-    "id": "instagram-new-1758659236640-0",
+    "id": "instagram-new-1758659570428-0",
     "reference": "META-CS",
     "title": "Meta Community Standards",
-    "summary": "Unified community standards that apply to Facebook, Instagram, Messenger and Threads, covering content policies including non-consensual intimate imagery, harassment, and content removal.",
+    "summary": "Unified community standards that apply to Facebook, Instagram, Messenger and Threads, covering content policies including non-consensual intimate imagery, harassment, impersonation, and content removal procedures.",
     "url": "https://transparency.meta.com/policies/community-standards/",
-    "accessTimestamp": "2025-09-23T20:27:16.640Z",
+    "accessTimestamp": "2025-09-23T20:32:50.429Z",
     "policies": [
       {
         "id": "meta-cs-adult-sexual-exploitation",
         "reference": "Adult Sexual Exploitation",
-        "summary": "Prohibits adult sexual exploitation including non-consensual sharing of intimate images",
+        "summary": "Prohibits adult sexual exploitation including non-consensual intimate imagery and threats to share intimate content",
         "quote": "Adult Sexual Exploitation",
         "contentTypes": [
           "intimate",
           "personal"
         ],
         "contentContexts": [
-          "relationship",
           "hacked",
+          "relationship",
           "unknown",
           "other"
         ],
         "timeframes": null,
         "evidenceRequirements": [],
         "removalCriteria": [
-          "Content constitutes adult sexual exploitation"
+          "Content involves adult sexual exploitation",
+          "Non-consensual sharing of intimate imagery",
+          "Threats to share intimate content"
         ]
       },
       {
@@ -239,9 +258,9 @@ export const instagramPolicy: PlatformPolicies = {
           "other"
         ],
         "contentContexts": [
-          "relationship",
           "hacked",
           "impersonation",
+          "relationship",
           "unknown",
           "other"
         ],
@@ -250,7 +269,7 @@ export const instagramPolicy: PlatformPolicies = {
         "removalCriteria": [
           "Content constitutes bullying or harassment",
           "Content degrades others",
-          "Content violates dignity"
+          "Content violates dignity of individuals"
         ]
       },
       {
@@ -266,6 +285,7 @@ export const instagramPolicy: PlatformPolicies = {
         ],
         "contentContexts": [
           "hacked",
+          "impersonation",
           "relationship",
           "unknown",
           "other"
@@ -274,13 +294,14 @@ export const instagramPolicy: PlatformPolicies = {
         "evidenceRequirements": [],
         "removalCriteria": [
           "Content violates personal privacy",
-          "Content shares personal information without consent"
+          "Unauthorized sharing of personal information",
+          "Content shared without consent"
         ]
       },
       {
         "id": "meta-cs-authentic-identity",
         "reference": "Authentic Identity Representation",
-        "summary": "Prohibits misrepresenting identity and requires authentic representation",
+        "summary": "Prohibits misrepresentation of identity and impersonation on the platform",
         "quote": "Authentic Identity Representation",
         "contentTypes": [
           "personal",
@@ -294,13 +315,61 @@ export const instagramPolicy: PlatformPolicies = {
         "evidenceRequirements": [],
         "removalCriteria": [
           "Content misrepresents identity",
-          "Account or content is inauthentic"
+          "Account or content involves impersonation",
+          "False representation of who they are"
+        ]
+      },
+      {
+        "id": "meta-cs-account-integrity",
+        "reference": "Account Integrity",
+        "summary": "Prohibits compromised accounts and unauthorized access that could lead to abuse",
+        "quote": "Account Integrity",
+        "contentTypes": [
+          "intimate",
+          "personal",
+          "private",
+          "other"
+        ],
+        "contentContexts": [
+          "hacked",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Account has been compromised",
+          "Unauthorized access to account",
+          "Account integrity has been violated"
+        ]
+      },
+      {
+        "id": "meta-cs-third-party-ip",
+        "reference": "Third-Party Intellectual Property Infringement",
+        "summary": "Prohibits infringement of third-party intellectual property including unauthorized use of personal images",
+        "quote": "Third-Party Intellectual Property Infringement",
+        "contentTypes": [
+          "intimate",
+          "personal",
+          "other"
+        ],
+        "contentContexts": [
+          "hacked",
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Content infringes third-party intellectual property",
+          "Unauthorized use of copyrighted material",
+          "Use of content without permission"
         ]
       },
       {
         "id": "meta-cs-inauthentic-behavior",
         "reference": "Inauthentic Behavior",
-        "summary": "Prohibits inauthentic behavior including impersonation and misrepresentation",
+        "summary": "Prohibits inauthentic behavior including coordinated efforts to mislead or deceive users",
         "quote": "Inauthentic Behavior",
         "contentTypes": [
           "personal",
@@ -313,58 +382,14 @@ export const instagramPolicy: PlatformPolicies = {
         "timeframes": null,
         "evidenceRequirements": [],
         "removalCriteria": [
-          "Behavior is inauthentic",
-          "Content involves impersonation or misrepresentation"
-        ]
-      },
-      {
-        "id": "meta-cs-intellectual-property",
-        "reference": "Third-Party Intellectual Property Infringement",
-        "summary": "Prohibits third-party intellectual property infringement including unauthorized use of personal images",
-        "quote": "Third-Party Intellectual Property Infringement",
-        "contentTypes": [
-          "intimate",
-          "personal",
-          "other"
-        ],
-        "contentContexts": [
-          "relationship",
-          "hacked",
-          "unknown",
-          "other"
-        ],
-        "timeframes": null,
-        "evidenceRequirements": [],
-        "removalCriteria": [
-          "Content infringes third-party intellectual property rights",
-          "Content uses copyrighted material without permission"
-        ]
-      },
-      {
-        "id": "meta-cs-cybersecurity",
-        "reference": "Cybersecurity",
-        "summary": "Addresses cybersecurity violations including unauthorized access to accounts",
-        "quote": "Cybersecurity",
-        "contentTypes": [
-          "intimate",
-          "personal",
-          "private",
-          "other"
-        ],
-        "contentContexts": [
-          "hacked",
-          "other"
-        ],
-        "timeframes": null,
-        "evidenceRequirements": [],
-        "removalCriteria": [
-          "Content results from cybersecurity violations",
-          "Content accessed through unauthorized means"
+          "Content involves inauthentic behavior",
+          "Coordinated efforts to mislead",
+          "Deceptive practices"
         ]
       },
       {
         "id": "meta-cs-dignity-principle",
-        "reference": "DIGNITY",
+        "reference": "Community Standards - Dignity",
         "summary": "Requires respect for dignity of others and prohibits harassment or degradation",
         "quote": "We believe that all people are equal in dignity and rights. We expect that people will respect the dignity of others and not harass or degrade others.",
         "contentTypes": [
@@ -374,9 +399,9 @@ export const instagramPolicy: PlatformPolicies = {
           "other"
         ],
         "contentContexts": [
-          "relationship",
           "hacked",
           "impersonation",
+          "relationship",
           "unknown",
           "other"
         ],
@@ -384,12 +409,13 @@ export const instagramPolicy: PlatformPolicies = {
         "evidenceRequirements": [],
         "removalCriteria": [
           "Content fails to respect dignity of others",
-          "Content harasses or degrades others"
+          "Content harasses or degrades others",
+          "Content violates equal dignity and rights"
         ]
       },
       {
         "id": "meta-cs-privacy-principle",
-        "reference": "PRIVACY",
+        "reference": "Community Standards - Privacy",
         "summary": "Protects personal privacy and information, ensuring freedom to choose how and when to share",
         "quote": "We're committed to protecting personal privacy and information. Privacy gives people the freedom to be themselves, choose how and when to share on our services and connect more easily.",
         "contentTypes": [
@@ -400,6 +426,7 @@ export const instagramPolicy: PlatformPolicies = {
         ],
         "contentContexts": [
           "hacked",
+          "impersonation",
           "relationship",
           "unknown",
           "other"
@@ -408,14 +435,14 @@ export const instagramPolicy: PlatformPolicies = {
         "evidenceRequirements": [],
         "removalCriteria": [
           "Content violates personal privacy",
-          "Content shared without consent",
-          "Content prevents freedom to choose when and how to share"
+          "Content shared without user's choice or consent",
+          "Content compromises personal information"
         ]
       },
       {
         "id": "meta-cs-safety-principle",
-        "reference": "SAFETY",
-        "summary": "Removes content that threatens people or could contribute to physical security risks",
+        "reference": "Community Standards - Safety",
+        "summary": "Prohibits content that threatens people or could intimidate, exclude or silence others",
         "quote": "We're committed to making Facebook, Instagram, Messenger and Threads safe places. We remove content that could contribute to a risk of harm to the physical security of persons. Content that threatens people has the potential to intimidate, exclude or silence others and isn't allowed on our services.",
         "contentTypes": [
           "intimate",
@@ -424,35 +451,35 @@ export const instagramPolicy: PlatformPolicies = {
           "other"
         ],
         "contentContexts": [
-          "relationship",
           "hacked",
           "impersonation",
+          "relationship",
           "unknown",
           "other"
         ],
         "timeframes": null,
         "evidenceRequirements": [],
         "removalCriteria": [
-          "Content could contribute to risk of harm to physical security",
           "Content threatens people",
-          "Content has potential to intimidate, exclude or silence others"
+          "Content could contribute to risk of physical harm",
+          "Content intimidates, excludes or silences others"
         ]
       }
     ],
     "appealProcess": null
   },
   {
-    "id": "instagram-new-1758659236640-1",
-    "reference": "IG-TOS",
+    "id": "instagram-new-1758659570428-1",
+    "reference": "IG-TOU",
     "title": "Instagram Terms of Use",
-    "summary": "Instagram's terms of service outlining user obligations, content licensing, and platform rules.",
+    "summary": "Instagram's terms of service governing user conduct, content ownership, intellectual property rights, and platform usage rules.",
     "url": "https://help.instagram.com/581066165581870/",
-    "accessTimestamp": "2025-09-23T20:27:16.640Z",
+    "accessTimestamp": "2025-09-23T20:32:50.429Z",
     "policies": [
       {
-        "id": "ig-tos-private-confidential-info",
+        "id": "ig-tou-private-confidential",
         "reference": "Section 4.2",
-        "summary": "Prohibits posting someone else's private or confidential information without permission",
+        "summary": "Prohibits posting someone else's private or confidential information without permission or doing anything that violates someone else's rights",
         "quote": "You can't post someone else's private or confidential information without permission or do anything that violates someone else's rights, including intellectual property rights (e.g., copyright infringement, trademark infringement, counterfeit, or pirated goods).",
         "contentTypes": [
           "intimate",
@@ -470,11 +497,12 @@ export const instagramPolicy: PlatformPolicies = {
         "evidenceRequirements": [],
         "removalCriteria": [
           "Content contains someone else's private or confidential information",
-          "Information was posted without permission from the person depicted"
+          "Content was posted without the person's permission",
+          "Content violates someone else's rights"
         ]
       },
       {
-        "id": "ig-tos-impersonation",
+        "id": "ig-tou-impersonation",
         "reference": "Section 4.2",
         "summary": "Prohibits impersonating others or providing inaccurate information",
         "quote": "You can't impersonate others or provide inaccurate information. You don't have to disclose your identity on Instagram, but you must provide us with accurate and up to date information (including registration information), which may include providing personal data. Also, you may not impersonate someone or something you aren't, and you can't create an account for someone else unless you have their express permission.",
@@ -490,12 +518,12 @@ export const instagramPolicy: PlatformPolicies = {
         "timeframes": null,
         "evidenceRequirements": [],
         "removalCriteria": [
-          "User is impersonating someone they are not",
-          "Account was created for someone else without express permission"
+          "User is impersonating someone or something they aren't",
+          "Account was created for someone else without their express permission"
         ]
       },
       {
-        "id": "ig-tos-intellectual-property",
+        "id": "ig-tou-intellectual-property",
         "reference": "Section 4.2",
         "summary": "Prohibits violating intellectual property rights including copyright infringement",
         "quote": "You can't post someone else's private or confidential information without permission or do anything that violates someone else's rights, including intellectual property rights (e.g., copyright infringement, trademark infringement, counterfeit, or pirated goods). You may use someone else's works under exceptions or limitations to copyright and related rights under applicable law. You represent you own or have obtained all necessary rights to the content you post or share.",
@@ -514,14 +542,14 @@ export const instagramPolicy: PlatformPolicies = {
         "evidenceRequirements": [],
         "removalCriteria": [
           "Content violates intellectual property rights",
-          "User does not own or have necessary rights to the posted content",
-          "Content infringes copyright without applicable legal exceptions"
+          "User does not own or have necessary rights to the content",
+          "Content infringes copyright"
         ]
       },
       {
-        "id": "ig-tos-content-removal-authority",
+        "id": "ig-tou-content-removal",
         "reference": "Section 6",
-        "summary": "Allows removal of content that violates Terms of Use, policies, or Community Standards",
+        "summary": "Platform can remove content that violates Terms of Use, policies, or Community Standards",
         "quote": "We can remove any content or information you share on the Service if we believe that it violates these Terms of Use, our policies (including our Community Standards), or we are permitted or required to do so by law.",
         "contentTypes": [
           "intimate",
@@ -536,18 +564,25 @@ export const instagramPolicy: PlatformPolicies = {
           "unknown",
           "other"
         ],
-        "timeframes": null,
+        "timeframes": {
+          "response": null,
+          "removal": {
+            "value": 30,
+            "unit": "days",
+            "description": "Deletion process will automatically begin no more than 30 days after request, may take up to 90 days to complete"
+          }
+        },
         "evidenceRequirements": [],
         "removalCriteria": [
           "Content violates Terms of Use",
-          "Content violates Instagram policies including Community Standards",
+          "Content violates platform policies including Community Standards",
           "Removal is permitted or required by law"
         ]
       },
       {
-        "id": "ig-tos-account-termination",
+        "id": "ig-tou-account-termination",
         "reference": "Section 6",
-        "summary": "Allows account termination for Terms violations, policy violations, or repeated intellectual property infringement",
+        "summary": "Platform can terminate accounts for policy violations including repeated intellectual property infringement",
         "quote": "We can refuse to provide or stop providing all or part of the Service to you (including terminating or disabling your access to the Meta Products and Meta Company Products) immediately to protect our community or services, or if you create risk or legal exposure for us, violate these Terms of Use or our policies (including our Community Standards), if you repeatedly infringe other people's intellectual property rights, or where we are permitted or required to do so by law.",
         "contentTypes": [
           "intimate",
@@ -565,154 +600,51 @@ export const instagramPolicy: PlatformPolicies = {
         "timeframes": null,
         "evidenceRequirements": [],
         "removalCriteria": [
-          "User creates risk or legal exposure for Instagram",
-          "User violates Terms of Use or policies including Community Standards",
+          "User creates risk or legal exposure for the platform",
+          "User violates Terms of Use or policies",
           "User repeatedly infringes other people's intellectual property rights",
           "Action is permitted or required by law"
         ]
       },
       {
-        "id": "ig-tos-deletion-timeframe",
-        "reference": "Section 6",
-        "summary": "Provides timeframes for content deletion process",
-        "quote": "When you request to delete content or your account, the deletion process will automatically begin no more than 30 days after your request. It may take up to 90 days to delete content after the deletion process begins. While the deletion process for such content is being undertaken, the content is no longer visible to other users, but remains subject to these Terms of Use and our Privacy Policy. After the content is deleted, it may take us up to another 90 days to remove it from backups and disaster recovery systems.",
+        "id": "ig-tou-reporting-misuse",
+        "reference": "Section 4.2",
+        "summary": "Prohibits interfering with service operation including misusing reporting channels",
+        "quote": "You can't do anything to interfere with or impair the intended operation of the Service. This includes misusing any reporting, dispute, or appeals channel, such as by making fraudulent or groundless reports or appeals.",
         "contentTypes": [
-          "intimate",
-          "personal",
-          "private",
           "other"
         ],
         "contentContexts": [
-          "hacked",
-          "impersonation",
-          "relationship",
-          "unknown",
           "other"
         ],
-        "timeframes": {
-          "response": {
-            "value": 30,
-            "unit": "days",
-            "description": "Deletion process begins no more than 30 days after request"
-          },
-          "removal": {
-            "value": 90,
-            "unit": "days",
-            "description": "Up to 90 days to delete content after deletion process begins, plus up to another 90 days to remove from backups"
-          }
-        },
+        "timeframes": null,
         "evidenceRequirements": [],
         "removalCriteria": [
-          "User requests content or account deletion"
+          "User interferes with or impairs service operation",
+          "User misuses reporting, dispute, or appeals channels",
+          "User makes fraudulent or groundless reports or appeals"
         ]
       }
     ],
     "appealProcess": {
       "url": "https://help.instagram.com/",
-      "summary": "Users can consult Instagram's Help Center if they believe their account has been terminated in error or want to disable or permanently delete their account",
+      "summary": "Users can consult the Help Center if they believe their account has been terminated in error, or if they want to disable or permanently delete their account",
       "steps": [
         "Consult Instagram Help Center if account terminated in error",
-        "Follow Help Center guidance for account appeals or deletion requests"
+        "Request account deletion through Help Center if desired",
+        "Deletion process begins within 30 days of request",
+        "Content becomes invisible to other users during deletion process",
+        "Complete deletion may take up to 90 days from start of process"
       ]
     }
   },
   {
-    "id": "instagram-new-1758659236640-2",
-    "reference": "IG-COPYRIGHT",
-    "title": "Instagram Copyright Policy",
-    "summary": "Instagram's copyright infringement reporting and DMCA takedown procedures for protecting intellectual property rights.",
-    "url": "https://help.instagram.com/126382350847838",
-    "accessTimestamp": "2025-09-23T20:27:16.640Z",
-    "policies": [
-      {
-        "id": "ig-copyright-infringement",
-        "reference": "Copyright Policy",
-        "summary": "Prohibits posting content that violates someone else's copyright without permission",
-        "quote": "If you believe someone is using your copyrighted work without your permission, you can report it to us by filling out this form.",
-        "contentTypes": [
-          "personal",
-          "intimate",
-          "other"
-        ],
-        "contentContexts": [
-          "hacked",
-          "relationship",
-          "unknown",
-          "other"
-        ],
-        "timeframes": null,
-        "evidenceRequirements": [
-          {
-            "description": "Copyright infringement report form must be completed",
-            "example": "Use the provided reporting form to submit your claim",
-            "reason": "Required for Instagram to process copyright violation claims"
-          }
-        ],
-        "removalCriteria": [
-          "Content uses copyrighted work without permission from the copyright owner",
-          "Valid copyright infringement report has been submitted"
-        ]
-      },
-      {
-        "id": "ig-copyright-repeat-violations",
-        "reference": "Repeat Infringement Policy",
-        "summary": "Takes action against accounts that repeatedly post content violating intellectual property rights",
-        "quote": "What happens if you repeatedly post content on Instagram or Threads that violates someone else's intellectual property rights",
-        "contentTypes": [
-          "personal",
-          "intimate",
-          "other"
-        ],
-        "contentContexts": [
-          "hacked",
-          "relationship",
-          "unknown",
-          "other"
-        ],
-        "timeframes": null,
-        "evidenceRequirements": [],
-        "removalCriteria": [
-          "Multiple instances of intellectual property violations on the same account",
-          "Pattern of posting content that infringes others' rights"
-        ]
-      },
-      {
-        "id": "ig-copyright-counter-notification",
-        "reference": "DMCA Counter-Notification Process",
-        "summary": "Provides process for users to dispute copyright takedown actions through DMCA counter-notifications",
-        "quote": "How Instagram and Threads process United States Digital Millennium Copyright Act (DMCA) counter-notifications",
-        "contentTypes": [
-          "personal",
-          "intimate",
-          "other"
-        ],
-        "contentContexts": [
-          "hacked",
-          "relationship",
-          "unknown",
-          "other"
-        ],
-        "timeframes": null,
-        "evidenceRequirements": [],
-        "removalCriteria": []
-      }
-    ],
-    "appealProcess": {
-      "url": "https://www.instagram.com/help/ipreporting/report/copyright/",
-      "summary": "Users can submit DMCA counter-notifications to dispute copyright takedown actions and retract intellectual property reports they have submitted",
-      "steps": [
-        "Submit a DMCA counter-notification through Instagram's process",
-        "Use the retraction option for intellectual property reports you have submitted"
-      ]
-    }
-  },
-  {
-    "id": "instagram-new-1758659236640-3",
+    "id": "instagram-new-1758659570428-2",
     "reference": "IG-IP",
     "title": "Instagram Intellectual Property Policy",
-    "summary": "Comprehensive policy on protecting intellectual property rights including copyright and trademark violations.",
-    "url": "https://help.instagram.com/535503073130320/",
-    "accessTimestamp": "2025-09-23T20:27:16.640Z",
+    "summary": "Instagram's policy on protecting intellectual property rights, including copyright and trademark violations, with reporting and takedown procedures.",
+    "url": "https://help.instagram.com/535503073130320",
+    "accessTimestamp": "2025-09-23T20:32:50.429Z",
     "policies": [
       {
         "id": "ig-ip-copyright",
@@ -750,6 +682,7 @@ export const instagramPolicy: PlatformPolicies = {
         ],
         "contentContexts": [
           "impersonation",
+          "relationship",
           "unknown",
           "other"
         ],
@@ -757,7 +690,7 @@ export const instagramPolicy: PlatformPolicies = {
         "evidenceRequirements": [],
         "removalCriteria": [
           "Content violates someone else's trademark rights",
-          "Content uses distinguishing words, slogans, symbols or designs without authorization",
+          "Content uses trademarked words, slogans, symbols or designs without authorization",
           "Content causes confusion about who provides or is affiliated with a product or service"
         ]
       }
@@ -765,82 +698,23 @@ export const instagramPolicy: PlatformPolicies = {
     "appealProcess": null
   },
   {
-    "id": "instagram-new-1758659236640-4",
-    "reference": "IG-NCII-HELP",
-    "title": "Instagram Non-Consensual Intimate Images Help",
-    "summary": "Guidance for users on reporting and addressing non-consensual sharing of intimate images.",
-    "url": "https://help.instagram.com/1769410010008691/",
-    "accessTimestamp": "2025-09-23T20:27:16.640Z",
+    "id": "instagram-new-1758659570428-3",
+    "reference": "IG-DATA",
+    "title": "Instagram Data Policy",
+    "summary": "Instagram's privacy policy covering data collection, usage, sharing practices, and user privacy controls.",
+    "url": "https://help.instagram.com/155833707900388",
+    "accessTimestamp": "2025-09-23T20:32:50.429Z",
     "policies": [
       {
-        "id": "ig-ncii-community-standards",
-        "reference": "Community Standards",
-        "summary": "Prohibits intimate photos that violate Community Standards and enables anonymous reporting for removal",
-        "quote": "You can anonymously report photos that go against Instagram's Community Standards. After reporting a post, specially trained representatives from our Community Operations team will then review the image and remove it if it goes against our Community Standards.",
-        "contentTypes": [
-          "intimate",
-          "personal"
-        ],
-        "contentContexts": [
-          "hacked",
-          "impersonation",
-          "relationship",
-          "unknown",
-          "other"
-        ],
-        "timeframes": null,
-        "evidenceRequirements": [
-          {
-            "description": "Screenshot or record of the post",
-            "example": "Screenshot of the intimate image post for reporting purposes",
-            "reason": "Required for reporting and potential legal action"
-          }
-        ],
-        "removalCriteria": [
-          "Content goes against Instagram's Community Standards",
-          "Content is reported through built-in reporting system",
-          "Content is reviewed by specially trained Community Operations team"
-        ]
-      },
-      {
-        "id": "ig-ncii-threats-sextortion",
-        "reference": "Threats and Sextortion",
-        "summary": "Prohibits threatening to share private content or demanding money/actions in exchange for not sharing private content",
-        "quote": "If someone is threatening to share things you want to keep private (example: messages, photos, videos), asking you to send money or asking you to do something else you're uncomfortable with, please report their profile to us using the built-in reporting options.",
+        "id": "ig-data-harmful-conduct",
+        "reference": "Section II - Promote safety, integrity and security",
+        "summary": "Prohibits harmful conduct and violations of terms or policies, with detection and prevention measures in place",
+        "quote": "We use the information we have to verify accounts and activity, combat harmful conduct, detect and prevent spam and other bad experiences, maintain the integrity of our Products, and promote safety and security on and off of Meta Products. For example, we use data we have to investigate suspicious activity or violations of our terms or policies, or to detect when someone needs help.",
         "contentTypes": [
           "intimate",
           "personal",
-          "private"
-        ],
-        "contentContexts": [
-          "hacked",
-          "impersonation",
-          "relationship",
-          "unknown",
+          "private",
           "other"
-        ],
-        "timeframes": null,
-        "evidenceRequirements": [
-          {
-            "description": "Report the threatening profile through built-in reporting",
-            "example": "Profile making threats to share private content or demanding payment",
-            "reason": "Enables platform to take action against threatening behavior"
-          }
-        ],
-        "removalCriteria": [
-          "User is threatening to share private content",
-          "User is demanding money to prevent sharing private content",
-          "User is asking victim to perform uncomfortable actions"
-        ]
-      },
-      {
-        "id": "ig-ncii-photo-matching",
-        "reference": "Photo-matching Technology",
-        "summary": "Uses photo-matching technology to prevent future sharing of removed intimate images across Instagram, Facebook and Messenger",
-        "quote": "We then use photo-matching technology to help stop future attempts to share the image on Instagram, Facebook and Messenger.",
-        "contentTypes": [
-          "intimate",
-          "personal"
         ],
         "contentContexts": [
           "hacked",
@@ -852,8 +726,120 @@ export const instagramPolicy: PlatformPolicies = {
         "timeframes": null,
         "evidenceRequirements": [],
         "removalCriteria": [
-          "Image has been previously removed for violating Community Standards",
-          "Photo-matching technology identifies attempts to reshare the same image"
+          "Harmful conduct is detected",
+          "Violations of terms or policies occur",
+          "Suspicious activity is identified"
+        ]
+      },
+      {
+        "id": "ig-data-content-reporting",
+        "reference": "Section III - Content others share or reshare about you",
+        "summary": "Provides ability to report content shared about you by others when you are uncomfortable with it",
+        "quote": "People can also use our Products to create and share content about you with the audience they choose. For example, people can share a photo of you in a Story, mention or tag you at a location in a post, or share information about you in their posts or messages. If you are uncomfortable with what others have shared about you on our Products, you can learn how to report the content.",
+        "contentTypes": [
+          "intimate",
+          "personal",
+          "private",
+          "other"
+        ],
+        "contentContexts": [
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Content shared about you by others makes you uncomfortable"
+        ]
+      },
+      {
+        "id": "ig-data-legal-response",
+        "reference": "Section VI - How do we respond to legal requests or prevent harm",
+        "summary": "Responds to legal requests and takes action to prevent fraud, unauthorized use, and harmful or illegal activity",
+        "quote": "We access, preserve and share your information with regulators, law enforcement or others: In response to a legal request (like a search warrant, court order or subpoena) if we have a good faith belief that the law requires us to do so. When we have a good-faith belief it is necessary to: detect, prevent and address fraud, unauthorized use of the Products, violations of our terms or policies, or other harmful or illegal activity; to protect ourselves (including our rights, property or Products), you or others, including as part of investigations or regulatory inquiries; or to prevent death or imminent bodily harm.",
+        "contentTypes": [
+          "intimate",
+          "personal",
+          "private",
+          "other"
+        ],
+        "contentContexts": [
+          "hacked",
+          "impersonation",
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Legal request requires disclosure",
+          "Fraud is detected or suspected",
+          "Unauthorized use of products occurs",
+          "Violations of terms or policies are identified",
+          "Harmful or illegal activity is present",
+          "Death or imminent bodily harm needs to be prevented"
+        ]
+      },
+      {
+        "id": "ig-data-account-reliability",
+        "reference": "Section VI - How do we respond to legal requests or prevent harm",
+        "summary": "Shares and receives information about account reliability to prevent fraud, abuse and harmful activity",
+        "quote": "For example, if relevant, we provide information to and receive information from third-party partners about the reliability of your account to prevent fraud, abuse and other harmful activity on and off our Products.",
+        "contentTypes": [
+          "intimate",
+          "personal",
+          "private",
+          "other"
+        ],
+        "contentContexts": [
+          "hacked",
+          "impersonation",
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Account reliability is compromised",
+          "Fraud is detected or suspected",
+          "Abuse is identified",
+          "Harmful activity is present"
+        ]
+      },
+      {
+        "id": "ig-data-terms-violations-retention",
+        "reference": "Section VI - How do we respond to legal requests or prevent harm",
+        "summary": "Retains information from accounts disabled for terms violations for at least one year to prevent repeat abuse",
+        "quote": "We also retain information from accounts disabled for terms violations for at least a year to prevent repeat abuse or other term violations.",
+        "contentTypes": [
+          "intimate",
+          "personal",
+          "private",
+          "other"
+        ],
+        "contentContexts": [
+          "hacked",
+          "impersonation",
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": {
+          "response": null,
+          "removal": {
+            "value": 1,
+            "unit": "years",
+            "description": "Information retained for at least one year after account disabled for terms violations"
+          }
+        },
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Account disabled for terms violations",
+          "Prevention of repeat abuse required",
+          "Prevention of other term violations needed"
         ]
       }
     ],
