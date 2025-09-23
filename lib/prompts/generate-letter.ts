@@ -1,6 +1,5 @@
 import { LetterRequest } from '@/types/letter';
 import { QUALITY_CHECK_CRITERIA } from '../constants/ai';
-import { contentTypes, contentContexts } from '../constants/content';
 import { getDocumentsWithRelevantPolicies, getPlatformPolicy } from '../platform-policies';
 import { getPlatformPolicyId } from '../platforms';
 import { serverInstance as rollbar } from '../rollbar';
@@ -39,17 +38,20 @@ export function generateLetterPrompt(request: LetterRequest) {
       request.initialQuestions.contentType,
       request.initialQuestions.contentContext,
     );
-    
+
     rollbar.info('generateLetterPrompt: Policy filtering results', {
       platformId: request.platformInfo.platformId,
       contentType: request.initialQuestions.contentType,
       contentContext: request.initialQuestions.contentContext,
       totalDocuments: platformPolicies.policyDocuments.length,
       relevantDocuments: documentsWithPolicies.length,
-      totalPolicies: platformPolicies.policyDocuments.reduce((sum, doc) => sum + doc.policies.length, 0),
+      totalPolicies: platformPolicies.policyDocuments.reduce(
+        (sum, doc) => sum + doc.policies.length,
+        0,
+      ),
       relevantPolicies: documentsWithPolicies.reduce((sum, doc) => sum + doc.policies.length, 0),
     });
-    
+
     platformPolicyContext = formatPolicyDataForAI(platformPolicies, documentsWithPolicies);
   }
 
@@ -59,7 +61,7 @@ export function generateLetterPrompt(request: LetterRequest) {
 
 Before writing, you MUST follow these internal steps:
 1.  **Analyze the Case**: Thoroughly review the \`userInputs\` to understand the content, context, and harm.
-2.  **Formulate Strategy**: Scan the \`platformPolicyContext\`. Select up to 4 of most direct and powerful policies that apply. For each selected policy, formulate a concise reason that explicitly connects the policy to a specific detail in the user's report.
+2.  **Formulate Strategy**: Scan the \`platformPolicyContext\`. Select up to 4 of most direct and powerful policies that apply. For each selected policy, formulate a concise reason that explicitly connects the policy to a specific detail in the user's report. Exclude policies designed to protect minors/children unless the user explicitly indicates a minor is involved in the case.
 3.  **Construct the Letter**: Use your formulated strategy and all guidelines below to write the letter, ensuring every rule is followed.
 
 ---
@@ -72,7 +74,7 @@ You must adhere to all of the following rules when generating the letter.
 1.  **Single Source of Truth:** You MUST base the entire response *only* on the variables provided in the \`# INPUTS\` section. Do not invent, assume, or infer any information not explicitly stated there.
 2.  **Professional Tone:** The tone must always be professional, direct, and respectful. Avoid demanding, aggressive, threatening, or overly legalistic language that impersonates a legal representative.
 3.  **Content Location:** The letter MUST include this exact statement: \`Content location: [Content Location]\` after the opening paragraph.
-4.  **Optimised For Content Moderators:** The letter should be optimised for content moderators to effectively and efficiently process this request.
+4.  **Optimised For Content Moderators:** The letter should be optimised for content moderators to effectively and efficiently process this request. Ensure the letter is concise and non-repetitive.
 5.  **Final Output Only:** Generate only the final, ready-to-send letter. The body MUST NOT contain any of your own notes or comments.
 
 ### **Style & Language**
@@ -108,8 +110,8 @@ Construct the letter following this exact structure. Omit any section if the cor
   )}.
 3.  **Policy Violations:** Create a **bulleted "Narrative List"**.
     * **Do not use policy \`reference\` or \`id\` values:** - Values are internal only and are not relevant to content moderators.
-    * **Format for each list item:** \`- **Violation of [Policy Document Title]:** [Policy Summary] – [Your concise reasoning connecting the policy to the case].\`
-    * **Example:** \`- **Violation of Community Guidelines:** Prohibits non-consensual intimate imagery – this policy is violated as the content is an intimate photo shared without consent.\`
+    * **Format for each list item:** \`- Violation of [Policy Document Title]: [Policy Summary] – [Your concise reasoning connecting the policy to the case].\`
+    * **Example:** \`- Violation of Community Guidelines: Prohibits non-consensual intimate imagery – this policy is violated as the content is an intimate photo shared without consent.\`
 4.  **Supporting Evidence:** Reference any links or evidence provided by the user. Mention previous reporting processes if available in \`Standard Process Details\` and/or \`Escalated Process Details\`.
 5.  **Impact Statement:** Include the privacy-preserving impact summary.
 6.  **Requested Action:** Clearly state the requested actions (e.g., "I request the immediate removal of this content and a review of the user's account"). If platform timeframes are provided, reference them to set expectations.

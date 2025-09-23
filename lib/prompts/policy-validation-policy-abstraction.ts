@@ -54,8 +54,9 @@ Your task is to process the source document and produce a JSON object containing
 
 ## Overall Guiding Principles
 -   **Policy Definition:** EVERY policy must be a legal policy/statement or community guideline/rule. Do NOT create policies for statements that are instructions or supporting information and not a direct policy - e.g. statements within documents like "users can...", "we encourage..." and "we use your data..." are NOT policies. 
--   **Relevance**: Only include policies applicable to our image takedown letters related to IBA, GBV. Use our related \`contentTypes\` and \`contentContexts\` as guidance. 
--   **Trauma-Informed**: Ensure that the \`summary\`, \`evidenceRequirements\`, \`removalCriteria\`, \`appealProcess\` language is appropriate for our trauma-informed takedown letters. DO NOT use explicit language (specific body parts or sexual activities) and instead summarise/rephrase to remain sensitive.
+-   **Relevance:** Only include policies applicable to our image takedown letters related to IBA, GBV. Use our related \`contentTypes\` and \`contentContexts\` as guidance. 
+-   **Trauma-Informed:** Ensure that the \`summary\`, \`evidenceRequirements\`, \`removalCriteria\`, \`appealProcess\` language is appropriate for our trauma-informed takedown letters. 
+-   **Explicit Language: **DO NOT use explicit or detailed language related to the body or sexual activity e.g. "buttocks", "nipples". If a quote is explicit, rephrase the \`summary\` to use appropriate language whilst maintaining relevance e.g. "nudity", "sexual activity".
 
 ## Step 1: Identify Relevant Policies
 First, scan the entire document and identify all policy statements relevant to the following areas of Image Based Abuse:
@@ -69,6 +70,10 @@ First, scan the entire document and identify all policy statements relevant to t
 -   Account security and hacking
 -   Associated content removal and appeal processes
 
+Do not include policies related to
+-   Internal features such as privacy settings - i.e. a user deleting their account is not a policy
+-   Internal features related to age restricted content policies - i.e. a filtered feed for minors is not a policy
+-   Loose or misaligned context - i.e. policies related to animal abuse are not relevant to our GBV/IBA purpose
 
 ## Step 2: Extract and Structure Each Policy
 For each policy you identify, create a JSON object that strictly conforms to the \`Policy\` interface. You must follow these field-by-field instructions:
