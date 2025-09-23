@@ -1,6 +1,6 @@
 import { PlatformPolicies } from '@/types/policies';
 import { GaffaScrapingResult } from '../ai/policy-validation/gaffa-scraper';
-import { contentTypes, contentContexts } from '../constants/content';
+import { contentContexts, contentTypes } from '../constants/content';
 
 export interface PolicyValidationQualityCheckResult {
   validationStatus: 'valid' | 'invalid' | 'no_update_needed';
@@ -36,7 +36,7 @@ export function generatePolicyValidationQualityCheckPrompt(
   platformName: string,
   originalPolicies: PlatformPolicies,
   updatedPolicies: PlatformPolicies,
-  sourceDocuments: GaffaScrapingResult[], // Assuming GaffaScrapingResult contains the markdown
+  sourceDocuments: GaffaScrapingResult[],
 ): string {
   return `You are a meticulous AI Policy Quality Assurance Analyst. Your role is to conduct a rigorous audit of a set of policies against the full source text from all platform documents.
 
@@ -44,13 +44,12 @@ CRITICAL CONTEXT:
 The policies you validate are used to generate automated takedown letters for gender-based violence and non-consensual content. 100% accuracy is mandatory. Every policy must be a direct and verifiable representation of the source text.
 
 # CONTENT CLASSIFICATION DEFINITIONS
+You MUST use these exact definitions as the ground truth when validating the accuracy of the \`contentTypes\` and \`contentContexts\` fields for each policy.
 
-The following definitions are used for policy categorization and MUST be validated for accuracy:
-
-## Content Types (What type of content was shared)
+## Content Type Definitions
 ${JSON.stringify(contentTypes, null, 2)}
 
-## Content Contexts (The context in which the content was shared)
+## Content Context Definitions
 ${JSON.stringify(contentContexts, null, 2)}
 
 # DATA SCHEMA
@@ -109,18 +108,17 @@ You must check for the following issues and classify them by severity.
 
 ### CRITICAL ISSUES (Result in "invalid" status)
 1.  **Hallucination**: The \`quote\` of a policy is not found in the source documents, or any other information is invented.
-2.  **Policy Accuracy**: The \`summary\` or \`removalCriteria\` significantly misrepresents the meaning of the original \`quote\`.
+2.  **Policy Accuracy**: The \`summary\` or \`removalCriteria\` misrepresents or is not equal in meaning to the original \`quote\`.
 3.  **Evidence Requirements**: The policy extracts an evidence requirement that asks for inappropriate sensitive data (e.g., government IDs, private photos for verification) that could create a barrier for vulnerable users.
 4.  **Structural Errors**: The JSON is malformed, or the data types do not match the schema (e.g., incorrect \`TimeUnit\` enum).
 5.  **Language & Tone**: The \`summary\` contains victim-blaming, non-neutral, or otherwise inappropriate language.
 
 ### MAJOR ISSUES (Reduce quality score significantly)
 1.  **Completeness**: A relevant policy clearly stated in the source documents was missed and is not present in the updated policies.
-2.  **Content Mapping**: Incorrect or incomplete assignment of \`contentTypes\` or \`contentContexts\`. This includes:
-    - Missing applicable content types or contexts (e.g., a policy about "non-consensual intimate imagery" that only includes 'intimate' but misses applicable contexts like 'hacked', 'relationship', etc.)
-    - Incorrect categorization (e.g., labeling a harassment policy as only 'intimate' when it also applies to 'personal' content)
-    - Using 'other' or 'unknown' when more specific categories clearly apply
-    - Not following the comprehensive mapping guidelines from the abstraction process
+2.  **Content Mapping**: Incorrect or incomplete assignment of \`contentTypes\` or \`contentContexts\`. Using the definitions provided, you must verify:
+    -   **Completeness:** All applicable categories are included. For example, a policy on "non-consensual intimate imagery" must include relevant contexts like 'hacked' and 'relationship', not just the 'intimate' content type.
+    -   **Specificity:** The most specific categories are used. 'other' or 'unknown' should be used if no more specific definition applies or where the policy is general and applies to most contexts.
+    -   **Accuracy:** No incorrect categories are assigned based on the policy's \`quote\`.
 3.  **Timeframe Accuracy**: Extracting a response or removal timeframe that is not explicitly stated in the source text.
 
 ### MINOR ISSUES (Note for improvement)
