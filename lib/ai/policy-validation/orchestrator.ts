@@ -299,7 +299,6 @@ export async function orchestratePolicyValidation(
       platformName,
       currentPolicies,
       updatedPolicies,
-      JSON.stringify(comparison.summary),
       scrapingResults,
     );
 
