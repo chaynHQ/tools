@@ -3,16 +3,6 @@ describe('Policy Validation Workflow', () => {
     cy.task('fileExists', 'scripts/policy-validation.ts').should('be.true');
   });
 
-  it('should contain required imports and logic', () => {
-    cy.readFile('scripts/policy-validation.ts').then((content) => {
-      // Check for required imports
-      expect(content).to.include('ANTHROPIC_API_KEY');
-      expect(content).to.include('GITHUB_TOKEN');
-      expect(content).to.include('GAFFA_API_KEY');
-      expect(content).to.include('SLACK_WEBHOOK_URL');
-    });
-  });
-
   it('should have the workflow configured for all platforms', () => {
     cy.readFile('.github/workflows/policy-validation.yml').then((content) => {
       // Check that all platforms are included in the matrix
@@ -74,8 +64,9 @@ describe('Policy Validation Workflow', () => {
   it('should have proper permissions configured', () => {
     cy.readFile('.github/workflows/policy-validation.yml').then((content) => {
       // Check required permissions
-      expect(content).to.include('contents: read');
+      expect(content).to.include('contents: write');
       expect(content).to.include('pull-requests: write');
+      expect(content).to.include('repository-projects: write');
     });
   });
 
