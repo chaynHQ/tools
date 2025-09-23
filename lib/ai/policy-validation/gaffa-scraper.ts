@@ -8,7 +8,6 @@ export interface GaffaScrapingResult {
 }
 
 export async function scrapeDocumentMarkdown(url: string): Promise<GaffaScrapingResult> {
-
   if (!process.env.GAFFA_API_KEY) {
     rollbar.error('Policy validation: GAFFA_API_KEY not configured for document scraping');
     return {
@@ -28,7 +27,7 @@ export async function scrapeDocumentMarkdown(url: string): Promise<GaffaScraping
       },
       body: JSON.stringify({
         url,
-        proxy_location: null,
+        proxy_location: 'us',
         async: false,
         max_cache_age: 3600, // Cache for 1 hour
         settings: {
@@ -45,7 +44,6 @@ export async function scrapeDocumentMarkdown(url: string): Promise<GaffaScraping
         },
       }),
     });
-
 
     if (!response.ok) {
       const errorText = await response.text();
@@ -66,7 +64,7 @@ export async function scrapeDocumentMarkdown(url: string): Promise<GaffaScraping
     // Extract markdown URL from Gaffa response
     const actions = data.data?.actions || [];
     const markdownAction = actions.find((action: any) => action.type === 'generate_markdown');
-    
+
     if (!markdownAction || !markdownAction.output) {
       rollbar.warning('Policy validation: Document scraping failed - no markdown output', {
         url,
@@ -83,7 +81,7 @@ export async function scrapeDocumentMarkdown(url: string): Promise<GaffaScraping
     // Fetch the actual markdown content from the URL
     try {
       const markdownResponse = await fetch(markdownUrl);
-      
+
       if (!markdownResponse.ok) {
         rollbar.error('Policy validation: Failed to fetch markdown content', {
           url,
@@ -97,7 +95,7 @@ export async function scrapeDocumentMarkdown(url: string): Promise<GaffaScraping
       }
 
       const markdown = await markdownResponse.text();
-      
+
       if (!markdown || markdown.trim().length === 0) {
         rollbar.warning('Policy validation: Empty markdown content returned', {
           url,
@@ -109,7 +107,6 @@ export async function scrapeDocumentMarkdown(url: string): Promise<GaffaScraping
         };
       }
 
-
       return {
         success: true,
         markdown,
@@ -118,7 +115,10 @@ export async function scrapeDocumentMarkdown(url: string): Promise<GaffaScraping
     } catch (markdownFetchError) {
       rollbar.error('Policy validation: Error fetching markdown content', {
         url,
-        error: markdownFetchError instanceof Error ? markdownFetchError.message : String(markdownFetchError),
+        error:
+          markdownFetchError instanceof Error
+            ? markdownFetchError.message
+            : String(markdownFetchError),
       });
       return {
         success: false,
@@ -140,11 +140,8 @@ export async function scrapeDocumentMarkdown(url: string): Promise<GaffaScraping
 }
 
 export async function scrapeMultipleDocuments(urls: string[]): Promise<GaffaScrapingResult[]> {
-
   // Process documents in parallel with controlled concurrency
-  const results = await Promise.allSettled(
-    urls.map(url => scrapeDocumentMarkdown(url))
-  );
+  const results = await Promise.allSettled(urls.map((url) => scrapeDocumentMarkdown(url)));
 
   // Convert Promise.allSettled results to GaffaScrapingResult[]
   const finalResults: GaffaScrapingResult[] = results.map((result, index) => {
@@ -176,7 +173,7 @@ export async function scrapeMultipleDocuments(urls: string[]): Promise<GaffaScra
 export async function scrapeMultipleDocumentsWithRateLimit(
   urls: string[],
   concurrency: number = 3,
-  delayMs: number = 500
+  delayMs: number = 500,
 ): Promise<GaffaScrapingResult[]> {
   rollbar.info('Policy validation: Starting rate-limited document scraping', {
     urlCount: urls.length,
@@ -184,16 +181,13 @@ export async function scrapeMultipleDocumentsWithRateLimit(
   });
 
   const results: GaffaScrapingResult[] = [];
-  
+
   // Process URLs in batches to control concurrency
   for (let i = 0; i < urls.length; i += concurrency) {
     const batch = urls.slice(i, i + concurrency);
-    
 
     // Process batch in parallel
-    const batchResults = await Promise.allSettled(
-      batch.map(url => scrapeDocumentMarkdown(url))
-    );
+    const batchResults = await Promise.allSettled(batch.map((url) => scrapeDocumentMarkdown(url)));
 
     // Convert results and add to final array
     const processedBatchResults: GaffaScrapingResult[] = batchResults.map((result, batchIndex) => {
