@@ -7,9 +7,9 @@ export const onlyfansPolicy: PlatformPolicies = {
     "id": "of-acceptable-use-policy",
     "reference": "OF-AUP",
     "title": "Acceptable Use Policy",
-    "summary": "Comprehensive policy covering prohibited content and behavior on OnlyFans.",
+    "summary": "Comprehensive policy covering prohibited content and behavior on OnlyFans, including restrictions on non-consensual content, illegal activities, harassment, and content involving minors.",
     "url": "https://onlyfans.com/aup",
-    "accessTimestamp": "2025-09-23T20:32:47.910Z",
+    "accessTimestamp": "2025-09-23T20:44:23.156Z",
     "policies": [
       {
         "id": "of-tou-content-removal",
@@ -198,8 +198,8 @@ export const onlyfansPolicy: PlatformPolicies = {
       "summary": "Users may dispute account termination or content deactivation decisions through the Appeals Policy, and dispute Creator Earnings forfeiture decisions through the Complaints Policy",
       "steps": [
         "Submit dispute within six months of notification to avoid waiving rights",
-        "Follow Appeals Policy for account termination or content deactivation disputes",
-        "Follow Complaints Policy for Creator Earnings forfeiture disputes"
+        "Follow Appeals Policy for account termination or content deactivation decisions",
+        "Follow Complaints Policy for Creator Earnings forfeiture decisions"
       ]
     }
   },
@@ -207,9 +207,9 @@ export const onlyfansPolicy: PlatformPolicies = {
     "id": "of-terms-of-service",
     "reference": "OF-TOS",
     "title": "Terms of Service",
-    "summary": "Legal terms governing the use of OnlyFans, including content ownership and security responsibilities.",
+    "summary": "Legal terms governing the use of OnlyFans, including content ownership, user responsibilities, account requirements, and platform rules for creators and subscribers.",
     "url": "https://onlyfans.com/terms",
-    "accessTimestamp": "2025-09-23T20:32:47.910Z",
+    "accessTimestamp": "2025-09-23T20:44:23.156Z",
     "policies": [
       {
         "id": "of-tos-content-removal",
@@ -448,7 +448,7 @@ export const onlyfansPolicy: PlatformPolicies = {
     ],
     "appealProcess": {
       "url": "https://onlyfans.com/transparency-center/appeals",
-      "summary": "Users may dispute account termination or content deactivation decisions through the Appeals Policy",
+      "summary": "Users may dispute account termination or content deactivation decisions by following the Appeals Policy",
       "steps": [
         "Follow the Appeals Policy process for account termination or content deactivation decisions",
         "Submit dispute within six months of notification to avoid waiving the right to dispute"
@@ -459,9 +459,9 @@ export const onlyfansPolicy: PlatformPolicies = {
     "id": "of-privacy-policy",
     "reference": "OF-PP",
     "title": "Privacy Policy",
-    "summary": "Privacy policy explaining how OnlyFans collects, uses, and protects user data.",
+    "summary": "Privacy policy explaining how OnlyFans collects, uses, and protects user data, including age verification and data sharing practices.",
     "url": "https://onlyfans.com/privacy",
-    "accessTimestamp": "2025-09-23T20:32:47.910Z",
+    "accessTimestamp": "2025-09-23T20:44:23.156Z",
     "policies": [
       {
         "id": "of-pp-age-verification",
@@ -656,12 +656,10 @@ export const onlyfansPolicy: PlatformPolicies = {
     ],
     "appealProcess": {
       "url": null,
-      "summary": "Users can exercise privacy rights including requesting correction or deletion of personal data by contacting the platform",
+      "summary": "Users may appeal decisions regarding privacy rights requests through contact methods provided",
       "steps": [
-        "Submit a ticket through your account or email privacy@onlyfans.com",
-        "Provide sufficient information to confirm identity and understand the request",
-        "Platform may request additional personal data to verify identity",
-        "For appeals in certain U.S. States, contact using the same contact details if initial decision is unsatisfactory"
+        "Submit appeal request using contact details provided in Section 19",
+        "If appeal is denied, users may contact their local Attorney General (for certain U.S. States)"
       ]
     }
   },
@@ -671,7 +669,7 @@ export const onlyfansPolicy: PlatformPolicies = {
     "title": "TAKE IT DOWN Act",
     "summary": "Federal law enacted May 19, 2025, criminalizing nonconsensual intimate imagery including deepfakes and requiring covered platforms to remove such content within 48 hours of verified requests. Platforms have until May 19, 2026 to implement required notice-and-removal processes.",
     "url": "https://www.congress.gov/bill/119th-congress/senate-bill/146/text",
-    "accessTimestamp": "2025-09-23T20:32:47.910Z",
+    "accessTimestamp": "2025-09-23T20:44:23.156Z",
     "policies": [
       {
         "id": "take-it-down-authentic-adults",
