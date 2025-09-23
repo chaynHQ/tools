@@ -62,7 +62,7 @@ ${
 
 # VALIDATION REQUIREMENTS
 
-1.  **Document Accessibility & Verification**: For each URL in "CURRENT DOCUMENTS", verify it is accessible and the content appears to be the correct policy document. NOTE: you may not be able to access URLs on adult sites due to firewalls - if the page does not show 404 or 302, 307 error, treat it as valid.
+1.  **Document Accessibility & Verification**: For each URL in "CURRENT DOCUMENTS", verify it is accessible and the content appears to be the correct policy document. NOTE: you may not be able to access URLs on adult sites due to firewalls - if the page does not show 404 or 302, 307 error, treat it as accessible.
 2.  **Determine Document Status**: For each document from the original list, you MUST classify its status as one of the following: \`valid\` (unchanged), \`updated\` (content or title has changed), \`moved\` (URL has changed), or \`invalid\` (no longer accessible or relevant). This is a mandatory field for each document in the \`validDocuments\` array.
 3.  **Comprehensive Document Discovery**: Perform a thorough search to find any additional relevant policy documents not on our current list. This should always include platform specific US-based or global policies that are strongly related such as "The Take It Down Act" should always be included. Do NOT hallucinate web pages/URLs that do not exist - use returned urls from web searches. 
 4.  **Intelligent Navigation**: You may start your search in help or safety centers, but you MUST follow links to find the primary, official policy documents. Do not treat a help article that links to the Terms of Service as a policy document itself.
