@@ -45,7 +45,9 @@ export class GitHubPRCreator {
       const { data: baseBranch } = await this.octokit.rest.repos.getBranch({
         owner: this.owner,
         repo: this.repo,
-        branch: repo.default_branch,
+        // branch: repo.default_branch,
+        // TEMP for testing/replacing initial policies
+        branch: 'validation-flow',
       });
 
       const baseBranchSha = baseBranch.commit.sha;
@@ -65,7 +67,9 @@ export class GitHubPRCreator {
         title: data.title,
         body: data.body,
         head: finalBranchName,
-        base: repo.default_branch,
+        // base: repo.default_branch,
+        // TEMP for testing/replacing initial policies
+        base: 'validation-flow',
       });
 
       rollbar.info('Policy validation: PR created successfully', {
@@ -98,25 +102,37 @@ export class GitHubPRCreator {
    * Creates a new branch after cleaning up any existing policy update branches/PRs for this platform
    */
   private async createOrUpdateBranch(branchName: string, baseSha: string): Promise<string> {
-    // Extract platform from branch name (format: policy-update/{platformId}/{timestamp})
-    const platformMatch = branchName.match(/^policy-update\/([^\/]+)\//);
-    const platformId = platformMatch ? platformMatch[1] : null;
+    let includeUniqueStamp = false;
+    try {
+      // Extract platform from branch name (format: policy-update/{platformId}/{timestamp})
+      const platformMatch = branchName.match(/^policy-update\/([^\/]+)\//);
+      const platformId = platformMatch ? platformMatch[1] : null;
 
-    if (platformId) {
-      // Clean up any existing policy update branches/PRs for this platform
-      await this.cleanupExistingPolicyBranches(platformId);
+      if (platformId) {
+        // Clean up any existing policy update branches/PRs for this platform
+        includeUniqueStamp = await this.cleanupExistingPolicyBranches(platformId);
+      }
+    } catch (error: any) {
+      // If branch creation fails for any reason, log and re-throw
+      rollbar.error('Policy validation: Failed to create branch', {
+        branchName,
+        error: error instanceof Error ? error.message : String(error),
+      });
+      throw error;
     }
 
     // Create the new branch
     try {
+      const timestamp = Date.now();
+      const ref = `refs/heads/${branchName}${includeUniqueStamp ? `-${timestamp}` : ''}`;
       await this.octokit.rest.git.createRef({
         owner: this.owner,
         repo: this.repo,
-        ref: `refs/heads/${branchName}`,
+        ref: ref,
         sha: baseSha,
       });
 
-      return branchName;
+      return ref;
     } catch (error: any) {
       // If branch creation fails for any reason, log and re-throw
       rollbar.error('Policy validation: Failed to create branch', {
@@ -130,7 +146,7 @@ export class GitHubPRCreator {
   /**
    * Cleans up existing policy update branches and PRs for a specific platform
    */
-  private async cleanupExistingPolicyBranches(platformId: string): Promise<void> {
+  private async cleanupExistingPolicyBranches(platformId: string): Promise<boolean> {
     try {
       // Find all open PRs that match the policy update pattern for this platform
       const { data: pulls } = await this.octokit.rest.pulls.list({
@@ -141,10 +157,8 @@ export class GitHubPRCreator {
       });
 
       // Filter PRs that match our policy update pattern for this platform
-      const policyPRs = pulls.filter(
-        (pr) =>
-          pr.head.ref.startsWith(`policy-update/${platformId}/`) ||
-          pr.title.includes(`Policy Update: `), // Fallback pattern matching
+      const policyPRs = pulls.filter((pr) =>
+        pr.head.ref.startsWith(`policy-update/${platformId}/`),
       );
 
       if (policyPRs.length > 0) {
@@ -195,13 +209,16 @@ export class GitHubPRCreator {
             });
           }
         }
+        return true;
       }
+      return false;
     } catch (error) {
+      // Don't throw - cleanup failure shouldn't prevent new PR creation
       rollbar.warning('Policy validation: Error during cleanup', {
         platformId,
         error: error instanceof Error ? error.message : String(error),
       });
-      // Don't throw - cleanup failure shouldn't prevent new PR creation
+      return true;
     }
   }
 

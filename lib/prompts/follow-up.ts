@@ -1,5 +1,6 @@
 import { LetterRequest } from '@/types/letter';
 import { QUALITY_CHECK_CRITERIA } from '../constants/ai';
+import { contentTypes, contentContexts } from '../constants/content';
 import { getDocumentsWithRelevantPolicies, getPlatformPolicy } from '../platform-policies';
 import { getPlatformPolicyId } from '../platforms';
 import { serverInstance as rollbar } from '../rollbar';
@@ -53,6 +54,17 @@ export function generateFollowUpPrompt(request: LetterRequest) {
           request.initialQuestions.contentType,
           request.initialQuestions.contentContext,
         );
+        
+        rollbar.info('generateFollowUpPrompt: Policy filtering results', {
+          platformId: request.platformInfo.platformId,
+          contentType: request.initialQuestions.contentType,
+          contentContext: request.initialQuestions.contentContext,
+          totalDocuments: platformPolicies.policyDocuments.length,
+          relevantDocuments: documentsWithPolicies.length,
+          totalPolicies: platformPolicies.policyDocuments.reduce((sum, doc) => sum + doc.policies.length, 0),
+          relevantPolicies: documentsWithPolicies.reduce((sum, doc) => sum + doc.policies.length, 0),
+        });
+        
         platformPolicyContext = formatPolicyDataForAI(platformPolicies, documentsWithPolicies);
       }
     } else {

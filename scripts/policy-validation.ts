@@ -121,7 +121,9 @@ async function validatePlatformPolicies() {
 
         // CRITICAL: Exit with failure when PR creation fails for valid policy updates
         // This ensures the GitHub Actions job fails and alerts are sent
-        console.error('CRITICAL FAILURE: Valid policy updates found but PR creation failed');
+        console.error(
+          `CRITICAL FAILURE: Valid policy updates found but PR creation failed - ${error instanceof Error ? error.message : String(error)}`,
+        );
         process.exit(1);
       }
     } else {

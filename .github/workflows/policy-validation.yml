@@ -1,8 +1,9 @@
 name: Policy Validation Workflow
 
 on:
+  # TODO: remove the push trigger after setup/testing
   push:
-    branches: [validation-flow, validation-flow-refactors]
+    branches: [validation-flow]
   schedule:
     # Run every Monday at 9:00 AM UTC (weekly)
     - cron: '0 9 * * 1'
@@ -23,7 +24,7 @@ on:
         description: 'Force complete rewrite of policies (ignores existing policies)'
         required: false
         type: boolean
-        default: true
+        default: false
 
 jobs:
   validate-policies:
@@ -45,6 +46,8 @@ jobs:
       ANTHROPIC_TEMPERATURE: ${{ secrets.ANTHROPIC_TEMPERATURE }}
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
       GAFFA_API_KEY: ${{ secrets.GAFFA_API_KEY }}
+      NEXT_PUBLIC_ROLLBAR_CLIENT_TOKEN: ${{ secrets.NEXT_PUBLIC_ROLLBAR_CLIENT_TOKEN }}
+      ROLLBAR_SERVER_TOKEN: ${{ secrets.ROLLBAR_SERVER_TOKEN }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4

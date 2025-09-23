@@ -121,7 +121,7 @@ export async function orchestratePolicyValidation(
         platformId,
         failedCount: failedScrapes.length,
         totalCount: scrapingResults.length,
-        failedUrls: failedScrapes.map(f => f.url),
+        failedUrls: failedScrapes.map((f) => f.url),
       });
     }
 
@@ -178,7 +178,6 @@ export async function orchestratePolicyValidation(
       }
     }
 
-
     // Process all documents in parallel
     const parallelAbstractionResults = await abstractPoliciesFromMultipleDocuments(
       documentsForAbstraction.map((doc) => ({
@@ -197,7 +196,6 @@ export async function orchestratePolicyValidation(
       result: PolicyAbstractionResult;
     }> = parallelAbstractionResults.map((result, index) => {
       const doc = documentsForAbstraction[index];
-
 
       return {
         documentId: doc.documentId,
@@ -296,13 +294,12 @@ export async function orchestratePolicyValidation(
       };
     }
 
-
     const qualityCheckPrompt = generatePolicyValidationQualityCheckPrompt(
       platformId,
       platformName,
       currentPolicies,
       updatedPolicies,
-      JSON.stringify(comparison.summary),
+      scrapingResults,
     );
 
     const qualityCheckResponse = await callAnthropic(qualityCheckPrompt);
@@ -313,7 +310,8 @@ export async function orchestratePolicyValidation(
       validationStatus: qualityCheck.validationStatus,
       overallQualityScore: qualityCheck.overallQualityScore,
       issuesCount: qualityCheck.issues.length,
-      criticalIssues: qualityCheck.issues.filter(i => i.severity === 'critical').length,
+      criticalIssues: qualityCheck.issues.filter((i) => i.severity === 'critical').length,
+      issues: qualityCheck.issues.map((issue) => `${issue.type} - ${issue.description}`),
     });
 
     const result: PolicyValidationOrchestrationResult = {

@@ -12,12 +12,12 @@ export interface QualityCheckResponse {
       | 'SENSITIVE_DATA'
       | 'POLICY_ERROR'
       | 'BANNED_TERM'
-      | 'AGGRESSIVE_TONE'
+      | 'INAPPROPRIATE_TONE'
+      | 'MISSING_CRITICAL_INFO'
       | 'LANGUAGE'
-      | 'IMPROPER_TONE'
-      | 'STRUCTURE'
-      | 'INFO_HANDLING'
-      | 'SUBJECT_LINE';
+      | 'STRUCTURE_DEVIATION'
+      | 'INFO_HANDLING_ERROR'
+      | 'SUBJECT_LINE_ERROR';
     description: string;
   }[];
   improvedLetter: {
@@ -50,48 +50,45 @@ export function generateLetterQualityCheckPrompt(
   const prompt = `
 # ROLE & OBJECTIVE
 
-You are a meticulous and exacting Quality Assurance (QA) Analyst AI. Your primary objective is to audit a generated letter against a master set of rules and context. You will identify all deviations, provide a surgically corrected version of the letter that makes only the necessary changes, and produce a comprehensive audit report of all issues found.
+You are a meticulous and exacting Quality Assurance (QA) Analyst AI. Your primary objective is to audit a generated letter against a master set of rules and factual context. You will determine if the letter makes the strongest possible arguments, identify all deviations, provide a surgically corrected version of the letter that makes only the necessary changes, and produce a comprehensive audit report of all issues found.
 
 # CRITICAL DIRECTIVES
 
-Follow these steps precisely:
+Follow these steps and guidelines precisely:
 
-1.  **Step 1: Comprehensive Audit.** Scan the \`originalLetter\` against all issues below.
-2.  **Step 2: Document All Findings.** For every single violation found, log it in the \`issues\` array with its severity. If no issues are found, the array must be empty \`[]\`.
-3.  **Step 3: Perform Surgical Correction.** Create the \`improvedLetter\` by correcting **all** identified issues in the \`originalLetter\`. Adhere strictly to the **Surgical Correction** directive.
+1.  **Be Exacting:** You must scrutinize the provided letter against *every single rule* outlined in the **Validation Criteria** below, using the \`Factual Context\` as the absolute ground truth.
+2.  **Comprehensive Audit**: Scan the \`originalLetter\` to identify all violations. This includes a strategic review to assess if the strongest policies were chosen.
+3.  **Document All Findings**: For every single violation found, log it in the \`issues\` array with its severity and code. If no issues are found, the array must be empty \`[]\`.
+4.  **Surgical Correction**: Create the \`improvedLetter\` by correcting **all** identified issues. Change **only** what is necessary to fix the issues. Preserve the original letter's structure, phrasing, and intent as much as possible. If the original is perfect, the \`improvedLetter\` MUST be identical.
+5.  **Objective Analysis:** Your findings in the \`issues\` array must be factual, objective, and directly reference the specific rule that was broken.
 
-Follow these guidelines strictly:
-1.  **Be Exacting:** You must scrutinize the provided letter against *every single rule* outlined in the issues below, using its contents as the absolute ground truth.
-2.  **Surgical Correction:** When creating the \`improvedLetter\`, your goal is to be a surgeon, not an artist. Change **only** what is necessary to fix the identified issues. Preserve the original letter's structure, phrasing, and intent as much as possible.
-    * **Example:** If only a single word is wrong (e.g., American spelling), change only that word, not the entire sentence.
-    * If the original letter is perfect, the \`improvedLetter\` **must be identical** to it.
-3.  **Objective Analysis:** Your findings in the \`issues\` array must be factual, objective, and directly reference the specific rule that was broken.
+---
 
-## Critical Issues
+# VALIDATION CRITERIA
+
+## CRITICAL Issues
 The presence of any of these issues constitutes a fundamental failure.
 
-1.  **Hallucination of Information**: The letter includes **any** detail not explicitly provided in **Part A: Factual Context**.
-    * **Examples**: References to unprovided previous correspondence (e.g., "our phone call last week"), assumptions about platform actions, or inclusion of any unapproved placeholders (e.g., \`[Your Name]\`).
-2.  **Inclusion of Unnecessary Sensitive Data**: The letter contains personal details beyond what is required or appropriate.
-    * **Examples**: Specific medical conditions, third-party names, or graphic details that go beyond the summarized \`Impact Statement\`.
-3.  **Incorrect Policy Application**: The letter misrepresents or misuses the provided platform policies from the \`PLATFORM POLICY CONTEXT\`.
-    * **Examples**: Referencing policy codes instead of summaries, mentioning policies related to ID verification, or failing to clearly connect the content to a specific policy.
-4.  **Presence of Banned Terms**: The letter contains any term from the **Banned Terms** list.
-5.  **Aggressive or Threatening Language**: The letter uses hostile, demanding, or inappropriately legalistic language (e.g., "you must comply," "I demand action").
-6.  **Improper Tone or Style**: The language is unprofessional, not concise, or fails to be trauma-informed and respectful. Use **Banned Terms** list as guidance. 
-7.  **Missing Content location**: The letter does not include the required \`[Content Location]\` placeholder. The improved letter MUST include \`Content location: [Content Location]\` near the top of the letter.
+1.  **Hallucination**: The letter includes **any** detail not explicitly provided in the \`Factual Context\`.
+2.  **Inclusion of Unnecessary Sensitive Data**: The letter contains personal details beyond what is required (e.g., specific medical conditions, third-party names) or fails to properly generalize the user's impact statement.
+3.  **Poor Strategic Choice / Policy Error**: The letter cites an irrelevant policy, misses a clearly more applicable and powerful policy available in the \`platformPolicyContext\`, or misrepresents a policy.
+4.  **Banned Term Usage**: The letter contains any term from the **Banned Terms** list.
+5.  **Inappropriate Tone**: The language is unprofessional, aggressive, demanding, threatening, or fails to be trauma-informed and respectful.
+6.  **Missing Critical Information**: The letter fails to include the required \`Content location: [Content Location]\` statement.
 
-## Minor Issues
+## MINOR Issues
 These issues impact quality but are not fundamental failures.
 
 1.  **Language Inconsistency**: The letter is not written entirely in British English (en-GB).
-2.  **Flawed Structure or Clarity**: The letter is poorly organized, the request is ambiguous, or does not end with \`Sincerely,\` followed by a new line.
-3.  **Incorrect Information Handling**: The letter misuses evidence, understates or overstates the \`Impact Statement\`, or includes sensitive specifics that should have been generalized.
-4.  **Poor Subject Line**: The subject line is generic, unclear, or does not accurately reflect the letter's purpose (e.g., "Urgent" instead of "Takedown Request - Impersonation Account").
+2.  **Structural Deviation**: The letter does not follow the 7-part letter blueprint (Introduction, Location/Timeline, Violations, etc.) or fails to use the required bulleted "Narrative List" format for the policy violations section.
+3.  **Incorrect Information Handling**: The letter misuses evidence or fails to correctly format dates.
+4.  **Poor Subject Line**: The subject line is generic, unclear, or does not accurately reflect the letter's purpose.
 
 ## Banned Terms
 The presence of any of these terms is a **CRITICAL** issue.
-${QUALITY_CHECK_CRITERIA.MAJOR.SENSITIVE_TERMS.map(({ term, replacement }) => `- Term: "${term}" (Correct Replacement: "${replacement}")`).join('\\n')}
+${QUALITY_CHECK_CRITERIA.MAJOR.SENSITIVE_TERMS.map(
+  ({ term, replacement }) => `- Term: "${term}" (Correct Replacement: "${replacement}")`,
+).join('\\n')}
 
 ---
 
@@ -104,7 +101,7 @@ You MUST respond with a single, valid JSON object. The object must have this exa
   "issues": [
     {
       "severity": "CRITICAL" | "MINOR",
-      "code": "HALLUCINATION" | "SENSITIVE_DATA" | "POLICY_ERROR" | "BANNED_TERM" | "AGGRESSIVE_TONE" | "LANGUAGE" | "IMPROPER_TONE" | "STRUCTURE" | "INFO_HANDLING" | "SUBJECT_LINE",
+      "code": "HALLUCINATION" | "SENSITIVE_DATA" | "POLICY_ERROR" | "BANNED_TERM" | "INAPPROPRIATE_TONE" | "MISSING_CRITICAL_INFO" | "LANGUAGE" | "STRUCTURE_DEVIATION" | "INFO_HANDLING_ERROR" | "SUBJECT_LINE_ERROR",
       "description": "A clear, concise description of the specific issue found and how it violates the rules."
     }
   ],
@@ -117,19 +114,18 @@ You MUST respond with a single, valid JSON object. The object must have this exa
 
 ---
 
-# INPUTS
+# AUDIT MATERIALS
 
-The original letter:
-\`\`\`
+**Original Letter to Audit:**
+\`\`\`json
 ${JSON.stringify(letter)}
 \`\`\`
 
-## User inputs 
+**User inputs (context)**
 ${formatInputsForAI(request)}
 
 ${platformPolicyContext}
 `;
 
-  console.log(prompt);
   return prompt;
 }
