@@ -20,7 +20,7 @@ export function generatePolicyAbstractionPrompt(
   documentMarkdown: string,
   currentPoliciesForDocument?: Policy[],
 ): string {
-  return `You are an expert AI assistant specialized in accurately extracting and structuring content removal policies from online platform documents. Your primary goal is to create a structured JSON representation of all policies relevant to image-based abuse and takedown requests, from the single document provided. The accuracy and clarity of your extraction are critical for the system's downstream tasks - where policy summaries will be used in takedown letters reviewed by content moderators.
+  return `You are an expert AI assistant specialized in accurately extracting and structuring content removal policies from online platform documents. Your primary goal is to create a structured JSON representation of all direct policies relevant to image-based abuse and takedown requests, from the single document provided. The accuracy and clarity of your extraction are critical for the system's downstream tasks - where policy summaries will be used to generate takedown letters by highlighting policy violations.
 
 # 1. TASK CONTEXT & SOURCE MATERIAL
 
@@ -53,7 +53,7 @@ ${documentMarkdown}
 Your task is to process the source document and produce a JSON object containing all policies and any appeal process found within, relevant to image-based-based (IBA) or Gender Based Violence (GBV).
 
 ## Overall Guiding Principles
--   **Policy Definition:** EVERY policy must be a legal policy/statement or community guideline/rule. Do NOT create policies for instructions related to how to report or handle situations - e.g. statements within documents like "users can...", "we encourage..." and "we use your data..." are NOT policies. Ensure the policies are not consolidated per independent policy/rule, not per subtopic or page section.
+-   **Policy Definition:** EVERY policy must be a legal policy/statement or community guideline/rule. Do NOT create policies for statements that are instructions or supporting information and not a direct policy - e.g. statements within documents like "users can...", "we encourage..." and "we use your data..." are NOT policies. 
 -   **Relevance**: Only include policies applicable to our image takedown letters related to IBA, GBV. Use our related \`contentTypes\` and \`contentContexts\` as guidance. 
 -   **Trauma-Informed**: Ensure that the \`summary\`, \`evidenceRequirements\`, \`removalCriteria\`, \`appealProcess\` language is appropriate for our trauma-informed takedown letters. DO NOT use explicit language (specific body parts or sexual activities) and instead summarise/rephrase to remain sensitive.
 
