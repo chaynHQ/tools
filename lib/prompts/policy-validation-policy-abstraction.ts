@@ -53,7 +53,7 @@ ${documentMarkdown}
 Your task is to process the source document and produce a JSON object containing all policies and any appeal process found within, relevant to image-based-based (IBA) or Gender Based Violence (GBV).
 
 ## Step 1: Identify Relevant Policies
-First, scan the entire document and identify all policy statements relevant to the following areas of abuse:
+First, scan the entire document and identify all policy statements relevant to the following areas of Image Based Abuse:
 -   Non-consensual intimate imagery (NCII)
 -   Harassment and bullying
 -   Privacy violations and doxing
@@ -64,7 +64,6 @@ First, scan the entire document and identify all policy statements relevant to t
 -   Account security and hacking
 -   Associated content removal and appeal processes
 
-**IMPORTANT**: All unrelated policies (e.g. policies related to animal abuse) should not be included. Ensure every policy record is a policy statement and not instructions to the user related to a policy or how to report.
 
 ## Step 2: Extract and Structure Each Policy
 For each policy you identify, create a JSON object that strictly conforms to the \`Policy\` interface. You must follow these field-by-field instructions:
@@ -104,10 +103,9 @@ export interface Policy {
 If the document describes an appeals process, extract the URL, a summary of the process, and a list of the specific steps.
 
 ## Overall Guiding Principles
--   **Comprehensiveness**: Do not miss any RELEVANT policies.
--   **Relevance**: Only include policies applicable to our image takedown letters related to IBA and GBV.
+-   **Policy Definition:** EVERY policy must be a legal policy/statement or usage guideline. Do NOT create policies for instructions related to how to report or handle situations - e.g. statements within documents like "users can...", "we encourage..." and "we use your data..." are NOT policies. Ensure the policies are not consolidated per independent policy/rule, not per subtopic or page section.
+-   **Relevance**: Only include policies applicable to our image takedown letters related to IBA and GBV. 
 -   **Trauma-Informed**: Ensure that the \`summary\`, \`evidenceRequirements\`, \`removalCriteria\`, \`appealProcess\` language is appropriate for our trauma-informed takedown letters.
-
 ---
 
 # 3. OUTPUT FORMAT
