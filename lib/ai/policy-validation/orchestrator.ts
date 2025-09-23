@@ -311,6 +311,7 @@ export async function orchestratePolicyValidation(
       overallQualityScore: qualityCheck.overallQualityScore,
       issuesCount: qualityCheck.issues.length,
       criticalIssues: qualityCheck.issues.filter((i) => i.severity === 'critical').length,
+      summary: qualityCheck.issues.map((issue) => `${issue.type} - ${issue.description}`),
     });
 
     const result: PolicyValidationOrchestrationResult = {

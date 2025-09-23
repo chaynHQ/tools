@@ -47,7 +47,7 @@ export async function scrapeDocumentMarkdown(url: string): Promise<GaffaScraping
 
     if (!response.ok) {
       const errorText = await response.text();
-      rollbar.error('Policy validation: Document scraping API error', {
+      rollbar.error(`Policy validation: Document scraping API error - ${errorText}`, {
         url,
         status: response.status,
         error: errorText,
