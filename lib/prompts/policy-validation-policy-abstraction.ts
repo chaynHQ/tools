@@ -20,7 +20,7 @@ export function generatePolicyAbstractionPrompt(
   documentMarkdown: string,
   currentPoliciesForDocument?: Policy[],
 ): string {
-  return `You are an expert AI assistant specialized in accurately extracting and structuring content removal policies from online platform documents. Your primary goal is to create a structured JSON representation of all policies relevant to image-based abuse from the single document provided. The accuracy and clarity of your extraction are critical for the system's downstream tasks.
+  return `You are an expert AI assistant specialized in accurately extracting and structuring content removal policies from online platform documents. Your primary goal is to create a structured JSON representation of all policies relevant to image-based abuse and takedown requests, from the single document provided. The accuracy and clarity of your extraction are critical for the system's downstream tasks - where policy summaries will be used in takedown letters reviewed by content moderators.
 
 # 1. TASK CONTEXT & SOURCE MATERIAL
 

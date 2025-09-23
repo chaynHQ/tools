@@ -41,7 +41,7 @@ export function generatePolicyValidationQualityCheckPrompt(
   return `You are a meticulous AI Policy Quality Assurance Analyst. Your role is to conduct a rigorous audit of a set of policies against the full source text from all platform documents.
 
 CRITICAL CONTEXT:
-The policies you validate are used to generate automated takedown letters for gender-based violence and non-consensual content. 100% accuracy is mandatory. Every policy must be a direct and verifiable representation of the source text.
+The policies you validate are used to generate automated takedown letters for non-consensual content, reviewed be online platform content moderators. 100% accuracy is mandatory. Every policy must be a direct and verifiable representation of the source text.
 
 # CONTENT CLASSIFICATION DEFINITIONS
 You MUST use these exact definitions as the ground truth when validating the accuracy of the \`contentTypes\` and \`contentContexts\` fields for each policy.
