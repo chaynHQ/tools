@@ -6,15 +6,15 @@ export const facebookPolicy: PlatformPolicies = {
   {
     "id": "us-take-it-down-act",
     "reference": "S.146",
-    "title": "TAKE IT DOWN Act",
-    "summary": "US federal law that criminalizes nonconsensual publication of intimate images and requires covered platforms to implement notice-and-removal processes. Signed into law May 19, 2025 as Public Law No. 119-12.",
+    "title": "TAKE IT DOWN Act (Enacted)",
+    "summary": "Federal law enacted May 19, 2025, that criminalizes nonconsensual publication of intimate images (both authentic and AI-generated) and requires covered platforms to implement notice-and-removal processes within 48 hours of verified requests.",
     "url": "https://www.congress.gov/bill/119th-congress/senate-bill/146/text",
-    "accessTimestamp": "2025-09-23T20:26:44.835Z",
+    "accessTimestamp": "2025-09-23T20:32:51.491Z",
     "policies": [
       {
-        "id": "takedown-act-ncii-authentic-adults",
+        "id": "take-it-down-authentic-adults",
         "reference": "Section 2(h)(2)(A)",
-        "summary": "Prohibits knowingly publishing authentic intimate visual depictions of adults without consent when obtained under circumstances with reasonable expectation of privacy, not voluntarily exposed publicly, not a matter of public concern, and intended to cause harm or causes harm",
+        "summary": "Prohibits knowingly publishing authentic intimate visual depictions of adults without consent when obtained under circumstances with reasonable expectation of privacy, not voluntarily exposed publicly, not a matter of public concern, and intended to cause or causing harm",
         "quote": "it shall be unlawful for any person, in interstate or foreign commerce, to use an interactive computer service to knowingly publish an intimate visual depiction of an identifiable individual who is not a minor if— (i) the intimate visual depiction was obtained or created under circumstances in which the person knew or reasonably should have known the identifiable individual had a reasonable expectation of privacy; (ii) what is depicted was not voluntarily exposed by the identifiable individual in a public or commercial setting; (iii) what is depicted is not a matter of public concern; and (iv) publication of the intimate visual depiction— (I) is intended to cause harm; or (II) causes harm, including psychological, financial, or reputational harm, to the identifiable individual.",
         "contentTypes": [
           "intimate"
@@ -28,14 +28,14 @@ export const facebookPolicy: PlatformPolicies = {
         "timeframes": null,
         "evidenceRequirements": [],
         "removalCriteria": [
-          "Intimate visual depiction was obtained or created under circumstances with reasonable expectation of privacy",
-          "Content was not voluntarily exposed by the individual in a public or commercial setting",
+          "Intimate visual depiction obtained or created under circumstances with reasonable expectation of privacy",
+          "Content was not voluntarily exposed in public or commercial setting",
           "Content is not a matter of public concern",
-          "Publication is intended to cause harm or causes psychological, financial, or reputational harm"
+          "Publication intended to cause harm or causes psychological, financial, or reputational harm"
         ]
       },
       {
-        "id": "takedown-act-ncii-authentic-minors",
+        "id": "take-it-down-authentic-minors",
         "reference": "Section 2(h)(2)(B)",
         "summary": "Prohibits knowingly publishing authentic intimate visual depictions of minors with intent to abuse, humiliate, harass, degrade, or arouse sexual desire",
         "quote": "it shall be unlawful for any person, in interstate or foreign commerce, to use an interactive computer service to knowingly publish an intimate visual depiction of an identifiable individual who is a minor with intent to— (i) abuse, humiliate, harass, or degrade the minor; or (ii) arouse or gratify the sexual desire of any person.",
@@ -51,15 +51,15 @@ export const facebookPolicy: PlatformPolicies = {
         "timeframes": null,
         "evidenceRequirements": [],
         "removalCriteria": [
-          "Content depicts a minor",
-          "Publication is intended to abuse, humiliate, harass, or degrade the minor",
-          "Publication is intended to arouse or gratify sexual desire"
+          "Intimate visual depiction of a minor",
+          "Intent to abuse, humiliate, harass, or degrade the minor",
+          "Intent to arouse or gratify sexual desire"
         ]
       },
       {
-        "id": "takedown-act-deepfakes-adults",
+        "id": "take-it-down-deepfake-adults",
         "reference": "Section 2(h)(3)(A)",
-        "summary": "Prohibits knowingly publishing digital forgeries (deepfakes) of adults without consent when not voluntarily exposed publicly, not a matter of public concern, and intended to cause harm or causes harm",
+        "summary": "Prohibits knowingly publishing digital forgeries (deepfakes) of adults without consent when not voluntarily exposed publicly, not a matter of public concern, and intended to cause or causing harm",
         "quote": "it shall be unlawful for any person, in interstate or foreign commerce, to use an interactive computer service to knowingly publish a digital forgery of an identifiable individual who is not a minor if— (i) the digital forgery was published without the consent of the identifiable individual; (ii) what is depicted was not voluntarily exposed by the identifiable individual in a public or commercial setting; (iii) what is depicted is not a matter of public concern; and (iv) publication of the digital forgery— (I) is intended to cause harm; or (II) causes harm, including psychological, financial, or reputational harm, to the identifiable individual.",
         "contentTypes": [
           "intimate"
@@ -73,14 +73,14 @@ export const facebookPolicy: PlatformPolicies = {
         "timeframes": null,
         "evidenceRequirements": [],
         "removalCriteria": [
-          "Content is a digital forgery published without consent",
-          "Content was not voluntarily exposed by the individual in a public or commercial setting",
+          "Digital forgery published without consent of the individual",
+          "Content was not voluntarily exposed in public or commercial setting",
           "Content is not a matter of public concern",
-          "Publication is intended to cause harm or causes psychological, financial, or reputational harm"
+          "Publication intended to cause harm or causes psychological, financial, or reputational harm"
         ]
       },
       {
-        "id": "takedown-act-deepfakes-minors",
+        "id": "take-it-down-deepfake-minors",
         "reference": "Section 2(h)(3)(B)",
         "summary": "Prohibits knowingly publishing digital forgeries (deepfakes) of minors with intent to abuse, humiliate, harass, degrade, or arouse sexual desire",
         "quote": "it shall be unlawful for any person, in interstate or foreign commerce, to use an interactive computer service to knowingly publish a digital forgery of an identifiable individual who is a minor with intent to— (i) abuse, humiliate, harass, or degrade the minor; or (ii) arouse or gratify the sexual desire of any person.",
@@ -96,13 +96,13 @@ export const facebookPolicy: PlatformPolicies = {
         "timeframes": null,
         "evidenceRequirements": [],
         "removalCriteria": [
-          "Content is a digital forgery depicting a minor",
-          "Publication is intended to abuse, humiliate, harass, or degrade the minor",
-          "Publication is intended to arouse or gratify sexual desire"
+          "Digital forgery of a minor",
+          "Intent to abuse, humiliate, harass, or degrade the minor",
+          "Intent to arouse or gratify sexual desire"
         ]
       },
       {
-        "id": "takedown-act-threats-authentic",
+        "id": "take-it-down-threats-authentic",
         "reference": "Section 2(h)(6)(A)",
         "summary": "Prohibits intentionally threatening to publish authentic intimate visual depictions for intimidation, coercion, extortion, or to create mental distress",
         "quote": "Any person who intentionally threatens to commit an offense under paragraph (2) for the purpose of intimidation, coercion, extortion, or to create mental distress shall be punished as provided in paragraph (4).",
@@ -110,7 +110,6 @@ export const facebookPolicy: PlatformPolicies = {
           "intimate"
         ],
         "contentContexts": [
-          "hacked",
           "relationship",
           "unknown",
           "other"
@@ -119,19 +118,18 @@ export const facebookPolicy: PlatformPolicies = {
         "evidenceRequirements": [],
         "removalCriteria": [
           "Intentional threat to publish authentic intimate visual depictions",
-          "Threat made for intimidation, coercion, extortion, or to create mental distress"
+          "Purpose of intimidation, coercion, extortion, or creating mental distress"
         ]
       },
       {
-        "id": "takedown-act-threats-deepfakes-adults",
-        "reference": "Section 2(h)(6)(B)(i)",
-        "summary": "Prohibits intentionally threatening to publish digital forgeries (deepfakes) of adults for intimidation, coercion, extortion, or to create mental distress",
-        "quote": "Any person who intentionally threatens to commit an offense under paragraph (3)(A) for the purpose of intimidation, coercion, extortion, or to create mental distress shall be fined under title 18, United States Code, imprisoned not more than 18 months, or both.",
+        "id": "take-it-down-threats-deepfake",
+        "reference": "Section 2(h)(6)(B)",
+        "summary": "Prohibits intentionally threatening to publish digital forgeries (deepfakes) for intimidation, coercion, extortion, or to create mental distress",
+        "quote": "Any person who intentionally threatens to commit an offense under paragraph (3)(A) for the purpose of intimidation, coercion, extortion, or to create mental distress shall be fined under title 18, United States Code, imprisoned not more than 18 months, or both. Any person who intentionally threatens to commit an offense under paragraph (3)(B) for the purpose of intimidation, coercion, extortion, or to create mental distress shall be fined under title 18, United States Code, imprisoned not more than 30 months, or both.",
         "contentTypes": [
           "intimate"
         ],
         "contentContexts": [
-          "hacked",
           "relationship",
           "unknown",
           "other"
@@ -139,77 +137,14 @@ export const facebookPolicy: PlatformPolicies = {
         "timeframes": null,
         "evidenceRequirements": [],
         "removalCriteria": [
-          "Intentional threat to publish digital forgeries of adults",
-          "Threat made for intimidation, coercion, extortion, or to create mental distress"
+          "Intentional threat to publish digital forgeries",
+          "Purpose of intimidation, coercion, extortion, or creating mental distress"
         ]
       },
       {
-        "id": "takedown-act-threats-deepfakes-minors",
-        "reference": "Section 2(h)(6)(B)(ii)",
-        "summary": "Prohibits intentionally threatening to publish digital forgeries (deepfakes) of minors for intimidation, coercion, extortion, or to create mental distress",
-        "quote": "Any person who intentionally threatens to commit an offense under paragraph (3)(B) for the purpose of intimidation, coercion, extortion, or to create mental distress shall be fined under title 18, United States Code, imprisoned not more than 30 months, or both.",
-        "contentTypes": [
-          "intimate"
-        ],
-        "contentContexts": [
-          "hacked",
-          "relationship",
-          "unknown",
-          "other"
-        ],
-        "timeframes": null,
-        "evidenceRequirements": [],
-        "removalCriteria": [
-          "Intentional threat to publish digital forgeries of minors",
-          "Threat made for intimidation, coercion, extortion, or to create mental distress"
-        ]
-      },
-      {
-        "id": "takedown-act-platform-removal-process",
-        "reference": "Section 3(a)(1)",
-        "summary": "Requires covered platforms to establish a notice and removal process for nonconsensual intimate visual depictions within one year of enactment",
-        "quote": "Not later than 1 year after the date of enactment of this Act, a covered platform shall establish a process whereby an identifiable individual (or an authorized person acting on behalf of such individual) may— (i) notify the covered platform of an intimate visual depiction published on the covered platform that— (I) includes a depiction of the identifiable individual; and (II) was published without the consent of the identifiable individual; and (ii) submit a request for the covered platform to remove such intimate visual depiction.",
-        "contentTypes": [
-          "intimate"
-        ],
-        "contentContexts": [
-          "hacked",
-          "relationship",
-          "unknown",
-          "other"
-        ],
-        "timeframes": null,
-        "evidenceRequirements": [
-          {
-            "description": "Physical or electronic signature of the identifiable individual or authorized person",
-            "example": "Digital signature or handwritten signature on document",
-            "reason": "To verify identity and authorization for the removal request"
-          },
-          {
-            "description": "Identification of and information reasonably sufficient to locate the intimate visual depiction",
-            "example": "URL, screenshot, or detailed description of content location",
-            "reason": "To enable the platform to locate the specific content for removal"
-          },
-          {
-            "description": "Brief statement of good faith belief that the content is nonconsensual",
-            "example": "Statement explaining why the content was published without consent",
-            "reason": "To establish the basis for the removal request"
-          },
-          {
-            "description": "Contact information for the individual or authorized person",
-            "example": "Email address, phone number, or mailing address",
-            "reason": "To enable platform communication regarding the request"
-          }
-        ],
-        "removalCriteria": [
-          "Content includes a depiction of the identifiable individual",
-          "Content was published without the consent of the identifiable individual"
-        ]
-      },
-      {
-        "id": "takedown-act-platform-removal-timeframe",
+        "id": "take-it-down-platform-removal",
         "reference": "Section 3(a)(3)",
-        "summary": "Requires covered platforms to remove nonconsensual intimate visual depictions and identical copies within 48 hours of receiving a valid removal request",
+        "summary": "Requires covered platforms to remove nonconsensual intimate visual depictions within 48 hours of receiving a valid removal request and make reasonable efforts to remove identical copies",
         "quote": "Upon receiving a valid removal request from an identifiable individual (or an authorized person acting on behalf of such individual) using the process described in paragraph (1)(A)(ii), a covered platform shall, as soon as possible, but not later than 48 hours after receiving such request— (A) remove the intimate visual depiction; and (B) make reasonable efforts to identify and remove any known identical copies of such depiction.",
         "contentTypes": [
           "intimate"
@@ -225,20 +160,42 @@ export const facebookPolicy: PlatformPolicies = {
           "removal": {
             "value": 48,
             "unit": "hours",
-            "description": "Platform must remove content as soon as possible, but not later than 48 hours after receiving valid removal request"
+            "description": "Platform must remove content within 48 hours of receiving valid removal request"
           }
         },
-        "evidenceRequirements": [],
+        "evidenceRequirements": [
+          {
+            "description": "Physical or electronic signature of the individual or authorized person",
+            "example": "Digital signature or scanned signature",
+            "reason": "To verify identity and authorization for removal request"
+          },
+          {
+            "description": "Identification and location information for the intimate visual depiction",
+            "example": "URL or specific location of content on platform",
+            "reason": "To enable platform to locate the specific content for removal"
+          },
+          {
+            "description": "Good faith statement that content is nonconsensual",
+            "example": "Brief explanation of why content was published without consent",
+            "reason": "To establish that publication was without consent of the individual"
+          },
+          {
+            "description": "Contact information for the individual or authorized person",
+            "example": "Email address or phone number",
+            "reason": "To enable platform communication regarding the removal request"
+          }
+        ],
         "removalCriteria": [
-          "Valid removal request has been received",
-          "Request follows the established notice and removal process"
+          "Valid removal request submitted through established process",
+          "Content includes depiction of identifiable individual",
+          "Content was published without consent of the individual"
         ]
       },
       {
-        "id": "takedown-act-platform-notice-requirement",
-        "reference": "Section 3(a)(2)",
-        "summary": "Requires covered platforms to provide clear and conspicuous notice of their removal process for nonconsensual intimate visual depictions",
-        "quote": "A covered platform shall provide on the platform a clear and conspicuous notice, which may be provided through a clear and conspicuous link to another web page or disclosure, of the notice and removal process established under paragraph (1)(A) that— (A) is easy to read and in plain language; and (B) provides information regarding the responsibilities of the covered platform under this section, including a description of how an individual can submit a notification and request for removal.",
+        "id": "take-it-down-platform-process",
+        "reference": "Section 3(a)(1)",
+        "summary": "Requires covered platforms to establish a notice and removal process for individuals to request removal of nonconsensual intimate visual depictions",
+        "quote": "Not later than 1 year after the date of enactment of this Act, a covered platform shall establish a process whereby an identifiable individual (or an authorized person acting on behalf of such individual) may— (i) notify the covered platform of an intimate visual depiction published on the covered platform that— (I) includes a depiction of the identifiable individual; and (II) was published without the consent of the identifiable individual; and (ii) submit a request for the covered platform to remove such intimate visual depiction.",
         "contentTypes": [
           "intimate"
         ],
@@ -248,29 +205,35 @@ export const facebookPolicy: PlatformPolicies = {
           "unknown",
           "other"
         ],
-        "timeframes": null,
+        "timeframes": {
+          "response": {
+            "value": 1,
+            "unit": "years",
+            "description": "Platform must establish removal process within 1 year of Act enactment"
+          },
+          "removal": null
+        },
         "evidenceRequirements": [],
         "removalCriteria": [
-          "Notice must be clear and conspicuous on the platform",
-          "Notice must be easy to read and in plain language",
-          "Notice must describe how to submit removal requests"
+          "Content includes depiction of identifiable individual",
+          "Content was published without consent of the individual"
         ]
       }
     ],
     "appealProcess": null
   },
   {
-    "id": "facebook-new-1758659204835-0",
+    "id": "facebook-new-1758659571491-0",
     "reference": "META-CS-2025",
     "title": "Meta Community Standards",
-    "summary": "Comprehensive community guidelines covering Facebook, Instagram, Messenger and Threads, including policies on adult nudity, sexual activity, and non-consensual intimate imagery.",
+    "summary": "Comprehensive policy document covering Facebook, Instagram, Messenger, and Threads content policies including adult nudity, sexual activity, bullying, harassment, and non-consensual intimate imagery.",
     "url": "https://transparency.meta.com/policies/community-standards/",
-    "accessTimestamp": "2025-09-23T20:26:44.835Z",
+    "accessTimestamp": "2025-09-23T20:32:51.491Z",
     "policies": [
       {
         "id": "meta-cs-adult-sexual-exploitation",
         "reference": "Adult Sexual Exploitation",
-        "summary": "Prohibits adult sexual exploitation including non-consensual intimate imagery and sexual harassment",
+        "summary": "Prohibits adult sexual exploitation including non-consensual intimate imagery and sexual content shared without permission",
         "quote": "Adult Sexual Exploitation",
         "contentTypes": [
           "intimate",
@@ -285,13 +248,14 @@ export const facebookPolicy: PlatformPolicies = {
         "timeframes": null,
         "evidenceRequirements": [],
         "removalCriteria": [
-          "Content constitutes adult sexual exploitation"
+          "Content involves adult sexual exploitation",
+          "Sexual content shared without consent"
         ]
       },
       {
         "id": "meta-cs-bullying-harassment",
         "reference": "Bullying and Harassment",
-        "summary": "Prohibits bullying and harassment that degrades or intimidates individuals",
+        "summary": "Prohibits bullying and harassment content that degrades or intimidates individuals",
         "quote": "Bullying and Harassment",
         "contentTypes": [
           "intimate",
@@ -309,39 +273,39 @@ export const facebookPolicy: PlatformPolicies = {
         "timeframes": null,
         "evidenceRequirements": [],
         "removalCriteria": [
-          "Content constitutes bullying or harassment"
+          "Content constitutes bullying behavior",
+          "Content harasses or intimidates individuals"
         ]
       },
       {
         "id": "meta-cs-privacy-violations",
         "reference": "Privacy Violations",
-        "summary": "Prohibits privacy violations and image privacy rights violations including sharing personal information without consent",
+        "summary": "Prohibits privacy violations and protects image privacy rights including unauthorized sharing of personal content",
         "quote": "Privacy Violations",
         "contentTypes": [
           "intimate",
           "personal",
-          "private",
-          "other"
+          "private"
         ],
         "contentContexts": [
-          "relationship",
           "hacked",
-          "impersonation",
+          "relationship",
           "unknown",
           "other"
         ],
         "timeframes": null,
         "evidenceRequirements": [],
         "removalCriteria": [
-          "Content violates privacy rights",
-          "Content violates image privacy rights"
+          "Content violates individual privacy",
+          "Images shared without authorization",
+          "Personal information disclosed without consent"
         ]
       },
       {
         "id": "meta-cs-authentic-identity",
         "reference": "Authentic Identity Representation",
-        "summary": "Prohibits misrepresenting identity and impersonation on the platform",
-        "quote": "Authentic Identity Representation",
+        "summary": "Prohibits misrepresentation of identity and impersonation to ensure authentic user representation",
+        "quote": "We want to make sure the content people see is authentic. We believe that authenticity creates a better environment for sharing, and that's why we don't want people using our services to misrepresent who they are or what they're doing.",
         "contentTypes": [
           "personal",
           "other"
@@ -354,129 +318,63 @@ export const facebookPolicy: PlatformPolicies = {
         "evidenceRequirements": [],
         "removalCriteria": [
           "Content misrepresents user identity",
-          "Account is impersonating another person"
+          "Account impersonates another person",
+          "False representation of identity or activities"
         ]
       },
       {
-        "id": "meta-cs-child-sexual-exploitation",
-        "reference": "Child Sexual Exploitation, Abuse, and Nudity",
-        "summary": "Prohibits child sexual exploitation, abuse, and inappropriate imagery involving minors",
-        "quote": "Child Sexual Exploitation, Abuse, and Nudity",
-        "contentTypes": [
-          "intimate",
-          "personal",
-          "other"
-        ],
-        "contentContexts": [
-          "relationship",
-          "hacked",
-          "impersonation",
-          "unknown",
-          "other"
-        ],
-        "timeframes": null,
-        "evidenceRequirements": [],
-        "removalCriteria": [
-          "Content involves child sexual exploitation",
-          "Content involves child abuse",
-          "Content contains inappropriate imagery of minors"
-        ]
-      },
-      {
-        "id": "meta-cs-human-exploitation",
-        "reference": "Human Exploitation",
-        "summary": "Prohibits human exploitation including sextortion and coercive practices",
-        "quote": "Human Exploitation",
-        "contentTypes": [
-          "intimate",
-          "personal",
-          "private",
-          "other"
-        ],
-        "contentContexts": [
-          "relationship",
-          "hacked",
-          "unknown",
-          "other"
-        ],
-        "timeframes": null,
-        "evidenceRequirements": [],
-        "removalCriteria": [
-          "Content involves human exploitation",
-          "Content involves sextortion or coercive practices"
-        ]
-      },
-      {
-        "id": "meta-cs-adult-nudity-sexual-activity",
-        "reference": "Adult Nudity and Sexual Activity",
-        "summary": "Prohibits non-consensual sharing of adult intimate imagery and sexual content",
-        "quote": "Adult Nudity and Sexual Activity",
-        "contentTypes": [
-          "intimate"
-        ],
-        "contentContexts": [
-          "relationship",
-          "hacked",
-          "unknown",
-          "other"
-        ],
-        "timeframes": null,
-        "evidenceRequirements": [],
-        "removalCriteria": [
-          "Content contains non-consensual adult intimate imagery",
-          "Content violates adult nudity policies"
-        ]
-      },
-      {
-        "id": "meta-cs-cybersecurity",
-        "reference": "Cybersecurity",
-        "summary": "Prohibits cybersecurity violations including unauthorized access to accounts and systems",
-        "quote": "Cybersecurity",
-        "contentTypes": [
-          "intimate",
-          "personal",
-          "private",
-          "other"
-        ],
-        "contentContexts": [
-          "hacked",
-          "other"
-        ],
-        "timeframes": null,
-        "evidenceRequirements": [],
-        "removalCriteria": [
-          "Content results from cybersecurity violations",
-          "Content obtained through unauthorized access"
-        ]
-      },
-      {
-        "id": "meta-cs-intellectual-property",
+        "id": "meta-cs-third-party-ip",
         "reference": "Third-Party Intellectual Property Infringement",
         "summary": "Prohibits infringement of third-party intellectual property rights including unauthorized use of personal images",
         "quote": "Third-Party Intellectual Property Infringement",
         "contentTypes": [
-          "personal",
-          "other"
+          "intimate",
+          "personal"
         ],
         "contentContexts": [
-          "relationship",
           "hacked",
-          "impersonation",
+          "relationship",
           "unknown",
           "other"
         ],
         "timeframes": null,
         "evidenceRequirements": [],
         "removalCriteria": [
-          "Content infringes third-party intellectual property rights",
-          "Content uses personal images without authorization"
+          "Content infringes intellectual property rights",
+          "Unauthorized use of copyrighted material",
+          "Images used without permission from rights holder"
         ]
       },
       {
-        "id": "meta-cs-additional-protection-minors",
-        "reference": "Additional Protection of Minors",
-        "summary": "Provides additional protections for minors against harmful content and exploitation",
-        "quote": "Additional Protection of Minors",
+        "id": "meta-cs-safety-commitment",
+        "reference": "Safety",
+        "summary": "Prohibits content that threatens people or could contribute to physical harm as part of commitment to user safety",
+        "quote": "We're committed to making Facebook, Instagram, Messenger and Threads safe places. We remove content that could contribute to a risk of harm to the physical security of persons. Content that threatens people has the potential to intimidate, exclude or silence others and isn't allowed on our services.",
+        "contentTypes": [
+          "intimate",
+          "personal",
+          "private",
+          "other"
+        ],
+        "contentContexts": [
+          "relationship",
+          "hacked",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Content contributes to risk of physical harm",
+          "Content threatens individuals",
+          "Content intimidates, excludes or silences others"
+        ]
+      },
+      {
+        "id": "meta-cs-dignity-respect",
+        "reference": "Dignity",
+        "summary": "Requires respect for human dignity and prohibits content that harasses or degrades others",
+        "quote": "We believe that all people are equal in dignity and rights. We expect that people will respect the dignity of others and not harass or degrade others.",
         "contentTypes": [
           "intimate",
           "personal",
@@ -493,25 +391,26 @@ export const facebookPolicy: PlatformPolicies = {
         "timeframes": null,
         "evidenceRequirements": [],
         "removalCriteria": [
-          "Content poses risk to minors",
-          "Content violates additional minor protection policies"
+          "Content fails to respect human dignity",
+          "Content harasses individuals",
+          "Content degrades others"
         ]
       }
     ],
     "appealProcess": null
   },
   {
-    "id": "facebook-new-1758659204835-1",
+    "id": "facebook-new-1758659571491-1",
     "reference": "META-TOS-2025",
     "title": "Meta Terms of Service",
-    "summary": "Updated terms governing use of Facebook, Messenger and other Meta products, effective January 1, 2025.",
+    "summary": "Updated terms governing Facebook, Messenger, and other Meta products, effective January 1, 2025, with clarified language around platform misuse and data scraping.",
     "url": "https://www.facebook.com/terms/",
-    "accessTimestamp": "2025-09-23T20:26:44.835Z",
+    "accessTimestamp": "2025-09-23T20:32:51.491Z",
     "policies": [
       {
         "id": "meta-tos-content-violations",
         "reference": "Section 3.2",
-        "summary": "Prohibits sharing content that violates community standards, is unlawful, misleading, discriminatory, fraudulent, or that users do not own or have rights to share",
+        "summary": "Prohibits sharing content that violates Community Standards, is unlawful, misleading, discriminatory, fraudulent, or that users do not own or have rights to share",
         "quote": "You may not use our Products to do or share anything: That violates these Terms, the Community Standards, or other terms and policies that apply to your use of our Products. That is unlawful, misleading, discriminatory or fraudulent (or assists someone else in using our Products in such a way). That you do not own or have the necessary rights to share.",
         "contentTypes": [
           "intimate",
@@ -562,7 +461,7 @@ export const facebookPolicy: PlatformPolicies = {
       {
         "id": "meta-tos-content-removal",
         "reference": "Section 3.2",
-        "summary": "Provides authority to remove or restrict access to content that violates terms and suspend or disable accounts for violating conduct",
+        "summary": "Provides authority to remove or restrict access to content that violates terms and to suspend or disable accounts for violating conduct",
         "quote": "We can remove or restrict access to content that is in violation of these provisions. We can also suspend or disable your account for conduct that violates these provisions, as provided in Section 4.2.",
         "contentTypes": [
           "intimate",
@@ -645,8 +544,8 @@ export const facebookPolicy: PlatformPolicies = {
       {
         "id": "meta-tos-account-termination",
         "reference": "Section 4.2",
-        "summary": "Provides authority to suspend or permanently disable accounts for clear, serious, or repeated breaches of terms or policies, including Community Standards",
-        "quote": "If we determine, in our discretion, that you have clearly, seriously or repeatedly breached our Terms or Policies, including in particular the Community Standards, we may suspend or permanently disable your access to Meta Company Products, and we may permanently disable or delete your account.",
+        "summary": "Provides authority to suspend or permanently disable accounts for clear, serious, or repeated breaches of Terms or Community Standards, including intellectual property infringement",
+        "quote": "If we determine, in our discretion, that you have clearly, seriously or repeatedly breached our Terms or Policies, including in particular the Community Standards, we may suspend or permanently disable your access to Meta Company Products, and we may permanently disable or delete your account. We may also disable or delete your account if you repeatedly infringe other people's intellectual property rights or where we are required to do so for legal reasons.",
         "contentTypes": [
           "intimate",
           "personal",
@@ -663,104 +562,41 @@ export const facebookPolicy: PlatformPolicies = {
         "timeframes": null,
         "evidenceRequirements": [],
         "removalCriteria": [
-          "Clear breach of Terms or Policies",
-          "Serious breach of Terms or Policies",
-          "Repeated breach of Terms or Policies",
-          "Violation of Community Standards"
+          "Clear, serious, or repeated breach of Terms or Community Standards",
+          "Repeated infringement of intellectual property rights",
+          "Legal requirement for account deletion"
         ]
       }
     ],
     "appealProcess": {
       "url": null,
-      "summary": "Meta provides notification of content removal and explains options to request review, unless violations are serious/repeated or legal restrictions apply. Users can request review of account suspensions/terminations unless certain exceptions apply.",
+      "summary": "Meta provides options to request review when content is removed for Community Standards violations, unless violations are serious/repeated or may expose Meta to legal liability. Users can also request review if accounts are disabled, unless doing so may expose Meta to legal liability or harm the community.",
       "steps": [
-        "Meta notifies user of content removal under Community Standards",
-        "Meta explains available options for requesting another review",
-        "User can request review unless violations are serious/repeated or legal restrictions apply",
-        "For account suspensions/terminations, users are notified and given options to request review",
-        "Users can contact Meta if they believe account was disabled by mistake"
+        "When content is removed for Community Standards violations, Meta will notify users and explain options for requesting another review",
+        "Users can request review unless they seriously or repeatedly violate Terms or if doing so may expose Meta or others to legal liability",
+        "For account suspension or termination, Meta will explain options to request a review unless doing so may expose Meta to legal liability or harm the community",
+        "Users can contact Meta if they believe their account was disabled by mistake"
       ]
     }
   },
   {
-    "id": "facebook-new-1758659204835-2",
-    "reference": "META-NUDITY-2025",
-    "title": "Adult Nudity and Sexual Activity Policy",
-    "summary": "Specific policy addressing restrictions on nudity and sexual content, with provisions for non-consensual intimate imagery.",
-    "url": "https://transparency.meta.com/policies/community-standards/adult-nudity-sexual-activity/",
-    "accessTimestamp": "2025-09-23T20:26:44.835Z",
+    "id": "facebook-new-1758659571491-2",
+    "reference": "META-PP-2025",
+    "title": "Meta Privacy Policy",
+    "summary": "Privacy policy effective June 16, 2025, covering data collection, use, and sharing practices across Facebook, Instagram, and Messenger platforms.",
+    "url": "https://www.facebook.com/privacy/policy",
+    "accessTimestamp": "2025-09-23T20:32:51.491Z",
     "policies": [
       {
-        "id": "meta-nudity-adult-nudity",
-        "reference": "Adult Nudity",
-        "summary": "Prohibits photorealistic and digital imagery of adult nudity including visible genitalia, anuses, buttocks, and female nipples except in specific contexts",
-        "quote": "We do not allow the following content for all users: Adult Nudity - Photorealistic/digital imagery of adult nudity, if it depicts: Visible genitalia (including when obscured by pubic hair or digital overlays), Visible anuses and/or close-ups of visible buttocks, Visible female nipples, except in a breastfeeding, or act of protest context",
+        "id": "meta-pp-safety-integrity",
+        "reference": "Section 2 - Promoting safety, integrity and security",
+        "summary": "Prohibits harmful or unlawful behavior and enables content removal through review processes",
+        "quote": "We use information we collect to help protect people from harm and provide safe, secure Products. We process information we have associated with you and apply automated processing techniques and, in some instances, conduct manual (human) review to: Verify accounts and activity, Find and address violations of our terms or policies, Investigate suspicious activity, Detect, prevent and combat harmful or unlawful behavior, such as to review and, in some cases, remove content reported to us, Protect the life, physical or mental health, well-being or integrity of our users or others, Detect and prevent spam, other security matters and other bad experiences, Detect and stop threats to our personnel and property, and Maintain the integrity of our Products.",
         "contentTypes": [
-          "intimate"
-        ],
-        "contentContexts": [
-          "hacked",
-          "relationship",
-          "unknown",
+          "intimate",
+          "personal",
+          "private",
           "other"
-        ],
-        "timeframes": null,
-        "evidenceRequirements": [],
-        "removalCriteria": [
-          "Content depicts visible genitalia including when obscured by pubic hair or digital overlays",
-          "Content shows visible anuses and/or close-ups of visible buttocks",
-          "Content displays visible female nipples except in breastfeeding or protest contexts"
-        ]
-      },
-      {
-        "id": "meta-nudity-voyeuristic-content",
-        "reference": "Adult Nudity",
-        "summary": "Prohibits photorealistic digital videos that focus on intimate body parts recorded without the awareness of the person depicted",
-        "quote": "Photorealistic/ digital videos that focus on crotch, female breasts, or buttocks recorded without the awareness of the person(s) depicted in them",
-        "contentTypes": [
-          "intimate"
-        ],
-        "contentContexts": [
-          "hacked",
-          "unknown",
-          "other"
-        ],
-        "timeframes": null,
-        "evidenceRequirements": [],
-        "removalCriteria": [
-          "Video focuses on intimate body parts",
-          "Content was recorded without the awareness of the person depicted"
-        ]
-      },
-      {
-        "id": "meta-nudity-sexual-activity",
-        "reference": "Adult Sexual Activity",
-        "summary": "Prohibits photorealistic and digital imagery of adult sexual activity including explicit and implicit sexual acts",
-        "quote": "We do not allow the following content for all users: Adult Sexual Activity - Photorealistic/ digital imagery of adult sexual activity, including: Explicit sexual activity or stimulation, Implicit sexual activity or stimulation, Other sexual activity or stimulation",
-        "contentTypes": [
-          "intimate"
-        ],
-        "contentContexts": [
-          "hacked",
-          "relationship",
-          "unknown",
-          "other"
-        ],
-        "timeframes": null,
-        "evidenceRequirements": [],
-        "removalCriteria": [
-          "Content depicts explicit sexual activity or stimulation",
-          "Content shows implicit sexual activity or stimulation",
-          "Content displays other forms of sexual activity including erections or presence of by-products of sexual activity"
-        ]
-      },
-      {
-        "id": "meta-nudity-ai-generated",
-        "reference": "Policy Rationale",
-        "summary": "Prohibits AI-generated or computer-generated images of nudity and sexual activity regardless of photorealistic appearance",
-        "quote": "Under this policy, we remove real photographs and videos of nudity and sexual activity, AI- or computer-generated images of nudity and sexual activity, and digital imagery, regardless of whether it looks \"photorealistic\" (as in, it looks like a real person).",
-        "contentTypes": [
-          "intimate"
         ],
         "contentContexts": [
           "hacked",
@@ -772,84 +608,118 @@ export const facebookPolicy: PlatformPolicies = {
         "timeframes": null,
         "evidenceRequirements": [],
         "removalCriteria": [
-          "Content is AI-generated or computer-generated imagery of nudity",
-          "Content is AI-generated or computer-generated imagery of sexual activity",
-          "Content is digital imagery of nudity or sexual activity regardless of photorealistic appearance"
+          "Content that violates terms or policies",
+          "Harmful or unlawful behavior",
+          "Content that threatens user safety, security or integrity"
         ]
       },
       {
-        "id": "meta-nudity-fetish-content",
-        "reference": "Adult Sexual Activity",
-        "summary": "Prohibits photorealistic digital imagery and real world art depicting certain fetish activities",
-        "quote": "Photorealistic/ digital imagery or real world art depicting fetish that involves the following: Acts that are likely to lead to the death of a person or animal, Dismemberment, Cannibalism, Feces, urine, spit, snot, menstruation or vomit, Bestiality, Incest, BDSM (bondage and discipline, domination and submission, sadism and masochism), only when sexual indicators are also present",
-        "contentTypes": [
-          "intimate"
-        ],
-        "contentContexts": [
-          "hacked",
-          "relationship",
-          "unknown",
-          "other"
-        ],
-        "timeframes": null,
-        "evidenceRequirements": [],
-        "removalCriteria": [
-          "Content depicts fetish activities involving acts likely to lead to death",
-          "Content shows dismemberment, cannibalism, or bodily fluids in sexual context",
-          "Content displays bestiality or incest",
-          "Content shows BDSM activities when sexual indicators are present"
-        ]
-      },
-      {
-        "id": "meta-nudity-extended-audio",
-        "reference": "Adult Sexual Activity",
-        "summary": "Prohibits extended audio recordings of sexual activity",
-        "quote": "Extended audio of sexual activity",
-        "contentTypes": [
-          "intimate"
-        ],
-        "contentContexts": [
-          "hacked",
-          "relationship",
-          "unknown",
-          "other"
-        ],
-        "timeframes": null,
-        "evidenceRequirements": [],
-        "removalCriteria": [
-          "Content contains extended audio of sexual activity"
-        ]
-      }
-    ],
-    "appealProcess": {
-      "url": "https://www.facebook.com/help/263149623790594?ref=tc",
-      "summary": "Users can appeal content removal decisions through Meta's Support Inbox system with multiple review opportunities",
-      "steps": [
-        "User receives notification of content action via notifications",
-        "Detailed review decision information is provided in the Support Inbox",
-        "User can request another review if they believe the decision was incorrect",
-        "Meta conducts a re-review of the content",
-        "Final response is sent to the user's Support Inbox after re-review"
-      ]
-    }
-  },
-  {
-    "id": "facebook-new-1758659204835-3",
-    "reference": "META-HARASSMENT-2025",
-    "title": "Bullying and Harassment Policy",
-    "summary": "Policy addressing bullying, harassment, and targeted attacks, including protections for private individuals and provisions for image-based abuse.",
-    "url": "https://transparency.meta.com/policies/community-standards/bullying-harassment/",
-    "accessTimestamp": "2025-09-23T20:26:44.835Z",
-    "policies": [
-      {
-        "id": "meta-harassment-unwanted-contact",
-        "reference": "Tier 1: Universal protections for everyone",
-        "summary": "Prohibits unwanted contact that is repeated, sexually harassing, or directed at a large number of individuals without prior solicitation",
-        "quote": "Unwanted contact that is: Repeated, OR Sexually harassing, OR Is directed at a large number of individuals with no prior solicitation.",
+        "id": "meta-pp-legal-requests",
+        "reference": "Section 10 - How do we respond to legal requests",
+        "summary": "Provides framework for accessing, preserving and sharing information in response to legal requests and to prevent harm",
+        "quote": "We access, preserve, use and share your information: In response to legal requests, like search warrants, court orders, production orders or subpoenas. These requests come from third parties such as civil litigants, law enforcement and other government authorities. In accordance with applicable law. To promote the safety, security and integrity of Meta Products, users, employees, property and the public.",
         "contentTypes": [
           "intimate",
           "personal",
           "private",
+          "other"
+        ],
+        "contentContexts": [
+          "hacked",
+          "impersonation",
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Valid legal requests from authorized parties",
+          "Requirements under applicable law",
+          "Threats to safety, security and integrity of users or platform"
+        ]
+      },
+      {
+        "id": "meta-pp-content-review",
+        "reference": "Section 2 - Manual review processes",
+        "summary": "Enables manual human review of content for policy violations and harmful behavior",
+        "quote": "We also use manual review to access and review your information. We process information we have associated with you and apply automated processing techniques and, in some instances, conduct manual (human) review to: Find and address violations of our terms or policies. In some cases, the decisions we make about violations are reviewed by the Oversight Board, Investigate suspicious activity, Detect, prevent and combat harmful or unlawful behavior, such as to review and, in some cases, remove content reported to us.",
+        "contentTypes": [
+          "intimate",
+          "personal",
+          "private",
+          "other"
+        ],
+        "contentContexts": [
+          "hacked",
+          "impersonation",
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Violations of terms or policies identified through review",
+          "Suspicious activity detected",
+          "Harmful or unlawful behavior reported by users"
+        ]
+      },
+      {
+        "id": "meta-pp-information-preservation",
+        "reference": "Section 8 - Information preservation for extended periods",
+        "summary": "Allows preservation of information for extended periods for legitimate purposes including preventing harm",
+        "quote": "In some instances and for specific reasons, we'll keep information for an extended period of time. If we need it for other legitimate purposes, such as to prevent harm; investigate possible violations of our terms or policies; promote safety, security and integrity; or protect ourselves, including our rights, property or products. We may access or preserve your information for an extended amount of time.",
+        "contentTypes": [
+          "intimate",
+          "personal",
+          "private",
+          "other"
+        ],
+        "contentContexts": [
+          "hacked",
+          "impersonation",
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Information needed to prevent harm",
+          "Evidence of terms or policy violations",
+          "Content threatening safety, security or integrity",
+          "Information needed to protect platform rights or property"
+        ]
+      }
+    ],
+    "appealProcess": {
+      "url": "https://help.meta.com/support/privacy",
+      "summary": "Users can contact Meta online or by mail regarding privacy policy questions, complaints or requests regarding their information",
+      "steps": [
+        "Contact Meta online through the help center",
+        "Alternatively, send written correspondence to Meta Platforms, Inc., ATTN: Privacy Operations, 1601 Willow Road, Menlo Park, CA 94025",
+        "In some cases, decisions about violations may be reviewed by the Oversight Board",
+        "Depending on jurisdiction, users may also contact their local Data Protection Authority directly"
+      ]
+    }
+  },
+  {
+    "id": "facebook-new-1758659571491-3",
+    "reference": "META-BH-2025",
+    "title": "Bullying and Harassment Policy",
+    "summary": "Specific community standards section addressing bullying, harassment, and targeted abuse, with heightened protections for minors and private individuals.",
+    "url": "https://transparency.meta.com/policies/community-standards/bullying-harassment/",
+    "accessTimestamp": "2025-09-23T20:32:51.491Z",
+    "policies": [
+      {
+        "id": "meta-bh-unwanted-contact",
+        "reference": "Tier 1: Universal protections for everyone",
+        "summary": "Prohibits unwanted contact that is repeated, sexually harassing, or directed at a large number of individuals with no prior solicitation",
+        "quote": "Unwanted contact that is: Repeated, OR Sexually harassing, OR Is directed at a large number of individuals with no prior solicitation.",
+        "contentTypes": [
+          "intimate",
+          "personal",
           "other"
         ],
         "contentContexts": [
@@ -868,13 +738,35 @@ export const facebookPolicy: PlatformPolicies = {
         ]
       },
       {
-        "id": "meta-harassment-severe-sexualized-commentary",
+        "id": "meta-bh-sexual-statements",
         "reference": "Tier 1: Universal protections for everyone",
-        "summary": "Prohibits severe sexualized commentary targeting individuals",
+        "summary": "Prohibits statements of intent to engage in sexual activity or advocating to engage in sexual activity",
+        "quote": "Statements of intent to engage in a sexual activity or advocating to engage in a sexual activity.",
+        "contentTypes": [
+          "intimate",
+          "other"
+        ],
+        "contentContexts": [
+          "hacked",
+          "impersonation",
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Content contains statements of intent to engage in sexual activity",
+          "Content advocates engaging in sexual activity"
+        ]
+      },
+      {
+        "id": "meta-bh-severe-sexualized-commentary",
+        "reference": "Tier 1: Universal protections for everyone",
+        "summary": "Prohibits severe sexualized commentary",
         "quote": "Severe sexualized commentary.",
         "contentTypes": [
           "intimate",
-          "personal",
           "other"
         ],
         "contentContexts": [
@@ -891,14 +783,13 @@ export const facebookPolicy: PlatformPolicies = {
         ]
       },
       {
-        "id": "meta-harassment-derogatory-sexualized-imagery",
+        "id": "meta-bh-derogatory-sexualized-imagery",
         "reference": "Tier 1: Universal protections for everyone",
-        "summary": "Prohibits derogatory sexualized photoshop or drawings targeting individuals",
+        "summary": "Prohibits derogatory sexualized photoshop or drawings",
         "quote": "Derogatory sexualized photoshop or drawings",
         "contentTypes": [
           "intimate",
-          "personal",
-          "other"
+          "personal"
         ],
         "contentContexts": [
           "hacked",
@@ -910,17 +801,16 @@ export const facebookPolicy: PlatformPolicies = {
         "timeframes": null,
         "evidenceRequirements": [],
         "removalCriteria": [
-          "Content contains derogatory sexualized photoshop or drawings"
+          "Content contains derogatory sexualized photoshop",
+          "Content contains derogatory sexualized drawings"
         ]
       },
       {
-        "id": "meta-harassment-sexual-activity-attacks",
+        "id": "meta-bh-sexual-activity-attacks",
         "reference": "Tier 1: Universal protections for everyone",
         "summary": "Prohibits attacks through derogatory terms related to sexual activity",
         "quote": "Attacks through derogatory terms related to sexual activity (for example: whore, slut).",
         "contentTypes": [
-          "intimate",
-          "personal",
           "other"
         ],
         "contentContexts": [
@@ -933,15 +823,41 @@ export const facebookPolicy: PlatformPolicies = {
         "timeframes": null,
         "evidenceRequirements": [],
         "removalCriteria": [
-          "Content contains attacks through derogatory terms related to sexual activity"
+          "Content contains attacks using derogatory terms related to sexual activity"
         ]
       },
       {
-        "id": "meta-harassment-private-info-threats",
+        "id": "meta-bh-private-info-threats",
         "reference": "Tier 1: Universal protections for everyone",
         "summary": "Prohibits threats to release an individual's private phone number, residential address, email address or medical records",
         "quote": "Threats to release an individual's private phone number, residential address, email address or medical records (as defined in the Privacy Violations policy).",
         "contentTypes": [
+          "private"
+        ],
+        "contentContexts": [
+          "hacked",
+          "impersonation",
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Content contains threats to release private phone numbers",
+          "Content contains threats to release residential addresses",
+          "Content contains threats to release email addresses",
+          "Content contains threats to release medical records"
+        ]
+      },
+      {
+        "id": "meta-bh-bullying-harassment-calls",
+        "reference": "Tier 1: Universal protections for everyone",
+        "summary": "Prohibits calls for, or statements of intent to engage in, bullying and/or harassment",
+        "quote": "Calls for, or statements of intent to engage in, bullying and/or harassment.",
+        "contentTypes": [
+          "intimate",
+          "personal",
           "private",
           "other"
         ],
@@ -955,20 +871,40 @@ export const facebookPolicy: PlatformPolicies = {
         "timeframes": null,
         "evidenceRequirements": [],
         "removalCriteria": [
-          "Content contains threats to release private phone number",
-          "Content contains threats to release residential address",
-          "Content contains threats to release email address",
-          "Content contains threats to release medical records"
+          "Content contains calls for bullying and/or harassment",
+          "Content contains statements of intent to engage in bullying and/or harassment"
         ]
       },
       {
-        "id": "meta-harassment-sexual-activity-claims",
+        "id": "meta-bh-degrading-bodily-functions",
+        "reference": "Tier 1: Universal protections for everyone",
+        "summary": "Prohibits content that degrades or expresses disgust toward individuals depicted in the process of, or right after, menstruating, urinating, vomiting, or defecating",
+        "quote": "Content that degrades or expresses disgust toward individuals who are depicted in the process of, or right after, menstruating, urinating, vomiting, or defecating",
+        "contentTypes": [
+          "intimate",
+          "personal"
+        ],
+        "contentContexts": [
+          "hacked",
+          "impersonation",
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Content degrades individuals depicted in bodily functions",
+          "Content expresses disgust toward individuals depicted in bodily functions"
+        ]
+      },
+      {
+        "id": "meta-bh-sexual-activity-claims",
         "reference": "Tier 2: Additional protections for all Minors, Private Adults and Limited Scope Public Figures",
-        "summary": "Prohibits claims about sexual activity for minors, private adults and limited scope public figures, except in the context of criminal allegations against adults",
+        "summary": "Prohibits claims about sexual activity, except in the context of criminal allegations against adults",
         "quote": "Claims about sexual activity, except in the context of criminal allegations against adults (non-consensual sexual touching).",
         "contentTypes": [
           "intimate",
-          "personal",
           "other"
         ],
         "contentContexts": [
@@ -981,19 +917,18 @@ export const facebookPolicy: PlatformPolicies = {
         "timeframes": null,
         "evidenceRequirements": [],
         "removalCriteria": [
-          "Content contains claims about sexual activity targeting protected individuals",
+          "Content contains claims about sexual activity",
           "Exception: criminal allegations against adults involving non-consensual sexual touching"
         ]
       },
       {
-        "id": "meta-harassment-adult-sexualization",
+        "id": "meta-bh-adult-sexualization",
         "reference": "Tier 2: Additional protections for all Minors, Private Adults and Limited Scope Public Figures",
-        "summary": "Prohibits content sexualizing adults who are minors, private adults or limited scope public figures",
+        "summary": "Prohibits content sexualizing another adult",
         "quote": "Content sexualizing another adult (sexualization of minors is covered in the Child Sexual Exploitation, Abuse and Nudity policy).",
         "contentTypes": [
           "intimate",
-          "personal",
-          "other"
+          "personal"
         ],
         "contentContexts": [
           "hacked",
@@ -1005,17 +940,16 @@ export const facebookPolicy: PlatformPolicies = {
         "timeframes": null,
         "evidenceRequirements": [],
         "removalCriteria": [
-          "Content sexualizes another adult who is a minor, private adult, or limited scope public figure"
+          "Content sexualizes another adult"
         ]
       },
       {
-        "id": "meta-harassment-manipulated-imagery-negative",
+        "id": "meta-bh-manipulated-physical-features",
         "reference": "Tier 2: Additional protections for all Minors, Private Adults and Limited Scope Public Figures",
         "summary": "Prohibits content manipulated to highlight, circle, or otherwise negatively draw attention to specific physical characteristics",
         "quote": "Content manipulated to highlight, circle, or otherwise negatively draw attention to specific physical characteristics (nose, ear, and so on).",
         "contentTypes": [
-          "personal",
-          "other"
+          "personal"
         ],
         "contentContexts": [
           "hacked",
@@ -1031,13 +965,34 @@ export const facebookPolicy: PlatformPolicies = {
         ]
       },
       {
-        "id": "meta-harassment-romantic-claims",
-        "reference": "Tier 3: Additional protections for Private Minors, Private Adults, and Minor Involuntary Public Figures",
-        "summary": "Prohibits claims about romantic involvement, sexual orientation or gender identity for private minors, private adults, and minor involuntary public figures",
-        "quote": "Claims about romantic involvement, sexual orientation or gender identity.",
+        "id": "meta-bh-physical-appearance-ranking",
+        "reference": "Tier 2: Additional protections for all Minors, Private Adults and Limited Scope Public Figures",
+        "summary": "Prohibits content that ranks individuals based on physical appearance or character traits",
+        "quote": "Content that ranks them based on physical appearance or character traits.",
         "contentTypes": [
           "personal",
-          "private",
+          "other"
+        ],
+        "contentContexts": [
+          "hacked",
+          "impersonation",
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Content ranks individuals based on physical appearance",
+          "Content ranks individuals based on character traits"
+        ]
+      },
+      {
+        "id": "meta-bh-romantic-involvement-claims",
+        "reference": "Tier 3: Additional protections for Private Minors, Private Adults, and Minor Involuntary Public Figures",
+        "summary": "Prohibits claims about romantic involvement, sexual orientation or gender identity",
+        "quote": "Claims about romantic involvement, sexual orientation or gender identity.",
+        "contentTypes": [
           "other"
         ],
         "contentContexts": [
@@ -1056,14 +1011,13 @@ export const facebookPolicy: PlatformPolicies = {
         ]
       },
       {
-        "id": "meta-harassment-unwanted-manipulated-imagery",
+        "id": "meta-bh-unwanted-manipulated-imagery",
         "reference": "Tier 3: Additional protections for Private Minors, Private Adults, and Minor Involuntary Public Figures",
-        "summary": "Prohibits unwanted manipulated imagery when self-reported by private minors, private adults, and minor involuntary public figures",
-        "quote": "When self-reported, private minors, private adults, and minor involuntary public figures are protected from the following: First-person voice bullying. Unwanted manipulated imagery.",
+        "summary": "Prohibits unwanted manipulated imagery when self-reported",
+        "quote": "Unwanted manipulated imagery.",
         "contentTypes": [
           "intimate",
-          "personal",
-          "other"
+          "personal"
         ],
         "contentContexts": [
           "hacked",
@@ -1077,7 +1031,7 @@ export const facebookPolicy: PlatformPolicies = {
           {
             "description": "Self-report by the target or authorized representative",
             "example": "Report submitted by the person depicted in the manipulated imagery",
-            "reason": "Required to confirm the imagery is unwanted"
+            "reason": "Required for enforcement of this protection level"
           }
         ],
         "removalCriteria": [
@@ -1086,9 +1040,9 @@ export const facebookPolicy: PlatformPolicies = {
         ]
       },
       {
-        "id": "meta-harassment-unwanted-pages-groups-events",
+        "id": "meta-bh-unwanted-pages-groups-events",
         "reference": "Bullying and harassment through pages, groups, events and messages",
-        "summary": "Prohibits content that targets private individuals through unwanted Pages, Groups and Events when reported by the target",
+        "summary": "Prohibits content that targets private individuals through unwanted Pages, Groups and Events",
         "quote": "Post content that targets private individuals through unwanted Pages, Groups and Events. We remove this content when it is reported by the target or an authorized representative of the target.",
         "contentTypes": [
           "intimate",
@@ -1107,25 +1061,23 @@ export const facebookPolicy: PlatformPolicies = {
         "evidenceRequirements": [
           {
             "description": "Report by the target or authorized representative",
-            "example": "Report submitted by the person being targeted or their authorized representative",
-            "reason": "Required to confirm the content is unwanted targeting"
+            "example": "Report submitted by the targeted individual or their authorized representative",
+            "reason": "Required to confirm the content is unwanted"
           }
         ],
         "removalCriteria": [
-          "Content targets private individuals through unwanted Pages, Groups or Events",
+          "Content targets private individuals through unwanted Pages, Groups and Events",
           "Content is reported by the target or authorized representative"
         ]
       },
       {
-        "id": "meta-harassment-unwanted-content-confirmation",
+        "id": "meta-bh-sexualizing-public-figure",
         "reference": "Bullying and harassment through pages, groups, events and messages",
-        "summary": "Removes content that would otherwise require target reporting or indicates direct targeting when confirmed unwanted by the target",
-        "quote": "Post content described above that would otherwise require the target to report the content or where the content an indicates that the poster is directly targeting the target (for example: the target is tagged in the post or comment). We will remove this content if we have confirmation from the target or an authorized representative of the target (alive or deceased) that the content is unwanted.",
+        "summary": "Prohibits content sexualizing a public figure when confirmed as unwanted",
+        "quote": "Post content sexualizing a public figure. We will remove this content when we have confirmation from the target or an authorized representative of the target that the content is unwanted.",
         "contentTypes": [
           "intimate",
-          "personal",
-          "private",
-          "other"
+          "personal"
         ],
         "contentContexts": [
           "hacked",
@@ -1138,53 +1090,22 @@ export const facebookPolicy: PlatformPolicies = {
         "evidenceRequirements": [
           {
             "description": "Confirmation from the target or authorized representative that content is unwanted",
-            "example": "Written confirmation that the tagged content or direct targeting is unwanted",
-            "reason": "Required to establish that the content constitutes unwanted targeting"
-          }
-        ],
-        "removalCriteria": [
-          "Content indicates direct targeting (e.g., target is tagged)",
-          "Confirmation received from target or authorized representative that content is unwanted"
-        ]
-      },
-      {
-        "id": "meta-harassment-public-figure-sexualization",
-        "reference": "Bullying and harassment through pages, groups, events and messages",
-        "summary": "Prohibits content sexualizing a public figure when confirmed unwanted by the target",
-        "quote": "Post content sexualizing a public figure. We will remove this content when we have confirmation from the target or an authorized representative of the target that the content is unwanted.",
-        "contentTypes": [
-          "intimate",
-          "personal",
-          "other"
-        ],
-        "contentContexts": [
-          "hacked",
-          "impersonation",
-          "relationship",
-          "unknown",
-          "other"
-        ],
-        "timeframes": null,
-        "evidenceRequirements": [
-          {
-            "description": "Confirmation from the public figure or authorized representative that content is unwanted",
-            "example": "Written confirmation from the public figure that the sexualizing content is unwanted",
-            "reason": "Required to establish that the sexualizing content is unwanted by the public figure"
+            "example": "Statement from the public figure or their representative confirming the content is unwanted",
+            "reason": "Required to confirm the sexualizing content is unwanted"
           }
         ],
         "removalCriteria": [
           "Content sexualizes a public figure",
-          "Confirmation received from target or authorized representative that content is unwanted"
+          "Confirmation received that content is unwanted"
         ]
       },
       {
-        "id": "meta-harassment-sexual-harassment-contact",
+        "id": "meta-bh-sexually-harassing-contact",
         "reference": "Bullying and harassment through pages, groups, events and messages",
-        "summary": "Prohibits initiation of sexually harassing contact when confirmed unwanted by the recipient",
+        "summary": "Prohibits initiation of sexually harassing contact",
         "quote": "Initiate contact that is sexually harassing the recipient. We will remove any content shared in an unwanted context when we have a confirmation from the recipient, or an authorized representative of the recipient that contact is unwanted.",
         "contentTypes": [
           "intimate",
-          "personal",
           "other"
         ],
         "contentContexts": [
@@ -1198,39 +1119,139 @@ export const facebookPolicy: PlatformPolicies = {
         "evidenceRequirements": [
           {
             "description": "Confirmation from the recipient or authorized representative that contact is unwanted",
-            "example": "Written confirmation that the sexually harassing contact is unwanted",
-            "reason": "Required to establish that the contact constitutes unwanted sexual harassment"
+            "example": "Statement from the recipient confirming the sexually harassing contact is unwanted",
+            "reason": "Required to confirm the contact is unwanted"
           }
         ],
         "removalCriteria": [
           "Contact is sexually harassing",
-          "Confirmation received from recipient or authorized representative that contact is unwanted"
+          "Confirmation received that contact is unwanted"
         ]
       }
     ],
     "appealProcess": {
-      "url": "https://www.facebook.com/help/263149623790594",
-      "summary": "Users can appeal content removal decisions through the Support Inbox and request another review if they believe the decision was incorrect",
+      "url": "https://www.facebook.com/help/263149623790594?ref=tc",
+      "summary": "Users can appeal content decisions through the Support Inbox and request another review if they disagree with the initial decision",
       "steps": [
-        "After content is removed, user receives notification with option to request review",
-        "User can provide additional context or information in their appeal",
-        "Meta reviews the appeal and sends final response to Support Inbox",
-        "Users can also visit the Help Center for additional support on bullying and harassment issues"
+        "Report content through the universal reporting option",
+        "Receive notification of review decision via notifications",
+        "Access detailed decision information in Support Inbox",
+        "Submit appeal request for another review if disagreeing with decision",
+        "Receive final response after re-review in Support Inbox"
       ]
     }
   },
   {
-    "id": "facebook-new-1758659204835-4",
+    "id": "facebook-new-1758659571491-4",
+    "reference": "META-NCII-2021",
+    "title": "Non-Consensual Intimate Images Policy and StopNCII Initiative",
+    "summary": "Meta's comprehensive approach to combating non-consensual intimate imagery, including proactive detection technology and the StopNCII.org platform for hash-based prevention.",
+    "url": "https://about.fb.com/news/2021/12/strengthening-efforts-against-spread-of-non-consensual-intimate-images/",
+    "accessTimestamp": "2025-09-23T20:32:51.491Z",
+    "policies": [
+      {
+        "id": "meta-ncii-prohibition",
+        "reference": "NCII Policy Statement",
+        "summary": "Prohibits the non-consensual sharing of intimate images on Meta platforms",
+        "quote": "We do not allow this content on our apps",
+        "contentTypes": [
+          "intimate"
+        ],
+        "contentContexts": [
+          "relationship",
+          "hacked",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Content consists of intimate images shared without consent"
+        ]
+      },
+      {
+        "id": "meta-ncii-removal-technology",
+        "reference": "Photo and Video Matching Technology",
+        "summary": "Uses photo and video matching technology to remove intimate images shared without consent",
+        "quote": "For years, we've been using photo- and video-matching technology to remove intimate images shared without consent",
+        "contentTypes": [
+          "intimate"
+        ],
+        "contentContexts": [
+          "relationship",
+          "hacked",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Images or videos match known intimate content shared without consent"
+        ]
+      },
+      {
+        "id": "meta-ncii-proactive-detection",
+        "reference": "StopNCII.org Integration",
+        "summary": "Proactively detects and prevents sharing of intimate images through hash-matching technology",
+        "quote": "Tech companies participating in StopNCII.org receive the hash and can use that hash to detect if someone has shared or is trying to share those images on their platforms",
+        "contentTypes": [
+          "intimate"
+        ],
+        "contentContexts": [
+          "relationship",
+          "hacked",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [
+          {
+            "description": "Digital hash of the intimate image created through StopNCII.org",
+            "example": "Unique numerical code generated from the original image",
+            "reason": "Allows platforms to identify matching content without accessing the original image"
+          }
+        ],
+        "removalCriteria": [
+          "Content matches hash of intimate image registered through StopNCII.org",
+          "Image is being shared or attempted to be shared without consent"
+        ]
+      },
+      {
+        "id": "meta-ncii-circulation-prevention",
+        "reference": "Content Circulation Prevention",
+        "summary": "Prevents further circulation of non-consensual intimate content once identified",
+        "quote": "This feature prevents further circulation of that NCII content and keeps those images securely in the possession of the owner",
+        "contentTypes": [
+          "intimate"
+        ],
+        "contentContexts": [
+          "relationship",
+          "hacked",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Content has been identified as non-consensual intimate imagery",
+          "Content is at risk of further circulation"
+        ]
+      }
+    ],
+    "appealProcess": null
+  },
+  {
+    "id": "facebook-new-1758659571491-5",
     "reference": "META-COPYRIGHT-2025",
-    "title": "Meta Copyright Policy",
-    "summary": "Comprehensive copyright policy including DMCA procedures, reporting mechanisms, and intellectual property protections across Meta platforms.",
+    "title": "Meta Copyright and DMCA Policy",
+    "summary": "Copyright infringement reporting and DMCA takedown procedures for Facebook and Instagram, including appeals process and repeat infringer policies.",
     "url": "https://www.meta.com/help/policies/2202628709913826/",
-    "accessTimestamp": "2025-09-23T20:26:44.835Z",
+    "accessTimestamp": "2025-09-23T20:32:51.491Z",
     "policies": [
       {
         "id": "meta-copyright-infringement",
         "reference": "Copyright infringement",
-        "summary": "Prohibits posting content that infringes someone else's copyright, including photos and videos posted without permission from the copyright owner",
+        "summary": "Prohibits posting content that infringes someone else's copyright without permission",
         "quote": "Under Facebook's Terms of Use and Instagram's Terms of Use, and our Community Standards you can only post content to these platforms that doesn't violate someone else's intellectual property rights. The best way to help make sure that what you post to Meta platforms like Facebook and Instagram doesn't violate copyright law is to only post content that you've created yourself.",
         "contentTypes": [
           "intimate",
@@ -1239,6 +1260,7 @@ export const facebookPolicy: PlatformPolicies = {
         ],
         "contentContexts": [
           "hacked",
+          "impersonation",
           "relationship",
           "unknown",
           "other"
@@ -1260,7 +1282,7 @@ export const facebookPolicy: PlatformPolicies = {
       {
         "id": "meta-copyright-ownership",
         "reference": "Know if you own the copyright to something",
-        "summary": "Establishes that creators of original photos and videos own the copyright to their content",
+        "summary": "Establishes that creators generally own copyright to their original works including photos and videos",
         "quote": "In general, the person who creates an original work owns the copyright. For example, if you create a painting, you likely own the copyright for that painting. Similarly, if you take a photo, you likely own the copyright for that photo.",
         "contentTypes": [
           "intimate",
@@ -1268,6 +1290,7 @@ export const facebookPolicy: PlatformPolicies = {
         ],
         "contentContexts": [
           "hacked",
+          "impersonation",
           "relationship",
           "unknown",
           "other"
@@ -1275,15 +1298,39 @@ export const facebookPolicy: PlatformPolicies = {
         "timeframes": null,
         "evidenceRequirements": [],
         "removalCriteria": [
-          "User created the original photo or video",
-          "Content is an original work eligible for copyright protection"
+          "User created the original work",
+          "Work meets originality requirements for copyright protection"
         ]
       },
       {
-        "id": "meta-copyright-no-permission",
+        "id": "meta-copyright-rights",
+        "reference": "Your rights as a copyright owner",
+        "summary": "Grants copyright owners the right to prevent others from copying or distributing their work without permission",
+        "quote": "As a copyright owner, you have certain rights under the law. These include the right to stop others from copying or distributing your work, or from creating new works based on your work. Copyright infringement generally occurs when a person engages in one of these activities without the copyright owner's permission.",
+        "contentTypes": [
+          "intimate",
+          "personal"
+        ],
+        "contentContexts": [
+          "hacked",
+          "impersonation",
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Someone uploads your photo or video without permission",
+          "Someone copies or distributes your copyrighted work",
+          "Someone creates new works based on your work without authorization"
+        ]
+      },
+      {
+        "id": "meta-copyright-no-permission-infringement",
         "reference": "Copyright infringement",
-        "summary": "Prohibits using someone else's copyrighted content without permission, even with credit, disclaimers, or modifications",
-        "quote": "It's possible to infringe someone else's copyright when you post their content on Meta platforms, or facilitate copyright infringement, even if you: Recorded the content onto your own recording device (examples: a song playing in the background during a party, concert, sporting event, wedding, etc.) Gave credit to the copyright owner Included a disclaimer that you didn't intend to infringe copyright Didn't intend to profit from it Modified the work or added your own original material to it Found the content available on the internet Saw that others posted the same content as well Think that the use is a fair use Are using an unauthorized streaming device or service",
+        "summary": "Prohibits use of copyrighted content even with credit, disclaimers, or modifications without permission",
+        "quote": "Keep in mind that your use of someone else's content may infringe their copyright, even if you: Gave credit to the copyright owner, Included a disclaimer that you don't intend to infringe copyright, Think that the use is a fair use, Didn't intend to profit from it, Legally bought or downloaded the content, Modified the work or added your own original material to it, Found the content available on the internet, Recorded the content onto your own recording device, Saw that others have posted the same content as well",
         "contentTypes": [
           "intimate",
           "personal",
@@ -1291,6 +1338,7 @@ export const facebookPolicy: PlatformPolicies = {
         ],
         "contentContexts": [
           "hacked",
+          "impersonation",
           "relationship",
           "unknown",
           "other"
@@ -1298,15 +1346,16 @@ export const facebookPolicy: PlatformPolicies = {
         "timeframes": null,
         "evidenceRequirements": [],
         "removalCriteria": [
-          "Content posted without copyright owner's permission",
-          "Use does not fall within fair use or other copyright exceptions",
-          "Content recorded, modified, or found online without authorization"
+          "Use of copyrighted content without permission regardless of credit given",
+          "Use of copyrighted content without permission regardless of disclaimers",
+          "Use of copyrighted content without permission regardless of modifications made",
+          "Use of copyrighted content without permission regardless of how it was obtained"
         ]
       },
       {
-        "id": "meta-repeat-infringer",
+        "id": "meta-repeat-infringer-policy",
         "reference": "Repeat infringer policy",
-        "summary": "Prohibits repeatedly posting content that infringes intellectual property rights and may result in account restrictions or removal",
+        "summary": "Prohibits repeated posting of content that infringes intellectual property rights and may result in account restrictions or removal",
         "quote": "If you repeatedly post content that infringes someone else's intellectual property rights, such as copyrights or trademarks, your account may be disabled or your Page removed under Instagram's repeat infringer policy. Under this policy, your ability to post photos or videos may be limited, and you could also lose access to certain features or functionality on Instagram.",
         "contentTypes": [
           "intimate",
@@ -1315,6 +1364,7 @@ export const facebookPolicy: PlatformPolicies = {
         ],
         "contentContexts": [
           "hacked",
+          "impersonation",
           "relationship",
           "unknown",
           "other"
@@ -1323,19 +1373,19 @@ export const facebookPolicy: PlatformPolicies = {
         "evidenceRequirements": [],
         "removalCriteria": [
           "Repeated posting of content that infringes intellectual property rights",
-          "Multiple copyright or trademark violations"
+          "Multiple violations of copyright or trademark policies"
         ]
       }
     ],
     "appealProcess": {
       "url": "https://www.facebook.com/help/contact/1758255661104383",
-      "summary": "Users can appeal content removal by following up with the rights owner directly or submitting a DMCA counter-notification if applicable",
+      "summary": "Users can appeal content removal by following instructions provided in removal notifications, including DMCA counter-notifications for copyright claims",
       "steps": [
-        "Receive notification from Meta with rights owner's contact information",
-        "Follow up with the rights owner directly to resolve the issue",
-        "Submit an appeal through the instructions provided in Meta's notification",
-        "For DMCA cases, file a DMCA counter-notification if eligible",
-        "Restorations due to successful appeals are considered under repeat infringer policy"
+        "Receive notification from Meta about content removal with details of the report",
+        "Follow appeal instructions provided in the removal notification message",
+        "For copyright claims, may file a DMCA counter-notification if applicable",
+        "Contact rights owner directly to try to resolve the issue",
+        "Group admins are notified of removals but only the original poster can submit appeals"
       ]
     }
   }
