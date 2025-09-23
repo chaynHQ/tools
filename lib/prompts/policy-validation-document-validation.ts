@@ -36,6 +36,9 @@ export function generateDocumentValidationPrompt(
     url: string;
   }>,
 ): string {
+  // Check if this is an adult content platform
+  const isAdultPlatform = platformId === 'pornhub' || platformId === 'onlyfans';
+
   return `You are an expert AI assistant specialized in auditing the legal and policy documents for major online platforms. Your task is to validate our existing list of documents for ${platformName}, discover any new or updated policy documents, and produce a structured report that strictly adheres to the required JSON schema.
 
 CRITICAL CONTEXT:
@@ -93,7 +96,48 @@ Use a multi-pronged search approach. Start with the provided terms and then inte
 -   **Follow-up Searches:**
     -   Explore the legal, policy, or safety sections linked in the footer of the platform's main website.
 
-NOTE: you may not be able to access URLs on adult sites due to firewalls - if the pages cannot be accessed, use search index results to return URLs for the documents.
+${isAdultPlatform ? `
+## SPECIAL INSTRUCTIONS FOR ADULT CONTENT PLATFORMS
+
+Due to content filtering and firewall restrictions, you may encounter limitations when searching for or accessing policy documents on adult content platforms. Follow these enhanced strategies:
+
+### Enhanced Search Strategy for Adult Platforms:
+-   **Persistent Search Queries**: Use multiple variations of search terms:
+    -   "${platformName} terms of service site:${platformName.toLowerCase().replace(' ', '')}.com"
+    -   "${platformName} community guidelines site:${platformName.toLowerCase().replace(' ', '')}.com"
+    -   "${platformName} acceptable use policy site:${platformName.toLowerCase().replace(' ', '')}.com"
+    -   "${platformName} content policy site:${platformName.toLowerCase().replace(' ', '')}.com"
+    -   "${platformName} trust and safety site:${platformName.toLowerCase().replace(' ', '')}.com"
+    -   "${platformName} dmca policy site:${platformName.toLowerCase().replace(' ', '')}.com"
+
+### URL Discovery Priority:
+1.  **Prioritize Official Domain Results**: Focus on search results that link directly to the platform's official domain (e.g., pornhub.com, onlyfans.com)
+2.  **Extract URLs from Search Results**: Even if you cannot access the full content due to firewalls, extract the URLs from search result snippets and titles
+3.  **Common Policy Paths**: Look for standard policy document paths like:
+    -   /terms, /terms-of-service, /tos
+    -   /community-guidelines, /guidelines, /rules
+    -   /privacy, /privacy-policy
+    -   /acceptable-use, /aup
+    -   /content-policy, /content-removal
+    -   /trust-safety, /safety
+
+### Content Access Handling:
+-   **Firewall Interpretation**: If a page does not show 404, 302, or 307 errors, treat it as accessible even if content cannot be fully retrieved
+-   **Search Index Reliance**: Use search result descriptions and cached content when direct access is limited
+-   **URL Validation**: Focus on identifying correct, official URLs rather than full content access
+
+### Document Discovery Focus:
+For adult platforms, prioritize finding these specific document types:
+-   Terms of Service/Use (highest priority)
+-   Community Guidelines/Standards/Rules
+-   Acceptable Use Policy
+-   Content Policy/Content Removal Policy
+-   Trust & Safety Policy
+-   DMCA/Copyright Policy
+-   Privacy Policy
+` : `
+NOTE: For most platforms, you should be able to access policy documents directly. If you encounter access issues, use search index results to identify the correct URLs.
+`}
 ---
 
 # OUTPUT FORMAT
