@@ -7,9 +7,9 @@ export const tiktokPolicy: PlatformPolicies = {
     "id": "us-take-it-down-act",
     "reference": "S.146",
     "title": "TAKE IT DOWN Act",
-    "summary": "US federal law that criminalizes the nonconsensual publication of intimate images, including AI-generated deepfakes, and requires covered platforms to implement notice-and-removal processes for such content.",
+    "summary": "US federal law that criminalizes the nonconsensual publication of intimate images, including AI-generated deepfakes, and requires covered platforms to implement notice-and-removal processes for such content. Signed into law by President Trump on May 19, 2025.",
     "url": "https://www.congress.gov/bill/119th-congress/senate-bill/146/text",
-    "accessTimestamp": "2025-09-23T20:26:40.366Z",
+    "accessTimestamp": "2025-09-23T20:39:52.462Z",
     "policies": [
       {
         "id": "take-it-down-authentic-adults",
@@ -233,9 +233,9 @@ export const tiktokPolicy: PlatformPolicies = {
     "id": "tiktok-new-1758659200366-0",
     "reference": "TIKTOK-CG-2025",
     "title": "TikTok Community Guidelines",
-    "summary": "Comprehensive policy document outlining TikTok's content standards, including prohibitions on non-consensual intimate imagery, harassment, bullying, and sexually explicit content. Updated August 2025 with enhanced policies for AI content and live streaming.",
+    "summary": "Comprehensive policy document outlining TikTok's content standards, including prohibitions on non-consensual intimate imagery, harassment, bullying, and sexually explicit content. Updated September 13, 2025 with enhanced policies for AI content and live streaming.",
     "url": "https://www.tiktok.com/community-guidelines/en",
-    "accessTimestamp": "2025-09-23T20:26:40.366Z",
+    "accessTimestamp": "2025-09-23T20:39:52.462Z",
     "policies": [
       {
         "id": "tt-cg-harassment-bullying",
@@ -401,14 +401,7 @@ export const tiktokPolicy: PlatformPolicies = {
         ]
       }
     ],
-    "appealProcess": {
-      "url": null,
-      "summary": "TikTok provides notice and appeals processes for enforcement actions, though specific details are not provided in this overview document",
-      "steps": [
-        "Users receive notice of enforcement actions",
-        "Appeals process is available for enforcement decisions"
-      ]
-    }
+    "appealProcess": null
   },
   {
     "id": "tiktok-new-1758659200366-1",
@@ -416,7 +409,7 @@ export const tiktokPolicy: PlatformPolicies = {
     "title": "TikTok Terms of Service",
     "summary": "Legal agreement between TikTok and users establishing platform rules, user obligations, and enforcement mechanisms. Incorporates Community Guidelines by reference and establishes TikTok's authority to remove violating content.",
     "url": "https://www.tiktok.com/legal/page/us/terms-of-service/en",
-    "accessTimestamp": "2025-09-23T20:26:40.366Z",
+    "accessTimestamp": "2025-09-23T20:39:52.462Z",
     "policies": [
       {
         "id": "tt-tos-harassment-intimidation",
@@ -718,16 +711,48 @@ export const tiktokPolicy: PlatformPolicies = {
           "Material that infringes copyrights or intellectual property rights",
           "Accounts of users who repeatedly infringe may be disabled or terminated"
         ]
+      },
+      {
+        "id": "tt-tos-counter-notice-process",
+        "reference": "Section 11",
+        "summary": "Provides counter-notice process for content removal disputes with potential restoration after ten business days",
+        "quote": "If a counter-notice is received by TikTok's Copyright Agent, we may send a copy of the counter-notice to the original complaining party informing that person that we may replace the removed content or cease disabling it. Unless the original complaining party files an action seeking a court order against the Content Provider, member or user, the removed content may be replaced, or access to it restored, in ten business days or more after receipt of the counter-notice, at TikTok's sole discretion.",
+        "contentTypes": [
+          "intimate",
+          "personal",
+          "private",
+          "other"
+        ],
+        "contentContexts": [
+          "hacked",
+          "impersonation",
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": {
+          "response": {
+            "value": 10,
+            "unit": "days",
+            "description": "Content may be restored in ten business days or more after receipt of counter-notice"
+          },
+          "removal": null
+        },
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Counter-notice received by TikTok's Copyright Agent",
+          "Original complaining party does not file court action within specified timeframe"
+        ]
       }
     ],
     "appealProcess": {
       "url": "https://www.tiktok.com/legal/report/feedback",
-      "summary": "Users can file complaints about content uploaded by other users and request removal of their own content through TikTok's feedback system. Counter-notices may be filed for copyright claims, with potential restoration of content after 10 business days unless legal action is taken.",
+      "summary": "Users can file complaints about content uploaded by other users and request content removal through TikTok's feedback system. A counter-notice process is available for copyright-related removals.",
       "steps": [
-        "Contact TikTok at https://www.tiktok.com/legal/report/feedback to file a complaint about information or materials uploaded by other users",
-        "For copyright counter-notices, TikTok may send a copy to the original complaining party",
-        "Unless the original complaining party files legal action, removed content may be replaced or access restored in ten business days or more after receipt of counter-notice",
-        "California residents under 18 can request removal by contacting TikTok with 'California Removal Request' in the subject line and providing description and location information of the content"
+        "Contact TikTok through the feedback system to file a complaint about content",
+        "For copyright disputes, file a counter-notice with TikTok's Copyright Agent",
+        "TikTok may send copy of counter-notice to original complaining party",
+        "Content may be restored in ten business days unless original party files court action"
       ]
     }
   },
@@ -735,9 +760,9 @@ export const tiktokPolicy: PlatformPolicies = {
     "id": "tiktok-new-1758659200366-2",
     "reference": "TIKTOK-PP-2025",
     "title": "TikTok Privacy Policy",
-    "summary": "Policy governing collection, use, and protection of user personal information, including provisions for data sharing with law enforcement and content moderation processes. Last updated August 2024.",
+    "summary": "Policy governing collection, use, and protection of user personal information, including provisions for data sharing with law enforcement and content moderation processes. US-specific version for users 13 and over.",
     "url": "https://www.tiktok.com/legal/page/us/privacy-policy/en",
-    "accessTimestamp": "2025-09-23T20:26:40.366Z",
+    "accessTimestamp": "2025-09-23T20:39:52.462Z",
     "policies": [
       {
         "id": "tiktok-pp-user-content-moderation",
@@ -890,11 +915,11 @@ export const tiktokPolicy: PlatformPolicies = {
     ],
     "appealProcess": {
       "url": "https://www.tiktok.com/legal/report/privacy",
-      "summary": "Users can appeal decisions about their privacy requests through instructions provided in decision communications",
+      "summary": "Users may appeal decisions made about their privacy requests by following instructions in the communication received from TikTok",
       "steps": [
         "Submit initial request through the privacy reporting system",
-        "Receive decision communication from TikTok",
-        "Follow appeal instructions provided in the decision communication"
+        "Receive communication from TikTok about the decision",
+        "Follow the instructions provided in the decision communication to appeal"
       ]
     }
   },
@@ -902,9 +927,9 @@ export const tiktokPolicy: PlatformPolicies = {
     "id": "tiktok-new-1758659200366-3",
     "reference": "TIKTOK-IP-2025",
     "title": "TikTok Intellectual Property Policy",
-    "summary": "Comprehensive policy covering copyright infringement, DMCA takedown procedures, trademark violations, and repeat infringer policies. Includes specific processes for reporting and appealing IP violations.",
+    "summary": "Comprehensive policy covering copyright infringement, DMCA takedown procedures, trademark violations, and repeat infringer policies. Released March 27, 2025, effective April 26, 2025.",
     "url": "https://www.tiktok.com/legal/page/global/copyright-policy/en",
-    "accessTimestamp": "2025-09-23T20:26:40.366Z",
+    "accessTimestamp": "2025-09-23T20:39:52.462Z",
     "policies": [
       {
         "id": "tt-ip-copyright-infringement",
@@ -944,7 +969,7 @@ export const tiktokPolicy: PlatformPolicies = {
         "id": "tt-ip-copyright-removal-policy",
         "reference": "Removal of Content; Account Bans",
         "summary": "Removes user content that infringes copyright and may ban accounts of repeat infringers or in cases of severe violations",
-        "quote": "Any user content that infringes another person's copyright may be removed. We have adopted and reasonably implemented an intellectual property repeat infringer policy under which we, in appropriate circumstances, ban the account of a user who repeatedly commits copyright infringement. We may exercise our discretion to immediately ban any account in cases of severe copyright violations.",
+        "quote": "Any user content that infringes another person's copyright may be removed. If a user infringes copyright by using the LIVE feature, we may also temporarily restrict their access to LIVE feature. We have adopted and reasonably implemented an intellectual property repeat infringer policy under which we, in appropriate circumstances, ban the account of a user who repeatedly commits copyright infringement. We may exercise our discretion to immediately ban any account in cases of severe copyright violations.",
         "contentTypes": [
           "personal",
           "intimate",
@@ -995,7 +1020,7 @@ export const tiktokPolicy: PlatformPolicies = {
         "id": "tt-ip-trademark-removal-policy",
         "reference": "Removal of Content; Account Bans",
         "summary": "Removes content that violates trademark rights and may ban accounts of repeat infringers or in cases of severe violations",
-        "quote": "Any content that violates another's trademark rights may be taken down and we do not permit the purchase, sale, trade, promotion, or solicitation of counterfeit goods on TikTok, and will remove such content. We have adopted and reasonably implemented an intellectual property repeat infringer policy under which we, in appropriate circumstances, ban the account of a user who repeatedly commits trademark infringement. We may exercise our discretion to immediately ban any account in cases of severe trademark violations.",
+        "quote": "Any content that violates another's trademark rights may be taken down and we do not permit the purchase, sale, trade, promotion, or solicitation of counterfeit goods on TikTok, and will remove such content. In some cases, for trademark violations in connection with the use of the LIVE feature, we may also temporarily restrict access to the LIVE feature of the violating user. We have adopted and reasonably implemented an intellectual property repeat infringer policy under which we, in appropriate circumstances, ban the account of a user who repeatedly commits trademark infringement. We may exercise our discretion to immediately ban any account in cases of severe trademark violations.",
         "contentTypes": [
           "personal",
           "other"
@@ -1017,15 +1042,15 @@ export const tiktokPolicy: PlatformPolicies = {
     ],
     "appealProcess": {
       "url": "https://www.tiktok.com/legal/report/Copyright",
-      "summary": "Users can submit appeals through in-app notifications for both copyright and trademark removals, with different processes for EU and non-EU users",
+      "summary": "Users can appeal content removal through in-app notifications, with different processes for EU and non-EU users. Appeals require contact information and supporting evidence, and may be forwarded to original reporters.",
       "steps": [
         "Receive in-app notification about content removal",
-        "Access appeal option from the in-app notification",
+        "Access appeal form from the in-app notification",
         "Provide all required information including contact details and supporting evidence",
-        "Submit appeal through TikTok app",
+        "Submit appeal for evaluation by TikTok",
         "TikTok may contact you for additional questions",
-        "Appeal forwarded to original reporter where appropriate",
-        "Content may be reinstated at TikTok's discretion based on evaluation"
+        "Appeal may be forwarded to original reporter including contact information",
+        "Content may be reinstated at TikTok's discretion if no court action is filed"
       ]
     }
   },
@@ -1033,9 +1058,9 @@ export const tiktokPolicy: PlatformPolicies = {
     "id": "tiktok-new-1758659200366-4",
     "reference": "TIKTOK-SAFETY-2025",
     "title": "TikTok Safety and Civility Guidelines",
-    "summary": "Detailed policies on harassment, bullying, hate speech, and violent content. Includes specific provisions for protecting minors and public figures, with enhanced enforcement mechanisms.",
+    "summary": "Detailed policies on harassment, bullying, hate speech, and violent content. Released August 14, 2025, effective September 13, 2025, with enhanced enforcement mechanisms and specific provisions for protecting minors and public figures.",
     "url": "https://www.tiktok.com/community-guidelines/en/safety-civility",
-    "accessTimestamp": "2025-09-23T20:26:40.366Z",
+    "accessTimestamp": "2025-09-23T20:39:52.462Z",
     "policies": [
       {
         "id": "tt-cg-ncii",
@@ -1236,22 +1261,15 @@ export const tiktokPolicy: PlatformPolicies = {
         ]
       }
     ],
-    "appealProcess": {
-      "url": null,
-      "summary": "TikTok provides notice and appeals processes for enforcement actions, with details referenced in their enforcement section",
-      "steps": [
-        "Users can appeal enforcement decisions",
-        "Appeals process details are provided in the enforcement section of community guidelines"
-      ]
-    }
+    "appealProcess": null
   },
   {
     "id": "tiktok-new-1758659200366-5",
     "reference": "TIKTOK-MATURE-2025",
     "title": "TikTok Sensitive and Mature Themes Policy",
-    "summary": "Policy governing sexually suggestive content, adult themes, and age-restricted material. Includes content levels system and restrictions for teen accounts.",
+    "summary": "Policy governing sexually suggestive content, adult themes, and age-restricted material. Includes content levels system, audience controls for creators, and restrictions for teen accounts with regional considerations.",
     "url": "https://www.tiktok.com/community-guidelines/en/sensitive-mature-themes",
-    "accessTimestamp": "2025-09-23T20:26:40.366Z",
+    "accessTimestamp": "2025-09-23T20:39:52.462Z",
     "policies": [
       {
         "id": "tt-cg-nudity-sexual-activity",
@@ -1367,12 +1385,240 @@ export const tiktokPolicy: PlatformPolicies = {
           "Content shows young people in clothing that reveals cleavage",
           "Content depicts young people in clothing that outlines intimate body parts"
         ]
+      },
+      {
+        "id": "tt-cg-adult-explicit-language-products",
+        "reference": "Body Exposure and Sexualized Behaviors - NOT ALLOWED / FYF INELIGIBLE & AGE-RESTRICTED",
+        "summary": "Prohibits or age-restricts adults using sexually explicit language or showing sex products in some regions",
+        "quote": "In some regions, adults using sexually explicit language or showing or promoting sex products",
+        "contentTypes": [
+          "other"
+        ],
+        "contentContexts": [
+          "hacked",
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Content shows adults using sexually explicit language in certain regions",
+          "Content depicts adults showing or promoting sex products in certain regions"
+        ]
+      }
+    ],
+    "appealProcess": null
+  },
+  {
+    "id": "tiktok-new-1758659992462-0",
+    "reference": "TIKTOK-PRIVACY-SEC-2025",
+    "title": "TikTok Privacy and Security Guidelines",
+    "summary": "Specific community guidelines section addressing privacy violations, personal information sharing, and security threats. Released August 14, 2025, effective September 13, 2025, with detailed definitions of high-risk and moderate-risk personal information.",
+    "url": "https://www.tiktok.com/community-guidelines/en/privacy-security",
+    "accessTimestamp": "2025-09-23T20:39:52.462Z",
+    "policies": [
+      {
+        "id": "tt-ps-personal-info-high-risk",
+        "reference": "Personal Information - High Risk",
+        "summary": "Prohibits content containing personal information that could lead to stalking, identity theft, fraud, or other harm",
+        "quote": "we don't allow content with personal information that could lead to stalking, identity theft, fraud, or other harm. This includes content that someone has posted themselves or that they consented to being shared by others.",
+        "contentTypes": [
+          "private",
+          "personal",
+          "other"
+        ],
+        "contentContexts": [
+          "hacked",
+          "impersonation",
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Content contains personal information that could lead to stalking",
+          "Content contains personal information that could lead to identity theft",
+          "Content contains personal information that could lead to fraud",
+          "Content contains personal information that could lead to other harm"
+        ]
+      },
+      {
+        "id": "tt-ps-personal-info-moderate-risk",
+        "reference": "Personal Information - Moderate Risk",
+        "summary": "Prohibits moderate risk personal information shared without consent when it puts someone at risk of psychological harm",
+        "quote": "We may also remove moderate risk personal information shared without consent if it puts someone at risk of psychological harm. We generally require additional context to remove these types of personal information.",
+        "contentTypes": [
+          "private",
+          "personal",
+          "intimate",
+          "other"
+        ],
+        "contentContexts": [
+          "hacked",
+          "impersonation",
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [
+          {
+            "description": "Additional context demonstrating psychological harm risk",
+            "example": "Evidence showing how the shared information puts the individual at risk",
+            "reason": "Platform requires additional context to assess moderate risk personal information removal requests"
+          }
+        ],
+        "removalCriteria": [
+          "Moderate risk personal information shared without consent",
+          "Information puts someone at risk of psychological harm"
+        ]
+      },
+      {
+        "id": "tt-ps-high-risk-info-types",
+        "reference": "Personal Information - High Risk Types",
+        "summary": "Prohibits sharing of high risk personal information including home addresses, account login information, sensitive payment information, and identity numbers",
+        "quote": "High Risk Personal Information: Information that is characterized by a heightened potential to cause physical, financial, or psychological harm to the individual. It includes: Home Address, Account Login Information, Sensitive Payment Information, Identity Numbers",
+        "contentTypes": [
+          "private",
+          "other"
+        ],
+        "contentContexts": [
+          "hacked",
+          "impersonation",
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Content contains home addresses",
+          "Content contains account login information",
+          "Content contains sensitive payment information",
+          "Content contains identity numbers"
+        ]
+      },
+      {
+        "id": "tt-ps-moderate-risk-info-types",
+        "reference": "Personal Information - Moderate Risk Types",
+        "summary": "Prohibits sharing of moderate risk personal information including contact details, medical information, image/audio likeness, and private communications when shared without consent",
+        "quote": "Moderate Risk Personal Information: Information that isn't inherently risky, but may still cause harm—like emotional distress, reputational damage, or unwanted contact—especially when combined with other data. Examples include: Contact details or date of birth, Medical information, Image/audio likeness, Private communications on sensitive subjects, disclosed by individuals who were not part of the exchange",
+        "contentTypes": [
+          "private",
+          "personal",
+          "intimate",
+          "other"
+        ],
+        "contentContexts": [
+          "hacked",
+          "impersonation",
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Content contains contact details or date of birth shared without consent",
+          "Content contains medical information shared without consent",
+          "Content contains image/audio likeness shared without consent",
+          "Content contains private communications disclosed by individuals who were not part of the exchange"
+        ]
+      },
+      {
+        "id": "tt-ps-account-security-sharing",
+        "reference": "Platform Security - Account Sharing",
+        "summary": "Prohibits giving login information to others or allowing them to break platform rules on user accounts",
+        "quote": "Giving someone else your login information or letting them break TikTok's rules on your account",
+        "contentTypes": [
+          "other"
+        ],
+        "contentContexts": [
+          "hacked",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "User gave login information to someone else",
+          "User allowed someone else to break platform rules on their account"
+        ]
+      },
+      {
+        "id": "tt-ps-unauthorized-access",
+        "reference": "Platform Security - Unauthorized Access",
+        "summary": "Prohibits using unauthorized methods to access the platform or creating fake versions of the platform",
+        "quote": "Using unauthorized ways to access TikTok or creating fake versions of the platform",
+        "contentTypes": [
+          "other"
+        ],
+        "contentContexts": [
+          "hacked",
+          "impersonation",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Use of unauthorized methods to access the platform",
+          "Creation of fake versions of the platform"
+        ]
+      },
+      {
+        "id": "tt-ps-malware-sharing",
+        "reference": "Platform Security - Malware",
+        "summary": "Prohibits sharing files or messages containing malware or other harmful software",
+        "quote": "Sharing files or messages that carry malware or other harmful software, such as viruses or worms",
+        "contentTypes": [
+          "other"
+        ],
+        "contentContexts": [
+          "hacked",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Content contains malware",
+          "Content contains viruses or worms",
+          "Content contains other harmful software"
+        ]
+      },
+      {
+        "id": "tt-ps-data-theft-attempts",
+        "reference": "Platform Security - Data Theft",
+        "summary": "Prohibits attempts to steal personal information, hack accounts, or access data using deceptive methods",
+        "quote": "Trying to steal personal information, hack accounts, or access data using tricks like phishing, smishing, or automated tools",
+        "contentTypes": [
+          "private",
+          "other"
+        ],
+        "contentContexts": [
+          "hacked",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Attempts to steal personal information",
+          "Attempts to hack accounts",
+          "Use of phishing techniques",
+          "Use of smishing techniques",
+          "Use of automated tools to access data"
+        ]
       }
     ],
     "appealProcess": {
-      "url": null,
-      "summary": "The document references a general appeals process under Notice and Appeals section but does not provide specific details in this excerpt",
-      "steps": []
+      "url": "https://www.tiktok.com/legal/report/privacy?lang=en",
+      "summary": "Users can report privacy violations through TikTok's privacy reporting system",
+      "steps": [
+        "Access the privacy violation reporting form",
+        "Submit details of the privacy violation"
+      ]
     }
   }
 ],
