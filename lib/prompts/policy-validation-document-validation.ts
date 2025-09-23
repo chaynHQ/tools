@@ -39,7 +39,7 @@ export function generateDocumentValidationPrompt(
   return `You are an expert AI assistant specialized in auditing the legal and policy documents for major online platforms. Your task is to validate our existing list of documents for ${platformName}, discover any new or updated policy documents, and produce a structured report that strictly adheres to the required JSON schema.
 
 CRITICAL CONTEXT:
-The documents you identify are the sole source of truth for an automated system generating image takedown requests. It is essential that the list is comprehensive, current, and contains only canonical policy documents (e.g., Terms of Service, Community Guidelines), not secondary help articles.
+The documents you identify are the sole source of truth for an automated system generating image takedown requests. It is essential that the list is comprehensive, current, and contains only canonical policy documents (e.g., Terms of Service, Community Guidelines), or policy documents, not secondary help articles.
 
 PLATFORM: ${platformName} (${platformId})
 
@@ -54,7 +54,7 @@ ${
     : `
 **MODE: Initial Discovery**
 - **CURRENT DOCUMENTS TO VALIDATE:** None.
-- **INSTRUCTIONS:** This is a new platform. Your task is to perform a comprehensive search to discover the initial set of all relevant policy documents.
+- **INSTRUCTIONS:** This is a new platform. Your task is to perform a comprehensive search to discover the initial set of all relevant policy documents at valid URLs.
 `
 }
 
@@ -62,9 +62,9 @@ ${
 
 # VALIDATION REQUIREMENTS
 
-1.  **Document Accessibility & Verification**: For each URL in "CURRENT DOCUMENTS", verify it is accessible and the content appears to be the correct policy document. NOTE: you may not be able to access URLs on adult sites due to firewalls - if the page does not 404 or 403, treat it as valid.
+1.  **Document Accessibility & Verification**: For each URL in "CURRENT DOCUMENTS", verify it is accessible and the content appears to be the correct policy document. NOTE: you may not be able to access URLs on adult sites due to firewalls - if the page does not show 404 or 302, 307 error, treat it as valid.
 2.  **Determine Document Status**: For each document from the original list, you MUST classify its status as one of the following: \`valid\` (unchanged), \`updated\` (content or title has changed), \`moved\` (URL has changed), or \`invalid\` (no longer accessible or relevant). This is a mandatory field for each document in the \`validDocuments\` array.
-3.  **Comprehensive Document Discovery**: Perform a thorough search to find any additional relevant policy documents not on our current list. This should include platform specific documents and new US or global policies that are widely related such as "The Take It Down Act".
+3.  **Comprehensive Document Discovery**: Perform a thorough search to find any additional relevant policy documents not on our current list. This should always include platform specific US-based or global policies that are strongly related such as "The Take It Down Act" should always be included. Do NOT hallucinate web pages/URLs that do not exist - use returned urls from web searches. 
 4.  **Intelligent Navigation**: You may start your search in help or safety centers, but you MUST follow links to find the primary, official policy documents. Do not treat a help article that links to the Terms of Service as a policy document itself.
 5.  **Target Documents**: Focus on documents covering:
     -   Non-consensual intimate imagery (NCII)
