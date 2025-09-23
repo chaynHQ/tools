@@ -56,10 +56,6 @@ ${JSON.stringify(contentContexts, null, 2)}
 The policy objects you are auditing MUST conform to this TypeScript schema. Your validation should enforce this structure.
 
 \`\`\`typescript
-export type ContentType = 'intimate' | 'personal' | 'private' | 'other';
-export type ContentContext = 'hacked' | 'impersonation' | 'relationship' | 'unknown' | 'other';
-export type TimeUnit = 'minutes' | 'hours' | 'days' | 'weeks' | 'months' | 'years';
-
 export interface Policy {
   id: string;
   reference: string | null;
@@ -68,10 +64,17 @@ export interface Policy {
   contentTypes: ContentType[];
   contentContexts: ContentContext[];
   timeframes: {
-    response?: { value: number | null; unit: TimeUnit | null; description: string } | null;
-    removal?: { value: number | null; unit: TimeUnit | null; description: string } | null;
+    response?: {
+      value: number | null;
+      unit: 'immediate' | 'minutes' | 'hours' | 'days' | 'weeks' | 'months' | 'years' | null;
+      description: string;
+    } | null;
+    removal?: {
+      value: number | null;
+      unit: 'immediate' | 'minutes' | 'hours' | 'days' | 'weeks' | 'months' | 'years' | null;
+      description: string;
+    } | null;
   } | null;
-  evidenceRequirements: { description: string; example?: string; reason: string; }[];
   removalCriteria: string[];
 }
 \`\`\`

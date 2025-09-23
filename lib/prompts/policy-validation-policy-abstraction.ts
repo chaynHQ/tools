@@ -82,8 +82,18 @@ export interface Policy {
   quote: string;
   contentTypes: string[]; // e.g., ["intimate", "personal"]
   contentContexts: string[]; // e.g., ["hacked", "relationship"]
-  timeframes: { /* ... */ } | null;
-  evidenceRequirements: { /* ... */ }[];
+  timeframes: {
+    response?: {
+      value: number | null;
+      unit: 'immediate' | 'minutes' | 'hours' | 'days' | 'weeks' | 'months' | 'years' | null;
+      description: string;
+    } | null;
+    removal?: {
+      value: number | null;
+      unit: 'immediate' | 'minutes' | 'hours' | 'days' | 'weeks' | 'months' | 'years' | null;
+      description: string;
+    } | null;
+  } | null;
   removalCriteria: string[];
 }
 \`\`\`
