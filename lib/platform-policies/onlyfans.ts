@@ -9,10 +9,10 @@ export const onlyfansPolicy: PlatformPolicies = {
     "title": "Acceptable Use Policy",
     "summary": "Comprehensive policy covering prohibited content and behavior on OnlyFans.",
     "url": "https://onlyfans.com/aup",
-    "accessTimestamp": "2025-09-23T20:26:09.325Z",
+    "accessTimestamp": "2025-09-23T20:32:17.398Z",
     "policies": [
       {
-        "id": "of-aup-content-removal",
+        "id": "of-tou-content-removal",
         "reference": "Section 12.1",
         "summary": "Reserves the right to suspend or remove content that may breach Terms of Service",
         "quote": "We reserve the right to suspend or remove Content that may breach our Terms of Service.",
@@ -36,7 +36,7 @@ export const onlyfansPolicy: PlatformPolicies = {
         ]
       },
       {
-        "id": "of-aup-illegal-content-removal",
+        "id": "of-tou-illegal-content-removal",
         "reference": "Section 12.2",
         "summary": "Uses proportionate measures to quickly remove illegal content when aware it is on the platform",
         "quote": "We comply with applicable laws requiring us to use proportionate measures to quickly remove illegal Content when we become aware it is on OnlyFans.",
@@ -67,7 +67,7 @@ export const onlyfansPolicy: PlatformPolicies = {
         ]
       },
       {
-        "id": "of-aup-account-suspension",
+        "id": "of-tou-account-suspension",
         "reference": "Section 14.2",
         "summary": "May suspend or delete accounts and content without warning for serious or repeated breaches",
         "quote": "At any time, without warning or Notice and for as long as is necessary to review the relevant facts, we may: (i) suspend or delete your account and/or your Content; (ii) pause Fan Payments which would have been due during the suspension period; (iii) withhold any part of your Creator Earnings; and/or (iv) suspend, refund, or cancel Fan Payments if: we think you have or may have seriously or repeatedly breached the Terms of Service; you attempt, or threaten, to breach the Terms of Service in a way which we think has or could have serious consequences for us or another User; and/or we suspect that all or any part of the Creator Earnings result from unlawful or fraudulent activity, either by you or by the Fan who made the Fan Payment resulting in the Creator Earnings.",
@@ -93,7 +93,7 @@ export const onlyfansPolicy: PlatformPolicies = {
         ]
       },
       {
-        "id": "of-aup-co-authored-consent",
+        "id": "of-tou-co-authored-consent",
         "reference": "Section 16.2",
         "summary": "Requires written informed consent from all individuals appearing in content",
         "quote": "You warrant that each individual in Co-Authored Content you Upload is: a Creator you have tagged using the tool available on OnlyFans; or an individual at least 18 years of age whose proof of identity and whose written, informed consent you have obtained to share the Content on OnlyFans.",
@@ -125,7 +125,7 @@ export const onlyfansPolicy: PlatformPolicies = {
         ]
       },
       {
-        "id": "of-aup-consent-withdrawal",
+        "id": "of-tou-consent-withdrawal",
         "reference": "Section 16.6",
         "summary": "Allows individuals to withdraw consent and requires content deletion upon consent withdrawal",
         "quote": "Any individual(s) who appear in the Co-Authored Content may, at any time, withdraw their consent to appear in that Co-Authored Content. Co-Authored Content may be deleted where a participant withdraws consent.",
@@ -144,7 +144,7 @@ export const onlyfansPolicy: PlatformPolicies = {
         ]
       },
       {
-        "id": "of-aup-intellectual-property",
+        "id": "of-tou-intellectual-property",
         "reference": "Section 15.1",
         "summary": "Prohibits content that infringes intellectual property rights of third parties",
         "quote": "You confirm that your Content does not infringe or violate the intellectual property rights of any third-party and that you own or have obtained all rights necessary to distribute, copy, display, publicly perform or otherwise use the Content.",
@@ -169,7 +169,7 @@ export const onlyfansPolicy: PlatformPolicies = {
         ]
       },
       {
-        "id": "of-aup-dmca-process",
+        "id": "of-tou-dmca-process",
         "reference": "Section 15.7",
         "summary": "Provides DMCA takedown procedures for responding to copyright infringement reports",
         "quote": "Our DMCA Takedown Policy describes our procedures for responding to reports that infringing content was published on OnlyFans. Our Complaints Policy explains how to make a complaint about infringement of intellectual property rights on platforms other than OnlyFans.",
@@ -195,11 +195,11 @@ export const onlyfansPolicy: PlatformPolicies = {
     ],
     "appealProcess": {
       "url": "https://onlyfans.com/transparency-center/appeals",
-      "summary": "Users may dispute account termination or content deactivation decisions through the Appeals Policy within six months of notification",
+      "summary": "Users may dispute account termination or content deactivation decisions through the Appeals Policy, and dispute Creator Earnings forfeiture decisions through the Complaints Policy",
       "steps": [
-        "Submit dispute within six months of notification",
-        "Follow Appeals Policy procedures for account termination or content deactivation decisions",
-        "Follow Complaints Policy procedures for Creator Earnings forfeiture decisions"
+        "Submit dispute within six months of notification to avoid waiving rights",
+        "Follow Appeals Policy for account termination or content deactivation decisions",
+        "Follow Complaints Policy for Creator Earnings forfeiture decisions"
       ]
     }
   },
@@ -209,7 +209,7 @@ export const onlyfansPolicy: PlatformPolicies = {
     "title": "Terms of Service",
     "summary": "Legal terms governing the use of OnlyFans, including content ownership and security responsibilities.",
     "url": "https://onlyfans.com/terms",
-    "accessTimestamp": "2025-09-23T20:26:09.325Z",
+    "accessTimestamp": "2025-09-23T20:32:17.398Z",
     "policies": [
       {
         "id": "of-tos-content-removal",
@@ -448,13 +448,11 @@ export const onlyfansPolicy: PlatformPolicies = {
     ],
     "appealProcess": {
       "url": "https://onlyfans.com/transparency-center/appeals",
-      "summary": "Users may dispute account termination or content deactivation decisions through the Appeals Policy, and dispute Creator Earnings forfeiture through the Complaints Policy. Disputes must be made within six months of notification or the right to dispute is waived.",
+      "summary": "Users may dispute account termination or content deactivation decisions through the Appeals Policy, and dispute Creator Earnings forfeiture decisions through the Complaints Policy",
       "steps": [
-        "Receive notification of account termination or content removal decision",
-        "Submit dispute within six months of notification to avoid waiving dispute rights",
-        "For account termination or content deactivation: follow Appeals Policy process",
-        "For Creator Earnings forfeiture: follow Complaints Policy process",
-        "In certain jurisdictions, users may bring breach of contract claims where content or platform access is removed in breach of Terms of Service"
+        "Follow the Appeals Policy for account termination or content deactivation disputes",
+        "Follow the Complaints Policy for Creator Earnings forfeiture disputes",
+        "Submit dispute within six months of notification to avoid waiving the right to dispute"
       ]
     }
   },
@@ -464,7 +462,7 @@ export const onlyfansPolicy: PlatformPolicies = {
     "title": "Privacy Policy",
     "summary": "Privacy policy explaining how OnlyFans collects, uses, and protects user data.",
     "url": "https://onlyfans.com/privacy",
-    "accessTimestamp": "2025-09-23T20:26:09.325Z",
+    "accessTimestamp": "2025-09-23T20:32:17.398Z",
     "policies": [
       {
         "id": "of-pp-age-verification",
@@ -659,9 +657,9 @@ export const onlyfansPolicy: PlatformPolicies = {
     ],
     "appealProcess": {
       "url": null,
-      "summary": "Users have the right to appeal decisions regarding privacy requests, with appeals submitted through contact information provided. If appeals are denied, users may contact their local Attorney General.",
+      "summary": "Users may appeal decisions regarding privacy rights requests, particularly for residents of certain U.S. States",
       "steps": [
-        "Submit appeal request using the contact details provided in Section 19",
+        "Submit appeal request using contact details provided in Section 19",
         "If appeal is denied, contact your local Attorney General"
       ]
     }
@@ -670,9 +668,9 @@ export const onlyfansPolicy: PlatformPolicies = {
     "id": "us-take-it-down-act",
     "reference": "S.146",
     "title": "TAKE IT DOWN Act",
-    "summary": "US federal law prohibiting nonconsensual intimate visual depictions of individuals, both authentic and computer-generated, requiring covered platforms to implement notice-and-removal processes.",
+    "summary": "US federal law prohibiting nonconsensual intimate visual depictions of individuals, both authentic and computer-generated, requiring covered platforms to implement notice-and-removal processes within 48 hours.",
     "url": "https://www.congress.gov/bill/119th-congress/senate-bill/146/text",
-    "accessTimestamp": "2025-09-23T20:26:09.325Z",
+    "accessTimestamp": "2025-09-23T20:32:17.398Z",
     "policies": [
       {
         "id": "take-it-down-authentic-adults",
