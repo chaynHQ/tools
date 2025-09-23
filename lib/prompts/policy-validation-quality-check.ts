@@ -35,6 +35,14 @@ export function generatePolicyValidationQualityCheckPrompt(
   platformId: string,
   platformName: string,
   originalPolicies: PlatformPolicies,
+  updatedPolicies: PlatformPolicies,
+  sourceDocuments: GaffaScrapingResult[]
+): string {
+  return `# POLICY VALIDATION QUALITY CHECK
+
+You are an expert policy analyst tasked with validating platform policies for accuracy, completeness, and quality. Your role is to ensure that policy extractions are faithful to source documents and meet high standards for vulnerable user protection.
+
+# CONTENT CLASSIFICATION REFERENCE
 
 ${JSON.stringify(contentTypes, null, 2)}
 
