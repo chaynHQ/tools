@@ -38,7 +38,7 @@ ${
         null,
         2,
       )}
-- **INSTRUCTIONS:** Compare the policies in the markdown against the "CURRENT POLICIES". Update policies only if a meaningful change has occurred, and add any new policies you discover.`
+- **INSTRUCTIONS:** Compare the policies in the markdown against the "CURRENT POLICIES". Update policies only if a meaningful update has occurred, and add any new policies you discover.`
     : `**MODE: Initial Extraction**
 - **INSTRUCTIONS:** This is a new document or a full refresh. Your task is to perform a comprehensive extraction of all relevant policies from the source document.`
 }
@@ -56,7 +56,8 @@ Your task is to process the source document and produce a JSON object containing
 -   **Policy Definition:** EVERY policy must be a legal policy/statement or community guideline/rule. Do NOT create policies for statements that are instructions or supporting information and not a direct policy - e.g. statements within documents like "users can...", "we encourage..." and "we use your data..." are NOT policies. 
 -   **Relevance:** Only include policies applicable to our image takedown letters related to IBA, GBV. Use our related \`contentTypes\` and \`contentContexts\` as guidance. 
 -   **Trauma-Informed:** Ensure that the \`summary\`, \`evidenceRequirements\`, \`removalCriteria\`, \`appealProcess\` language is appropriate for our trauma-informed takedown letters. 
--   **Explicit Language: **DO NOT use explicit or detailed language related to the body or sexual activity e.g. "buttocks", "nipples". If a quote is explicit, rephrase the \`summary\` to use appropriate language whilst maintaining relevance e.g. "nudity", "sexual activity".
+-   **Explicit Language:** DO NOT use explicit or detailed language related to the body or sexual activity e.g. "buttocks", "nipples". If a quote is explicit, rephrase the \`summary\` to use appropriate language whilst maintaining relevance e.g. "nudity", "sexual activity".
+-   **Meaningful changes:** DO NOT make minor copy changes to existing policies if the \`quote\` is unchanged. The task is to identify changes and additions, not to slightly improve our \`summary\` or other references to the same policy.
 
 ## Step 1: Identify Relevant Policies
 First, scan the entire document and identify all policy statements relevant to the following areas of Image Based Abuse:
@@ -74,6 +75,8 @@ Do not include policies related to
 -   Internal features such as privacy settings - i.e. a user deleting their account is not a policy
 -   Internal features related to age restricted content policies - i.e. a filtered feed for minors is not a policy
 -   Loose or misaligned context - i.e. policies related to animal abuse are not relevant to our GBV/IBA purpose
+
+If a policy document (markdown) has a last updated date that is before our current document \`accessTimestamp\`, it is likely updates are not required.
 
 ## Step 2: Extract and Structure Each Policy
 For each policy you identify, create a JSON object that strictly conforms to the \`Policy\` interface. You must follow these field-by-field instructions:
