@@ -31,7 +31,7 @@ export async function scrapeDocumentMarkdown(url: string): Promise<GaffaScraping
         async: false,
         max_cache_age: 3600, // Cache for 1 hour
         settings: {
-          record_request: true,
+          record_request: false,
           actions: [
             {
               type: 'wait',
