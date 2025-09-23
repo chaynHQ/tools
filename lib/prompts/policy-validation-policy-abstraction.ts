@@ -1,4 +1,5 @@
 import { Policy } from '@/types/policies';
+import { contentTypes, contentContexts } from '../constants/content';
 
 export interface PolicyAbstractionResult {
   success: boolean;
@@ -22,6 +23,22 @@ export function generatePolicyAbstractionPrompt(
   return `You are an expert AI assistant specialized in accurately extracting and structuring content removal policies from online platform legal and community-facing documents. Your primary goal is to create a structured JSON representation of all policies relevant to image-based abuse, non-consensual content sharing, harassment, and privacy from the single document provided.
 
 This output is a component of a larger policy library for an automated system that generates image takedown letters sent to online platforms. The accuracy and clarity of your extraction are therefore critical.
+
+# DEFINITIONS FOR CONTENT CLASSIFICATION
+
+The following definitions are critical for accurate policy categorization. You MUST use these exact definitions when assigning contentTypes and contentContexts to policies.
+
+## Content Types (What type of content was shared)
+${JSON.stringify(contentTypes, null, 2)}
+
+## Content Contexts (The context in which the content was shared)
+${JSON.stringify(contentContexts, null, 2)}
+
+**CRITICAL MAPPING INSTRUCTIONS:**
+- **Be Comprehensive**: If a policy applies to multiple content types or contexts, include ALL applicable values in the arrays.
+- **Prioritize Specificity**: Always use the most specific categories that apply. Only use 'other' when no specific category fits.
+- **Use 'unknown' Context**: Only when the policy applies regardless of how the perpetrator obtained or shared the content.
+- **Use 'other' Values**: Only as a last resort when the content/context doesn't fit any of the specific defined categories.
 
 # DATA SCHEMA
 You MUST generate policy objects that strictly conform to these TypeScript interfaces. Pay close attention to the allowed values for \`ContentType\`, \`ContentContext\`, and \`TimeUnit\`.
@@ -107,11 +124,28 @@ For each policy identified, you MUST populate the fields according to the \`Poli
     -   **Example:**
         -   **Quote:** "We don't allow content that harasses or bullies others, including degrading remarks about appearance, doxing, sexual harassment, or coordinated abuse."
         -   **Excellent Summary:** "Prohibits harassment and bullying, including degrading remarks, doxing, and coordinated abuse."
--   **\`contentTypes\` & \`contentContexts\` Mapping Heuristics**:
-    -   If a policy mentions nudity, sexual acts, or private body parts, always include \`"intimate"\`.
-    -   If it mentions personal details, photos of faces, or private locations, include \`"personal"\` and \`"private"\`.
-    -   If it mentions impersonation or fake profiles, always include \`"impersonation"\`.
-    -   If it mentions unauthorized access or compromised accounts, always include \`"hacked"\`.
+-   **\`contentTypes\` & \`contentContexts\` Mapping Guidelines**:
+    **MANDATORY PROCESS**: For each policy, you MUST:
+    1. **Review ALL Content Type Definitions**: Check each content type definition against the policy text
+    2. **Review ALL Content Context Definitions**: Check each context definition against the policy text
+    3. **Include ALL Applicable Categories**: Add every category that the policy covers, not just the primary one
+    4. **Use Specific Categories First**: Prioritize specific categories over 'other' or 'unknown'
+    
+    **Specific Mapping Rules**:
+    - **Intimate Content**: Include if policy mentions nudity, sexual acts, private body parts, intimate imagery, or sexual content
+    - **Personal Content**: Include if policy mentions personal photos, private communications, personal documents, or non-intimate private content
+    - **Private Information**: Include if policy mentions personal data, contact details, private documents, or identifying information
+    - **Hacked Context**: Include if policy mentions unauthorized access, compromised accounts, stolen credentials, or security breaches
+    - **Impersonation Context**: Include if policy mentions fake profiles, identity theft, pretending to be someone else, or using someone's identity
+    - **Relationship Context**: Include if policy mentions ex-partners, known persons, domestic abuse, or revenge scenarios
+    - **Unknown Context**: Include if policy applies regardless of how content was obtained or who shared it
+    - **Other Categories**: Only use when content/context doesn't fit any specific category above
+    
+    **Examples of Comprehensive Mapping**:
+    - A policy about "non-consensual intimate imagery" should include: contentTypes: ["intimate"], contentContexts: ["hacked", "impersonation", "relationship", "unknown", "other"]
+    - A policy about "harassment using personal information" should include: contentTypes: ["personal", "private"], contentContexts: ["impersonation", "relationship", "unknown", "other"]
+    - A policy about "account compromise" should include: contentTypes: ["intimate", "personal", "private"], contentContexts: ["hacked"]
+
 -   **\`timeframes\`**: Extract timeframes **only if explicitly stated** in the document. If not mentioned, the object must be \`null\`.
 
 ## Appeal Process Extraction:

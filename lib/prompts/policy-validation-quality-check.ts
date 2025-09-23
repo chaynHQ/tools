@@ -1,5 +1,6 @@
 import { PlatformPolicies } from '@/types/policies';
 import { GaffaScrapingResult } from '../ai/policy-validation/gaffa-scraper';
+import { contentTypes, contentContexts } from '../constants/content';
 
 export interface PolicyValidationQualityCheckResult {
   validationStatus: 'valid' | 'invalid' | 'no_update_needed';
@@ -41,6 +42,16 @@ export function generatePolicyValidationQualityCheckPrompt(
 
 CRITICAL CONTEXT:
 The policies you validate are used to generate automated takedown letters for gender-based violence and non-consensual content. 100% accuracy is mandatory. Every policy must be a direct and verifiable representation of the source text.
+
+# CONTENT CLASSIFICATION DEFINITIONS
+
+The following definitions are used for policy categorization and MUST be validated for accuracy:
+
+## Content Types (What type of content was shared)
+${JSON.stringify(contentTypes, null, 2)}
+
+## Content Contexts (The context in which the content was shared)
+${JSON.stringify(contentContexts, null, 2)}
 
 # DATA SCHEMA
 The policy objects you are auditing MUST conform to this TypeScript schema. Your validation should enforce this structure.
@@ -105,7 +116,11 @@ You must check for the following issues and classify them by severity.
 
 ### MAJOR ISSUES (Reduce quality score significantly)
 1.  **Completeness**: A relevant policy clearly stated in the source documents was missed and is not present in the updated policies.
-2.  **Content Mapping**: Grossly incorrect assignment of \`contentTypes\` or \`contentContexts\` (e.g., labeling a harassment policy as only 'intimate').
+2.  **Content Mapping**: Incorrect or incomplete assignment of \`contentTypes\` or \`contentContexts\`. This includes:
+    - Missing applicable content types or contexts (e.g., a policy about "non-consensual intimate imagery" that only includes 'intimate' but misses applicable contexts like 'hacked', 'relationship', etc.)
+    - Incorrect categorization (e.g., labeling a harassment policy as only 'intimate' when it also applies to 'personal' content)
+    - Using 'other' or 'unknown' when more specific categories clearly apply
+    - Not following the comprehensive mapping guidelines from the abstraction process
 3.  **Timeframe Accuracy**: Extracting a response or removal timeframe that is not explicitly stated in the source text.
 
 ### MINOR ISSUES (Note for improvement)
