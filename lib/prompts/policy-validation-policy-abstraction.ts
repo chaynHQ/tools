@@ -54,7 +54,7 @@ Your task is to process the source document and produce a JSON object containing
 
 ## Overall Guiding Principles
 -   **Policy Definition:** EVERY policy must be a legal policy/statement or community guideline/rule. Do NOT create policies for instructions related to how to report or handle situations - e.g. statements within documents like "users can...", "we encourage..." and "we use your data..." are NOT policies. Ensure the policies are not consolidated per independent policy/rule, not per subtopic or page section.
--   **Relevance**: Only include policies applicable to our image takedown letters related to IBA and GBV. 
+-   **Relevance**: Only include policies applicable to our image takedown letters related to IBA, GBV. Use our related \`contentTypes\` and \`contentContexts\` as guidance. 
 -   **Trauma-Informed**: Ensure that the \`summary\`, \`evidenceRequirements\`, \`removalCriteria\`, \`appealProcess\` language is appropriate for our trauma-informed takedown letters.
 
 ## Step 1: Identify Relevant Policies
