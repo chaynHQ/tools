@@ -47,7 +47,7 @@ export class GitHubPRCreator {
         repo: this.repo,
         // branch: repo.default_branch,
         // TEMP for testing/replacing initial policies
-        branch: 'validation-flow-update-policies',
+        branch: 'validation-flow',
       });
 
       const baseBranchSha = baseBranch.commit.sha;
@@ -69,7 +69,7 @@ export class GitHubPRCreator {
         head: finalBranchName,
         // base: repo.default_branch,
         // TEMP for testing/replacing initial policies
-        base: 'validation-flow-update-policies',
+        base: 'validation-flow',
       });
 
       rollbar.info('Policy validation: PR created successfully', {
