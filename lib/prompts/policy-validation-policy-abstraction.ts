@@ -110,7 +110,7 @@ export interface Policy {
 -   **\`id\`**: A unique, machine-readable identifier (e.g., "platform-doc-policy").
 -   **\`reference\`**: The section number or heading from the document, if available.
 -   **\`quote\`**: The **exact, verbatim text** from the document that serves as the evidence for the policy.
--   **\`summary\`**: A critical field. It must be a strong, clear, and active statement (e.g., "Prohibits...") that is a brief summary of the quote used in takedown letters. MUST be equivalent/representative of the quote/policy whilst using trauma-informed language. Only include relevant details for the takedown letter, i.e. EXCLUDE policy implementation details like "signed into effect May 19, 2025 by Trump".
+-   **\`summary\`**: A critical field. It must be a strong, clear, and active statement (e.g., "Prohibits...") that is a brief summary of the quote used in takedown letters. MUST be equivalent/representative of the quote/policy whilst using trauma-informed language. Do not include irrelevant policy implementation details like "signed into effect May 19, 2025".
 -   **\`contentTypes\` & \`contentContexts\`**: To populate these arrays, you MUST use the definitions and follow the mandatory process below. This is a critical step for accuracy.
     -   **Content Type Definitions**: ${JSON.stringify(contentTypes, null, 2)}
     -   **Content Context Definitions**: ${JSON.stringify(contentContexts, null, 2)}

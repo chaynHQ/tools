@@ -79,6 +79,10 @@ ${
     -   Impersonation
     -   Copyright/DMCA 
     -   Appeal/counter-notice processes
+    Do not retrieve documents outside of our focus area of image-based abuse and takedown policy:
+    -   Policies or documents designed for law enforcement officials - i.e. requesting data access
+    -   Policies or documents designed for parents or minors - i.e. guides for age-restricted features
+    -   Loose or misaligned context - i.e. policies related to animal abuse are not relevant to our GBV/IBA purpose
 
 ---
 
