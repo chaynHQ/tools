@@ -9,7 +9,7 @@ export const onlyfansPolicy: PlatformPolicies = {
     "title": "Acceptable Use Policy",
     "summary": "Comprehensive policy covering prohibited content and behavior on OnlyFans.",
     "url": "https://onlyfans.com/aup",
-    "accessTimestamp": "2025-09-24T13:52:53.511Z",
+    "accessTimestamp": "2025-09-24T15:59:41.821Z",
     "policies": [
       {
         "id": "of-tou-content-removal",
@@ -198,7 +198,7 @@ export const onlyfansPolicy: PlatformPolicies = {
       "summary": "Users may dispute account termination or content deactivation decisions through the Appeals Policy",
       "steps": [
         "Follow the Appeals Policy procedures for account termination or content deactivation disputes",
-        "Submit dispute within six months of notification to avoid waiving rights"
+        "Submit dispute within six months of notification to avoid waiving the right to dispute"
       ]
     }
   },
@@ -208,7 +208,7 @@ export const onlyfansPolicy: PlatformPolicies = {
     "title": "Terms of Service",
     "summary": "Legal terms governing the use of OnlyFans, including content ownership and security responsibilities.",
     "url": "https://onlyfans.com/terms",
-    "accessTimestamp": "2025-09-24T13:52:53.511Z",
+    "accessTimestamp": "2025-09-24T15:59:41.821Z",
     "policies": [
       {
         "id": "of-tos-content-removal",
@@ -460,7 +460,7 @@ export const onlyfansPolicy: PlatformPolicies = {
     "title": "Privacy Policy",
     "summary": "Privacy policy explaining how OnlyFans collects, uses, and protects user data.",
     "url": "https://onlyfans.com/privacy",
-    "accessTimestamp": "2025-09-24T13:52:53.511Z",
+    "accessTimestamp": "2025-09-24T15:59:41.821Z",
     "policies": [
       {
         "id": "of-pp-age-verification",
@@ -653,7 +653,16 @@ export const onlyfansPolicy: PlatformPolicies = {
         ]
       }
     ],
-    "appealProcess": null
+    "appealProcess": {
+      "url": null,
+      "summary": "Users can contact privacy@onlyfans.com to exercise privacy rights including appeals for certain U.S. State residents",
+      "steps": [
+        "Contact OnlyFans using the contact details provided",
+        "Submit a ticket through your account or email privacy@onlyfans.com",
+        "For U.S. residents with appeal rights, submit appeal requests using the same contact methods",
+        "If appeal is denied, residents may contact their local Attorney General"
+      ]
+    }
   },
   {
     "id": "us-take-it-down-act",
@@ -661,7 +670,7 @@ export const onlyfansPolicy: PlatformPolicies = {
     "title": "TAKE IT DOWN Act",
     "summary": "Federal law signed into law on May 19, 2025, criminalizing nonconsensual intimate imagery including deepfakes and requiring covered platforms to remove such content within 48 hours of verified requests. Platforms have until May 19, 2026 to implement required notice-and-removal processes.",
     "url": "https://www.congress.gov/bill/119th-congress/senate-bill/146/text",
-    "accessTimestamp": "2025-09-24T13:52:53.511Z",
+    "accessTimestamp": "2025-09-24T15:59:41.821Z",
     "policies": [
       {
         "id": "take-it-down-authentic-adults",
@@ -879,6 +888,26 @@ export const onlyfansPolicy: PlatformPolicies = {
         ]
       }
     ],
+    "appealProcess": null
+  },
+  {
+    "id": "onlyfans-new-1758729581821-0",
+    "reference": "OF-CG",
+    "title": "Community Guidelines",
+    "summary": "OnlyFans community standards covering acceptable content and behavior, including policies on harassment, impersonation, and content removal procedures.",
+    "url": "https://onlyfans.com/help/3/16/49",
+    "accessTimestamp": "2025-09-24T15:59:41.821Z",
+    "policies": [],
+    "appealProcess": null
+  },
+  {
+    "id": "onlyfans-new-1758729581821-1",
+    "reference": "OF-DMCA",
+    "title": "DMCA Policy",
+    "summary": "OnlyFans Digital Millennium Copyright Act policy covering copyright infringement claims, takedown procedures, and counter-notification processes.",
+    "url": "https://onlyfans.com/dmca",
+    "accessTimestamp": "2025-09-24T15:59:41.821Z",
+    "policies": [],
     "appealProcess": null
   }
 ],
