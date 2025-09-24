@@ -45,9 +45,7 @@ export class GitHubPRCreator {
       const { data: baseBranch } = await this.octokit.rest.repos.getBranch({
         owner: this.owner,
         repo: this.repo,
-        // branch: repo.default_branch,
-        // TEMP for testing/replacing initial policies
-        branch: 'validation-flow',
+        branch: repo.default_branch,
       });
 
       const baseBranchSha = baseBranch.commit.sha;
@@ -67,9 +65,7 @@ export class GitHubPRCreator {
         title: data.title,
         body: data.body,
         head: finalBranchName,
-        // base: repo.default_branch,
-        // TEMP for testing/replacing initial policies
-        base: 'validation-flow',
+        base: repo.default_branch,
       });
 
       rollbar.info('Policy validation: PR created', {

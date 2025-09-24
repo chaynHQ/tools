@@ -1,9 +1,6 @@
 name: Policy Validation Workflow
 
 on:
-  # TODO: remove the push trigger after setup/testing
-  push:
-    branches: [validation-flow]
   schedule:
     # Run every Monday at 9:00 AM UTC (weekly)
     - cron: '0 9 * * 1'
