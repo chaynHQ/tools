@@ -1,5 +1,6 @@
 import { GeneratedLetter, LetterRequest } from '@/types/letter';
 import { MAX_RETRIES, RETRY_DELAY, STATIC_NEXT_STEPS } from '../constants/ai';
+import { PlatformId } from '../constants/platforms';
 import { QualityCheckResponse } from '../prompts/letter-quality-check';
 import { serverInstance as rollbar } from '../rollbar';
 import { retryWithDelay } from '../utils';
@@ -20,15 +21,21 @@ export async function generateLetter(formData: LetterRequest): Promise<Generated
       // Sanitize the form data before sending to AI
       const sanitizedData = sanitizeFormData(formData);
 
+      // Determine if this is a custom/other platform
+      const isOtherPlatform = sanitizedData.platformInfo.isCustom || 
+                             sanitizedData.platformInfo.platformId === PlatformId.OTHER;
       rollbar.info('Generating letter', {
         attempt: attempts,
-        platform: sanitizedData.platformInfo.name,
+        platform: sanitizedData.platformInfo.platformName || sanitizedData.platformInfo.customName,
+        isOtherPlatform,
         hasReportingDetails: !!sanitizedData.reportingDetails,
         hasFollowUp: !!sanitizedData.followUp,
       });
 
       const response: { subject: string; body: string } = await retryWithDelay(async () => {
-        const res = await fetch('/api/generate-letter', {
+        const endpoint = isOtherPlatform ? '/api/generate-letter-other-platform' : '/api/generate-letter';
+        
+        const res = await fetch(endpoint, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(sanitizedData),
