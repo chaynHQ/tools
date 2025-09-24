@@ -9,7 +9,7 @@ export const facebookPolicy: PlatformPolicies = {
     "title": "TAKE IT DOWN Act",
     "summary": "US federal law that criminalizes nonconsensual publication of intimate images and requires covered platforms to implement notice-and-removal processes. Signed into law May 19, 2025 as Public Law No. 119-12.",
     "url": "https://www.congress.gov/bill/119th-congress/senate-bill/146/text",
-    "accessTimestamp": "2025-09-23T20:26:44.835Z",
+    "accessTimestamp": "2025-09-24T13:28:20.586Z",
     "policies": [
       {
         "id": "takedown-act-ncii-authentic-adults",
@@ -265,7 +265,7 @@ export const facebookPolicy: PlatformPolicies = {
     "title": "Meta Community Standards",
     "summary": "Comprehensive community guidelines covering Facebook, Instagram, Messenger and Threads, including policies on adult nudity, sexual activity, and non-consensual intimate imagery.",
     "url": "https://transparency.meta.com/policies/community-standards/",
-    "accessTimestamp": "2025-09-23T20:26:44.835Z",
+    "accessTimestamp": "2025-09-24T13:28:20.586Z",
     "policies": [
       {
         "id": "meta-cs-adult-sexual-exploitation",
@@ -506,7 +506,7 @@ export const facebookPolicy: PlatformPolicies = {
     "title": "Meta Terms of Service",
     "summary": "Updated terms governing use of Facebook, Messenger and other Meta products, effective January 1, 2025.",
     "url": "https://www.facebook.com/terms/",
-    "accessTimestamp": "2025-09-23T20:26:44.835Z",
+    "accessTimestamp": "2025-09-24T13:28:20.586Z",
     "policies": [
       {
         "id": "meta-tos-content-violations",
@@ -672,13 +672,11 @@ export const facebookPolicy: PlatformPolicies = {
     ],
     "appealProcess": {
       "url": null,
-      "summary": "Meta provides notification of content removal and explains options to request review, unless violations are serious/repeated or legal restrictions apply. Users can request review of account suspensions/terminations unless certain exceptions apply.",
+      "summary": "Users can request review of content removal or account suspension decisions, unless doing so may expose Meta or others to legal liability, harm the community, compromise system integrity, or is prohibited for legal reasons",
       "steps": [
-        "Meta notifies user of content removal under Community Standards",
-        "Meta explains available options for requesting another review",
-        "User can request review unless violations are serious/repeated or legal restrictions apply",
-        "For account suspensions/terminations, users are notified and given options to request review",
-        "Users can contact Meta if they believe account was disabled by mistake"
+        "Request review of content removal decision",
+        "Request review of account suspension or termination decision",
+        "Meta will provide explanation and review options unless restricted by legal or safety concerns"
       ]
     }
   },
@@ -688,158 +686,7 @@ export const facebookPolicy: PlatformPolicies = {
     "title": "Adult Nudity and Sexual Activity Policy",
     "summary": "Specific policy addressing restrictions on nudity and sexual content, with provisions for non-consensual intimate imagery.",
     "url": "https://transparency.meta.com/policies/community-standards/adult-nudity-sexual-activity/",
-    "accessTimestamp": "2025-09-23T20:26:44.835Z",
-    "policies": [
-      {
-        "id": "meta-nudity-adult-nudity",
-        "reference": "Adult Nudity",
-        "summary": "Prohibits photorealistic and digital imagery of adult nudity including visible genitalia, anuses, buttocks, and female nipples except in specific contexts",
-        "quote": "We do not allow the following content for all users: Adult Nudity - Photorealistic/digital imagery of adult nudity, if it depicts: Visible genitalia (including when obscured by pubic hair or digital overlays), Visible anuses and/or close-ups of visible buttocks, Visible female nipples, except in a breastfeeding, or act of protest context",
-        "contentTypes": [
-          "intimate"
-        ],
-        "contentContexts": [
-          "hacked",
-          "relationship",
-          "unknown",
-          "other"
-        ],
-        "timeframes": null,
-        "evidenceRequirements": [],
-        "removalCriteria": [
-          "Content depicts visible genitalia including when obscured by pubic hair or digital overlays",
-          "Content shows visible anuses and/or close-ups of visible buttocks",
-          "Content displays visible female nipples except in breastfeeding or protest contexts"
-        ]
-      },
-      {
-        "id": "meta-nudity-voyeuristic-content",
-        "reference": "Adult Nudity",
-        "summary": "Prohibits photorealistic digital videos that focus on intimate body parts recorded without the awareness of the person depicted",
-        "quote": "Photorealistic/ digital videos that focus on crotch, female breasts, or buttocks recorded without the awareness of the person(s) depicted in them",
-        "contentTypes": [
-          "intimate"
-        ],
-        "contentContexts": [
-          "hacked",
-          "unknown",
-          "other"
-        ],
-        "timeframes": null,
-        "evidenceRequirements": [],
-        "removalCriteria": [
-          "Video focuses on intimate body parts",
-          "Content was recorded without the awareness of the person depicted"
-        ]
-      },
-      {
-        "id": "meta-nudity-sexual-activity",
-        "reference": "Adult Sexual Activity",
-        "summary": "Prohibits photorealistic and digital imagery of adult sexual activity including explicit and implicit sexual acts",
-        "quote": "We do not allow the following content for all users: Adult Sexual Activity - Photorealistic/ digital imagery of adult sexual activity, including: Explicit sexual activity or stimulation, Implicit sexual activity or stimulation, Other sexual activity or stimulation",
-        "contentTypes": [
-          "intimate"
-        ],
-        "contentContexts": [
-          "hacked",
-          "relationship",
-          "unknown",
-          "other"
-        ],
-        "timeframes": null,
-        "evidenceRequirements": [],
-        "removalCriteria": [
-          "Content depicts explicit sexual activity or stimulation",
-          "Content shows implicit sexual activity or stimulation",
-          "Content displays other forms of sexual activity including erections or presence of by-products of sexual activity"
-        ]
-      },
-      {
-        "id": "meta-nudity-ai-generated",
-        "reference": "Policy Rationale",
-        "summary": "Prohibits AI-generated or computer-generated images of nudity and sexual activity regardless of photorealistic appearance",
-        "quote": "Under this policy, we remove real photographs and videos of nudity and sexual activity, AI- or computer-generated images of nudity and sexual activity, and digital imagery, regardless of whether it looks \"photorealistic\" (as in, it looks like a real person).",
-        "contentTypes": [
-          "intimate"
-        ],
-        "contentContexts": [
-          "hacked",
-          "impersonation",
-          "relationship",
-          "unknown",
-          "other"
-        ],
-        "timeframes": null,
-        "evidenceRequirements": [],
-        "removalCriteria": [
-          "Content is AI-generated or computer-generated imagery of nudity",
-          "Content is AI-generated or computer-generated imagery of sexual activity",
-          "Content is digital imagery of nudity or sexual activity regardless of photorealistic appearance"
-        ]
-      },
-      {
-        "id": "meta-nudity-fetish-content",
-        "reference": "Adult Sexual Activity",
-        "summary": "Prohibits photorealistic digital imagery and real world art depicting certain fetish activities",
-        "quote": "Photorealistic/ digital imagery or real world art depicting fetish that involves the following: Acts that are likely to lead to the death of a person or animal, Dismemberment, Cannibalism, Feces, urine, spit, snot, menstruation or vomit, Bestiality, Incest, BDSM (bondage and discipline, domination and submission, sadism and masochism), only when sexual indicators are also present",
-        "contentTypes": [
-          "intimate"
-        ],
-        "contentContexts": [
-          "hacked",
-          "relationship",
-          "unknown",
-          "other"
-        ],
-        "timeframes": null,
-        "evidenceRequirements": [],
-        "removalCriteria": [
-          "Content depicts fetish activities involving acts likely to lead to death",
-          "Content shows dismemberment, cannibalism, or bodily fluids in sexual context",
-          "Content displays bestiality or incest",
-          "Content shows BDSM activities when sexual indicators are present"
-        ]
-      },
-      {
-        "id": "meta-nudity-extended-audio",
-        "reference": "Adult Sexual Activity",
-        "summary": "Prohibits extended audio recordings of sexual activity",
-        "quote": "Extended audio of sexual activity",
-        "contentTypes": [
-          "intimate"
-        ],
-        "contentContexts": [
-          "hacked",
-          "relationship",
-          "unknown",
-          "other"
-        ],
-        "timeframes": null,
-        "evidenceRequirements": [],
-        "removalCriteria": [
-          "Content contains extended audio of sexual activity"
-        ]
-      }
-    ],
-    "appealProcess": {
-      "url": "https://www.facebook.com/help/263149623790594?ref=tc",
-      "summary": "Users can appeal content removal decisions through Meta's Support Inbox system with multiple review opportunities",
-      "steps": [
-        "User receives notification of content action via notifications",
-        "Detailed review decision information is provided in the Support Inbox",
-        "User can request another review if they believe the decision was incorrect",
-        "Meta conducts a re-review of the content",
-        "Final response is sent to the user's Support Inbox after re-review"
-      ]
-    }
-  },
-  {
-    "id": "facebook-new-1758659204835-3",
-    "reference": "META-HARASSMENT-2025",
-    "title": "Bullying and Harassment Policy",
-    "summary": "Policy addressing bullying, harassment, and targeted attacks, including protections for private individuals and provisions for image-based abuse.",
-    "url": "https://transparency.meta.com/policies/community-standards/bullying-harassment/",
-    "accessTimestamp": "2025-09-23T20:26:44.835Z",
+    "accessTimestamp": "2025-09-24T13:28:20.586Z",
     "policies": [
       {
         "id": "meta-harassment-unwanted-contact",
@@ -1209,23 +1056,24 @@ export const facebookPolicy: PlatformPolicies = {
       }
     ],
     "appealProcess": {
-      "url": "https://www.facebook.com/help/263149623790594",
-      "summary": "Users can appeal content removal decisions through the Support Inbox and request another review if they believe the decision was incorrect",
+      "url": null,
+      "summary": "Meta provides an appeal process where users can request another review if they disagree with enforcement decisions. Appeals are submitted through the Support Inbox and users receive notifications about the outcome.",
       "steps": [
-        "After content is removed, user receives notification with option to request review",
-        "User can provide additional context or information in their appeal",
-        "Meta reviews the appeal and sends final response to Support Inbox",
-        "Users can also visit the Help Center for additional support on bullying and harassment issues"
+        "Submit a report through the universal reporting system",
+        "Receive notification of Meta's decision via notifications and Support Inbox",
+        "If disagreeing with the decision, request another review through the appeal option",
+        "Provide additional information or context during the appeal process",
+        "Receive final response after re-review in the Support Inbox"
       ]
     }
   },
   {
-    "id": "facebook-new-1758659204835-4",
-    "reference": "META-COPYRIGHT-2025",
-    "title": "Meta Copyright Policy",
-    "summary": "Comprehensive copyright policy including DMCA procedures, reporting mechanisms, and intellectual property protections across Meta platforms.",
-    "url": "https://www.meta.com/help/policies/2202628709913826/",
-    "accessTimestamp": "2025-09-23T20:26:44.835Z",
+    "id": "facebook-new-1758659204835-3",
+    "reference": "META-HARASSMENT-2025",
+    "title": "Bullying and Harassment Policy",
+    "summary": "Policy addressing bullying, harassment, and targeted attacks, including protections for private individuals and provisions for image-based abuse.",
+    "url": "https://transparency.meta.com/policies/community-standards/bullying-harassment/",
+    "accessTimestamp": "2025-09-24T13:28:20.586Z",
     "policies": [
       {
         "id": "meta-copyright-infringement",
@@ -1328,14 +1176,296 @@ export const facebookPolicy: PlatformPolicies = {
       }
     ],
     "appealProcess": {
-      "url": "https://www.facebook.com/help/contact/1758255661104383",
-      "summary": "Users can appeal content removal by following up with the rights owner directly or submitting a DMCA counter-notification if applicable",
+      "url": null,
+      "summary": "Users can appeal copyright removal decisions by following up with rights owners directly or submitting DMCA counter-notifications",
       "steps": [
-        "Receive notification from Meta with rights owner's contact information",
-        "Follow up with the rights owner directly to resolve the issue",
-        "Submit an appeal through the instructions provided in Meta's notification",
-        "For DMCA cases, file a DMCA counter-notification if eligible",
-        "Restorations due to successful appeals are considered under repeat infringer policy"
+        "Receive notification from Meta with rights owner details and report information",
+        "Follow up with the rights owner directly to try to resolve the issue",
+        "Submit an appeal through instructions provided in Meta's notification message",
+        "For DMCA cases, file a DMCA counter-notification if eligible"
+      ]
+    }
+  },
+  {
+    "id": "facebook-new-1758659204835-4",
+    "reference": "META-COPYRIGHT-2025",
+    "title": "Meta Copyright Policy",
+    "summary": "Comprehensive copyright policy including DMCA procedures, reporting mechanisms, and intellectual property protections across Meta platforms.",
+    "url": "https://www.meta.com/help/policies/2202628709913826/",
+    "accessTimestamp": "2025-09-24T13:28:20.586Z",
+    "policies": [
+      {
+        "id": "meta-privacy-safety-security",
+        "reference": "Section 2 - Promoting safety, security and integrity",
+        "summary": "Prohibits harmful or unlawful behavior and allows for content removal when reported",
+        "quote": "We use information we collect to help protect people from harm and provide safe, secure Products. We process information we have associated with you and apply automated processing techniques and, in some instances, conduct manual (human) review to: Verify accounts and activity, Find and address violations of our terms or policies, Investigate suspicious activity, Detect, prevent and combat harmful or unlawful behavior, such as to review and, in some cases, remove content reported to us, Protect the life, physical or mental health, well-being or integrity of our users or others, Detect and prevent spam, other security matters and other bad experiences, Detect and stop threats to our personnel and property, and Maintain the integrity of our Products.",
+        "contentTypes": [
+          "intimate",
+          "personal",
+          "private",
+          "other"
+        ],
+        "contentContexts": [
+          "hacked",
+          "impersonation",
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Content violates terms or policies",
+          "Content constitutes harmful or unlawful behavior",
+          "Content threatens physical or mental health, well-being or integrity of users"
+        ]
+      },
+      {
+        "id": "meta-privacy-legal-requests",
+        "reference": "Section 10 - How do we respond to legal requests",
+        "summary": "Allows access, preservation and sharing of information in response to legal requests and to prevent harm",
+        "quote": "We access, preserve, use and share your information: In response to legal requests, like search warrants, court orders, production orders or subpoenas. These requests come from third parties such as civil litigants, law enforcement and other government authorities. In accordance with applicable law. To promote the safety, security and integrity of Meta Products, users, employees, property and the public.",
+        "contentTypes": [
+          "intimate",
+          "personal",
+          "private",
+          "other"
+        ],
+        "contentContexts": [
+          "hacked",
+          "impersonation",
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Valid legal request received",
+          "Required by applicable law",
+          "Necessary to promote safety, security and integrity"
+        ]
+      },
+      {
+        "id": "meta-privacy-information-sharing",
+        "reference": "Section 19 - Sharing information with others, including law enforcement",
+        "summary": "Permits sharing of user information with law enforcement and others to respond to legal requests and promote safety",
+        "quote": "Sharing information with others, including law enforcement and to respond to legal requests. The categories of information we access, preserve, use and share depend on the specific circumstances. For example, responses to legal requests where not compelled by law will typically include limited information (such as contact details and login information). However, the information we process will depend on the purposes, which could include the following: In response to legal requests from third parties such as civil litigants, law enforcement and other government authorities. To comply with applicable law or legitimate legal purposes. To promote the safety, security and integrity of Meta Companies, Meta Products, users, employees, property and the public.",
+        "contentTypes": [
+          "intimate",
+          "personal",
+          "private",
+          "other"
+        ],
+        "contentContexts": [
+          "hacked",
+          "impersonation",
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Legal request from authorized third parties",
+          "Required to comply with applicable law",
+          "Necessary to promote safety, security and integrity"
+        ]
+      }
+    ],
+    "appealProcess": {
+      "url": "https://help.meta.com/support/privacy",
+      "summary": "Users can contact Meta online or by mail with questions, complaints or requests regarding their information",
+      "steps": [
+        "Contact Meta online through the support portal",
+        "Alternatively, send written correspondence to Meta Platforms, Inc., ATTN: Privacy Operations, 1601 Willow Road, Menlo Park, CA 94025"
+      ]
+    }
+  },
+  {
+    "id": "facebook-new-1758720500586-0",
+    "reference": "META-PRIVACY-2025",
+    "title": "Meta Privacy Policy",
+    "summary": "Comprehensive privacy policy covering data collection, use, and sharing across Meta platforms, effective June 16, 2025, with provisions for user rights and data protection.",
+    "url": "https://www.facebook.com/privacy/policy",
+    "accessTimestamp": "2025-09-24T13:28:20.586Z",
+    "policies": [
+      {
+        "id": "meta-sexual-exploitation-ncii",
+        "reference": "Adult Sexual Exploitation Policy - NCII",
+        "summary": "Prohibits sharing, threatening to share, or requesting non-consensual intimate imagery that is non-commercial, produced privately, shows nudity or sexual activity, and lacks consent as indicated by vengeful context, independent sources, or victim reports",
+        "quote": "Sharing, threatening, stating an intent to share, offering or asking for non-consensual intimate imagery (NCII) that fulfills all of the three following conditions: Imagery is non-commercial and produced in a private setting. Person in the imagery is (near) nude, engaged in sexual activity or in a sexually suggestive pose. Lack of consent to share the imagery is indicated by meeting any of the signals: Vengeful context (such as, caption, comments or page title). Independent sources such as law enforcement records, media reports (such as, leak of images confirmed by media) or representatives of a survivor of NCII Report from a person depicted in the image or who shares the same name as the person depicted in the image.",
+        "contentTypes": [
+          "intimate"
+        ],
+        "contentContexts": [
+          "relationship",
+          "hacked",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [
+          {
+            "description": "Evidence of lack of consent through vengeful context, independent sources, or victim report",
+            "example": "Vengeful captions, law enforcement records, media reports, or report from person depicted",
+            "reason": "Required to establish that consent was not given for sharing the intimate imagery"
+          }
+        ],
+        "removalCriteria": [
+          "Imagery is non-commercial and produced in a private setting",
+          "Person in imagery is nude, near-nude, engaged in sexual activity or in sexually suggestive pose",
+          "Lack of consent indicated by vengeful context, independent sources, or victim report"
+        ]
+      },
+      {
+        "id": "meta-sexual-exploitation-sextortion",
+        "reference": "Adult Sexual Exploitation Policy - Sextortion",
+        "summary": "Prohibits coercing money, favors or intimate imagery from people with threats to expose their intimate imagery or intimate information",
+        "quote": "Coercing money, favors or intimate imagery from people with threats to expose their intimate imagery or intimate information (sextortion)",
+        "contentTypes": [
+          "intimate",
+          "private"
+        ],
+        "contentContexts": [
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Coercing money, favors or intimate imagery through threats",
+          "Threats to expose intimate imagery or intimate information"
+        ]
+      },
+      {
+        "id": "meta-sexual-exploitation-creepshots",
+        "reference": "Adult Sexual Exploitation Policy - Creepshots",
+        "summary": "Prohibits secretly taking non-commercial imagery of a person's intimate body parts or of a person engaged in sexual activity, including photos or videos that mock, sexualize or expose the person depicted",
+        "quote": "Secretly taking non-commercial imagery of a person's commonly sexualized body parts (breasts, groin, buttocks, or thighs) or of a person engaged in sexual activity. This imagery is commonly known as \"creepshots\" or \"upskirts\" and includes photos or videos that mock, sexualize or expose the person depicted in the imagery.",
+        "contentTypes": [
+          "intimate",
+          "personal"
+        ],
+        "contentContexts": [
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Imagery was taken secretly without consent",
+          "Shows intimate body parts or sexual activity",
+          "Content mocks, sexualizes or exposes the person depicted"
+        ]
+      },
+      {
+        "id": "meta-sexual-exploitation-deepfakes",
+        "reference": "Adult Sexual Exploitation Policy - Non-real NCII",
+        "summary": "Prohibits promoting, threatening to share, or offering to make non-real non-consensual intimate imagery through applications, services, or instructions",
+        "quote": "Promoting, threatening to share, or offering to make non-real non-consensual intimate imagery (NCII) either by applications, services, or instructions, even if there is no (near) nude commercial or non-commercial imagery shared in the content",
+        "contentTypes": [
+          "intimate"
+        ],
+        "contentContexts": [
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Promoting creation of non-real intimate imagery",
+          "Threatening to share non-real intimate imagery",
+          "Offering applications, services or instructions for creating non-real intimate imagery"
+        ]
+      },
+      {
+        "id": "meta-sexual-exploitation-private-conversations",
+        "reference": "Adult Sexual Exploitation Policy - Private Sexual Conversations",
+        "summary": "Prohibits sharing, threatening to share or stating intent to share private sexual conversations without consent, as indicated by vengeful context, independent sources, or victim reports",
+        "quote": "Sharing, threatening to share or stating an intent to share private sexual conversations where a lack of consent to share is indicated by by any of the following: Vengeful context and/or threatening context, Independent sources such as media coverage or law enforcement records, or Report from a person depicted in the image or who shares the same name as the person depicted in the image",
+        "contentTypes": [
+          "private"
+        ],
+        "contentContexts": [
+          "relationship",
+          "hacked",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [
+          {
+            "description": "Evidence of lack of consent through vengeful context, independent sources, or victim report",
+            "example": "Vengeful or threatening context, media coverage, law enforcement records, or report from person involved",
+            "reason": "Required to establish that consent was not given for sharing the private conversations"
+          }
+        ],
+        "removalCriteria": [
+          "Private sexual conversations shared without consent",
+          "Lack of consent indicated by vengeful/threatening context",
+          "Lack of consent confirmed by independent sources or victim report"
+        ]
+      },
+      {
+        "id": "meta-sexual-exploitation-non-consensual-touching",
+        "reference": "Adult Sexual Exploitation Policy - Non-consensual Sexual Touching",
+        "summary": "Prohibits content depicting, advocating for, or mocking non-consensual sexual touching, including imagery, statements offering or asking for such content, descriptions unless shared by survivors, and advocacy or threats",
+        "quote": "Content depicting, advocating for, or mocking non-consensual sexual touching, including: Imagery depicting non-consensual sexual touching (except in real-world art depicting non-real people, with a condemning or neutral caption) Statements attempting or threatening to share, offering, or asking for imagery depicting non-consensual sexual touching Descriptions of non-consensual sexual touching, unless shared by or in support of the survivor Advocacy (including aspirational and conditional statements) for, threats to commit, or admission of participation in non-consensual sexual touching Content mocking survivors or the concept of non-consensual sexual touching",
+        "contentTypes": [
+          "intimate",
+          "personal"
+        ],
+        "contentContexts": [
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Content depicts non-consensual sexual touching",
+          "Content advocates for or threatens non-consensual sexual touching",
+          "Content mocks survivors of non-consensual sexual touching",
+          "Statements offering or asking for imagery of non-consensual sexual touching"
+        ]
+      },
+      {
+        "id": "meta-sexual-exploitation-survivor-identification",
+        "reference": "Adult Sexual Exploitation Policy - Survivor Identification",
+        "summary": "Prohibits content shared by third parties that identifies survivors of sexual assault when reported by the survivor",
+        "quote": "Content shared by a third party that identifies survivors of sexual assault when reported by the survivor",
+        "contentTypes": [
+          "personal",
+          "private"
+        ],
+        "contentContexts": [
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [
+          {
+            "description": "Report from the survivor themselves",
+            "example": "Direct report from the person identified as a survivor",
+            "reason": "Required to confirm the person does not want to be identified as a survivor"
+          }
+        ],
+        "removalCriteria": [
+          "Content identifies survivors of sexual assault",
+          "Content was shared by a third party",
+          "Survivor has reported the content"
+        ]
+      }
+    ],
+    "appealProcess": {
+      "url": "https://www.facebook.com/help/263149623790594?ref=tc",
+      "summary": "Users can appeal enforcement decisions through Facebook's Support Inbox system, with options for additional review if they disagree with the initial decision",
+      "steps": [
+        "If you think we got the decision wrong, you can request another review",
+        "Submit appeal through the Support Inbox with additional information",
+        "Receive final response after re-review of the content in Support Inbox"
       ]
     }
   }
