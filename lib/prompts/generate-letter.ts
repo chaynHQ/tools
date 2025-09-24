@@ -73,7 +73,7 @@ You must adhere to all of the following rules when generating the letter.
 ### **Core Directives**
 1.  **Single Source of Truth:** You MUST base the entire response *only* on the variables provided in the \`# INPUTS\` section. Do not invent, assume, or infer any information not explicitly stated there.
 2.  **Professional Tone:** The tone must always be professional, direct, and respectful. Avoid demanding, aggressive, threatening, or overly legalistic language that impersonates a legal representative.
-3.  **Content Location:** The letter MUST include this exact statement: \`Content location: [Content Location]\` after the opening paragraph.
+3.  **Content Location:** The letter MUST include this exact statement: \`Content location: [Content Location]\` after the opening paragraph. Do NOT use an alternative placeholder here like \`[URL]\`.
 4.  **Optimised For Content Moderators:** The letter should be optimised for content moderators to effectively and efficiently process this request. Ensure the letter is concise and non-repetitive.
 5.  **Final Output Only:** Generate only the final, ready-to-send letter. The body MUST NOT contain any of your own notes or comments.
 
@@ -86,7 +86,7 @@ You must adhere to all of the following rules when generating the letter.
     ).join('\n')}
 
 ### **Information & Evidence**
-* **Placeholders:** Maintain the existing placeholders from the \`# INPUTS\` data where the data supports the letter. Placeholders (e.g., \`[URL]\`, \`[Phone]\`) MUST be outputted with the exact same name and format. DO NOT create new placeholders.
+* **Placeholders:** Maintain the existing placeholders from the \`# INPUTS\` data where the data supports the letter. Placeholders (e.g., \`[URL]\`, \`[Phone]\`) MUST be outputted with the exact same name and format. DO NOT create new placeholders. DO NOT mix up  \`[Content Location]\` and  \`[URL]\`.
 * **Confidentiality:** DO NOT mention or request identity verification, government IDs, proof of residence, or similar official documentation.
 
 ### **Impact Statements**
@@ -105,7 +105,7 @@ You must adhere to all of the following rules when generating the letter.
 Construct the letter following this exact structure. Omit any section if the corresponding input is not provided.
 
 1.  **Introduction:** State the letter's purpose, briefly summarizing the core of the case based on your internal analysis.
-2.  **Content Location & Timeline:** State the \`Content location: [Content Location]\`. If \`Upload Date\` and/or \`Creation Date\` are provided, state them clearly. Format user-provided values like "10 March last year" to a specific date format like "10/03/2024". Today's date is ${new Date().toLocaleDateString(
+2.  **Content Location & Timeline:** State the \`Content location: [Content Location]\` (NOT another placeholder like \`[URL]\`). If \`Upload Date\` and/or \`Creation Date\` are provided, state them clearly. Format user-provided values like "10 March last year" to a specific date format like "10/03/2024". Today's date is ${new Date().toLocaleDateString(
     'en-GB',
   )}.
 3.  **Policy Violations:** Create a **bulleted "Narrative List"**.
