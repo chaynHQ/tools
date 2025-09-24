@@ -9,7 +9,7 @@ export const instagramPolicy: PlatformPolicies = {
     "title": "TAKE IT DOWN Act",
     "summary": "US federal law that criminalizes nonconsensual publication of intimate images and requires covered platforms to implement notice-and-removal processes. Signed into law on May 19, 2025 as Public Law No. 119-12.",
     "url": "https://www.congress.gov/bill/119th-congress/senate-bill/146/text",
-    "accessTimestamp": "2025-09-23T20:27:16.640Z",
+    "accessTimestamp": "2025-09-23T22:15:52.160Z",
     "policies": [
       {
         "id": "take-it-down-authentic-adults",
@@ -204,7 +204,7 @@ export const instagramPolicy: PlatformPolicies = {
     "title": "Meta Community Standards",
     "summary": "Unified community standards that apply to Facebook, Instagram, Messenger and Threads, covering content policies including non-consensual intimate imagery, harassment, and content removal.",
     "url": "https://transparency.meta.com/policies/community-standards/",
-    "accessTimestamp": "2025-09-23T20:27:16.640Z",
+    "accessTimestamp": "2025-09-23T22:15:52.160Z",
     "policies": [
       {
         "id": "meta-cs-adult-sexual-exploitation",
@@ -447,7 +447,7 @@ export const instagramPolicy: PlatformPolicies = {
     "title": "Instagram Terms of Use",
     "summary": "Instagram's terms of service outlining user obligations, content licensing, and platform rules.",
     "url": "https://help.instagram.com/581066165581870/",
-    "accessTimestamp": "2025-09-23T20:27:16.640Z",
+    "accessTimestamp": "2025-09-23T22:15:52.160Z",
     "policies": [
       {
         "id": "ig-tos-private-confidential-info",
@@ -607,14 +607,7 @@ export const instagramPolicy: PlatformPolicies = {
         ]
       }
     ],
-    "appealProcess": {
-      "url": "https://help.instagram.com/",
-      "summary": "Users can consult Instagram's Help Center if they believe their account has been terminated in error or want to disable or permanently delete their account",
-      "steps": [
-        "Consult Instagram Help Center if account terminated in error",
-        "Follow Help Center guidance for account appeals or deletion requests"
-      ]
-    }
+    "appealProcess": null
   },
   {
     "id": "instagram-new-1758659236640-2",
@@ -622,7 +615,7 @@ export const instagramPolicy: PlatformPolicies = {
     "title": "Instagram Copyright Policy",
     "summary": "Instagram's copyright infringement reporting and DMCA takedown procedures for protecting intellectual property rights.",
     "url": "https://help.instagram.com/126382350847838",
-    "accessTimestamp": "2025-09-23T20:27:16.640Z",
+    "accessTimestamp": "2025-09-23T22:15:52.160Z",
     "policies": [
       {
         "id": "ig-copyright-infringement",
@@ -702,7 +695,7 @@ export const instagramPolicy: PlatformPolicies = {
       "summary": "Users can submit DMCA counter-notifications to dispute copyright takedown actions and retract intellectual property reports they have submitted",
       "steps": [
         "Submit a DMCA counter-notification through Instagram's process",
-        "Use the retraction option for intellectual property reports you have submitted"
+        "Retract an intellectual property report that you've submitted to Instagram or Threads"
       ]
     }
   },
@@ -712,7 +705,7 @@ export const instagramPolicy: PlatformPolicies = {
     "title": "Instagram Intellectual Property Policy",
     "summary": "Comprehensive policy on protecting intellectual property rights including copyright and trademark violations.",
     "url": "https://help.instagram.com/535503073130320/",
-    "accessTimestamp": "2025-09-23T20:27:16.640Z",
+    "accessTimestamp": "2025-09-23T22:15:52.160Z",
     "policies": [
       {
         "id": "ig-ip-copyright",
@@ -770,7 +763,7 @@ export const instagramPolicy: PlatformPolicies = {
     "title": "Instagram Non-Consensual Intimate Images Help",
     "summary": "Guidance for users on reporting and addressing non-consensual sharing of intimate images.",
     "url": "https://help.instagram.com/1769410010008691/",
-    "accessTimestamp": "2025-09-23T20:27:16.640Z",
+    "accessTimestamp": "2025-09-23T22:15:52.160Z",
     "policies": [
       {
         "id": "ig-ncii-community-standards",
@@ -858,6 +851,569 @@ export const instagramPolicy: PlatformPolicies = {
       }
     ],
     "appealProcess": null
+  },
+  {
+    "id": "instagram-new-1758665752160-0",
+    "reference": "META-PRIVACY",
+    "title": "Meta Privacy Policy",
+    "summary": "Comprehensive privacy policy covering Facebook, Instagram, Messenger and other Meta products, detailing data collection, use, and sharing practices.",
+    "url": "https://www.facebook.com/privacy/policy",
+    "accessTimestamp": "2025-09-23T22:15:52.160Z",
+    "policies": [
+      {
+        "id": "meta-privacy-safety-integrity",
+        "reference": "Section 2 - Promoting safety, security and integrity",
+        "summary": "Prohibits harmful or unlawful behavior and provides for content removal when reported",
+        "quote": "We use information we collect to help protect people from harm and provide safe, secure Products. We process information we have associated with you and apply automated processing techniques and, in some instances, conduct manual (human) review to: Verify accounts and activity, Find and address violations of our terms or policies, Investigate suspicious activity, Detect, prevent and combat harmful or unlawful behavior, such as to review and, in some cases, remove content reported to us, Protect the life, physical or mental health, well-being or integrity of our users or others, Detect and prevent spam, other security matters and other bad experiences, Detect and stop threats to our personnel and property, and Maintain the integrity of our Products.",
+        "contentTypes": [
+          "intimate",
+          "personal",
+          "private",
+          "other"
+        ],
+        "contentContexts": [
+          "hacked",
+          "impersonation",
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Content violates terms or policies",
+          "Content constitutes harmful or unlawful behavior",
+          "Content threatens user safety, security or integrity"
+        ]
+      },
+      {
+        "id": "meta-privacy-legal-requests",
+        "reference": "Section 10 - How do we respond to legal requests, comply with applicable law and prevent harm?",
+        "summary": "Provides for information access and preservation in response to legal requests and to prevent harm",
+        "quote": "We access, preserve, use and share your information: In response to legal requests, like search warrants, court orders, production orders or subpoenas. These requests come from third parties such as civil litigants, law enforcement and other government authorities. In accordance with applicable law. To promote the safety, security and integrity of Meta Products, users, employees, property and the public.",
+        "contentTypes": [
+          "intimate",
+          "personal",
+          "private",
+          "other"
+        ],
+        "contentContexts": [
+          "hacked",
+          "impersonation",
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Valid legal request received",
+          "Required by applicable law",
+          "Necessary to promote safety, security and integrity"
+        ]
+      },
+      {
+        "id": "meta-privacy-account-deletion",
+        "reference": "Section 6 - How can you manage or delete your information and exercise your rights?",
+        "summary": "Allows users to delete their information or account",
+        "quote": "We offer you a variety of tools to view, manage, download and delete your information below. You can also manage your information by visiting the settings of the Products you use. You may also have other privacy rights under applicable laws. Delete your information or account.",
+        "contentTypes": [
+          "intimate",
+          "personal",
+          "private",
+          "other"
+        ],
+        "contentContexts": [
+          "hacked",
+          "impersonation",
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "User requests deletion of their information or account"
+        ]
+      }
+    ],
+    "appealProcess": {
+      "url": "https://help.meta.com/support/privacy",
+      "summary": "Users can contact Meta online or by mail with questions, complaints or requests regarding their information",
+      "steps": [
+        "Contact Meta online through the help center",
+        "Alternatively, contact by mail at Meta Platforms, Inc., ATTN: Privacy Operations, 1601 Willow Road, Menlo Park, CA 94025",
+        "In some countries, users may also contact the Data Protection Officer or local Data Protection Authority"
+      ]
+    }
+  },
+  {
+    "id": "instagram-new-1758665752160-1",
+    "reference": "IG-HARASSMENT",
+    "title": "Instagram Harassment and Bullying Reporting",
+    "summary": "Dedicated reporting mechanism and policy for harassment and bullying content on Instagram.",
+    "url": "https://help.instagram.com/547601325292351",
+    "accessTimestamp": "2025-09-23T22:15:52.160Z",
+    "policies": [
+      {
+        "id": "ig-harassment-bullying-accounts",
+        "reference": null,
+        "summary": "Prohibits accounts established with the intent of bullying or harassing another person",
+        "quote": "If an account is established with the intent of bullying or harassing another person or if a photo or comment is intended to bully or harass someone, please report it.",
+        "contentTypes": [
+          "intimate",
+          "personal",
+          "other"
+        ],
+        "contentContexts": [
+          "impersonation",
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Account is established with the intent of bullying or harassing another person"
+        ]
+      },
+      {
+        "id": "ig-harassment-bullying-content",
+        "reference": null,
+        "summary": "Prohibits photos or comments intended to bully or harass someone",
+        "quote": "If an account is established with the intent of bullying or harassing another person or if a photo or comment is intended to bully or harass someone, please report it.",
+        "contentTypes": [
+          "intimate",
+          "personal",
+          "other"
+        ],
+        "contentContexts": [
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Photo or comment is intended to bully or harass someone"
+        ]
+      }
+    ],
+    "appealProcess": null
+  },
+  {
+    "id": "instagram-new-1758665752160-2",
+    "reference": "META-BULLYING-POLICY",
+    "title": "Meta Bullying and Harassment Policy",
+    "summary": "Detailed policy on bullying and harassment across Meta platforms including specific protections for minors and private individuals.",
+    "url": "https://transparency.meta.com/policies/community-standards/bullying-harassment/",
+    "accessTimestamp": "2025-09-23T22:15:52.160Z",
+    "policies": [
+      {
+        "id": "meta-bullying-unwanted-contact",
+        "reference": "Tier 1: Universal protections for everyone",
+        "summary": "Prohibits unwanted contact that is repeated, sexually harassing, or directed at a large number of individuals with no prior solicitation",
+        "quote": "Unwanted contact that is: Repeated, OR Sexually harassing, OR Is directed at a large number of individuals with no prior solicitation.",
+        "contentTypes": [
+          "intimate",
+          "personal",
+          "private",
+          "other"
+        ],
+        "contentContexts": [
+          "hacked",
+          "impersonation",
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Contact is repeated",
+          "Contact is sexually harassing",
+          "Contact is directed at a large number of individuals with no prior solicitation"
+        ]
+      },
+      {
+        "id": "meta-bullying-sexual-activity-statements",
+        "reference": "Tier 1: Universal protections for everyone",
+        "summary": "Prohibits statements of intent to engage in sexual activity or advocating to engage in sexual activity",
+        "quote": "Statements of intent to engage in a sexual activity or advocating to engage in a sexual activity.",
+        "contentTypes": [
+          "intimate",
+          "other"
+        ],
+        "contentContexts": [
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Content contains statements of intent to engage in sexual activity",
+          "Content advocates engaging in sexual activity"
+        ]
+      },
+      {
+        "id": "meta-bullying-severe-sexualized-commentary",
+        "reference": "Tier 1: Universal protections for everyone",
+        "summary": "Prohibits severe sexualized commentary",
+        "quote": "Severe sexualized commentary.",
+        "contentTypes": [
+          "intimate",
+          "other"
+        ],
+        "contentContexts": [
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Content contains severe sexualized commentary"
+        ]
+      },
+      {
+        "id": "meta-bullying-derogatory-sexualized-imagery",
+        "reference": "Tier 1: Universal protections for everyone",
+        "summary": "Prohibits derogatory sexualized photoshop or drawings",
+        "quote": "Derogatory sexualized photoshop or drawings",
+        "contentTypes": [
+          "intimate",
+          "personal"
+        ],
+        "contentContexts": [
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Content contains derogatory sexualized photoshop or drawings"
+        ]
+      },
+      {
+        "id": "meta-bullying-sexual-activity-terms",
+        "reference": "Tier 1: Universal protections for everyone",
+        "summary": "Prohibits attacks through derogatory terms related to sexual activity",
+        "quote": "Attacks through derogatory terms related to sexual activity (for example: whore, slut).",
+        "contentTypes": [
+          "other"
+        ],
+        "contentContexts": [
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Content contains attacks using derogatory terms related to sexual activity"
+        ]
+      },
+      {
+        "id": "meta-bullying-private-info-threats",
+        "reference": "Tier 1: Universal protections for everyone",
+        "summary": "Prohibits threats to release an individual's private phone number, residential address, email address or medical records",
+        "quote": "Threats to release an individual's private phone number, residential address, email address or medical records (as defined in the Privacy Violations policy).",
+        "contentTypes": [
+          "private"
+        ],
+        "contentContexts": [
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Content contains threats to release private phone numbers",
+          "Content contains threats to release residential addresses",
+          "Content contains threats to release email addresses",
+          "Content contains threats to release medical records"
+        ]
+      },
+      {
+        "id": "meta-bullying-bodily-functions-degradation",
+        "reference": "Tier 1: Universal protections for everyone",
+        "summary": "Prohibits content that degrades or expresses disgust toward individuals depicted in the process of, or right after, menstruating, urinating, vomiting, or defecating",
+        "quote": "Content that degrades or expresses disgust toward individuals who are depicted in the process of, or right after, menstruating, urinating, vomiting, or defecating",
+        "contentTypes": [
+          "intimate",
+          "personal"
+        ],
+        "contentContexts": [
+          "hacked",
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Content degrades individuals depicted during bodily functions",
+          "Content expresses disgust toward individuals depicted during bodily functions"
+        ]
+      },
+      {
+        "id": "meta-bullying-sexual-activity-claims-minors-adults",
+        "reference": "Tier 2: Additional protections for all Minors, Private Adults and Limited Scope Public Figures",
+        "summary": "Prohibits claims about sexual activity, except in the context of criminal allegations against adults",
+        "quote": "Claims about sexual activity, except in the context of criminal allegations against adults (non-consensual sexual touching).",
+        "contentTypes": [
+          "intimate",
+          "other"
+        ],
+        "contentContexts": [
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Content makes claims about sexual activity",
+          "Exception: criminal allegations against adults involving non-consensual sexual touching"
+        ]
+      },
+      {
+        "id": "meta-bullying-adult-sexualization",
+        "reference": "Tier 2: Additional protections for all Minors, Private Adults and Limited Scope Public Figures",
+        "summary": "Prohibits content sexualizing another adult",
+        "quote": "Content sexualizing another adult (sexualization of minors is covered in the Child Sexual Exploitation, Abuse and Nudity policy).",
+        "contentTypes": [
+          "intimate",
+          "personal"
+        ],
+        "contentContexts": [
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Content sexualizes another adult"
+        ]
+      },
+      {
+        "id": "meta-bullying-manipulated-physical-characteristics",
+        "reference": "Tier 2: Additional protections for all Minors, Private Adults and Limited Scope Public Figures",
+        "summary": "Prohibits content manipulated to highlight, circle, or otherwise negatively draw attention to specific physical characteristics",
+        "quote": "Content manipulated to highlight, circle, or otherwise negatively draw attention to specific physical characteristics (nose, ear, and so on).",
+        "contentTypes": [
+          "personal"
+        ],
+        "contentContexts": [
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Content is manipulated to negatively highlight specific physical characteristics"
+        ]
+      },
+      {
+        "id": "meta-bullying-physical-bullying-depiction",
+        "reference": "Tier 2: Additional protections for all Minors, Private Adults and Limited Scope Public Figures",
+        "summary": "Prohibits content that degrades individuals who are depicted being physically bullied",
+        "quote": "Content that degrades individuals who are depicted being physically bullied (except in fight-sport contexts).",
+        "contentTypes": [
+          "personal"
+        ],
+        "contentContexts": [
+          "hacked",
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Content degrades individuals depicted being physically bullied",
+          "Exception: fight-sport contexts"
+        ]
+      },
+      {
+        "id": "meta-bullying-romantic-involvement-claims",
+        "reference": "Tier 3: Additional protections for Private Minors, Private Adults, and Minor Involuntary Public Figures",
+        "summary": "Prohibits claims about romantic involvement, sexual orientation or gender identity",
+        "quote": "Claims about romantic involvement, sexual orientation or gender identity.",
+        "contentTypes": [
+          "other"
+        ],
+        "contentContexts": [
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Content makes claims about romantic involvement",
+          "Content makes claims about sexual orientation",
+          "Content makes claims about gender identity"
+        ]
+      },
+      {
+        "id": "meta-bullying-unwanted-manipulated-imagery",
+        "reference": "Tier 3: Additional protections for Private Minors, Private Adults, and Minor Involuntary Public Figures",
+        "summary": "Prohibits unwanted manipulated imagery when self-reported",
+        "quote": "Unwanted manipulated imagery.",
+        "contentTypes": [
+          "intimate",
+          "personal"
+        ],
+        "contentContexts": [
+          "hacked",
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [
+          {
+            "description": "Self-reporting by the target or authorized representative",
+            "example": "Report submitted by the person depicted in the manipulated imagery",
+            "reason": "Required for enforcement of this protection"
+          }
+        ],
+        "removalCriteria": [
+          "Content contains unwanted manipulated imagery",
+          "Content is self-reported by target or authorized representative"
+        ]
+      },
+      {
+        "id": "meta-bullying-unwanted-pages-groups-events",
+        "reference": "Additional information and/or context to enforce",
+        "summary": "Prohibits content that targets private individuals through unwanted Pages, Groups and Events when reported by the target",
+        "quote": "Post content that targets private individuals through unwanted Pages, Groups and Events. We remove this content when it is reported by the target or an authorized representative of the target.",
+        "contentTypes": [
+          "intimate",
+          "personal",
+          "private",
+          "other"
+        ],
+        "contentContexts": [
+          "impersonation",
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [
+          {
+            "description": "Report from the target or authorized representative",
+            "example": "Report submitted by the targeted individual or their authorized representative",
+            "reason": "Required to confirm the content is unwanted"
+          }
+        ],
+        "removalCriteria": [
+          "Content targets private individuals through unwanted Pages, Groups and Events",
+          "Content is reported by the target or authorized representative"
+        ]
+      },
+      {
+        "id": "meta-bullying-unwanted-content-confirmation",
+        "reference": "Additional information and/or context to enforce",
+        "summary": "Removes content where the target is directly targeted and confirmation is received that the content is unwanted",
+        "quote": "Post content described above that would otherwise require the target to report the content or where the content an indicates that the poster is directly targeting the target (for example: the target is tagged in the post or comment). We will remove this content if we have confirmation from the target or an authorized representative of the target (alive or deceased) that the content is unwanted.",
+        "contentTypes": [
+          "intimate",
+          "personal",
+          "private",
+          "other"
+        ],
+        "contentContexts": [
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [
+          {
+            "description": "Confirmation from the target or authorized representative that content is unwanted",
+            "example": "Written confirmation that the targeted individual does not want the content posted",
+            "reason": "Required to verify the content is unwanted by the target"
+          }
+        ],
+        "removalCriteria": [
+          "Target is directly targeted (e.g., tagged in post or comment)",
+          "Confirmation received from target or authorized representative that content is unwanted"
+        ]
+      },
+      {
+        "id": "meta-bullying-public-figure-sexualization",
+        "reference": "Additional information and/or context to enforce",
+        "summary": "Removes content sexualizing a public figure when confirmation is received that the content is unwanted",
+        "quote": "Post content sexualizing a public figure. We will remove this content when we have confirmation from the target or an authorized representative of the target that the content is unwanted.",
+        "contentTypes": [
+          "intimate",
+          "personal"
+        ],
+        "contentContexts": [
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [
+          {
+            "description": "Confirmation from the public figure or authorized representative that content is unwanted",
+            "example": "Written confirmation from the public figure that they do not want the sexualizing content posted",
+            "reason": "Required to verify the content is unwanted by the public figure"
+          }
+        ],
+        "removalCriteria": [
+          "Content sexualizes a public figure",
+          "Confirmation received from target or authorized representative that content is unwanted"
+        ]
+      },
+      {
+        "id": "meta-bullying-sexual-harassment-contact",
+        "reference": "Additional information and/or context to enforce",
+        "summary": "Removes sexually harassing contact when confirmation is received that the contact is unwanted",
+        "quote": "Initiate contact that is sexually harassing the recipient. We will remove any content shared in an unwanted context when we have a confirmation from the recipient, or an authorized representative of the recipient that contact is unwanted.",
+        "contentTypes": [
+          "intimate",
+          "other"
+        ],
+        "contentContexts": [
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [
+          {
+            "description": "Confirmation from the recipient or authorized representative that contact is unwanted",
+            "example": "Written confirmation that the recipient does not want the sexually harassing contact",
+            "reason": "Required to verify the contact is unwanted by the recipient"
+          }
+        ],
+        "removalCriteria": [
+          "Contact is sexually harassing",
+          "Confirmation received from recipient or authorized representative that contact is unwanted"
+        ]
+      }
+    ],
+    "appealProcess": {
+      "url": null,
+      "summary": "Meta provides an appeals process where users can request another review if they disagree with enforcement decisions. Appeals are submitted through the Support Inbox and users receive notifications about review decisions.",
+      "steps": [
+        "User receives notification of enforcement action",
+        "User can request another review through the Support Inbox",
+        "User provides additional information if desired",
+        "Meta conducts re-review of the content",
+        "Final decision is communicated to user through Support Inbox"
+      ]
+    }
   }
 ],
 };
