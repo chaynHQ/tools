@@ -136,7 +136,7 @@ NOTE: For most platforms, you should be able to access policy documents directly
 
 # OUTPUT FORMAT
 
-CRITICAL: You MUST respond with a single, valid JSON object that strictly conforms to the following structure. Do not add, remove, or rename any fields.
+CRITICAL: You MUST respond with a single, valid JSON object that strictly conforms to the following structure. Do not add, remove, or rename any fields. Do not add comments. Must be parsable by JSON.parse().
 
 \`\`\`json
 {

@@ -54,10 +54,10 @@ Your task is to process the source document and produce a JSON object containing
 
 ## Overall Guiding Principles
 -   **Policy Definition:** EVERY policy must be a legal policy/statement or community guideline/rule. Do NOT create policies for statements that are instructions or supporting information and not a direct policy - e.g. statements within documents like "users can...", "we encourage..." and "we use your data..." are NOT policies. 
--   **Relevance:** Only include policies applicable to our image takedown letters related to IBA, GBV. Use our related \`contentTypes\` and \`contentContexts\` as guidance. Only include relevant details in \`summary\` outputs, exclude policy implementation details like date enacted.
+-   **Relevance:** Only include policies applicable to our image takedown letters related to IBA, GBV. Use our related \`contentTypes\` and \`contentContexts\` as guidance. 
 -   **Trauma-Informed:** Ensure that the \`summary\`, \`evidenceRequirements\`, \`removalCriteria\`, \`appealProcess\` language is appropriate for our trauma-informed takedown letters. 
 -   **Explicit Language:** DO NOT use explicit or detailed language related to the body or sexual activity e.g. "buttocks", "nipples". If a quote is explicit, rephrase the \`summary\` to use appropriate language whilst maintaining relevance e.g. "nudity", "sexual activity".
--   **Meaningful changes:** DO NOT make minor copy changes to existing policies if the \`quote\` is unchanged. The task is to identify changes and additions, not to slightly improve our \`summary\` or other references to the same policy.
+-   **Meaningful changes:** DO NOT make minor cosmetic/copy changes to existing policies if the \`quote\` is unchanged. The task is to identify changes and additions, not to slightly improve our \`summary\` or other references to the same policy.
 
 ## Step 1: Identify Relevant Policies
 First, scan the entire document and identify all policy statements relevant to the following areas of Image Based Abuse:
@@ -110,7 +110,7 @@ export interface Policy {
 -   **\`id\`**: A unique, machine-readable identifier (e.g., "platform-doc-policy").
 -   **\`reference\`**: The section number or heading from the document, if available.
 -   **\`quote\`**: The **exact, verbatim text** from the document that serves as the evidence for the policy.
--   **\`summary\`**: A critical field. It must be a strong, clear, and active statement (e.g., "Prohibits...") that is a brief summary of the quote used in takedown letters. MUST be equivalent/representative of the quote/policy whilst using trauma-informed language.
+-   **\`summary\`**: A critical field. It must be a strong, clear, and active statement (e.g., "Prohibits...") that is a brief summary of the quote used in takedown letters. MUST be equivalent/representative of the quote/policy whilst using trauma-informed language. Only include relevant details for the takedown letter, i.e. EXCLUDE policy implementation details like "signed into effect May 19, 2025 by Trump".
 -   **\`contentTypes\` & \`contentContexts\`**: To populate these arrays, you MUST use the definitions and follow the mandatory process below. This is a critical step for accuracy.
     -   **Content Type Definitions**: ${JSON.stringify(contentTypes, null, 2)}
     -   **Content Context Definitions**: ${JSON.stringify(contentContexts, null, 2)}
@@ -128,7 +128,7 @@ If the document describes an appeals process, extract the URL, a summary of the 
 ---
 
 # 3. OUTPUT FORMAT
-You MUST respond with a single, valid JSON object that strictly conforms to the following structure.
+You MUST respond with a single, valid JSON object that strictly conforms to the following structure. Do not add comments. Must be parsable by JSON.parse().
 
 \`\`\`json
 {

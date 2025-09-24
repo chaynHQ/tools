@@ -42,6 +42,8 @@ export function generatePolicyValidationQualityCheckPrompt(
 
 CRITICAL CONTEXT:
 The policies you validate are used to generate automated takedown letters for non-consensual content related to Image Based Abuse (IBA) and Gender Based Violence (GBV), reviewed be online platform content moderators. 100% accuracy is mandatory. Every policy must be a direct and verifiable representation of the source text.
+The final task is to decide if the policy updates are \`invalid\` or \`valid\` or to prevent unnecessary updates for cosmetic/id changes by returning \`no_update_needed\`. These policy changes trigger a manual review process so unnecessary updates should be avoided.
+
 
 # CONTENT CLASSIFICATION DEFINITIONS
 You MUST use these exact definitions as the ground truth when validating the accuracy of the \`contentTypes\` and \`contentContexts\` fields for each policy.
@@ -130,7 +132,7 @@ You must check for the following issues and classify them by severity.
 
 # OUTPUT FORMAT
 
-CRITICAL: You MUST respond with a single, valid JSON object that strictly conforms to the following structure. Do not add, remove, or rename any fields.
+CRITICAL: You MUST respond with a single, valid JSON object that strictly conforms to the following structure. Do not add, remove, or rename any fields. Do not add comments. Must be parsable by JSON.parse().
 
 \`\`\`json
 {
@@ -158,7 +160,7 @@ CRITICAL: You MUST respond with a single, valid JSON object that strictly confor
 
 **DECISION LOGIC:**
 -   Return **"invalid"** if any CRITICAL issues are found.
--   (Change Validation Mode Only) Return **"no_update_needed"** if changes are purely cosmetic i.e. minor copy changes, or only include irrelevant timestamp and \`id\` or \`reference\` updates.
+-   (Change Validation Mode Only) Return **"no_update_needed"** if changes are purely cosmetic i.e. minor copy changes, or only includes \`accessTimestamp\` and \`id\` or \`reference\` updates.
 -   Return **"valid"** if the policies are accurate, meaningful, and fully justified by the source document.
 
 RESPOND WITH VALID JSON ONLY:`;
