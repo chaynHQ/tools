@@ -29,7 +29,14 @@ export async function validateDocuments(
           },
         ],
       });
-      return parseAIJson(response);
+      const result = parseAIJson(response);
+      
+      // Validate that we got a proper result structure
+      if (!result || typeof result !== 'object') {
+        throw new Error('Invalid response structure from AI service');
+      }
+      
+      return result;
     };
 
     const result: DocumentValidationResult = await retryWithDelay(validateDocumentsWithRetry);

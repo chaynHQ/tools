@@ -268,7 +268,14 @@ export async function orchestratePolicyValidation(
 
     const qualityCheckWithRetry = async () => {
       const response = await callAnthropic(qualityCheckPrompt);
-      return parseAIJson(response);
+      const result = parseAIJson(response);
+      
+      // Validate that we got a proper result structure
+      if (!result || typeof result !== 'object') {
+        throw new Error('Invalid response structure from AI service');
+      }
+      
+      return result;
     };
 
     const qualityCheck: PolicyValidationQualityCheckResult =

@@ -20,7 +20,7 @@ export async function scrapeDocumentMarkdown(url: string): Promise<GaffaScraping
 
   try {
     const scrapeWithRetry = async () => {
-      return await fetch('https://api.gaffa.dev/v1/browser/requests', {
+      const response = await fetch('https://api.gaffa.dev/v1/browser/requests', {
         method: 'POST',
         headers: {
           'X-API-Key': process.env.GAFFA_API_KEY || '',
@@ -46,23 +46,16 @@ export async function scrapeDocumentMarkdown(url: string): Promise<GaffaScraping
           },
         }),
       });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Gaffa API error: ${response.status} - ${errorText}`);
+      }
+
+      return response;
     };
 
     const response = await retryWithDelay(scrapeWithRetry);
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      rollbar.error(`Policy validation: Document scraping API error - ${errorText}`, {
-        url,
-        status: response.status,
-        error: errorText,
-      });
-      return {
-        success: false,
-        error: `Gaffa API error: ${response.status} - ${errorText}`,
-        url,
-      };
-    }
 
     const data = await response.json();
 
@@ -86,22 +79,14 @@ export async function scrapeDocumentMarkdown(url: string): Promise<GaffaScraping
     // Fetch the actual markdown content from the URL
     try {
       const fetchMarkdownWithRetry = async () => {
-        return await fetch(markdownUrl);
+        const response = await fetch(markdownUrl);
+        if (!response.ok) {
+          throw new Error(`Failed to fetch markdown content: ${response.status} - ${response.statusText}`);
+        }
+        return response;
       };
 
       const markdownResponse = await retryWithDelay(fetchMarkdownWithRetry);
-
-      if (!markdownResponse.ok) {
-        rollbar.error('Policy validation: Failed to fetch markdown content', {
-          url,
-          status: markdownResponse.status,
-        });
-        return {
-          success: false,
-          error: `Failed to fetch markdown content: ${markdownResponse.status} - ${markdownResponse.statusText}`,
-          url,
-        };
-      }
 
       const markdown = await markdownResponse.text();
 

@@ -24,7 +24,14 @@ export async function abstractPoliciesFromDocument(
         currentPolicies,
       );
       const response = await callAnthropic(prompt);
-      return parseAIJson(response);
+      const result = parseAIJson(response);
+      
+      // Validate that we got a proper result structure
+      if (!result || typeof result !== 'object') {
+        throw new Error('Invalid response structure from AI service');
+      }
+      
+      return result;
     };
 
     const result: PolicyAbstractionResult = await retryWithDelay(abstractPoliciesWithRetry);
