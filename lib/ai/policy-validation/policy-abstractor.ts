@@ -1,6 +1,6 @@
 import { serverInstance as rollbar } from '@/lib/rollbar';
 import { callAnthropic } from '../anthropic';
-import { parseAIJson } from '@/lib/utils';
+import { parseAIJson, retryWithDelay } from '@/lib/utils';
 import { Policy } from '@/types/policies';
 import { 
   PolicyAbstractionResult, 
@@ -16,16 +16,19 @@ export async function abstractPoliciesFromDocument(
 ): Promise<PolicyAbstractionResult> {
 
   try {
-    const prompt = generatePolicyAbstractionPrompt(
-      documentUrl,
-      documentTitle,
-      documentReference,
-      documentMarkdown,
-      currentPolicies
-    );
+    const abstractPoliciesWithRetry = async () => {
+      const prompt = generatePolicyAbstractionPrompt(
+        documentUrl,
+        documentTitle,
+        documentReference,
+        documentMarkdown,
+        currentPolicies
+      );
+      const response = await callAnthropic(prompt);
+      return parseAIJson(response);
+    };
 
-    const response = await callAnthropic(prompt);
-    const result: PolicyAbstractionResult = parseAIJson(response);
+    const result: PolicyAbstractionResult = await retryWithDelay(abstractPoliciesWithRetry);
 
 
     return result;

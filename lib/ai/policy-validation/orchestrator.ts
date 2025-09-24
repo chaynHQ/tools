@@ -1,7 +1,7 @@
 import { DocumentValidationResult } from '@/lib/prompts/policy-validation-document-validation';
 import { PolicyAbstractionResult } from '@/lib/prompts/policy-validation-policy-abstraction';
 import { serverInstance as rollbar } from '@/lib/rollbar';
-import { parseAIJson } from '@/lib/utils';
+import { parseAIJson, retryWithDelay } from '@/lib/utils';
 import { PlatformPolicies, Policy } from '@/types/policies';
 import {
   generatePolicyValidationQualityCheckPrompt,
@@ -302,8 +302,12 @@ export async function orchestratePolicyValidation(
       scrapingResults,
     );
 
-    const qualityCheckResponse = await callAnthropic(qualityCheckPrompt);
-    const qualityCheck: PolicyValidationQualityCheckResult = parseAIJson(qualityCheckResponse);
+    const qualityCheckWithRetry = async () => {
+      const response = await callAnthropic(qualityCheckPrompt);
+      return parseAIJson(response);
+    };
+
+    const qualityCheck: PolicyValidationQualityCheckResult = await retryWithDelay(qualityCheckWithRetry);
 
     rollbar.info('Policy validation: Quality check completed', {
       platformId,

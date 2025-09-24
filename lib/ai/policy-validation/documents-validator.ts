@@ -1,5 +1,5 @@
 import { serverInstance as rollbar } from '@/lib/rollbar';
-import { parseAIJson } from '@/lib/utils';
+import { parseAIJson, retryWithDelay } from '@/lib/utils';
 import { callAnthropic } from '../anthropic';
 import { 
   DocumentValidationResult, 
@@ -23,18 +23,21 @@ export async function validateDocuments(
   });
 
   try {
-    const prompt = generateDocumentValidationPrompt(platformId, platformName, currentDocuments);
-    const response = await callAnthropic(prompt, {
-      tools: [
-        {
-          type: 'web_search_20250305',
-          name: 'web_search',
-          max_uses: 10,
-        },
-      ],
-    });
+    const validateDocumentsWithRetry = async () => {
+      const prompt = generateDocumentValidationPrompt(platformId, platformName, currentDocuments);
+      const response = await callAnthropic(prompt, {
+        tools: [
+          {
+            type: 'web_search_20250305',
+            name: 'web_search',
+            max_uses: 10,
+          },
+        ],
+      });
+      return parseAIJson(response);
+    };
 
-    const result: DocumentValidationResult = parseAIJson(response);
+    const result: DocumentValidationResult = await retryWithDelay(validateDocumentsWithRetry);
 
     rollbar.info('Policy validation: Document validation completed', {
       platformId,

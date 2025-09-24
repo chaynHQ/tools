@@ -1,4 +1,5 @@
 import { serverInstance as rollbar } from '@/lib/rollbar';
+import { retryWithDelay } from '@/lib/utils';
 
 export interface GaffaScrapingResult {
   success: boolean;
@@ -18,32 +19,36 @@ export async function scrapeDocumentMarkdown(url: string): Promise<GaffaScraping
   }
 
   try {
-    const response = await fetch('https://api.gaffa.dev/v1/browser/requests', {
-      method: 'POST',
-      headers: {
-        'X-API-Key': process.env.GAFFA_API_KEY,
-        'Content-Type': 'application/json',
-        Accept: '*/*',
-      },
-      body: JSON.stringify({
-        url,
-        proxy_location: 'us',
-        async: false,
-        max_cache_age: 3600, // Cache for 1 hour
-        settings: {
-          record_request: false,
-          actions: [
-            {
-              type: 'wait',
-              selector: 'body',
-            },
-            {
-              type: 'generate_markdown',
-            },
-          ],
+    const scrapeWithRetry = async () => {
+      return await fetch('https://api.gaffa.dev/v1/browser/requests', {
+        method: 'POST',
+        headers: {
+          'X-API-Key': process.env.GAFFA_API_KEY,
+          'Content-Type': 'application/json',
+          Accept: '*/*',
         },
-      }),
-    });
+        body: JSON.stringify({
+          url,
+          proxy_location: 'us',
+          async: false,
+          max_cache_age: 3600, // Cache for 1 hour
+          settings: {
+            record_request: false,
+            actions: [
+              {
+                type: 'wait',
+                selector: 'body',
+              },
+              {
+                type: 'generate_markdown',
+              },
+            ],
+          },
+        }),
+      });
+    };
+
+    const response = await retryWithDelay(scrapeWithRetry);
 
     if (!response.ok) {
       const errorText = await response.text();
@@ -80,7 +85,11 @@ export async function scrapeDocumentMarkdown(url: string): Promise<GaffaScraping
 
     // Fetch the actual markdown content from the URL
     try {
-      const markdownResponse = await fetch(markdownUrl);
+      const fetchMarkdownWithRetry = async () => {
+        return await fetch(markdownUrl);
+      };
+
+      const markdownResponse = await retryWithDelay(fetchMarkdownWithRetry);
 
       if (!markdownResponse.ok) {
         rollbar.error('Policy validation: Failed to fetch markdown content', {
