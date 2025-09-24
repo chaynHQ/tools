@@ -5,58 +5,7 @@ import { getPlatformPolicyId } from '../platforms';
 import { serverInstance as rollbar } from '../rollbar';
 import { formatInputsForAI, formatPolicyDataForAI } from './format-inputs';
 
-export function generateLetterPrompt(request: LetterRequest) {
-  rollbar.info('generateLetterPrompt: Generating takedown letter prompt', {
-    platformId: request.platformInfo.platformId,
-    platformName: request.platformInfo.platformName,
-    customName: request.platformInfo.customName,
-    isCustom: request.platformInfo.isCustom,
-  });
-
-  let platformPolicies = null;
-  if (!request.platformInfo.isCustom) {
-    const policyId = getPlatformPolicyId(request.platformInfo.platformId);
-    if (policyId) {
-      platformPolicies = getPlatformPolicy(policyId);
-      rollbar.info('generateLetterPrompt: Found platform policy', {
-        platformId: request.platformInfo.platformId,
-        policyId,
-        platformName: platformPolicies?.platform,
-      });
-    } else {
-      rollbar.warning('generateLetterPrompt: No policy ID found for platform', {
-        platformId: request.platformInfo.platformId,
-      });
-    }
-  }
-
-  // Get platform policy context
-  let platformPolicyContext = '';
-  if (platformPolicies) {
-    const documentsWithPolicies = getDocumentsWithRelevantPolicies(
-      platformPolicies,
-      request.initialQuestions.contentType,
-      request.initialQuestions.contentContext,
-    );
-
-    rollbar.info('generateLetterPrompt: Policy filtering results', {
-      platformId: request.platformInfo.platformId,
-      contentType: request.initialQuestions.contentType,
-      contentContext: request.initialQuestions.contentContext,
-      totalDocuments: platformPolicies.policyDocuments.length,
-      relevantDocuments: documentsWithPolicies.length,
-      totalPolicies: platformPolicies.policyDocuments.reduce(
-        (sum, doc) => sum + doc.policies.length,
-        0,
-      ),
-      relevantPolicies: documentsWithPolicies.reduce((sum, doc) => sum + doc.policies.length, 0),
-    });
-
-    platformPolicyContext = formatPolicyDataForAI(platformPolicies, documentsWithPolicies);
-  }
-
-  const prompt = `You are an expert AI assistant specializing in platform policy enforcement and strategic communication. Your task is to write a takedown letter that achieves the perfect balance between clinical effectiveness for a content moderator and empathetic representation of a user's experience, while adhering to all critical guidelines.
-
+export const letterPromptInstructions = `
 # 1. CORE PRINCIPLE: BALANCE EFFECTIVENESS WITH EMPATHY
 While the letter must be concise and scannable for moderators, it must also respectfully reflect the user's voice and the severity of their situation. Use the first-person ('I', 'my') where appropriate to center their experience.
 
@@ -136,6 +85,60 @@ You MUST respond with a single, valid JSON object that is parseable by \`JSON.pa
   "body": "Dear Platform Support Team,\\n\\nI am writing to formally request the removal of content that violates your stated policies...\\n\\nSincerely,\\n"
 }
 \`\`\`
+`;
+export function generateLetterPrompt(request: LetterRequest) {
+  rollbar.info('generateLetterPrompt: Generating takedown letter prompt', {
+    platformId: request.platformInfo.platformId,
+    platformName: request.platformInfo.platformName,
+    customName: request.platformInfo.customName,
+    isCustom: request.platformInfo.isCustom,
+  });
+
+  let platformPolicies = null;
+  if (!request.platformInfo.isCustom) {
+    const policyId = getPlatformPolicyId(request.platformInfo.platformId);
+    if (policyId) {
+      platformPolicies = getPlatformPolicy(policyId);
+      rollbar.info('generateLetterPrompt: Found platform policy', {
+        platformId: request.platformInfo.platformId,
+        policyId,
+        platformName: platformPolicies?.platform,
+      });
+    } else {
+      rollbar.warning('generateLetterPrompt: No policy ID found for platform', {
+        platformId: request.platformInfo.platformId,
+      });
+    }
+  }
+
+  // Get platform policy context
+  let platformPolicyContext = '';
+  if (platformPolicies) {
+    const documentsWithPolicies = getDocumentsWithRelevantPolicies(
+      platformPolicies,
+      request.initialQuestions.contentType,
+      request.initialQuestions.contentContext,
+    );
+
+    rollbar.info('generateLetterPrompt: Policy filtering results', {
+      platformId: request.platformInfo.platformId,
+      contentType: request.initialQuestions.contentType,
+      contentContext: request.initialQuestions.contentContext,
+      totalDocuments: platformPolicies.policyDocuments.length,
+      relevantDocuments: documentsWithPolicies.length,
+      totalPolicies: platformPolicies.policyDocuments.reduce(
+        (sum, doc) => sum + doc.policies.length,
+        0,
+      ),
+      relevantPolicies: documentsWithPolicies.reduce((sum, doc) => sum + doc.policies.length, 0),
+    });
+
+    platformPolicyContext = formatPolicyDataForAI(platformPolicies, documentsWithPolicies);
+  }
+
+  const prompt = `You are an expert AI assistant specializing in platform policy enforcement and strategic communication. Your task is to write a takedown letter that achieves the perfect balance between clinical effectiveness for a content moderator and empathetic representation of a user's experience, while adhering to all critical guidelines.
+
+${letterPromptInstructions}
 
 # INPUTS
 ${formatInputsForAI(request)}

@@ -185,6 +185,10 @@ export function InitialQuestions({ onComplete }: InitialQuestionsProps) {
   const textareaClasses =
     'bg-white focus:ring-accent focus:border-accent w-full min-h-[120px] text-base';
 
+  const platformDomain = formState.platformInfo?.isCustom
+    ? formState.platformInfo?.customName?.toLowerCase().replaceAll(' ', '')
+    : formState.platformInfo?.platformId;
+
   return (
     <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-12">
       <QuestionSection>
@@ -292,7 +296,7 @@ export function InitialQuestions({ onComplete }: InitialQuestionsProps) {
                             isValidUrl(value || '') || 'Please enter a valid URL',
                         },
                       })}
-                      placeholder="facebook.com/content or https://www.facebook.com/content"
+                      placeholder={`${platformDomain}.com/content or https://www.${platformDomain}.com/content`}
                       className="bg-white focus:ring-accent focus:border-accent"
                     />
                     {errors.contentUrl && (
