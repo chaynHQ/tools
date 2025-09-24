@@ -9,7 +9,7 @@ export const instagramPolicy: PlatformPolicies = {
     "title": "TAKE IT DOWN Act",
     "summary": "US federal law that criminalizes nonconsensual publication of intimate images and requires covered platforms to implement notice-and-removal processes. Signed into law on May 19, 2025 as Public Law No. 119-12.",
     "url": "https://www.congress.gov/bill/119th-congress/senate-bill/146/text",
-    "accessTimestamp": "2025-09-23T22:15:52.160Z",
+    "accessTimestamp": "2025-09-24T13:54:11.141Z",
     "policies": [
       {
         "id": "take-it-down-authentic-adults",
@@ -204,7 +204,7 @@ export const instagramPolicy: PlatformPolicies = {
     "title": "Meta Community Standards",
     "summary": "Unified community standards that apply to Facebook, Instagram, Messenger and Threads, covering content policies including non-consensual intimate imagery, harassment, and content removal.",
     "url": "https://transparency.meta.com/policies/community-standards/",
-    "accessTimestamp": "2025-09-23T22:15:52.160Z",
+    "accessTimestamp": "2025-09-24T13:54:11.141Z",
     "policies": [
       {
         "id": "meta-cs-adult-sexual-exploitation",
@@ -445,9 +445,9 @@ export const instagramPolicy: PlatformPolicies = {
     "id": "instagram-new-1758659236640-1",
     "reference": "IG-TOS",
     "title": "Instagram Terms of Use",
-    "summary": "Instagram's terms of service outlining user obligations, content licensing, and platform rules.",
+    "summary": "Instagram's terms of service outlining user obligations, content licensing, and platform rules. Updated effective January 1, 2025.",
     "url": "https://help.instagram.com/581066165581870/",
-    "accessTimestamp": "2025-09-23T22:15:52.160Z",
+    "accessTimestamp": "2025-09-24T13:54:11.141Z",
     "policies": [
       {
         "id": "ig-tos-private-confidential-info",
@@ -615,7 +615,7 @@ export const instagramPolicy: PlatformPolicies = {
     "title": "Instagram Copyright Policy",
     "summary": "Instagram's copyright infringement reporting and DMCA takedown procedures for protecting intellectual property rights.",
     "url": "https://help.instagram.com/126382350847838",
-    "accessTimestamp": "2025-09-23T22:15:52.160Z",
+    "accessTimestamp": "2025-09-24T13:54:11.141Z",
     "policies": [
       {
         "id": "ig-copyright-infringement",
@@ -694,8 +694,9 @@ export const instagramPolicy: PlatformPolicies = {
       "url": "https://www.instagram.com/help/ipreporting/report/copyright/",
       "summary": "Users can submit DMCA counter-notifications to dispute copyright takedown actions and retract intellectual property reports they have submitted",
       "steps": [
-        "Submit a DMCA counter-notification through Instagram's process",
-        "Retract an intellectual property report that you've submitted to Instagram or Threads"
+        "Submit a DMCA counter-notification through the designated process",
+        "Provide required information for the counter-notification",
+        "Instagram will process the counter-notification according to DMCA procedures"
       ]
     }
   },
@@ -705,7 +706,7 @@ export const instagramPolicy: PlatformPolicies = {
     "title": "Instagram Intellectual Property Policy",
     "summary": "Comprehensive policy on protecting intellectual property rights including copyright and trademark violations.",
     "url": "https://help.instagram.com/535503073130320/",
-    "accessTimestamp": "2025-09-23T22:15:52.160Z",
+    "accessTimestamp": "2025-09-24T13:54:11.141Z",
     "policies": [
       {
         "id": "ig-ip-copyright",
@@ -763,7 +764,7 @@ export const instagramPolicy: PlatformPolicies = {
     "title": "Instagram Non-Consensual Intimate Images Help",
     "summary": "Guidance for users on reporting and addressing non-consensual sharing of intimate images.",
     "url": "https://help.instagram.com/1769410010008691/",
-    "accessTimestamp": "2025-09-23T22:15:52.160Z",
+    "accessTimestamp": "2025-09-24T13:54:11.141Z",
     "policies": [
       {
         "id": "ig-ncii-community-standards",
@@ -856,9 +857,9 @@ export const instagramPolicy: PlatformPolicies = {
     "id": "instagram-new-1758665752160-0",
     "reference": "META-PRIVACY",
     "title": "Meta Privacy Policy",
-    "summary": "Comprehensive privacy policy covering Facebook, Instagram, Messenger and other Meta products, detailing data collection, use, and sharing practices.",
+    "summary": "Comprehensive privacy policy covering Facebook, Instagram, Messenger and other Meta products, detailing data collection, use, and sharing practices. Effective June 16, 2025.",
     "url": "https://www.facebook.com/privacy/policy",
-    "accessTimestamp": "2025-09-23T22:15:52.160Z",
+    "accessTimestamp": "2025-09-24T13:54:11.141Z",
     "policies": [
       {
         "id": "meta-privacy-safety-integrity",
@@ -937,15 +938,7 @@ export const instagramPolicy: PlatformPolicies = {
         ]
       }
     ],
-    "appealProcess": {
-      "url": "https://help.meta.com/support/privacy",
-      "summary": "Users can contact Meta online or by mail with questions, complaints or requests regarding their information",
-      "steps": [
-        "Contact Meta online through the help center",
-        "Alternatively, contact by mail at Meta Platforms, Inc., ATTN: Privacy Operations, 1601 Willow Road, Menlo Park, CA 94025",
-        "In some countries, users may also contact the Data Protection Officer or local Data Protection Authority"
-      ]
-    }
+    "appealProcess": null
   },
   {
     "id": "instagram-new-1758665752160-1",
@@ -953,7 +946,7 @@ export const instagramPolicy: PlatformPolicies = {
     "title": "Instagram Harassment and Bullying Reporting",
     "summary": "Dedicated reporting mechanism and policy for harassment and bullying content on Instagram.",
     "url": "https://help.instagram.com/547601325292351",
-    "accessTimestamp": "2025-09-23T22:15:52.160Z",
+    "accessTimestamp": "2025-09-24T13:54:11.141Z",
     "policies": [
       {
         "id": "ig-harassment-bullying-accounts",
@@ -1007,7 +1000,7 @@ export const instagramPolicy: PlatformPolicies = {
     "title": "Meta Bullying and Harassment Policy",
     "summary": "Detailed policy on bullying and harassment across Meta platforms including specific protections for minors and private individuals.",
     "url": "https://transparency.meta.com/policies/community-standards/bullying-harassment/",
-    "accessTimestamp": "2025-09-23T22:15:52.160Z",
+    "accessTimestamp": "2025-09-24T13:54:11.141Z",
     "policies": [
       {
         "id": "meta-bullying-unwanted-contact",
@@ -1404,14 +1397,69 @@ export const instagramPolicy: PlatformPolicies = {
       }
     ],
     "appealProcess": {
-      "url": null,
-      "summary": "Meta provides an appeals process where users can request another review if they disagree with enforcement decisions. Appeals are submitted through the Support Inbox and users receive notifications about review decisions.",
+      "url": "https://www.facebook.com/help/263149623790594",
+      "summary": "Meta provides an appeals process where users can request another review if they disagree with enforcement decisions. Appeals are submitted through the Support Inbox with options to provide additional context.",
       "steps": [
-        "User receives notification of enforcement action",
-        "User can request another review through the Support Inbox",
-        "User provides additional information if desired",
-        "Meta conducts re-review of the content",
-        "Final decision is communicated to user through Support Inbox"
+        "Submit initial report through universal reporting system",
+        "Receive notification of review decision via notifications and Support Inbox",
+        "If disagreeing with decision, request another review through appeal option",
+        "Provide additional information or context during appeal",
+        "Receive final response after re-review in Support Inbox"
+      ]
+    }
+  },
+  {
+    "id": "instagram-new-1758722051141-0",
+    "reference": "IG-COPYRIGHT-REPORTING",
+    "title": "Instagram Copyright Infringement Reporting",
+    "summary": "Detailed procedures for reporting copyright infringement on Instagram, including DMCA takedown processes and counter-notification procedures.",
+    "url": "https://help.instagram.com/454951664593304",
+    "accessTimestamp": "2025-09-24T13:54:11.141Z",
+    "policies": [
+      {
+        "id": "ig-copyright-reporting",
+        "reference": "Copyright Infringement Reporting",
+        "summary": "Provides a mechanism for reporting copyright infringement of personal images and content on Instagram and Threads",
+        "quote": "Report copyright infringement on Instagram or Threads",
+        "contentTypes": [
+          "personal",
+          "intimate",
+          "other"
+        ],
+        "contentContexts": [
+          "hacked",
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [
+          {
+            "description": "Specific information required in copyright report",
+            "example": "Information you need to include in a copyright report to Instagram or Threads",
+            "reason": "To substantiate copyright ownership and infringement claims"
+          },
+          {
+            "description": "URL link to infringing content",
+            "example": "Get a link (URL) to a photo or video on Instagram or Threads",
+            "reason": "To identify the specific content that infringes copyright"
+          }
+        ],
+        "removalCriteria": [
+          "Content must infringe copyright",
+          "Proper copyright report must be submitted with required information"
+        ]
+      }
+    ],
+    "appealProcess": {
+      "url": null,
+      "summary": "Instagram and Threads process DMCA counter-notifications and provide information about what happens after copyright reports are submitted",
+      "steps": [
+        "Submit copyright report with required information",
+        "Instagram/Threads processes the report",
+        "Content gets removed if report is valid",
+        "Information is sent to the person who posted the removed content",
+        "Counter-notification process available under DMCA"
       ]
     }
   }
