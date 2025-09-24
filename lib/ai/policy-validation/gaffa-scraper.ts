@@ -23,7 +23,7 @@ export async function scrapeDocumentMarkdown(url: string): Promise<GaffaScraping
       return await fetch('https://api.gaffa.dev/v1/browser/requests', {
         method: 'POST',
         headers: {
-          'X-API-Key': process.env.GAFFA_API_KEY,
+          'X-API-Key': process.env.GAFFA_API_KEY || '',
           'Content-Type': 'application/json',
           Accept: '*/*',
         },
