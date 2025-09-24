@@ -76,7 +76,7 @@ export async function generateLetter(formData: LetterRequest): Promise<Generated
       // Desanitize and return the final attempt
       const desanitizedLetter = {
         subject: desanitizeLetter(letter.subject, sanitizedData.formId),
-        body: desanitizeLetter(letter.body, sanitizedData.formId),
+        body: normalizeNewlines(desanitizeLetter(letter.body, sanitizedData.formId)),
         nextSteps: STATIC_NEXT_STEPS,
       };
 
@@ -104,4 +104,16 @@ export async function generateLetter(formData: LetterRequest): Promise<Generated
 
   rollbar.error('Failed to generate letter after maximum attempts');
   throw new Error('Failed to generate a letter without issues after multiple attempts');
+}
+
+/**
+ * Normalizes newlines in letter content to prevent excessive empty lines
+ * Replaces sequences of 3+ newlines with exactly 2 newlines (single empty line between paragraphs)
+ */
+function normalizeNewlines(text: string): string {
+  if (!text) return text;
+  
+  // Replace sequences of 3 or more newlines with exactly 2 newlines
+  // This ensures only single empty lines between paragraphs
+  return text.replace(/\n{3,}/g, '\n\n');
 }
