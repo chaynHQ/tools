@@ -160,7 +160,7 @@ CRITICAL: You MUST respond with a single, valid JSON object that strictly confor
 
 **DECISION LOGIC:**
 -   Return **"invalid"** if any CRITICAL issues are found.
--   (Change Validation Mode Only) Return **"no_update_needed"** if changes are purely cosmetic i.e. minor copy changes, or only includes \`accessTimestamp\` and \`id\` or \`reference\` updates.
+-   Return **"no_update_needed"** if changes are purely cosmetic i.e. minor copy changes, or only includes \`accessTimestamp\` and \`id\` or \`reference\` updates. Be strict here to save unnecessary manual reviews by the team.
 -   Return **"valid"** if the policies are accurate, meaningful, and fully justified by the source document.
 
 RESPOND WITH VALID JSON ONLY:`;
