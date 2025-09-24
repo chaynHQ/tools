@@ -9,7 +9,7 @@ export const pornhubPolicy: PlatformPolicies = {
     "title": "Pornhub Terms of Service",
     "summary": "Legal terms governing the use of Pornhub, including content ownership, security responsibilities, and prohibited behavior.",
     "url": "https://www.pornhub.com/information/terms",
-    "accessTimestamp": "2025-09-24T13:46:42.028Z",
+    "accessTimestamp": "2025-09-24T18:03:31.394Z",
     "policies": [
       {
         "id": "ph-tos-ncii",
@@ -210,14 +210,13 @@ export const pornhubPolicy: PlatformPolicies = {
     ],
     "appealProcess": {
       "url": "mailto:dsa@pornhub.com",
-      "summary": "Users may lodge complaints against content moderation decisions within 6 months via email or webform",
+      "summary": "Users may lodge complaints against content decisions within 6 months via email or webform",
       "steps": [
         "Submit complaint within 6 months of notification of decision",
         "Email dsa@pornhub.com from the email associated with your account",
         "Include as much information as possible to allow investigation",
         "Provide explanation of reasons why complaint is justified",
-        "Platform will handle complaints in timely, non-discriminatory, diligent manner",
-        "Platform may reverse decisions if complaint demonstrates content did not violate terms or decision was unjustified"
+        "Platform will handle complaints in timely, non-discriminatory, diligent, and objective manner"
       ]
     }
   },
@@ -227,7 +226,7 @@ export const pornhubPolicy: PlatformPolicies = {
     "title": "Pornhub Privacy Policy",
     "summary": "Privacy policy explaining how Pornhub collects, uses, and protects user data.",
     "url": "https://www.pornhub.com/information/privacy",
-    "accessTimestamp": "2025-09-24T13:46:42.028Z",
+    "accessTimestamp": "2025-09-24T18:03:31.394Z",
     "policies": [
       {
         "id": "ph-pp-content-removal",
@@ -385,7 +384,7 @@ export const pornhubPolicy: PlatformPolicies = {
     "title": "Pornhub Trust and Safety Policy",
     "summary": "Comprehensive policy covering content moderation, verification requirements, and safety measures.",
     "url": "https://www.pornhub.com/information/trust-and-safety",
-    "accessTimestamp": "2025-09-24T13:46:42.028Z",
+    "accessTimestamp": "2025-09-24T18:03:31.394Z",
     "policies": [],
     "appealProcess": null
   },
@@ -393,9 +392,9 @@ export const pornhubPolicy: PlatformPolicies = {
     "id": "us-take-it-down-act",
     "reference": "S.146",
     "title": "TAKE IT DOWN Act",
-    "summary": "US federal law prohibiting nonconsensual intimate visual depictions of individuals, both authentic and computer-generated, requiring platforms to implement notice-and-removal processes. Signed into law May 19, 2025.",
+    "summary": "US federal law prohibiting nonconsensual intimate visual depictions of individuals, both authentic and computer-generated, requiring platforms to implement notice-and-removal processes within 48 hours. Signed into law May 19, 2025.",
     "url": "https://www.congress.gov/bill/119th-congress/senate-bill/146/text",
-    "accessTimestamp": "2025-09-24T13:46:42.028Z",
+    "accessTimestamp": "2025-09-24T18:03:31.394Z",
     "policies": [
       {
         "id": "take-it-down-authentic-adults",
