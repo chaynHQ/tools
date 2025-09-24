@@ -47,12 +47,6 @@ export async function orchestratePolicyValidation(
   platformName: string,
   currentPolicies: PlatformPolicies,
 ): Promise<PolicyValidationOrchestrationResult> {
-  rollbar.info('orchestratePolicyValidation: Starting policy validation orchestration', {
-    platformId,
-    platformName,
-    currentDocuments: currentPolicies.policyDocuments.length,
-  });
-
   try {
     // Step 1: Validate current documents
 
@@ -68,24 +62,12 @@ export async function orchestratePolicyValidation(
       })),
     );
 
-    rollbar.info('Policy validation: Document validation completed', {
-      platformId,
-      status: documentValidation.status,
-      newDocuments: documentValidation.newDocuments.length,
-      removedDocuments: documentValidation.removedDocuments.length,
-      validDocuments: documentValidation.validDocuments.length,
-    });
-
     if (
       documentValidation.status === 'valid' &&
       documentValidation.newDocuments.length === 0 &&
       documentValidation.removedDocuments.length === 0 &&
       documentValidation.validDocuments.every((doc) => doc.status === 'valid')
     ) {
-      rollbar.info('Policy validation: No changes needed - all documents current', {
-        platformId,
-      });
-
       return {
         status: 'completed_no_changes',
         platformId,
@@ -206,12 +188,6 @@ export async function orchestratePolicyValidation(
     });
 
     // Step 4: Build new platform policies
-    rollbar.info('Policy validation: Building updated platform policies', {
-      platformId,
-      successfulAbstractions: policyAbstractions.filter((a) => a.success).length,
-      totalDocuments: documentsForAbstraction.length,
-    });
-
     const documentResults = [];
 
     // Add existing documents
@@ -259,22 +235,10 @@ export async function orchestratePolicyValidation(
 
     const comparison = comparePlatformPolicies(currentPolicies, updatedPolicies);
 
-    rollbar.info('Policy validation: Policy comparison completed', {
-      platformId,
-      hasChanges: comparison.hasChanges,
-      documentsAdded: comparison.summary.documentsAdded,
-      documentsRemoved: comparison.summary.documentsRemoved,
-      documentsModified: comparison.summary.documentsModified,
-      policiesAdded: comparison.summary.policiesAdded,
-      policiesRemoved: comparison.summary.policiesRemoved,
-      policiesModified: comparison.summary.policiesModified,
-    });
-
     if (!comparison.hasChanges) {
-      rollbar.info('Policy validation: No meaningful changes detected', {
+      rollbar.info('Policy validation: Policy comparison completed with no changes', {
         platformId,
       });
-
       return {
         status: 'completed_no_changes',
         platformId,
@@ -323,7 +287,9 @@ export async function orchestratePolicyValidation(
       status:
         qualityCheck.validationStatus === 'valid'
           ? 'completed_with_valid_changes'
-          : 'completed_with_invalid_changes',
+          : qualityCheck.validationStatus === 'invalid'
+            ? 'completed_with_invalid_changes'
+            : 'completed_no_changes',
       platformId,
       platformName,
       data: {
@@ -339,13 +305,6 @@ export async function orchestratePolicyValidation(
       },
       reasoning: qualityCheck.reasoning,
     };
-
-    rollbar.info('Policy validation: Orchestration completed successfully', {
-      platformId,
-      status: result.status,
-      qualityScore: qualityCheck.overallQualityScore,
-      issuesFound: qualityCheck.issues.length,
-    });
 
     return result;
   } catch (error) {

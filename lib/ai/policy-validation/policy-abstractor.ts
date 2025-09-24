@@ -1,20 +1,19 @@
+import {
+  PolicyAbstractionResult,
+  generatePolicyAbstractionPrompt,
+} from '@/lib/prompts/policy-validation-policy-abstraction';
 import { serverInstance as rollbar } from '@/lib/rollbar';
-import { callAnthropic } from '../anthropic';
 import { parseAIJson, retryWithDelay } from '@/lib/utils';
 import { Policy } from '@/types/policies';
-import { 
-  PolicyAbstractionResult, 
-  generatePolicyAbstractionPrompt 
-} from '@/lib/prompts/policy-validation-policy-abstraction';
+import { callAnthropic } from '../anthropic';
 
 export async function abstractPoliciesFromDocument(
   documentUrl: string,
   documentTitle: string,
   documentReference: string,
   documentMarkdown: string,
-  currentPolicies?: Policy[]
+  currentPolicies?: Policy[],
 ): Promise<PolicyAbstractionResult> {
-
   try {
     const abstractPoliciesWithRetry = async () => {
       const prompt = generatePolicyAbstractionPrompt(
@@ -22,14 +21,13 @@ export async function abstractPoliciesFromDocument(
         documentTitle,
         documentReference,
         documentMarkdown,
-        currentPolicies
+        currentPolicies,
       );
       const response = await callAnthropic(prompt);
       return parseAIJson(response);
     };
 
     const result: PolicyAbstractionResult = await retryWithDelay(abstractPoliciesWithRetry);
-
 
     return result;
   } catch (error) {
@@ -54,15 +52,13 @@ export async function abstractPoliciesFromMultipleDocuments(
     reference: string;
     markdown: string;
     currentPolicies?: Policy[];
+  }>,
+): Promise<
+  Array<{
+    documentUrl: string;
+    result: PolicyAbstractionResult;
   }>
-): Promise<Array<{
-  documentUrl: string;
-  result: PolicyAbstractionResult;
-}>> {
-  rollbar.info('Policy validation: Starting parallel policy abstraction', {
-    documentCount: documents.length,
-  });
-
+> {
   // Process all documents in parallel
   const results = await Promise.allSettled(
     documents.map(async (doc) => {
@@ -71,13 +67,13 @@ export async function abstractPoliciesFromMultipleDocuments(
         doc.title,
         doc.reference,
         doc.markdown,
-        doc.currentPolicies
+        doc.currentPolicies,
       );
       return {
         documentUrl: doc.url,
         result,
       };
-    })
+    }),
   );
 
   // Convert Promise.allSettled results
@@ -102,8 +98,8 @@ export async function abstractPoliciesFromMultipleDocuments(
     }
   });
 
-  const successCount = finalResults.filter(r => r.result.success).length;
-  rollbar.info('Policy validation: Parallel policy abstraction completed', {
+  const successCount = finalResults.filter((r) => r.result.success).length;
+  rollbar.info('Policy validation: Policy abstraction completed', {
     totalDocuments: documents.length,
     successCount,
     failureCount: documents.length - successCount,

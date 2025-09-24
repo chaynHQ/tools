@@ -1,10 +1,10 @@
+import {
+  DocumentValidationResult,
+  generateDocumentValidationPrompt,
+} from '@/lib/prompts/policy-validation-document-validation';
 import { serverInstance as rollbar } from '@/lib/rollbar';
 import { parseAIJson, retryWithDelay } from '@/lib/utils';
 import { callAnthropic } from '../anthropic';
-import { 
-  DocumentValidationResult, 
-  generateDocumentValidationPrompt 
-} from '@/lib/prompts/policy-validation-document-validation';
 
 export async function validateDocuments(
   platformId: string,
@@ -17,11 +17,6 @@ export async function validateDocuments(
     url: string;
   }>,
 ): Promise<DocumentValidationResult> {
-  rollbar.info('Policy validation: Starting document validation', {
-    platformId,
-    documentsCount: currentDocuments.length,
-  });
-
   try {
     const validateDocumentsWithRetry = async () => {
       const prompt = generateDocumentValidationPrompt(platformId, platformName, currentDocuments);

@@ -184,11 +184,6 @@ export async function scrapeMultipleDocumentsWithRateLimit(
   concurrency: number = 3,
   delayMs: number = 500,
 ): Promise<GaffaScrapingResult[]> {
-  rollbar.info('Policy validation: Starting rate-limited document scraping', {
-    urlCount: urls.length,
-    concurrency,
-  });
-
   const results: GaffaScrapingResult[] = [];
 
   // Process URLs in batches to control concurrency
@@ -225,7 +220,7 @@ export async function scrapeMultipleDocumentsWithRateLimit(
   }
 
   const successCount = results.filter((r) => r.success).length;
-  rollbar.info('Policy validation: Rate-limited document scraping completed', {
+  rollbar.info('Policy validation: Document scraping batch completed', {
     totalUrls: urls.length,
     successCount,
     failureCount: urls.length - successCount,

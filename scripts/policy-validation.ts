@@ -29,10 +29,6 @@ async function validatePlatformPolicies() {
         platform: PLATFORM_NAMES[platform],
         policyDocuments: [],
       };
-
-      rollbar.info('Policy validation: Force rewrite mode enabled', {
-        platform,
-      });
     } else {
       platformPolicy = getPlatformPolicy(platform);
       if (!platformPolicy) {
@@ -61,12 +57,6 @@ async function validatePlatformPolicies() {
       platformPolicy,
     );
 
-    rollbar.info('Policy validation: Orchestration completed', {
-      platform,
-      forceRewrite,
-      status: validationResult.status,
-    });
-
     // Create PR if validation passed and changes are valid
 
     if (
@@ -74,11 +64,6 @@ async function validatePlatformPolicies() {
       validationResult.data.updatedPolicies &&
       process.env.GITHUB_TOKEN
     ) {
-      rollbar.info('Policy validation: Creating PR for valid changes', {
-        platform,
-        forceRewrite,
-      });
-
       try {
         const prCreator = new GitHubPRCreator();
 
@@ -100,13 +85,6 @@ async function validatePlatformPolicies() {
         console.log(`::set-output name=reasoning::${validationResult.reasoning}`);
         console.log(`::set-output name=force_rewrite::${forceRewrite}`);
       } catch (error) {
-        rollbar.error('Policy validation: PR creation failed', {
-          platform,
-          forceRewrite,
-          error: error instanceof Error ? error.message : String(error),
-          stack: error instanceof Error ? error.stack : undefined,
-        });
-
         // Set GitHub Actions outputs for PR error and exit with failure
         console.log(
           `::set-output name=status::completed_with_pr_error${forceRewrite ? '_force_rewrite' : ''}`,
@@ -127,13 +105,6 @@ async function validatePlatformPolicies() {
         process.exit(1);
       }
     } else {
-      rollbar.info('Policy validation: PR creation conditions not met', {
-        platform,
-        status: validationResult.status,
-        hasUpdatedPolicies: !!validationResult.data.updatedPolicies,
-        hasGitHubToken: !!process.env.GITHUB_TOKEN,
-      });
-
       // Set GitHub Actions outputs
       console.log(
         `::set-output name=status::${validationResult.status}${forceRewrite ? '_force_rewrite' : ''}`,
@@ -144,7 +115,7 @@ async function validatePlatformPolicies() {
       console.log(`::set-output name=force_rewrite::${forceRewrite}`);
     }
 
-    rollbar.info('Policy validation: Validation completed successfully', {
+    rollbar.info('Policy validation: Completed validation', {
       platform,
       status: validationResult.status,
     });

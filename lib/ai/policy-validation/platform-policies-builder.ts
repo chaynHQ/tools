@@ -22,7 +22,6 @@ export function buildPlatformPolicies(
     abstraction: PolicyAbstractionResult;
   }>,
 ): PlatformPolicies {
-
   const policyDocuments: PolicyDocument[] = [];
   const currentTimestamp = new Date().toISOString();
 
@@ -46,19 +45,12 @@ export function buildPlatformPolicies(
     };
 
     policyDocuments.push(policyDocument);
-
   }
 
   const platformPolicies: PlatformPolicies = {
     platform: platformName,
     policyDocuments,
   };
-
-  rollbar.info('Policy validation: Platform policies construction completed', {
-    platformName,
-    totalDocuments: policyDocuments.length,
-    totalPolicies: policyDocuments.reduce((sum, doc) => sum + doc.policies.length, 0),
-  });
 
   return platformPolicies;
 }
@@ -85,7 +77,6 @@ export function comparePlatformPolicies(
     }>;
   };
 } {
-
   const oldDocMap = new Map(oldPolicies.policyDocuments.map((doc) => [doc.id, doc]));
   const newDocMap = new Map(newPolicies.policyDocuments.map((doc) => [doc.id, doc]));
 
@@ -181,7 +172,6 @@ export function comparePlatformPolicies(
       modifiedDocuments,
     },
   };
-
 
   return result;
 }

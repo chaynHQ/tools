@@ -72,7 +72,7 @@ export class GitHubPRCreator {
         base: 'validation-flow',
       });
 
-      rollbar.info('Policy validation: PR created successfully', {
+      rollbar.info('Policy validation: PR created', {
         pullRequestNumber: pullRequest.number,
         pullRequestUrl: pullRequest.html_url,
         branchName: finalBranchName,
@@ -162,12 +162,6 @@ export class GitHubPRCreator {
       );
 
       if (policyPRs.length > 0) {
-        rollbar.info('Policy validation: Cleaning up existing policy PRs', {
-          platformId,
-          prCount: policyPRs.length,
-          prNumbers: policyPRs.map((pr) => pr.number),
-        });
-
         // Close existing PRs and delete their branches
         for (const pr of policyPRs) {
           try {
