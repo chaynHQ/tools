@@ -9,7 +9,7 @@ export const instagramPolicy: PlatformPolicies = {
     "title": "TAKE IT DOWN Act",
     "summary": "US federal law that criminalizes nonconsensual publication of intimate images and requires covered platforms to implement notice-and-removal processes. Signed into law on May 19, 2025 as Public Law No. 119-12.",
     "url": "https://www.congress.gov/bill/119th-congress/senate-bill/146/text",
-    "accessTimestamp": "2025-09-23T22:15:52.160Z",
+    "accessTimestamp": "2025-09-24T13:53:05.341Z",
     "policies": [
       {
         "id": "take-it-down-authentic-adults",
@@ -204,7 +204,7 @@ export const instagramPolicy: PlatformPolicies = {
     "title": "Meta Community Standards",
     "summary": "Unified community standards that apply to Facebook, Instagram, Messenger and Threads, covering content policies including non-consensual intimate imagery, harassment, and content removal.",
     "url": "https://transparency.meta.com/policies/community-standards/",
-    "accessTimestamp": "2025-09-23T22:15:52.160Z",
+    "accessTimestamp": "2025-09-24T13:53:05.341Z",
     "policies": [
       {
         "id": "meta-cs-adult-sexual-exploitation",
@@ -445,9 +445,9 @@ export const instagramPolicy: PlatformPolicies = {
     "id": "instagram-new-1758659236640-1",
     "reference": "IG-TOS",
     "title": "Instagram Terms of Use",
-    "summary": "Instagram's terms of service outlining user obligations, content licensing, and platform rules.",
+    "summary": "Instagram's terms of service outlining user obligations, content licensing, and platform rules. Updated January 1, 2025 with significant changes to content licensing and AI usage rights.",
     "url": "https://help.instagram.com/581066165581870/",
-    "accessTimestamp": "2025-09-23T22:15:52.160Z",
+    "accessTimestamp": "2025-09-24T13:53:05.341Z",
     "policies": [
       {
         "id": "ig-tos-private-confidential-info",
@@ -615,7 +615,7 @@ export const instagramPolicy: PlatformPolicies = {
     "title": "Instagram Copyright Policy",
     "summary": "Instagram's copyright infringement reporting and DMCA takedown procedures for protecting intellectual property rights.",
     "url": "https://help.instagram.com/126382350847838",
-    "accessTimestamp": "2025-09-23T22:15:52.160Z",
+    "accessTimestamp": "2025-09-24T13:53:05.341Z",
     "policies": [
       {
         "id": "ig-copyright-infringement",
@@ -692,10 +692,11 @@ export const instagramPolicy: PlatformPolicies = {
     ],
     "appealProcess": {
       "url": "https://www.instagram.com/help/ipreporting/report/copyright/",
-      "summary": "Users can submit DMCA counter-notifications to dispute copyright takedown actions and retract intellectual property reports they have submitted",
+      "summary": "Users can submit DMCA counter-notifications to dispute copyright takedown actions",
       "steps": [
-        "Submit a DMCA counter-notification through Instagram's process",
-        "Retract an intellectual property report that you've submitted to Instagram or Threads"
+        "Review the copyright infringement claim",
+        "Submit a DMCA counter-notification if you believe the content was removed in error",
+        "Instagram processes the counter-notification according to DMCA procedures"
       ]
     }
   },
@@ -705,7 +706,7 @@ export const instagramPolicy: PlatformPolicies = {
     "title": "Instagram Intellectual Property Policy",
     "summary": "Comprehensive policy on protecting intellectual property rights including copyright and trademark violations.",
     "url": "https://help.instagram.com/535503073130320/",
-    "accessTimestamp": "2025-09-23T22:15:52.160Z",
+    "accessTimestamp": "2025-09-24T13:53:05.341Z",
     "policies": [
       {
         "id": "ig-ip-copyright",
@@ -763,7 +764,7 @@ export const instagramPolicy: PlatformPolicies = {
     "title": "Instagram Non-Consensual Intimate Images Help",
     "summary": "Guidance for users on reporting and addressing non-consensual sharing of intimate images.",
     "url": "https://help.instagram.com/1769410010008691/",
-    "accessTimestamp": "2025-09-23T22:15:52.160Z",
+    "accessTimestamp": "2025-09-24T13:53:05.341Z",
     "policies": [
       {
         "id": "ig-ncii-community-standards",
@@ -856,9 +857,9 @@ export const instagramPolicy: PlatformPolicies = {
     "id": "instagram-new-1758665752160-0",
     "reference": "META-PRIVACY",
     "title": "Meta Privacy Policy",
-    "summary": "Comprehensive privacy policy covering Facebook, Instagram, Messenger and other Meta products, detailing data collection, use, and sharing practices.",
+    "summary": "Comprehensive privacy policy covering Facebook, Instagram, Messenger and other Meta products, detailing data collection, use, and sharing practices. Updated with effective date of June 16, 2025 with enhanced AI data usage disclosures.",
     "url": "https://www.facebook.com/privacy/policy",
-    "accessTimestamp": "2025-09-23T22:15:52.160Z",
+    "accessTimestamp": "2025-09-24T13:53:05.341Z",
     "policies": [
       {
         "id": "meta-privacy-safety-integrity",
@@ -937,15 +938,7 @@ export const instagramPolicy: PlatformPolicies = {
         ]
       }
     ],
-    "appealProcess": {
-      "url": "https://help.meta.com/support/privacy",
-      "summary": "Users can contact Meta online or by mail with questions, complaints or requests regarding their information",
-      "steps": [
-        "Contact Meta online through the help center",
-        "Alternatively, contact by mail at Meta Platforms, Inc., ATTN: Privacy Operations, 1601 Willow Road, Menlo Park, CA 94025",
-        "In some countries, users may also contact the Data Protection Officer or local Data Protection Authority"
-      ]
-    }
+    "appealProcess": null
   },
   {
     "id": "instagram-new-1758665752160-1",
@@ -953,7 +946,7 @@ export const instagramPolicy: PlatformPolicies = {
     "title": "Instagram Harassment and Bullying Reporting",
     "summary": "Dedicated reporting mechanism and policy for harassment and bullying content on Instagram.",
     "url": "https://help.instagram.com/547601325292351",
-    "accessTimestamp": "2025-09-23T22:15:52.160Z",
+    "accessTimestamp": "2025-09-24T13:53:05.341Z",
     "policies": [
       {
         "id": "ig-harassment-bullying-accounts",
@@ -1007,7 +1000,7 @@ export const instagramPolicy: PlatformPolicies = {
     "title": "Meta Bullying and Harassment Policy",
     "summary": "Detailed policy on bullying and harassment across Meta platforms including specific protections for minors and private individuals.",
     "url": "https://transparency.meta.com/policies/community-standards/bullying-harassment/",
-    "accessTimestamp": "2025-09-23T22:15:52.160Z",
+    "accessTimestamp": "2025-09-24T13:53:05.341Z",
     "policies": [
       {
         "id": "meta-bullying-unwanted-contact",
@@ -1405,13 +1398,239 @@ export const instagramPolicy: PlatformPolicies = {
     ],
     "appealProcess": {
       "url": null,
-      "summary": "Meta provides an appeals process where users can request another review if they disagree with enforcement decisions. Appeals are submitted through the Support Inbox and users receive notifications about review decisions.",
+      "summary": "Users can appeal content removal decisions through the Support Inbox and request another review if they believe the decision was incorrect",
       "steps": [
-        "User receives notification of enforcement action",
-        "User can request another review through the Support Inbox",
-        "User provides additional information if desired",
-        "Meta conducts re-review of the content",
-        "Final decision is communicated to user through Support Inbox"
+        "Report content through the universal reporting option",
+        "Receive notification of review decision via notifications",
+        "Access detailed decision information in Support Inbox",
+        "Submit appeal request if disagreeing with decision",
+        "Receive final response after re-review in Support Inbox"
+      ]
+    }
+  },
+  {
+    "id": "instagram-new-1758721985341-0",
+    "reference": "META-TOS-2025",
+    "title": "Meta Terms of Service",
+    "summary": "Updated Meta Terms of Service effective January 1, 2025, governing Facebook, Messenger, and other Meta products (excluding Instagram which has separate terms).",
+    "url": "https://www.facebook.com/terms/",
+    "accessTimestamp": "2025-09-24T13:53:05.341Z",
+    "policies": [
+      {
+        "id": "meta-tos-community-standards-violation",
+        "reference": "Section 3.2.1",
+        "summary": "Prohibits sharing content that violates Community Standards, which include policies against non-consensual intimate imagery, harassment, and privacy violations",
+        "quote": "You may not use our Products to do or share anything: That violates these Terms, the Community Standards, or other terms and policies that apply to your use of our Products.",
+        "contentTypes": [
+          "intimate",
+          "personal",
+          "private",
+          "other"
+        ],
+        "contentContexts": [
+          "hacked",
+          "impersonation",
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Content violates Community Standards",
+          "Content violates other applicable terms and policies"
+        ]
+      },
+      {
+        "id": "meta-tos-unlawful-content",
+        "reference": "Section 3.2.1",
+        "summary": "Prohibits sharing content that is unlawful, misleading, discriminatory or fraudulent",
+        "quote": "That is unlawful, misleading, discriminatory or fraudulent (or assists someone else in using our Products in such a way).",
+        "contentTypes": [
+          "intimate",
+          "personal",
+          "private",
+          "other"
+        ],
+        "contentContexts": [
+          "hacked",
+          "impersonation",
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Content is unlawful",
+          "Content is misleading",
+          "Content is discriminatory",
+          "Content is fraudulent"
+        ]
+      },
+      {
+        "id": "meta-tos-unauthorized-content",
+        "reference": "Section 3.2.1",
+        "summary": "Prohibits sharing content that you do not own or have necessary rights to share",
+        "quote": "That you do not own or have the necessary rights to share.",
+        "contentTypes": [
+          "intimate",
+          "personal",
+          "private",
+          "other"
+        ],
+        "contentContexts": [
+          "hacked",
+          "impersonation",
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "User does not own the content",
+          "User does not have necessary rights to share the content"
+        ]
+      },
+      {
+        "id": "meta-tos-intellectual-property-violation",
+        "reference": "Section 3.2.1",
+        "summary": "Prohibits content that infringes or violates someone else's intellectual property rights",
+        "quote": "That infringes or violates someone else's rights, including their intellectual property rights (such as by infringing another's copyright or trademark, or distributing or selling counterfeit or pirated goods), unless an exception or limitation applies under applicable law.",
+        "contentTypes": [
+          "intimate",
+          "personal",
+          "private",
+          "other"
+        ],
+        "contentContexts": [
+          "hacked",
+          "impersonation",
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Content infringes intellectual property rights",
+          "Content violates copyright",
+          "Content violates trademark rights"
+        ]
+      },
+      {
+        "id": "meta-tos-account-misuse",
+        "reference": "Section 3.2.4",
+        "summary": "Prohibits misappropriating access tokens or collecting usernames and passwords",
+        "quote": "You may not proxy, request, or collect Product usernames or passwords, or misappropriate access tokens.",
+        "contentTypes": [
+          "private",
+          "other"
+        ],
+        "contentContexts": [
+          "hacked",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Collecting usernames or passwords",
+          "Misappropriating access tokens"
+        ]
+      },
+      {
+        "id": "meta-tos-content-removal-authority",
+        "reference": "Section 3.2",
+        "summary": "Platform reserves the right to remove or restrict access to violating content and suspend or disable accounts for policy violations",
+        "quote": "We can remove or restrict access to content that is in violation of these provisions. We can also suspend or disable your account for conduct that violates these provisions, as provided in Section 4.2.",
+        "contentTypes": [
+          "intimate",
+          "personal",
+          "private",
+          "other"
+        ],
+        "contentContexts": [
+          "hacked",
+          "impersonation",
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Content violates Terms of Service provisions",
+          "User conduct violates Terms of Service provisions"
+        ]
+      },
+      {
+        "id": "meta-tos-account-termination",
+        "reference": "Section 4.2",
+        "summary": "Platform may suspend or permanently disable accounts for clear, serious or repeated breaches of Terms or Community Standards",
+        "quote": "If we determine, in our discretion, that you have clearly, seriously or repeatedly breached our Terms or Policies, including in particular the Community Standards, we may suspend or permanently disable your access to Meta Company Products, and we may permanently disable or delete your account.",
+        "contentTypes": [
+          "intimate",
+          "personal",
+          "private",
+          "other"
+        ],
+        "contentContexts": [
+          "hacked",
+          "impersonation",
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Clear breach of Terms or Policies",
+          "Serious breach of Terms or Policies",
+          "Repeated breach of Terms or Policies",
+          "Violation of Community Standards"
+        ]
+      },
+      {
+        "id": "meta-tos-content-deletion-timeframe",
+        "reference": "Section 3.3.3",
+        "summary": "Content deletion process takes up to 90 days to complete, with additional time for backup removal",
+        "quote": "It may take up to 90 days to delete content after we begin the account deletion process or receive a content deletion request. If you send content to trash, the deletion process will automatically begin in 30 days unless you chose to delete the content sooner. While the deletion process for such content is being undertaken, the content is no longer visible to other users. After the content is deleted, it may take us up to another 90 days to remove it from backups and disaster recovery systems.",
+        "contentTypes": [
+          "intimate",
+          "personal",
+          "private",
+          "other"
+        ],
+        "contentContexts": [
+          "hacked",
+          "impersonation",
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": {
+          "response": null,
+          "removal": {
+            "value": 90,
+            "unit": "days",
+            "description": "Up to 90 days to delete content, with additional 90 days for backup removal"
+          }
+        },
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Content deletion request received",
+          "Account deletion process initiated"
+        ]
+      }
+    ],
+    "appealProcess": {
+      "url": null,
+      "summary": "Users can request review of content removal decisions and account actions, unless doing so would expose Meta or others to legal liability, harm the community, or compromise system integrity",
+      "steps": [
+        "Request review of content removal or account action",
+        "Meta will provide explanation and review options unless restricted by legal, safety, or technical limitations",
+        "Oversight Board may review certain decisions subject to its terms and bylaws"
       ]
     }
   }
