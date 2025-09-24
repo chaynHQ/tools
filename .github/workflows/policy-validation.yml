@@ -128,6 +128,9 @@ jobs:
               *"completed_with_invalid_changes"*)
                 MESSAGE="❌ $PLATFORM_DISPLAY: Policy validation failed → <$RUN_URL|Re-run workflow manually> (Quality check failed)"
                 ;;
+              *"completed_with_error"*)
+                MESSAGE="❌ $PLATFORM_DISPLAY: Policy validation failed → <$RUN_URL|Re-run workflow manually> (Flow failed)"
+                ;;
               *"completed_no_changes"*)
                 MESSAGE="✅ $PLATFORM_DISPLAY: No policy updates needed → All policies current"
                 ;;

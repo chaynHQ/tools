@@ -19,7 +19,8 @@ export interface PolicyValidationOrchestrationResult {
     | 'completed_with_valid_changes'
     | 'completed_with_invalid_changes'
     | 'completed_with_pr_created'
-    | 'completed_with_pr_error';
+    | 'completed_with_pr_error'
+    | 'completed_with_error';
   platformId: string;
   platformName: string;
   data: {
@@ -299,7 +300,6 @@ export async function orchestratePolicyValidation(
       platformName,
       currentPolicies,
       updatedPolicies,
-      scrapingResults,
     );
 
     const qualityCheckWithRetry = async () => {
@@ -307,7 +307,8 @@ export async function orchestratePolicyValidation(
       return parseAIJson(response);
     };
 
-    const qualityCheck: PolicyValidationQualityCheckResult = await retryWithDelay(qualityCheckWithRetry);
+    const qualityCheck: PolicyValidationQualityCheckResult =
+      await retryWithDelay(qualityCheckWithRetry);
 
     rollbar.info('Policy validation: Quality check completed', {
       platformId,
@@ -355,7 +356,7 @@ export async function orchestratePolicyValidation(
     });
 
     return {
-      status: 'completed_with_invalid_changes',
+      status: 'completed_with_error',
       platformId,
       platformName,
       data: {
