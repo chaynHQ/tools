@@ -9,7 +9,7 @@ export const pornhubPolicy: PlatformPolicies = {
     "title": "Pornhub Terms of Service",
     "summary": "Legal terms governing the use of Pornhub, including content ownership, security responsibilities, and prohibited behavior.",
     "url": "https://www.pornhub.com/information/terms",
-    "accessTimestamp": "2025-09-24T13:46:42.028Z",
+    "accessTimestamp": "2025-09-24T16:30:15.397Z",
     "policies": [
       {
         "id": "ph-tos-ncii",
@@ -208,18 +208,7 @@ export const pornhubPolicy: PlatformPolicies = {
         ]
       }
     ],
-    "appealProcess": {
-      "url": "mailto:dsa@pornhub.com",
-      "summary": "Users may lodge complaints against content moderation decisions within 6 months via email or webform",
-      "steps": [
-        "Submit complaint within 6 months of notification of decision",
-        "Email dsa@pornhub.com from the email associated with your account",
-        "Include as much information as possible to allow investigation",
-        "Provide explanation of reasons why complaint is justified",
-        "Platform will handle complaints in timely, non-discriminatory, diligent manner",
-        "Platform may reverse decisions if complaint demonstrates content did not violate terms or decision was unjustified"
-      ]
-    }
+    "appealProcess": null
   },
   {
     "id": "ph-privacy-policy",
@@ -227,7 +216,7 @@ export const pornhubPolicy: PlatformPolicies = {
     "title": "Pornhub Privacy Policy",
     "summary": "Privacy policy explaining how Pornhub collects, uses, and protects user data.",
     "url": "https://www.pornhub.com/information/privacy",
-    "accessTimestamp": "2025-09-24T13:46:42.028Z",
+    "accessTimestamp": "2025-09-24T16:30:15.397Z",
     "policies": [
       {
         "id": "ph-pp-content-removal",
@@ -385,7 +374,7 @@ export const pornhubPolicy: PlatformPolicies = {
     "title": "Pornhub Trust and Safety Policy",
     "summary": "Comprehensive policy covering content moderation, verification requirements, and safety measures.",
     "url": "https://www.pornhub.com/information/trust-and-safety",
-    "accessTimestamp": "2025-09-24T13:46:42.028Z",
+    "accessTimestamp": "2025-09-24T16:30:15.397Z",
     "policies": [],
     "appealProcess": null
   },
@@ -395,7 +384,7 @@ export const pornhubPolicy: PlatformPolicies = {
     "title": "TAKE IT DOWN Act",
     "summary": "US federal law prohibiting nonconsensual intimate visual depictions of individuals, both authentic and computer-generated, requiring platforms to implement notice-and-removal processes. Signed into law May 19, 2025.",
     "url": "https://www.congress.gov/bill/119th-congress/senate-bill/146/text",
-    "accessTimestamp": "2025-09-24T13:46:42.028Z",
+    "accessTimestamp": "2025-09-24T16:30:15.397Z",
     "policies": [
       {
         "id": "take-it-down-authentic-adults",
@@ -581,6 +570,207 @@ export const pornhubPolicy: PlatformPolicies = {
         "removalCriteria": [
           "Content constitutes an intentional threat to publish digital forgeries",
           "Threat is made for purposes of intimidation, coercion, extortion, or creating mental distress"
+        ]
+      }
+    ],
+    "appealProcess": null
+  },
+  {
+    "id": "pornhub-new-1758731415397-0",
+    "reference": "PH-NCII-POLICY",
+    "title": "Pornhub Non-Consensual Content Policy",
+    "summary": "Dedicated policy specifically addressing non-consensual intimate imagery, including detection technologies, reporting processes, and enforcement measures.",
+    "url": "https://help.porn-hub.website/hc/en-us/articles/4419871787027-Non-Consensual-Content-Policy",
+    "accessTimestamp": "2025-09-24T16:30:15.397Z",
+    "policies": [
+      {
+        "id": "ph-ncii-consent-requirement",
+        "reference": "Non-Consensual Content Policy",
+        "summary": "Prohibits uploading content without valid written consent from all persons featured",
+        "quote": "We require all uploaders to affirm they have obtained and maintain valid consent and proper release documentation for all persons featured in all content uploaded to the platform.",
+        "contentTypes": [
+          "intimate",
+          "personal"
+        ],
+        "contentContexts": [
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Content uploaded without valid written consent from all persons featured"
+        ]
+      },
+      {
+        "id": "ph-ncii-intimate-images",
+        "reference": "Non-Consensual Content Policy - Guidelines",
+        "summary": "Strictly prohibits recording or distribution of intimate images without consent",
+        "quote": "The recording or distribution of intimate images (that is, photos and videos that are generally understood to depict explicit sexual activity or nudity or partial nudity) without someone's consent is a violation of that person's privacy and is a severe violation of our Terms of Service, and is strictly prohibited.",
+        "contentTypes": [
+          "intimate"
+        ],
+        "contentContexts": [
+          "relationship",
+          "unknown",
+          "hacked",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Intimate images recorded without consent",
+          "Intimate images distributed without consent"
+        ]
+      },
+      {
+        "id": "ph-ncii-hidden-camera",
+        "reference": "Non-Consensual Content Policy - Guidelines",
+        "summary": "Prohibits videos or photos taken without valid written consent, including hidden camera content",
+        "quote": "Videos or photos of any person, whether in a public or private setting, without that person's valid written consent (such as hidden/spy camera content, or up-skirt content);",
+        "contentTypes": [
+          "intimate",
+          "personal"
+        ],
+        "contentContexts": [
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Videos or photos taken without valid written consent",
+          "Hidden or spy camera content",
+          "Upskirt content"
+        ]
+      },
+      {
+        "id": "ph-ncii-revenge-sharing",
+        "reference": "Non-Consensual Content Policy - Guidelines",
+        "summary": "Prohibits sharing intimate images without valid written consent, including revenge sharing",
+        "quote": "Sharing explicit sexual images of someone else without their valid written consent (this would include, namely: non-consensual distribution of intimate images, also commonly referred to as \"revenge porn\");",
+        "contentTypes": [
+          "intimate"
+        ],
+        "contentContexts": [
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Sharing intimate images without valid written consent",
+          "Non-consensual distribution of intimate images"
+        ]
+      },
+      {
+        "id": "ph-ncii-non-sexual-images",
+        "reference": "Non-Consensual Content Policy - Guidelines",
+        "summary": "Prohibits sharing non-intimate images without valid written consent",
+        "quote": "Sharing non-sexually explicit images of someone else without their valid written consent;",
+        "contentTypes": [
+          "personal"
+        ],
+        "contentContexts": [
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Sharing non-intimate images without valid written consent"
+        ]
+      },
+      {
+        "id": "ph-ncii-doxing",
+        "reference": "Non-Consensual Content Policy - Guidelines",
+        "summary": "Prohibits doxing and exposing private identifying information",
+        "quote": "\"Doxing\", defined as exposing private and identifying information about a particular individual, including phone number, e-mail, address, or full name.",
+        "contentTypes": [
+          "private"
+        ],
+        "contentContexts": [
+          "relationship",
+          "unknown",
+          "hacked",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Exposing private identifying information",
+          "Sharing phone numbers without consent",
+          "Sharing email addresses without consent",
+          "Sharing physical addresses without consent",
+          "Sharing full names without consent"
+        ]
+      },
+      {
+        "id": "ph-ncii-deepfakes",
+        "reference": "Non-Consensual Content Policy - Guidelines",
+        "summary": "Prohibits all deepfakes and AI-generated manipulated content",
+        "quote": "Any \"deepfakes\" whatsoever (AI-generated, modified, or other manipulations of a person's image, whether in picture or video, to deceive or mislead the viewer into believing that person is acting or speaking in the way presented).",
+        "contentTypes": [
+          "intimate",
+          "personal",
+          "other"
+        ],
+        "contentContexts": [
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "AI-generated manipulated images or videos",
+          "Modified content designed to deceive viewers",
+          "Any deepfake content"
+        ]
+      },
+      {
+        "id": "ph-ncii-non-consensual-acts",
+        "reference": "Non-Consensual Content Policy - Guidelines",
+        "summary": "Prohibits content featuring or promoting non-consensual acts, real or simulated",
+        "quote": "Content featuring or promoting non-consensual acts, real or simulated, is also prohibited.",
+        "contentTypes": [
+          "intimate",
+          "other"
+        ],
+        "contentContexts": [
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Content featuring non-consensual acts",
+          "Content promoting non-consensual acts",
+          "Simulated non-consensual content"
+        ]
+      },
+      {
+        "id": "ph-ncii-intoxicated-content",
+        "reference": "Non-Consensual Content Policy - Guidelines",
+        "summary": "Prohibits content depicting persons appearing intoxicated or incapacitated in sexual acts",
+        "quote": "Persons appearing drugged, incapacitated, or intoxicated involved in sexual acts;",
+        "contentTypes": [
+          "intimate"
+        ],
+        "contentContexts": [
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Content showing persons appearing drugged in sexual acts",
+          "Content showing persons appearing incapacitated in sexual acts",
+          "Content showing persons appearing intoxicated in sexual acts"
         ]
       }
     ],
