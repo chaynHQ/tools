@@ -17,28 +17,28 @@ export async function validateDocuments(
     url: string;
   }>,
 ): Promise<DocumentValidationResult> {
-  try {
-    const validateDocumentsWithRetry = async () => {
-      const prompt = generateDocumentValidationPrompt(platformId, platformName, currentDocuments);
-      const response = await callAnthropic(prompt, {
-        tools: [
-          {
-            type: 'web_search_20250305',
-            name: 'web_search',
-            max_uses: 10,
-          },
-        ],
-      });
-      const result = parseAIJson(response);
-      
-      // Validate that we got a proper result structure
-      if (!result || typeof result !== 'object') {
-        throw new Error('Invalid response structure from AI service');
-      }
-      
-      return result;
-    };
+  const validateDocumentsWithRetry = async () => {
+    const prompt = generateDocumentValidationPrompt(platformId, platformName, currentDocuments);
+    const response = await callAnthropic(prompt, {
+      tools: [
+        {
+          type: 'web_search_20250305',
+          name: 'web_search',
+          max_uses: 10,
+        },
+      ],
+    });
+    const result = parseAIJson(response);
+    
+    // Validate that we got a proper result structure
+    if (!result || typeof result !== 'object') {
+      throw new Error('Invalid response structure from AI service');
+    }
+    
+    return result;
+  };
 
+  try {
     const result: DocumentValidationResult = await retryWithDelay(validateDocumentsWithRetry);
 
     rollbar.info('Policy validation: Document validation completed', {

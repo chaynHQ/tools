@@ -259,14 +259,13 @@ export async function orchestratePolicyValidation(
       };
     }
 
-    const qualityCheckPrompt = generatePolicyValidationQualityCheckPrompt(
-      platformId,
-      platformName,
-      currentPolicies,
-      updatedPolicies,
-    );
-
     const qualityCheckWithRetry = async () => {
+      const qualityCheckPrompt = generatePolicyValidationQualityCheckPrompt(
+        platformId,
+        platformName,
+        currentPolicies,
+        updatedPolicies,
+      );
       const response = await callAnthropic(qualityCheckPrompt);
       const result = parseAIJson(response);
       
@@ -278,8 +277,7 @@ export async function orchestratePolicyValidation(
       return result;
     };
 
-    const qualityCheck: PolicyValidationQualityCheckResult =
-      await retryWithDelay(qualityCheckWithRetry);
+    const qualityCheck: PolicyValidationQualityCheckResult = await retryWithDelay(qualityCheckWithRetry);
 
     rollbar.info('Policy validation: Quality check completed', {
       platformId,

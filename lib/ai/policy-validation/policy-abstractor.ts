@@ -14,26 +14,26 @@ export async function abstractPoliciesFromDocument(
   documentMarkdown: string,
   currentPolicies?: Policy[],
 ): Promise<PolicyAbstractionResult> {
-  try {
-    const abstractPoliciesWithRetry = async () => {
-      const prompt = generatePolicyAbstractionPrompt(
-        documentUrl,
-        documentTitle,
-        documentReference,
-        documentMarkdown,
-        currentPolicies,
-      );
-      const response = await callAnthropic(prompt);
-      const result = parseAIJson(response);
-      
-      // Validate that we got a proper result structure
-      if (!result || typeof result !== 'object') {
-        throw new Error('Invalid response structure from AI service');
-      }
-      
-      return result;
-    };
+  const abstractPoliciesWithRetry = async () => {
+    const prompt = generatePolicyAbstractionPrompt(
+      documentUrl,
+      documentTitle,
+      documentReference,
+      documentMarkdown,
+      currentPolicies,
+    );
+    const response = await callAnthropic(prompt);
+    const result = parseAIJson(response);
+    
+    // Validate that we got a proper result structure
+    if (!result || typeof result !== 'object') {
+      throw new Error('Invalid response structure from AI service');
+    }
+    
+    return result;
+  };
 
+  try {
     const result: PolicyAbstractionResult = await retryWithDelay(abstractPoliciesWithRetry);
 
     return result;

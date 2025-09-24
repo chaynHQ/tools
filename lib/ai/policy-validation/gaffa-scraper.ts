@@ -18,43 +18,43 @@ export async function scrapeDocumentMarkdown(url: string): Promise<GaffaScraping
     };
   }
 
-  try {
-    const scrapeWithRetry = async () => {
-      const response = await fetch('https://api.gaffa.dev/v1/browser/requests', {
-        method: 'POST',
-        headers: {
-          'X-API-Key': process.env.GAFFA_API_KEY || '',
-          'Content-Type': 'application/json',
-          Accept: '*/*',
+  const scrapeWithRetry = async () => {
+    const response = await fetch('https://api.gaffa.dev/v1/browser/requests', {
+      method: 'POST',
+      headers: {
+        'X-API-Key': process.env.GAFFA_API_KEY || '',
+        'Content-Type': 'application/json',
+        Accept: '*/*',
+      },
+      body: JSON.stringify({
+        url,
+        proxy_location: 'us',
+        async: false,
+        max_cache_age: 3600, // Cache for 1 hour
+        settings: {
+          record_request: false,
+          actions: [
+            {
+              type: 'wait',
+              selector: 'body',
+            },
+            {
+              type: 'generate_markdown',
+            },
+          ],
         },
-        body: JSON.stringify({
-          url,
-          proxy_location: 'us',
-          async: false,
-          max_cache_age: 3600, // Cache for 1 hour
-          settings: {
-            record_request: false,
-            actions: [
-              {
-                type: 'wait',
-                selector: 'body',
-              },
-              {
-                type: 'generate_markdown',
-              },
-            ],
-          },
-        }),
-      });
+      }),
+    });
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Gaffa API error: ${response.status} - ${errorText}`);
-      }
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Gaffa API error: ${response.status} - ${errorText}`);
+    }
 
-      return response;
-    };
+    return response;
+  };
 
+  try {
     const response = await retryWithDelay(scrapeWithRetry);
 
     const data = await response.json();
