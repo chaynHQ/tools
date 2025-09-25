@@ -34,12 +34,15 @@ export async function POST(request: Request) {
     rollbar.error('GenerateLetterOtherPlatform: Error generating letter for other platform', {
       error: error.message,
       stack: error.stack,
-      platformName: request.body?.platformInfo?.customName || request.body?.platformInfo?.platformName,
     });
-    const { error: errorMessage, status } = handleApiError(error, '/api/generate-letter-other-platform', {
-      statusCode: error.status,
-      errorType: error.name,
-    });
+    const { error: errorMessage, status } = handleApiError(
+      error,
+      '/api/generate-letter-other-platform',
+      {
+        statusCode: error.status,
+        errorType: error.name,
+      },
+    );
 
     return NextResponse.json({ error: errorMessage }, { status });
   }
