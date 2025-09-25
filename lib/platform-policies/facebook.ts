@@ -9,7 +9,7 @@ export const facebookPolicy: PlatformPolicies = {
     "title": "TAKE IT DOWN Act",
     "summary": "US federal law that criminalizes nonconsensual publication of intimate images and requires covered platforms to implement notice-and-removal processes. Signed into law May 19, 2025 as Public Law No. 119-12.",
     "url": "https://www.congress.gov/bill/119th-congress/senate-bill/146/text",
-    "accessTimestamp": "2025-09-24T16:31:48.292Z",
+    "accessTimestamp": "2025-09-25T00:27:55.272Z",
     "policies": [
       {
         "id": "takedown-act-ncii-authentic-adults",
@@ -265,7 +265,7 @@ export const facebookPolicy: PlatformPolicies = {
     "title": "Meta Community Standards",
     "summary": "Comprehensive community guidelines covering Facebook, Instagram, Messenger and Threads, including policies on adult nudity, sexual activity, and non-consensual intimate imagery.",
     "url": "https://transparency.meta.com/policies/community-standards/",
-    "accessTimestamp": "2025-09-24T16:31:48.292Z",
+    "accessTimestamp": "2025-09-25T00:27:55.272Z",
     "policies": [
       {
         "id": "meta-cs-adult-sexual-exploitation",
@@ -506,7 +506,7 @@ export const facebookPolicy: PlatformPolicies = {
     "title": "Meta Terms of Service",
     "summary": "Updated terms governing use of Facebook, Messenger and other Meta products, effective January 1, 2025.",
     "url": "https://www.facebook.com/terms/",
-    "accessTimestamp": "2025-09-24T16:31:48.292Z",
+    "accessTimestamp": "2025-09-25T00:27:55.272Z",
     "policies": [
       {
         "id": "meta-tos-content-violations",
@@ -670,15 +670,7 @@ export const facebookPolicy: PlatformPolicies = {
         ]
       }
     ],
-    "appealProcess": {
-      "url": null,
-      "summary": "Users can request review of content removal or account actions unless doing so would expose Meta or others to legal liability, harm the community, compromise system integrity, or is prohibited for legal reasons",
-      "steps": [
-        "Request review of removed content or account action",
-        "Meta will provide explanation and review options unless exceptions apply",
-        "Review process may be restricted for serious or repeated violations"
-      ]
-    }
+    "appealProcess": null
   },
   {
     "id": "facebook-new-1758659204835-2",
@@ -686,7 +678,7 @@ export const facebookPolicy: PlatformPolicies = {
     "title": "Adult Nudity and Sexual Activity Policy",
     "summary": "Specific policy addressing restrictions on nudity and sexual content, with provisions for non-consensual intimate imagery.",
     "url": "https://transparency.meta.com/policies/community-standards/adult-nudity-sexual-activity/",
-    "accessTimestamp": "2025-09-24T16:31:48.292Z",
+    "accessTimestamp": "2025-09-25T00:27:55.272Z",
     "policies": [
       {
         "id": "meta-nudity-adult-nudity",
@@ -821,11 +813,12 @@ export const facebookPolicy: PlatformPolicies = {
     ],
     "appealProcess": {
       "url": "https://www.facebook.com/help/263149623790594?ref=tc",
-      "summary": "Users can appeal content removal decisions through Facebook's Help Center and Support Inbox system",
+      "summary": "Users can appeal content removal decisions through Facebook's Support Inbox and request another review if they believe the decision was incorrect",
       "steps": [
-        "Report content through universal reporting option on posts, comments, stories, messages, or profiles",
-        "Receive notification of review decision via notifications and Support Inbox",
-        "Request another review if disagreeing with the decision",
+        "Report content through universal entry point on posts, comments, stories, messages, or profiles",
+        "Receive notification of review decision via notifications",
+        "Access detailed review information in Support Inbox",
+        "Submit appeal request if disagreeing with decision",
         "Receive final response after re-review in Support Inbox"
       ]
     }
@@ -836,7 +829,7 @@ export const facebookPolicy: PlatformPolicies = {
     "title": "Bullying and Harassment Policy",
     "summary": "Policy addressing bullying, harassment, and targeted attacks, including protections for private individuals and provisions for image-based abuse.",
     "url": "https://transparency.meta.com/policies/community-standards/bullying-harassment/",
-    "accessTimestamp": "2025-09-24T16:31:48.292Z",
+    "accessTimestamp": "2025-09-25T00:27:55.272Z",
     "policies": [
       {
         "id": "meta-harassment-unwanted-contact",
@@ -1207,12 +1200,13 @@ export const facebookPolicy: PlatformPolicies = {
     ],
     "appealProcess": {
       "url": null,
-      "summary": "Users can appeal content removal decisions through the Support Inbox and request another review if they believe the decision was incorrect",
+      "summary": "Users can appeal content removal decisions through the Support Inbox and request another review if they disagree with the decision",
       "steps": [
-        "Report content through the universal reporting system",
-        "Receive notification of review decision via notifications and Support Inbox",
-        "If disagreeing with decision, request another review through the appeal option",
-        "Receive final response after re-review in the Support Inbox"
+        "Report content through the universal reporting option",
+        "Receive notification of review decision via notifications",
+        "Access detailed decision information in Support Inbox",
+        "Submit appeal request for another review if disagreeing with decision",
+        "Receive final response after re-review in Support Inbox"
       ]
     }
   },
@@ -1222,7 +1216,7 @@ export const facebookPolicy: PlatformPolicies = {
     "title": "Meta Copyright Policy",
     "summary": "Comprehensive copyright policy including DMCA procedures, reporting mechanisms, and intellectual property protections across Meta platforms.",
     "url": "https://www.meta.com/help/policies/2202628709913826/",
-    "accessTimestamp": "2025-09-24T16:31:48.292Z",
+    "accessTimestamp": "2025-09-25T00:27:55.272Z",
     "policies": [
       {
         "id": "meta-copyright-infringement",
@@ -1326,12 +1320,12 @@ export const facebookPolicy: PlatformPolicies = {
     ],
     "appealProcess": {
       "url": null,
-      "summary": "Users can appeal copyright removal decisions by following instructions provided in Meta's notification message, including DMCA counter-notification procedures where applicable",
+      "summary": "Users can appeal copyright removals by following up with rights owners directly or submitting DMCA counter-notifications",
       "steps": [
-        "Receive notification from Meta about content removal with details of the report",
-        "Follow up with the rights owner directly to try to resolve the issue",
-        "Submit an appeal using instructions provided in Meta's message",
-        "For DMCA cases, file a DMCA counter-notification if eligible"
+        "Receive notification from Meta with rights owner details",
+        "Contact rights owner directly to resolve the issue",
+        "Submit DMCA counter-notification if applicable",
+        "Follow instructions provided in Meta's notification message"
       ]
     }
   },
@@ -1341,7 +1335,7 @@ export const facebookPolicy: PlatformPolicies = {
     "title": "Adult Sexual Exploitation Policy",
     "summary": "Specific policy addressing non-consensual intimate imagery, sextortion, and other forms of adult sexual exploitation including detailed provisions for NCII removal.",
     "url": "https://transparency.meta.com/policies/community-standards/adult-sexual-exploitation/",
-    "accessTimestamp": "2025-09-24T16:31:48.292Z",
+    "accessTimestamp": "2025-09-25T00:27:55.272Z",
     "policies": [
       {
         "id": "meta-ase-ncii-sharing",
@@ -1532,17 +1526,39 @@ export const facebookPolicy: PlatformPolicies = {
           "Content shared by third party",
           "Reported by the survivor themselves"
         ]
+      },
+      {
+        "id": "meta-ase-necrophilia-forced-stripping",
+        "reference": "Adult Sexual Exploitation Policy",
+        "summary": "Prohibits imagery, statements, and content relating to necrophilia or forced stripping, except in real-world art depicting non-real people with condemning or neutral captions",
+        "quote": "Content relating to necrophilia or forced stripping, including: Imagery depicting necrophilia or forced stripping (except in real-world art depicting non-real people, with a condemning or neutral caption. Statements attempting to share, offer, ask, or threatening to share the imagery of necrophilia or forced stripping. Statements that contain descriptions, advocacy for, aspirational or conditional statements about, statements of intent or calls for action to commit, admission of participation in, or mocking of survivors of necrophilia or forced stripping",
+        "contentTypes": [
+          "intimate",
+          "personal",
+          "other"
+        ],
+        "contentContexts": [
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Imagery depicting necrophilia or forced stripping",
+          "Statements threatening to share such imagery",
+          "Descriptions, advocacy, or mocking related to these acts",
+          "Not real-world art depicting non-real people with appropriate captions"
+        ]
       }
     ],
     "appealProcess": {
-      "url": "https://www.facebook.com/help/263149623790594?ref=tc",
-      "summary": "Users can appeal enforcement decisions through Facebook's Support Inbox system, with options for additional review if they disagree with the initial decision",
+      "url": null,
+      "summary": "Users can request another review if they disagree with enforcement decisions through the Support Inbox system",
       "steps": [
-        "Report the content or receive notification of policy violation",
-        "Receive decision notification and detailed explanation in Support Inbox",
-        "Request another review if disagreeing with the decision",
-        "Provide additional information during the appeal process",
-        "Receive final response after re-review in Support Inbox"
+        "User receives notification of enforcement action",
+        "User can access more details in Support Inbox",
+        "User can request another review if they disagree with the decision",
+        "Meta provides final response after re-review in Support Inbox"
       ]
     }
   },
@@ -1552,7 +1568,7 @@ export const facebookPolicy: PlatformPolicies = {
     "title": "Third-Party Intellectual Property Infringement Policy",
     "summary": "Policy covering copyright and trademark infringement with specific procedures for reporting and removing infringing content across Meta platforms.",
     "url": "https://transparency.meta.com/policies/community-standards/intellectual-property/",
-    "accessTimestamp": "2025-09-24T16:31:48.292Z",
+    "accessTimestamp": "2025-09-25T00:27:55.272Z",
     "policies": [
       {
         "id": "meta-ip-copyright-infringement",
@@ -1633,11 +1649,106 @@ export const facebookPolicy: PlatformPolicies = {
     ],
     "appealProcess": {
       "url": "https://www.facebook.com/help/intellectual_property",
-      "summary": "Users can visit the Intellectual Property Help Center to report content or seek assistance with intellectual property matters",
+      "summary": "Users can report intellectual property violations through Meta's Intellectual Property Help Center or Business Protection page",
       "steps": [
         "Visit the Intellectual Property Help Center",
-        "Consider visiting the Business Protection page for additional resources",
-        "Apply for access to Brand Rights Protection if applicable"
+        "Visit the Business Protection page",
+        "Consider applying for access to Brand Rights Protection"
+      ]
+    }
+  },
+  {
+    "id": "facebook-new-1758760075272-0",
+    "reference": "META-PRIVACY-2025",
+    "title": "Meta Privacy Policy",
+    "summary": "Comprehensive privacy policy covering data collection, use, sharing, and user rights across Meta platforms, effective June 16, 2025.",
+    "url": "https://www.facebook.com/privacy/policy",
+    "accessTimestamp": "2025-09-25T00:27:55.272Z",
+    "policies": [
+      {
+        "id": "meta-privacy-safety-security",
+        "reference": "Section 2 - Promoting safety, security and integrity",
+        "summary": "Prohibits harmful or unlawful behavior and removes content reported for violations",
+        "quote": "We use information we collect to help protect people from harm and provide safe, secure Products. We process information we have associated with you and apply automated processing techniques and, in some instances, conduct manual (human) review to: Verify accounts and activity, Find and address violations of our terms or policies, Investigate suspicious activity, Detect, prevent and combat harmful or unlawful behavior, such as to review and, in some cases, remove content reported to us, Protect the life, physical or mental health, well-being or integrity of our users or others, Detect and prevent spam, other security matters and other bad experiences, Detect and stop threats to our personnel and property, and Maintain the integrity of our Products.",
+        "contentTypes": [
+          "intimate",
+          "personal",
+          "private",
+          "other"
+        ],
+        "contentContexts": [
+          "hacked",
+          "impersonation",
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Content violates terms or policies",
+          "Content involves harmful or unlawful behavior",
+          "Content threatens user safety, security or integrity"
+        ]
+      },
+      {
+        "id": "meta-privacy-legal-requests",
+        "reference": "Section 10 - How do we respond to legal requests, comply with applicable law and prevent harm?",
+        "summary": "Responds to legal requests and preserves information to promote safety and prevent harm",
+        "quote": "We access, preserve, use and share your information: In response to legal requests, like search warrants, court orders, production orders or subpoenas. These requests come from third parties such as civil litigants, law enforcement and other government authorities. In accordance with applicable law. To promote the safety, security and integrity of Meta Products, users, employees, property and the public.",
+        "contentTypes": [
+          "intimate",
+          "personal",
+          "private",
+          "other"
+        ],
+        "contentContexts": [
+          "hacked",
+          "impersonation",
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Valid legal request received",
+          "Required by applicable law",
+          "Necessary to promote safety, security and integrity"
+        ]
+      },
+      {
+        "id": "meta-privacy-account-verification",
+        "reference": "Section 19 - Why and how we process your information",
+        "summary": "Verifies accounts and activity to prevent unauthorized access and impersonation",
+        "quote": "Promoting safety, integrity and security on and across the Meta Products: The Meta Products are designed to research and help ensure the safety, integrity and security of those services and those people who enjoy them, on and off Meta Products. We process information we have associated with you and apply automated processing techniques and, in some instances, conduct manual (human) review to: Verify accounts and activity, Find and address violations of our terms or policies.",
+        "contentTypes": [
+          "personal",
+          "private",
+          "other"
+        ],
+        "contentContexts": [
+          "hacked",
+          "impersonation",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Account activity cannot be verified",
+          "Account shows signs of unauthorized access",
+          "Account violates verification requirements"
+        ]
+      }
+    ],
+    "appealProcess": {
+      "url": "https://help.meta.com/support/privacy",
+      "summary": "Users can contact Meta with questions, complaints or requests regarding their information through online forms or mail",
+      "steps": [
+        "Contact Meta online through the support privacy portal",
+        "Alternatively, send written correspondence to Meta Platforms, Inc., ATTN: Privacy Operations, 1601 Willow Road, Menlo Park, CA 94025",
+        "In some countries, users may also contact the Data Protection Officer for Meta Platforms, Inc.",
+        "Depending on jurisdiction, users may contact their local Data Protection Authority directly"
       ]
     }
   }
