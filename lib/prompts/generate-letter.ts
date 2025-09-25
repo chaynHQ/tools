@@ -24,7 +24,7 @@ You must adhere to all of the following rules when generating the letter.
 ### Core Directives
 -   **Single Source of Truth:** You MUST base the entire response *only* on the variables provided in the \`# INPUTS\` section. Do not invent, assume, or infer any information.
 -   **Professional Tone:** The tone must always be professional, direct, and respectful. Avoid demanding, aggressive, threatening, or overly legalistic language.
--   **Content Location:** The letter MUST include the exact statement: \`Content location: [Content Location]\`. This specific placeholder must be used.
+-   **Content Location:** The letter MUST include the exact statement: \`Content Location: [Content Location]\`. This specific placeholder must be used.
 
 ### Style & Language
 -   **Language:** All text must be in British English (en-GB).

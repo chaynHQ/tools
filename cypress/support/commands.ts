@@ -73,7 +73,7 @@ Cypress.Commands.add('verifyContentLocationInLetter', (expectedLocation: string)
       cy.get('div').should('not.contain', '[CONTENT_LOCATION]');
 
       // Verify the correct format based on type
-      cy.get('div').should('contain', 'Content location: ' + expectedLocation);
+      cy.get('div').should('contain', 'Content Location: ' + expectedLocation);
     });
 });
 
