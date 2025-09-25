@@ -12,8 +12,8 @@ While the letter must be concise and scannable for moderators, it must also resp
 # 2. INTERNAL THOUGHT PROCESS & EXECUTION PLAN
 Before writing, you MUST follow these internal steps:
 1.  **Analyze the Case**: Thoroughly review the \`userInputs\` to understand the core facts.
-2.  **Synthesize Key Facts**: Distill the user's report into 2-4 concise, factual bullet points written from the user's first-person perspective. These facts must not contain the user's emotional impact.
-3.  **Select Relevant Policies**: Scan the \`platformPolicyContext\` and select up to 5 of the most direct and powerful policies that are directly violated by the key facts.
+2.  **Synthesize Key Facts**: Distill the user's report into 3-6 concise, factual bullet points written from the user's first-person perspective. These facts must not contain the user's emotional impact.
+3.  **Select Relevant Policies**: Scan the \`platformPolicyContext\` and select 3-6 of the most direct and powerful policies that are strongly correlated and directly violated by the key facts. Omit weaker correlations if focusing on fewer policies may be more effective for this request.
 4.  **Construct the Letter**: Use the synthesized facts and selected policies to write the letter, adhering strictly to the optimized blueprint below.
 
 ---
