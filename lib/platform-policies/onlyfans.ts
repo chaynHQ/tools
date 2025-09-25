@@ -9,7 +9,7 @@ export const onlyfansPolicy: PlatformPolicies = {
     "title": "Acceptable Use Policy",
     "summary": "Comprehensive policy covering prohibited content and behavior on OnlyFans.",
     "url": "https://onlyfans.com/aup",
-    "accessTimestamp": "2025-09-24T13:52:53.511Z",
+    "accessTimestamp": "2025-09-25T00:26:02.490Z",
     "policies": [
       {
         "id": "of-tou-content-removal",
@@ -208,7 +208,7 @@ export const onlyfansPolicy: PlatformPolicies = {
     "title": "Terms of Service",
     "summary": "Legal terms governing the use of OnlyFans, including content ownership and security responsibilities.",
     "url": "https://onlyfans.com/terms",
-    "accessTimestamp": "2025-09-24T13:52:53.511Z",
+    "accessTimestamp": "2025-09-25T00:26:02.490Z",
     "policies": [
       {
         "id": "of-tos-content-removal",
@@ -460,7 +460,7 @@ export const onlyfansPolicy: PlatformPolicies = {
     "title": "Privacy Policy",
     "summary": "Privacy policy explaining how OnlyFans collects, uses, and protects user data.",
     "url": "https://onlyfans.com/privacy",
-    "accessTimestamp": "2025-09-24T13:52:53.511Z",
+    "accessTimestamp": "2025-09-25T00:26:02.490Z",
     "policies": [
       {
         "id": "of-pp-age-verification",
@@ -653,15 +653,25 @@ export const onlyfansPolicy: PlatformPolicies = {
         ]
       }
     ],
-    "appealProcess": null
+    "appealProcess": {
+      "url": "https://onlyfans.com/my/tickets/create",
+      "summary": "Users can submit privacy-related requests and appeals through their account ticket system or by emailing privacy@onlyfans.com",
+      "steps": [
+        "Submit a ticket through your OnlyFans account",
+        "Alternatively, email privacy@onlyfans.com with your request",
+        "Provide sufficient information to confirm your identity",
+        "Include details to help understand and evaluate your request",
+        "For U.S. residents in certain states, you have the right to appeal decisions regarding privacy rights requests"
+      ]
+    }
   },
   {
     "id": "us-take-it-down-act",
     "reference": "S.146",
     "title": "TAKE IT DOWN Act",
-    "summary": "Federal law signed into law on May 19, 2025, criminalizing nonconsensual intimate imagery including deepfakes and requiring covered platforms to remove such content within 48 hours of verified requests. Platforms have until May 19, 2026 to implement required notice-and-removal processes.",
+    "summary": "Federal law enacted May 19, 2025 (Public Law 119-12), criminalizing nonconsensual intimate imagery including AI-generated deepfakes and requiring covered platforms to remove such content within 48 hours of verified requests. Platforms have until May 19, 2026 to implement required notice-and-removal processes. Provides FTC oversight and enforcement authority.",
     "url": "https://www.congress.gov/bill/119th-congress/senate-bill/146/text",
-    "accessTimestamp": "2025-09-24T13:52:53.511Z",
+    "accessTimestamp": "2025-09-25T00:26:02.490Z",
     "policies": [
       {
         "id": "take-it-down-authentic-adults",
