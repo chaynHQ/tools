@@ -138,7 +138,7 @@ describe('Content Location Sanitization and Desanitization', () => {
         cy.get('div').should('contain', expectedLocation);
         cy.get('div').should('not.contain', '[Content Location]');
         cy.get('div').should('not.contain', '[CONTENT_LOCATION]');
-        cy.get('div').should('contain', 'Content location: ' + expectedLocation);
+        cy.get('div').should('contain', 'Content Location: ' + expectedLocation);
       });
   }
 
