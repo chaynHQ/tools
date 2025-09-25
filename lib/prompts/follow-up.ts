@@ -1,8 +1,9 @@
 import { LetterRequest } from '@/types/letter';
 import { QUALITY_CHECK_CRITERIA } from '../constants/ai';
-import { getPlatformPolicy, getRelevantPolicies } from '../platform-policies';
+import { getDocumentsWithRelevantPolicies, getPlatformPolicy } from '../platform-policies';
 import { getPlatformPolicyId } from '../platforms';
 import { serverInstance as rollbar } from '../rollbar';
+import { formatInputsForAI, formatPolicyDataForAI } from './format-inputs';
 
 export function generateFollowUpPrompt(request: LetterRequest) {
   rollbar.info('generateFollowUpPrompt: Generating follow-up questions prompt', {
@@ -19,32 +20,50 @@ export function generateFollowUpPrompt(request: LetterRequest) {
     throw new Error('Missing required data for generating follow-up questions');
   }
 
-  const initialInfo = request.initialQuestions || {};
-  const reportingInfo = request.reportingDetails || {};
-  const hasReportingHistory =
-    reportingInfo.standardProcessDetails ||
-    reportingInfo.escalatedProcessDetails ||
-    reportingInfo.responseReceived ||
-    reportingInfo.additionalStepsTaken;
-
   // Validate platformInfo
   if (!request.platformInfo.platformName && !request.platformInfo.customName) {
     rollbar.error('generateFollowUpPrompt: Missing platform name in platformInfo', {
-      platformInfo: request.platformInfo
+      platformInfo: request.platformInfo,
     });
     throw new Error('Missing platform name in platformInfo');
   }
 
-  let platformPolicy = null;
+  // Get platform policies for context
+  let platformPolicyContext = '';
   if (!request.platformInfo.isCustom) {
     const policyId = getPlatformPolicyId(request.platformInfo.platformId);
     if (policyId) {
-      platformPolicy = getPlatformPolicy(policyId);
-      rollbar.info('generateFollowUpPrompt: Found platform policy', {
-        platformId: request.platformInfo.platformId,
-        policyId,
-        policyName: platformPolicy?.name,
-      });
+      const platformPolicies = getPlatformPolicy(policyId);
+      if (platformPolicies) {
+        rollbar.info('generateFollowUpPrompt: Found platform policy', {
+          platformId: request.platformInfo.platformId,
+          policyId,
+          platformName: platformPolicies.platform,
+        });
+        const documentsWithPolicies = getDocumentsWithRelevantPolicies(
+          platformPolicies,
+          request.initialQuestions.contentType,
+          request.initialQuestions.contentContext,
+        );
+
+        rollbar.info('generateFollowUpPrompt: Policy filtering results', {
+          platformId: request.platformInfo.platformId,
+          contentType: request.initialQuestions.contentType,
+          contentContext: request.initialQuestions.contentContext,
+          totalDocuments: platformPolicies.policyDocuments.length,
+          relevantDocuments: documentsWithPolicies.length,
+          totalPolicies: platformPolicies.policyDocuments.reduce(
+            (sum, doc) => sum + doc.policies.length,
+            0,
+          ),
+          relevantPolicies: documentsWithPolicies.reduce(
+            (sum, doc) => sum + doc.policies.length,
+            0,
+          ),
+        });
+
+        platformPolicyContext = formatPolicyDataForAI(platformPolicies, documentsWithPolicies);
+      }
     } else {
       rollbar.warning('generateFollowUpPrompt: No policy ID found for platform', {
         platformId: request.platformInfo.platformId,
@@ -52,69 +71,23 @@ export function generateFollowUpPrompt(request: LetterRequest) {
     }
   }
 
-  const relevantPolicies = platformPolicy
-    ? getRelevantPolicies(
-        platformPolicy,
-        request.initialQuestions.contentType,
-        request.initialQuestions.contentContext,
-      )
-    : null;
+  const prompt = `# ROLE & OBJECTIVE
 
-  return `# ROLE & OBJECTIVE
-
-You are a strategic AI assistant specializing in platform policy enforcement. Your objective is to intelligently identify critical information gaps in a user's takedown request. You will generate a small, targeted list of follow-up questions to gather only the most essential information needed to build the strongest possible case, based on specific platform policies ${request.platformInfo.platformName || request.platformInfo.customName}.
+You are a strategic trauma-informed AI assistant specializing in platform policy enforcement. Your objective is to intelligently identify critical information gaps in a user's takedown request. You will generate a small, targeted list of follow-up questions to gather only the most essential information needed to build the strongest possible case, based on specific platform policies ${request.platformInfo.platformName || request.platformInfo.customName}.
 
 # CRITICAL DIRECTIVES
 
-1.  **Surgical Questioning:** You must be extremely selective. ONLY ask a question if the answer is **absolutely essential** to strengthen the link between the content and a specific policy violation. Do not ask for information that is already provided or is not critical for the takedown letter.
-2.  **Respect Privacy & Safety:** You MUST NOT ask for any personally identifiable information (name, email), sensitive personal details (medical, financial), or any form of official documentation/ID. All questions must use sensitive, trauma-informed language and MUST NOT contain any terms from the **Banned Terms** list below.
-3.  **Maximum of 4 Questions:** You must return a maximum of four questions. If a thorough analysis determines that no additional information is required to write a strong letter, you MUST return an empty array.
+-  **Surgical Questioning:** You must be extremely selective. ONLY ask a question if the answer is **absolutely essential** to strengthen the link between the content and a specific policy violation. Do not ask for information that is already provided or is not critical for the takedown letter.
+-  **Respect Privacy & Safety:** You MUST NOT ask for any personally identifiable information (name, email), sensitive personal details (medical, financial), or any form of official documentation/ID. All questions must use sensitive, trauma-informed language and MUST NOT contain any terms from the **Banned Terms** list below.
+-  **Maximum of 4 Questions:** You must return a maximum of four questions. If a thorough analysis determines that no additional information is required to write a strong letter, you MUST return an empty array.
 
----
-
-# CONTEXT FOR ANALYSIS
-
-This is the complete set of information provided by the user so far. You must review all of it before deciding if any questions are necessary.
-
-### User-Provided Information
-Platform: ${request.platformInfo.platformName || request.platformInfo.customName}
-Content Location Type: ${initialInfo.contentLocationType || 'Not provided'}
-Content Location: ${initialInfo.imageIdentification || 'Not provided'}
-Upload Date: ${initialInfo.imageUploadDate || 'Not provided'}
-Creation Date: ${initialInfo.imageTakenDate || 'Not provided'}
-Ownership Evidence: ${initialInfo.ownershipEvidence || 'Not provided'}
-Impact Statement: ${initialInfo.impactStatement || 'Not provided'}
-${
-  hasReportingHistory
-    ? `
-Standard Process Details: ${reportingInfo.standardProcessDetails || 'Not provided'}
-Escalated Process Details: ${reportingInfo.escalatedProcessDetails || 'Not provided'}
-Response Received: ${reportingInfo.responseReceived || 'Not provided'}
-Additional Steps Taken: ${reportingInfo.additionalStepsTaken || 'Not provided'}`
-    : ''
-}
-
-### Platform Policy Context
-${
-  relevantPolicies
-    ? `
-Platform-Specific Policy Context for ${platformPolicy?.name}:
-
-Applicable Policies:
-${relevantPolicies
-  .map(
-    (policy) => `- *${policy.policy}*
-  Documents: ${policy.documents.map((doc) => doc.title).join(', ')}
-  Removal Criteria: ${policy.removalCriteria.join(', ')}
-  Evidence Requirements: ${policy.evidenceRequirements.join(', ')}`,
-  )
-  .join('\n')}`
-    : ''
-}
-
-### Banned Terms
+## Banned Terms
 ${QUALITY_CHECK_CRITERIA.MAJOR.SENSITIVE_TERMS.map(({ term, replacement }) => `- "${term}" (use "${replacement}")`).join('\n')}
 
+## Trauma Informed
+It's critical to avoid asking questions that may be too personal, triggering, or uncomfortable to share. For example, the question "Can you describe the circumstances in which this content was originally created?" is not be appropriate for intimate content. In this case use ask confirming questions instead of open-ended questions e.g. "Was this content ever shared or intended to be shared publicly by you?", "Has this significantly impacted your personal and professional life?". 
+Whilst our core purpose is to gather essential information to support violations of policies, our letter aims to avoid sharing personal information where it is not critical to the takedown request. High level details are often enough to evidence a violation - but inspect policy details to confirm requirements and infer the detail required.
+Be aware of the user's previous inputs to be sensitive to previously provided information - it's important the user feels heard and is asked relevant questions. 
 
 ---
 
@@ -156,7 +129,7 @@ Ensure the JSON is perfectly valid and can be parsed by \`JSON.parse()\` in Java
 [
   {
     "id": "context_of_sharing_1",
-    "question": "Can you describe the context in which this content was shared online, without sharing personal details?",
+    "question": "Can you describe the context in which this content was shared online?",
     "context": "This helps establish if the content was shared in a targeted way, which is relevant to harassment policies.",
     "reason": "essential"
   },
@@ -168,5 +141,14 @@ Ensure the JSON is perfectly valid and can be parsed by \`JSON.parse()\` in Java
   }
 ]
 \`\`\`
+
+# INPUTS
+
+This is the complete set of information provided by the user so far. You must review all of it before deciding if any questions are necessary.
+
+${formatInputsForAI(request)}
+
+${platformPolicyContext}
 `;
+  return prompt;
 }

@@ -1,40 +1,16 @@
-import { AI_MODEL, AI_TEMPERATURE } from '@/lib/constants/common';
+import { callAnthropic } from '@/lib/ai/anthropic';
 import { generateLetterPrompt } from '@/lib/prompts/generate-letter';
 import { handleApiError, serverInstance as rollbar } from '@/lib/rollbar';
 import { parseAIJson, retryWithDelay } from '@/lib/utils';
-import Anthropic from '@anthropic-ai/sdk';
 import { NextResponse } from 'next/server';
-
-// Initialize Anthropic with environment variable
-const anthropic = new Anthropic();
 
 export async function POST(request: Request) {
   try {
-    if (!process.env.ANTHROPIC_API_KEY) {
-      rollbar.error('GenerateLetter: Anthropic API key not configured');
-      return NextResponse.json({ error: 'Missing Anthropic API key' }, { status: 500 });
-    }
-
     const body = await request.json();
 
     const generateLetter = async () => {
-      const response = await anthropic.messages.create({
-        model: AI_MODEL,
-        max_tokens: 4000,
-        temperature: AI_TEMPERATURE,
-        messages: [
-          {
-            role: 'user',
-            content: generateLetterPrompt(body),
-          },
-        ],
-      });
-      //@ts-ignore
-      if (!response?.content?.[0]?.text) {
-        throw new Error('Invalid response from Anthropic API');
-      }
-      //@ts-ignore
-      return parseAIJson(response.content[0].text);
+      const response = await callAnthropic(generateLetterPrompt(body));
+      return parseAIJson(response);
     };
 
     const letter = await retryWithDelay(generateLetter);

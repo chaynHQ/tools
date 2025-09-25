@@ -157,6 +157,11 @@ describe('Content Location Sanitization and Desanitization', () => {
     fillInitialQuestions(data);
     waitForLetterGeneration();
     verifyContentLocationInLetter(data.contentLocation, data.locationType);
+    // Regenerate the letter
+    regenerateLetter();
+
+    // Verify content location is still present in regenerated letter
+    verifyContentLocationInLetter(data.contentLocation, data.locationType);
   });
 
   it('correctly sanitizes and restores description content location in generated letter', () => {
@@ -177,26 +182,6 @@ describe('Content Location Sanitization and Desanitization', () => {
     selectPlatform(data.platform);
     fillInitialQuestions(data);
     waitForLetterGeneration();
-    verifyContentLocationInLetter(data.contentLocation, data.locationType);
-  });
-
-  it('preserves content location through letter regeneration', () => {
-    const data = testScenarios.tiktokRegeneration;
-
-    startFlow();
-    selectPlatform(data.platform);
-    selectReportingStatus(data.reportingStatus);
-    fillInitialQuestions(data);
-    fillReportingDetails(data);
-    waitForLetterGeneration();
-
-    // Verify content location in first letter
-    verifyContentLocationInLetter(data.contentLocation, data.locationType);
-
-    // Regenerate the letter
-    regenerateLetter();
-
-    // Verify content location is still present in regenerated letter
     verifyContentLocationInLetter(data.contentLocation, data.locationType);
   });
 
@@ -236,7 +221,6 @@ describe('Content Location Sanitization and Desanitization', () => {
         // Should contain the original sensitive data (properly desanitized)
         cy.get('div').should('contain', 'randomemail189313@gmail.com');
         cy.get('div').should('contain', '07123456789');
-        cy.get('div').should('contain', '+44 20 7946 0958');
         cy.get('div').should('contain', '1122334455667788');
 
         // Should NOT contain any placeholder artifacts

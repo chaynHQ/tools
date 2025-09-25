@@ -1,0 +1,996 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Chayn Tools API",
+    "description": "AI-powered tool helping survivors request the removal of non-consensual images from online platforms",
+    "version": "1.0.0",
+    "contact": {
+      "name": "Chayn",
+      "url": "https://www.chayn.co",
+      "email": "techcommunity@chayn.co"
+    },
+    "license": {
+      "name": "MIT",
+      "url": "https://github.com/chaynHQ/tools/blob/main/LICENSE"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://tools.chayn.co/api",
+      "description": "Production server"
+    },
+    {
+      "url": "http://localhost:3000/api",
+      "description": "Development server"
+    }
+  ],
+  "paths": {
+    "/generate-letter": {
+      "post": {
+        "summary": "Generate takedown letter",
+        "description": "Generates a personalized takedown letter based on user input and platform policies",
+        "tags": ["Letter Generation"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LetterRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully generated letter",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeneratedLetter"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/quality-check-letter": {
+      "post": {
+        "summary": "Quality check generated letter",
+        "description": "Performs quality assurance checks on a generated letter to identify issues and provide improvements",
+        "tags": ["Letter Generation"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["letter", "formData"],
+                "properties": {
+                  "letter": {
+                    "$ref": "#/components/schemas/GeneratedLetter"
+                  },
+                  "formData": {
+                    "$ref": "#/components/schemas/LetterRequest"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Quality check completed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QualityCheckResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/follow-up-questions": {
+      "post": {
+        "summary": "Generate follow-up questions",
+        "description": "Generates targeted follow-up questions to gather additional information for strengthening the takedown request",
+        "tags": ["Questions"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LetterRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully generated follow-up questions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/FollowUpQuestion"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/feedback": {
+      "post": {
+        "summary": "Submit feedback",
+        "description": "Submits user feedback about the application or generated content",
+        "tags": ["Feedback"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FeedbackRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Feedback submitted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid feedback data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "options": {
+          "summary": "CORS preflight for feedback",
+          "description": "Handles CORS preflight requests for feedback submission",
+          "responses": {
+            "200": {
+              "description": "CORS preflight successful"
+            }
+          }
+        }
+      }
+    },
+    "/policy-validation/{platform}": {
+      "post": {
+        "summary": "Validate platform policies",
+        "description": "Validates and updates platform policies by analyzing live documents and identifying changes relevant to image takedown requests",
+        "tags": ["Policy Validation"],
+        "parameters": [
+          {
+            "name": "platform",
+            "in": "path",
+            "required": true,
+            "description": "Platform identifier to validate policies for",
+            "schema": {
+              "type": "string",
+              "enum": ["facebook", "instagram", "tiktok", "onlyfans", "pornhub"]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {}
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Policy validation completed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PolicyValidationResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid platform or request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Platform policy not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "options": {
+          "summary": "CORS preflight for policy validation",
+          "description": "Handles CORS preflight requests for policy validation",
+          "responses": {
+            "200": {
+              "description": "CORS preflight successful"
+            }
+          }
+        }
+      }
+    },
+    "/dev-data-collection": {
+      "post": {
+        "summary": "Collect development data",
+        "description": "Collects form data and generated letters for development analysis (development environment only)",
+        "tags": ["Development"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DevDataCollectionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Data collected successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not available in production",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "options": {
+          "summary": "CORS preflight for dev data collection",
+          "description": "Handles CORS preflight requests for development data collection",
+          "responses": {
+            "200": {
+              "description": "CORS preflight successful"
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Error": {
+        "type": "object",
+        "required": ["error"],
+        "properties": {
+          "error": {
+            "type": "string",
+            "description": "Error message"
+          },
+          "status": {
+            "type": "integer",
+            "description": "HTTP status code"
+          },
+          "message": {
+            "type": "string",
+            "description": "Detailed error message"
+          }
+        }
+      },
+      "PlatformInfo": {
+        "type": "object",
+        "required": ["platformId", "platformName", "isCustom"],
+        "properties": {
+          "platformId": {
+            "type": "string",
+            "enum": ["facebook", "instagram", "tiktok", "onlyfans", "pornhub", "other"]
+          },
+          "platformName": {
+            "type": "string"
+          },
+          "isCustom": {
+            "type": "boolean"
+          },
+          "customName": {
+            "type": "string",
+            "description": "Required when isCustom is true"
+          }
+        }
+      },
+      "InitialQuestions": {
+        "type": "object",
+        "required": [
+          "contentLocationType",
+          "contentType",
+          "contentContext",
+          "imageUploadDate",
+          "imageTakenDate",
+          "ownershipEvidence",
+          "impactStatement",
+          "imageIdentification"
+        ],
+        "properties": {
+          "contentLocationType": {
+            "type": "string",
+            "enum": ["url", "description"]
+          },
+          "contentUrl": {
+            "type": "string",
+            "description": "Required when contentLocationType is 'url'"
+          },
+          "contentDescription": {
+            "type": "string",
+            "description": "Required when contentLocationType is 'description'"
+          },
+          "contentType": {
+            "type": "string",
+            "enum": ["intimate", "personal", "private", "other"]
+          },
+          "contentContext": {
+            "type": "string",
+            "enum": ["hacked", "impersonation", "relationship", "unknown", "other"]
+          },
+          "imageUploadDate": {
+            "type": "string"
+          },
+          "imageTakenDate": {
+            "type": "string"
+          },
+          "ownershipEvidence": {
+            "type": "string"
+          },
+          "impactStatement": {
+            "type": "string"
+          },
+          "imageIdentification": {
+            "type": "string"
+          }
+        }
+      },
+      "ReportingDetails": {
+        "type": "object",
+        "properties": {
+          "standardProcessDetails": {
+            "type": "string"
+          },
+          "escalatedProcessDetails": {
+            "type": "string"
+          },
+          "responseReceived": {
+            "type": "string"
+          },
+          "additionalStepsTaken": {
+            "type": "string"
+          }
+        }
+      },
+      "LetterRequest": {
+        "type": "object",
+        "required": ["initialQuestions", "platformInfo"],
+        "properties": {
+          "initialQuestions": {
+            "$ref": "#/components/schemas/InitialQuestions"
+          },
+          "platformInfo": {
+            "$ref": "#/components/schemas/PlatformInfo"
+          },
+          "reportingDetails": {
+            "$ref": "#/components/schemas/ReportingDetails"
+          },
+          "followUp": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "Follow-up question answers as key-value pairs"
+          }
+        }
+      },
+      "GeneratedLetter": {
+        "type": "object",
+        "required": ["subject", "body"],
+        "properties": {
+          "subject": {
+            "type": "string",
+            "description": "Email subject line"
+          },
+          "body": {
+            "type": "string",
+            "description": "Letter body content with \\n for newlines"
+          },
+          "nextSteps": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Recommended next steps for the user"
+          }
+        }
+      },
+      "QualityCheckIssue": {
+        "type": "object",
+        "required": ["severity", "code", "description"],
+        "properties": {
+          "severity": {
+            "type": "string",
+            "enum": ["CRITICAL", "MINOR"]
+          },
+          "code": {
+            "type": "string",
+            "enum": [
+              "HALLUCINATION",
+              "SENSITIVE_DATA",
+              "POLICY_ERROR",
+              "BANNED_TERM",
+              "AGGRESSIVE_TONE",
+              "LANGUAGE",
+              "IMPROPER_TONE",
+              "STRUCTURE",
+              "INFO_HANDLING",
+              "SUBJECT_LINE"
+            ]
+          },
+          "description": {
+            "type": "string"
+          }
+        }
+      },
+      "QualityCheckResponse": {
+        "type": "object",
+        "required": ["issues", "improvedLetter"],
+        "properties": {
+          "issues": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/QualityCheckIssue"
+            }
+          },
+          "improvedLetter": {
+            "$ref": "#/components/schemas/GeneratedLetter"
+          }
+        }
+      },
+      "FollowUpQuestion": {
+        "type": "object",
+        "required": ["id", "question", "context", "reason"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique question identifier"
+          },
+          "question": {
+            "type": "string",
+            "description": "The follow-up question text"
+          },
+          "context": {
+            "type": "string",
+            "description": "Explanation of why this information is needed"
+          },
+          "reason": {
+            "type": "string",
+            "enum": ["insufficient", "clarification", "support"],
+            "description": "Reason for asking this question"
+          }
+        }
+      },
+      "FeedbackRequest": {
+        "type": "object",
+        "required": ["type"],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["general", "letter", "quality"],
+            "description": "Type of feedback being submitted"
+          },
+          "rating": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 5,
+            "description": "Rating from 1-5"
+          },
+          "feedback": {
+            "type": "string",
+            "description": "Feedback text"
+          },
+          "letterSubject": {
+            "type": "string",
+            "description": "Subject of the letter being reviewed (for letter feedback)"
+          },
+          "letterBody": {
+            "type": "string",
+            "description": "Body of the letter being reviewed (for letter feedback)"
+          },
+          "consentToShare": {
+            "type": "boolean",
+            "description": "Whether user consents to sharing their feedback"
+          },
+          "platform": {
+            "type": "string",
+            "description": "Platform the feedback relates to"
+          },
+          "sessionId": {
+            "type": "string",
+            "description": "Session identifier for tracking"
+          }
+        }
+      },
+      "PolicyValidationResponse": {
+        "type": "object",
+        "required": ["success", "status", "platform"],
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "completed_no_changes",
+              "completed_with_valid_changes",
+              "completed_with_invalid_changes",
+              "completed_with_pr_created",
+              "completed_with_pr_error"
+            ]
+          },
+          "platform": {
+            "type": "string"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "analysis": {
+                "$ref": "#/components/schemas/PolicyValidationResult"
+              },
+              "qualityCheck": {
+                "$ref": "#/components/schemas/PolicyValidationQualityResult"
+              },
+              "pullRequest": {
+                "type": "object",
+                "properties": {
+                  "url": {
+                    "type": "string"
+                  },
+                  "number": {
+                    "type": "integer"
+                  }
+                }
+              },
+              "error": {
+                "type": "string",
+                "description": "Error message if PR creation failed"
+              }
+            }
+          }
+        }
+      },
+      "PolicyValidationResult": {
+        "type": "object",
+        "required": ["status", "reasoning", "documentsChecked"],
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": ["no_change", "updated"]
+          },
+          "reasoning": {
+            "type": "string",
+            "description": "Detailed explanation of validation results"
+          },
+          "documentsChecked": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of URLs successfully accessed"
+          },
+          "issuesFound": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of issues found that don't require policy updates"
+          },
+          "newDocuments": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "reference": {
+                  "type": "string"
+                },
+                "title": {
+                  "type": "string"
+                },
+                "url": {
+                  "type": "string"
+                },
+                "notes": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "updatedPolicy": {
+            "$ref": "#/components/schemas/PlatformPolicy"
+          }
+        }
+      },
+      "PolicyValidationQualityResult": {
+        "type": "object",
+        "required": ["validationStatus", "reasoning", "documentsReVerified", "issues", "qualityScore"],
+        "properties": {
+          "validationStatus": {
+            "type": "string",
+            "enum": ["valid", "invalid"]
+          },
+          "reasoning": {
+            "type": "string"
+          },
+          "documentsReVerified": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "issues": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "severity": {
+                  "type": "string",
+                  "enum": ["critical", "minor"]
+                },
+                "type": {
+                  "type": "string",
+                  "enum": ["hallucination", "meaningless_rewording", "structural_error", "unsupported_improvement"]
+                },
+                "description": {
+                  "type": "string"
+                },
+                "field": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "qualityScore": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 10
+          }
+        }
+      },
+      "PlatformPolicy": {
+        "type": "object",
+        "required": ["name", "legalDocuments", "contentTypes", "contentContexts", "generalPolicies", "timeframes", "appealProcess"],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "legalDocuments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LegalDocument"
+            }
+          },
+          "contentTypes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ContentType"
+            }
+          },
+          "contentContexts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ContentContext"
+            }
+          },
+          "generalPolicies": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Policy"
+            }
+          },
+          "timeframes": {
+            "type": "object",
+            "properties": {
+              "response": {
+                "type": "string"
+              },
+              "removal": {
+                "type": "string"
+              }
+            }
+          },
+          "appealProcess": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "LegalDocument": {
+        "type": "object",
+        "required": ["reference", "title", "url"],
+        "properties": {
+          "reference": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          },
+          "accessTimestamp": {
+            "type": "string"
+          },
+          "notes": {
+            "type": "string"
+          }
+        }
+      },
+      "Policy": {
+        "type": "object",
+        "required": ["reference", "policy", "documents", "removalCriteria", "evidenceRequirements"],
+        "properties": {
+          "reference": {
+            "type": "string"
+          },
+          "policy": {
+            "type": "string"
+          },
+          "documents": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LegalDocument"
+            }
+          },
+          "removalCriteria": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "evidenceRequirements": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "ContentType": {
+        "type": "object",
+        "required": ["type", "label", "description", "policies"],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["intimate", "personal", "private", "other"]
+          },
+          "label": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "policies": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Policy"
+            }
+          }
+        }
+      },
+      "ContentContext": {
+        "type": "object",
+        "required": ["context", "label", "description", "policies"],
+        "properties": {
+          "context": {
+            "type": "string",
+            "enum": ["hacked", "impersonation", "relationship", "unknown", "other"]
+          },
+          "label": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "policies": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Policy"
+            }
+          }
+        }
+      },
+      "DevDataCollectionRequest": {
+        "type": "object",
+        "required": ["formData", "generatedLetter"],
+        "properties": {
+          "formData": {
+            "$ref": "#/components/schemas/LetterRequest"
+          },
+          "generatedLetter": {
+            "$ref": "#/components/schemas/GeneratedLetter"
+          },
+          "sessionId": {
+            "type": "string"
+          },
+          "completionTimeSeconds": {
+            "type": "number"
+          }
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Letter Generation",
+      "description": "APIs for generating and quality checking takedown letters"
+    },
+    {
+      "name": "Questions",
+      "description": "APIs for generating follow-up questions"
+    },
+    {
+      "name": "Feedback",
+      "description": "APIs for collecting user feedback"
+    },
+    {
+      "name": "Policy Validation",
+      "description": "APIs for validating and updating platform policies"
+    },
+    {
+      "name": "Development",
+      "description": "Development-only APIs for data collection and testing"
+    }
+  ]
+}

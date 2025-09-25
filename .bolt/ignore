@@ -1,2 +1,8 @@
-components/ui/*
-hooks/use-toast.ts
+components/*
+hooks/*
+app/cookie-policy/*
+app/letter-generator/*
+cypress/*
+lib/auth/*
+lib/dev/*
+public/*
