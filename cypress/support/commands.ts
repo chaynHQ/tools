@@ -73,7 +73,7 @@ Cypress.Commands.add('verifyContentLocationInLetter', (expectedLocation: string)
       cy.get('div').should('not.contain', '[CONTENT_LOCATION]');
 
       // Verify the correct format based on type
-      cy.get('div').should('contain', 'Content location: ' + expectedLocation);
+      cy.get('div').should('contain', 'Content Location: ' + expectedLocation);
     });
 });
 
@@ -123,3 +123,8 @@ Cypress.Commands.add(
     cy.contains('Review and send', { timeout: 100000 }).should('be.visible');
   },
 );
+
+// Custom command to check if a file exists
+Cypress.Commands.add('fileExists', (filePath: string) => {
+  return cy.task('fileExists', filePath);
+});

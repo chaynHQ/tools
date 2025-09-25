@@ -1,294 +1,777 @@
-import { ContentContext, ContentType, LegalDocument, PlatformPolicy } from './types';
+import { PlatformPolicies } from '../../types/policies';
 
-const legalDocuments: LegalDocument[] = [
+export const pornhubPolicy: PlatformPolicies = {
+  platform: 'Pornhub',
+  policyDocuments: [
   {
-    reference: 'PH-TOS',
-    title: 'Pornhub Terms of Service',
-    url: 'https://www.pornhub.com/information/terms',
-    accessTimestamp: '2025-06-06T00:00:00Z',
-    notes:
-      "The foundational legal agreement. It prohibits illegal content, requires all uploaders to be verified, and contains the platform's DMCA/copyright policy.",
-  },
-  {
-    reference: 'PH-PP',
-    title: 'Pornhub Privacy Policy',
-    url: 'https://www.pornhub.com/information/privacy',
-    accessTimestamp: '2025-06-06T00:00:00Z',
-    notes:
-      'Outlines data collection practices, including the personal information required for the mandatory Uploader Verification System. Relevant to doxing and privacy violations.',
-  },
-  {
-    reference: 'PH-CONTENT-POLICY',
-    title: 'Pornhub Trust and Safety Policy',
-    url: 'https://www.pornhub.com/information/trust-and-safety',
-    accessTimestamp: '2025-06-06T00:00:00Z',
-    notes:
-      "Details the platform's core safety measures, including its zero-tolerance policy for illegal content, the Uploader Verification System, and the process for content removal.",
-  },
-  {
-    reference: 'TAKE-IT-DOWN-ACT-2025',
-    title: 'TAKE IT DOWN Act of 2025',
-    url: 'https://www.congress.gov/bill/118th-congress/house-bill/7891',
-    accessTimestamp: '2025-06-06T00:00:00Z',
-    notes:
-      'A U.S. federal law signed on May 19, 2025. It legally mandates that platforms like Pornhub remove non-consensual intimate imagery (NCII), including AI-generated deepfakes, within 48 hours of a valid report.',
-  },
-];
-
-const contentTypes: ContentType[] = [
-  {
-    type: 'intimate',
-    label: 'Intimate images',
-    description:
-      'Photos or videos of a private or sexual nature. On Pornhub, this violation can simultaneously breach rules on consent, copyright, privacy, and AI.',
-    policies: [
+    "id": "ph-terms-of-service",
+    "reference": "PH-TOS",
+    "title": "Pornhub Terms of Service",
+    "summary": "Legal terms governing the use of Pornhub, including content ownership, security responsibilities, and prohibited behavior.",
+    "url": "https://www.pornhub.com/information/terms",
+    "accessTimestamp": "2025-09-25T00:27:39.832Z",
+    "policies": [
       {
-        reference: 'PH-POLICY-NCSII',
-        policy:
-          'Maintains a zero-tolerance policy for non-consensual content. Provides a dedicated Content Removal Request Form for anyone to request the removal of content depicting them for any reason.',
-        documents: [legalDocuments[0], legalDocuments[2], legalDocuments[3]], // PH-TOS, PH-CONTENT-POLICY, TAKE-IT-DOWN-ACT-2025
-        removalCriteria: [
-          'Content is identified as non-consensual.',
-          'A person depicted in the content requests its removal via the official form.',
-          'The uploader cannot provide proof of consent for all depicted individuals.',
+        "id": "ph-tos-ncii",
+        "reference": "Non-Consensual Content Policy",
+        "summary": "Prohibits non-consensual content including revenge porn, blackmail, and intimidation",
+        "quote": "the Website does not permit any form of revenge porn, blackmail, or intimidation, and such violations may also be reported using the content removal link herein.",
+        "contentTypes": [
+          "intimate",
+          "personal"
         ],
-        evidenceRequirements: [
-          'URL(s) of the infringing content.',
-          "Use the dedicated 'Content Removal Request Form' available on the site.",
-          'Provide information to identify yourself as the person in the video or as an authorized representative.',
+        "contentContexts": [
+          "relationship",
+          "hacked",
+          "unknown",
+          "other"
         ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Content constitutes revenge porn",
+          "Content involves blackmail",
+          "Content involves intimidation"
+        ]
       },
       {
-        reference: 'PH-TOS-COPYRIGHT',
-        policy:
-          "Prohibits copyright infringement. If an intimate video is stolen from another creator or posted without the owner's permission, it can be removed via a DMCA notice.",
-        documents: [legalDocuments[0]], // PH-TOS
-        removalCriteria: [
-          "Content is an original work posted without the copyright owner's permission.",
+        "id": "ph-tos-prohibited-ncii-detailed",
+        "reference": "Prohibited Uses and Reporting",
+        "summary": "Prohibits posting content depicting non-consensual activity, revenge porn, blackmail, and intimidation",
+        "quote": "post any Content depicting underage sexual activity, non-consensual sexual activity, revenge porn, blackmail, intimidation, snuff, torture, death, violence, incest, racial slurs, or hate speech, (either orally or via the written word)",
+        "contentTypes": [
+          "intimate",
+          "personal"
         ],
-        evidenceRequirements: [
-          'A formal DMCA Takedown Notice submitted through the process outlined on the site.',
-          'Proof of original ownership of the content.',
-          'URL(s) of the infringing content.',
+        "contentContexts": [
+          "relationship",
+          "hacked",
+          "unknown",
+          "other"
         ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Content depicts non-consensual activity",
+          "Content constitutes revenge porn",
+          "Content involves blackmail",
+          "Content involves intimidation"
+        ]
       },
       {
-        reference: 'PH-POLICY-AI',
-        policy:
-          "Prohibits AI-generated 'deepfake' videos that impersonate real individuals without their explicit, documented consent.",
-        documents: [legalDocuments[0], legalDocuments[2]], // PH-TOS, PH-CONTENT-POLICY
-        removalCriteria: [
-          'Content is an AI-generated deepfake of an identifiable real person.',
-          'The depicted person has not provided explicit consent for the creation and distribution of the content.',
+        "id": "ph-tos-impersonation",
+        "reference": "Prohibited Uses and Reporting",
+        "summary": "Prohibits content that impersonates another person or misrepresents affiliation",
+        "quote": "post any Content which impersonates another person or falsely states or otherwise misrepresents your affiliation with a person",
+        "contentTypes": [
+          "intimate",
+          "personal",
+          "private"
         ],
-        evidenceRequirements: [
-          'URL(s) of the content.',
-          'Evidence that the content is a deepfake and that the person depicted did not consent.',
-          'Reporting is done through the Content Removal Request Form.',
+        "contentContexts": [
+          "impersonation"
         ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Content impersonates another person",
+          "Content falsely represents affiliation with a person"
+        ]
       },
       {
-        reference: 'PH-TOS-PRIVACY',
-        policy:
-          'Prohibits the violation of privacy. Sharing intimate content without consent is a severe privacy violation.',
-        documents: [legalDocuments[0], legalDocuments[1]], // PH-TOS, PH-PP
-        removalCriteria: [
-          'Content consists of private media shared without consent.',
-          'The sharing violates a reasonable expectation of privacy.',
+        "id": "ph-tos-harassment",
+        "reference": "Prohibited Uses and Reporting",
+        "summary": "Prohibits conduct that is harmful, threatening, abusive, harassing, stalking, or invasive of privacy",
+        "quote": "act in a manner that negatively affects other Users' ability to use this Website, including without limitation by engaging in conduct that is harmful, threatening, abusive, inflammatory, intimidating, violent or encouraging of violence to people or animals, harassing, stalking, invasive of another's privacy, or racially, ethnically, or otherwise objectionable",
+        "contentTypes": [
+          "intimate",
+          "personal",
+          "private",
+          "other"
         ],
-        evidenceRequirements: [
-          'URL(s) of the content.',
-          'Description of the privacy violation submitted via the Content Removal Request Form.',
+        "contentContexts": [
+          "relationship",
+          "hacked",
+          "unknown",
+          "other"
         ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Conduct is harmful or threatening",
+          "Conduct is abusive or harassing",
+          "Conduct involves stalking",
+          "Conduct is invasive of privacy"
+        ]
       },
+      {
+        "id": "ph-tos-copyright-infringement",
+        "reference": "Copyright and Other Intellectual Property",
+        "summary": "Prohibits posting copyrighted materials without permission and provides DMCA takedown process",
+        "quote": "post any Content containing copyrighted materials, or materials protected by other intellectual property laws, that you do not own or for which you have not obtained all necessary written permissions and releases",
+        "contentTypes": [
+          "intimate",
+          "personal",
+          "other"
+        ],
+        "contentContexts": [
+          "relationship",
+          "hacked",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [
+          {
+            "description": "DMCA notice following copyright policy requirements",
+            "example": "Formal copyright infringement notice as specified in DMCA policy",
+            "reason": "Required to establish copyright ownership and infringement claim"
+          }
+        ],
+        "removalCriteria": [
+          "Content contains copyrighted materials owned by complainant",
+          "Uploader lacks permission to use copyrighted materials"
+        ]
+      },
+      {
+        "id": "ph-tos-personal-data-collection",
+        "reference": "Prohibited Uses and Reporting",
+        "summary": "Prohibits collecting or storing personal data about anyone",
+        "quote": "collect or store personal data about anyone",
+        "contentTypes": [
+          "private"
+        ],
+        "contentContexts": [
+          "hacked",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Content involves collection of personal data",
+          "Content involves storage of personal data"
+        ]
+      },
+      {
+        "id": "ph-tos-content-removal-reporting",
+        "reference": "Prohibited Uses and Reporting",
+        "summary": "Provides mechanism for reporting content that violates laws, third party rights, or terms of service",
+        "quote": "If you see any Content you suspect violates applicable law, third party rights, or these Terms of Service, please report such Content to us, using the electronic form available at https://pornhub.com/content-removal, or the \"Report\" button available below each piece of content.",
+        "contentTypes": [
+          "intimate",
+          "personal",
+          "private",
+          "other"
+        ],
+        "contentContexts": [
+          "relationship",
+          "hacked",
+          "impersonation",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [
+          {
+            "description": "Report submitted via content removal form or report button",
+            "example": "Electronic form at https://pornhub.com/content-removal",
+            "reason": "Required to initiate content review and removal process"
+          }
+        ],
+        "removalCriteria": [
+          "Content violates applicable law",
+          "Content violates third party rights",
+          "Content violates terms of service"
+        ]
+      },
+      {
+        "id": "ph-tos-consent-requirements",
+        "reference": "Rules Applicable to All Content and Uploaders",
+        "summary": "Requires consent and release for every individual appearing in uploaded content",
+        "quote": "you have obtained the consent and release for every individual appearing in your Content, including the right for you to use and upload the Content on this Website",
+        "contentTypes": [
+          "intimate",
+          "personal"
+        ],
+        "contentContexts": [
+          "relationship",
+          "hacked",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Uploader lacks consent from individuals appearing in content",
+          "Uploader lacks release from individuals appearing in content"
+        ]
+      }
     ],
+    "appealProcess": null
   },
   {
-    type: 'personal',
-    label: 'Personal content for harassment',
-    description:
-      'Non-intimate content is not a primary use case, but harassment in comments and messages is prohibited.',
-    policies: [
+    "id": "ph-privacy-policy",
+    "reference": "PH-PP",
+    "title": "Pornhub Privacy Policy",
+    "summary": "Privacy policy explaining how Pornhub collects, uses, and protects user data.",
+    "url": "https://www.pornhub.com/information/privacy",
+    "accessTimestamp": "2025-09-25T00:27:39.832Z",
+    "policies": [
       {
-        reference: 'PH-TOS-HARASSMENT',
-        policy:
-          'Prohibits harassment, threats, and hate speech in comments and other interactions on the platform.',
-        documents: [legalDocuments[0]], // PH-TOS
-        removalCriteria: [
-          'Comments or messages contain targeted harassment, abuse, or threats.',
-          'Content promotes hate speech against protected groups.',
+        "id": "ph-pp-content-removal",
+        "reference": "Section 6 - Disclosure of Your Personal Information",
+        "summary": "Prohibits posting of personal information without consent and provides mechanisms for content removal",
+        "quote": "We may disclose all categories of personal information we process to a buyer or other successor in the event of a merger, acquisition or sale or transfer of some or all our assets, whether as a going concern or as part of bankruptcy, liquidation, or similar proceeding. Such transactions may be in our legitimate interest, particularly our interest in making decisions that enable our business to develop.",
+        "contentTypes": [
+          "private",
+          "personal",
+          "other"
         ],
-        evidenceRequirements: [
-          'URL(s) of the video where comments appear or the user profile sending messages.',
-          'Screenshots of the harassing comments or messages.',
-          'Use the reporting flag available on all videos and comments.',
+        "contentContexts": [
+          "other",
+          "unknown"
         ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": []
       },
+      {
+        "id": "ph-pp-user-contributions-public",
+        "reference": "Section 2 - The Data We Process About You",
+        "summary": "Warns users that content they post becomes publicly available and can be accessed by others",
+        "quote": "Please use caution in providing user contributions. By providing user contributions you are making that content and information publicly available. User contributions can be read, collected, used, and disclosed by others, and we cannot control who accesses your user contributions or what other users may do with the information you voluntarily post or submit.",
+        "contentTypes": [
+          "intimate",
+          "personal",
+          "private",
+          "other"
+        ],
+        "contentContexts": [
+          "other",
+          "unknown"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": []
+      },
+      {
+        "id": "ph-pp-account-deletion",
+        "reference": "Section 8 - Your Choices About How We Collect, Use and Disclose Your Personal Information",
+        "summary": "Allows users to delete their accounts and associated content at any time",
+        "quote": "You may also delete and deactivate your account with us at any time unless we are not allowed to do so by law or by a court order. If you do so, your profile will no longer be accessible by you. If you later choose to have an account with us, you will have to sign up for a new account as none of the information you previously provided or saved within your account will have been saved.",
+        "contentTypes": [
+          "intimate",
+          "personal",
+          "private",
+          "other"
+        ],
+        "contentContexts": [
+          "other",
+          "unknown"
+        ],
+        "timeframes": {
+          "response": null,
+          "removal": {
+            "value": null,
+            "unit": "immediate",
+            "description": "Account deletion available at any time"
+          }
+        },
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "User requests account deletion",
+          "Unless prohibited by law or court order"
+        ]
+      },
+      {
+        "id": "ph-pp-user-content-deletion",
+        "reference": "Section 8 - Your Choices About How We Collect, Use and Disclose Your Personal Information",
+        "summary": "Allows users to delete their uploaded content and audio/video information through account settings",
+        "quote": "You may use your account settings to delete your user contributions and audio/video information.",
+        "contentTypes": [
+          "intimate",
+          "personal",
+          "other"
+        ],
+        "contentContexts": [
+          "other",
+          "unknown"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "User requests deletion through account settings"
+        ]
+      },
+      {
+        "id": "ph-pp-data-deletion-rights",
+        "reference": "Section 18 - Your Rights Related to Your Personal Information",
+        "summary": "Provides users with the right to request deletion of their personal data",
+        "quote": "Right to be forgotten: you have the right to delete/erase your personal data",
+        "contentTypes": [
+          "intimate",
+          "personal",
+          "private",
+          "other"
+        ],
+        "contentContexts": [
+          "other",
+          "unknown"
+        ],
+        "timeframes": {
+          "response": {
+            "value": 1,
+            "unit": "months",
+            "description": "Response time for data deletion requests"
+          },
+          "removal": null
+        },
+        "evidenceRequirements": [
+          {
+            "description": "Identity verification required for data deletion requests",
+            "example": "Username and email address used to create account",
+            "reason": "To verify identity and locate information in systems"
+          }
+        ],
+        "removalCriteria": [
+          "Valid data deletion request",
+          "Identity verification completed"
+        ]
+      },
+      {
+        "id": "ph-pp-biometric-consent-withdrawal",
+        "reference": "Section 11 - Biometric Information",
+        "summary": "Allows users to withdraw consent for biometric information processing at any time",
+        "quote": "You will be asked to provide your consent to biometric information processing which you may withdraw at any time. Withdrawing your consent will not affect the lawfulness of any collection, use, processing, or disclosure that occurred prior to the withdrawal.",
+        "contentTypes": [
+          "private",
+          "other"
+        ],
+        "contentContexts": [
+          "other",
+          "unknown"
+        ],
+        "timeframes": {
+          "response": null,
+          "removal": {
+            "value": null,
+            "unit": "immediate",
+            "description": "Consent can be withdrawn at any time"
+          }
+        },
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "User withdraws consent for biometric processing"
+        ]
+      }
     ],
+    "appealProcess": null
   },
   {
-    type: 'private',
-    label: 'Private information (Doxing)',
-    description:
-      'Sharing personal documents or identifying details in video titles, descriptions, or comments. This is a form of harassment.',
-    policies: [
-      {
-        reference: 'PH-TOS-PRIVACY',
-        policy:
-          'Prohibits the violation of privacy, including the unauthorized publication of personally identifiable information (doxing).',
-        documents: [legalDocuments[0], legalDocuments[1]], // PH-TOS, PH-PP
-        removalCriteria: [
-          'Content (video, comments, etc.) reveals private information without consent.',
-          'The information poses a privacy or security risk to an individual.',
-        ],
-        evidenceRequirements: [
-          'URL(s) of the content containing private information.',
-          'Description of the private information exposed.',
-          'Reporting is done through the standard content removal process or flagging.',
-        ],
-      },
-      {
-        reference: 'PH-TOS-HARASSMENT',
-        policy:
-          'Prohibits harassment. Doxing is considered a form of harassment intended to intimidate and endanger.',
-        documents: [legalDocuments[0]], // PH-TOS
-        removalCriteria: [
-          'Private information is shared with the clear intent to incite harassment or cause fear.',
-        ],
-        evidenceRequirements: [
-          'URL(s) of the content.',
-          'Description of how the doxing is being used to harass or threaten.',
-        ],
-      },
-    ],
-  },
-];
-
-const contentContexts: ContentContext[] = [
-  {
-    context: 'hacked',
-    label: 'Account was compromised',
-    description:
-      'Content was accessed or posted without authorization. The primary goal is account recovery, followed by removal of any content posted by the unauthorized user.',
-    policies: [
-      {
-        reference: 'PH-TOS-SECURITY',
-        policy:
-          'Users are responsible for their account security. If an account is compromised, the user should contact support immediately to secure the account and report unauthorized activity.',
-        documents: [legalDocuments[0]], // PH-TOS
-        removalCriteria: [
-          'Evidence of unauthorized access or activity.',
-          'The account is being used to upload content that violates platform policies.',
-          'The legitimate owner is locked out of their account.',
-        ],
-        evidenceRequirements: [
-          'Contact Pornhub support with the account username and email.',
-          'Provide a description of the unauthorized activity.',
-          'Evidence of account ownership may be required for recovery.',
-        ],
-      },
-      {
-        reference: 'PH-TOS-CONTENT',
-        policy:
-          'All content, even that posted by an unauthorized user, must adhere to the Terms of Service and will be removed if it is found to be in violation.',
-        documents: [legalDocuments[0]], // PH-TOS
-        removalCriteria: [
-          'Content posted from the compromised account violates any rule (e.g., non-consensual, copyright infringement).',
-        ],
-        evidenceRequirements: [
-          'After recovering the account, report any violating content through the standard reporting channels (Content Removal Form, DMCA notice).',
-          'URL(s) of the content.',
-        ],
-      },
-    ],
+    "id": "ph-trust-and-safety",
+    "reference": "PH-CONTENT-POLICY",
+    "title": "Pornhub Trust and Safety Policy",
+    "summary": "Comprehensive policy covering content moderation, verification requirements, and safety measures.",
+    "url": "https://www.pornhub.com/information/trust-and-safety",
+    "accessTimestamp": "2025-09-25T00:27:39.832Z",
+    "policies": [],
+    "appealProcess": null
   },
   {
-    context: 'impersonation',
-    label: 'Someone is impersonating me',
-    description:
-      'An account is pretending to be you or another entity. This is a severe violation that often overlaps with copyright infringement and non-consensual content.',
-    policies: [
+    "id": "us-take-it-down-act",
+    "reference": "S.146",
+    "title": "TAKE IT DOWN Act",
+    "summary": "US federal law prohibiting nonconsensual intimate visual depictions of individuals, both authentic and computer-generated, requiring platforms to implement notice-and-removal processes within 48 hours. Signed into law May 19, 2025.",
+    "url": "https://www.congress.gov/bill/119th-congress/senate-bill/146/text",
+    "accessTimestamp": "2025-09-25T00:27:39.832Z",
+    "policies": [
       {
-        reference: 'PH-POLICY-IMPERSONATION',
-        policy:
-          'Prohibits impersonation. This is primarily enforced through the mandatory Uploader Verification System, which requires all uploaders to prove their identity.',
-        documents: [legalDocuments[0], legalDocuments[2]], // PH-TOS, PH-CONTENT-POLICY
-        removalCriteria: [
-          'An account is found to be impersonating a real person.',
-          'An uploader is found to have used fraudulent documents during verification.',
-          'An account is proven to be operated by someone other than the verified individual.',
+        "id": "take-it-down-authentic-adults",
+        "reference": "Section 2(h)(2)(A)",
+        "summary": "Prohibits knowingly publishing authentic intimate visual depictions of adults without consent when obtained under circumstances with reasonable expectation of privacy, not voluntarily exposed publicly, not matter of public concern, and intended to cause or causing harm",
+        "quote": "it shall be unlawful for any person, in interstate or foreign commerce, to use an interactive computer service to knowingly publish an intimate visual depiction of an identifiable individual who is not a minor if— (i) the intimate visual depiction was obtained or created under circumstances in which the person knew or reasonably should have known the identifiable individual had a reasonable expectation of privacy; (ii) what is depicted was not voluntarily exposed by the identifiable individual in a public or commercial setting; (iii) what is depicted is not a matter of public concern; and (iv) publication of the intimate visual depiction— (I) is intended to cause harm; or (II) causes harm, including psychological, financial, or reputational harm, to the identifiable individual.",
+        "contentTypes": [
+          "intimate"
         ],
-        evidenceRequirements: [
-          'All uploaders must be verified with government-issued ID.',
-          'To report impersonation, use the Content Removal Request Form.',
-          'Provide the URL of the impersonating content/profile and evidence of your own identity.',
+        "contentContexts": [
+          "hacked",
+          "relationship",
+          "unknown",
+          "other"
         ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Intimate visual depiction was obtained or created under circumstances with reasonable expectation of privacy",
+          "Content was not voluntarily exposed by the individual in a public or commercial setting",
+          "Content is not a matter of public concern",
+          "Publication is intended to cause harm or causes psychological, financial, or reputational harm"
+        ]
       },
       {
-        reference: 'PH-TOS-COPYRIGHT',
-        policy:
-          "Prohibits copyright infringement. Impersonation on Pornhub most often involves creating a fake account to upload another creator's stolen videos.",
-        documents: [legalDocuments[0]], // PH-TOS
-        removalCriteria: [
-          'The impersonating account is posting content to which you own the copyright.',
+        "id": "take-it-down-authentic-minors",
+        "reference": "Section 2(h)(2)(B)",
+        "summary": "Prohibits knowingly publishing authentic intimate visual depictions of minors with intent to abuse, humiliate, harass, degrade, or arouse sexual desire",
+        "quote": "it shall be unlawful for any person, in interstate or foreign commerce, to use an interactive computer service to knowingly publish an intimate visual depiction of an identifiable individual who is a minor with intent to— (i) abuse, humiliate, harass, or degrade the minor; or (ii) arouse or gratify the sexual desire of any person.",
+        "contentTypes": [
+          "intimate"
         ],
-        evidenceRequirements: [
-          'File a formal DMCA Takedown Notice through the process outlined on the site.',
-          'Proof of original ownership of the content.',
-          "URL(s) of the infringing content on the impersonator's page.",
+        "contentContexts": [
+          "hacked",
+          "relationship",
+          "unknown",
+          "other"
         ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Content depicts an identifiable individual who is a minor",
+          "Publication is intended to abuse, humiliate, harass, or degrade the minor",
+          "Publication is intended to arouse or gratify sexual desire"
+        ]
       },
       {
-        reference: 'PH-POLICY-NCSII',
-        policy:
-          'Prohibits non-consensual content. An impersonating account could be used to upload NCII of the person being impersonated.',
-        documents: [legalDocuments[0], legalDocuments[2], legalDocuments[3]], // PH-TOS, PH-CONTENT-POLICY, TAKE-IT-DOWN-ACT-2025
-        removalCriteria: [
-          'The impersonating account has posted intimate content of you without your consent.',
+        "id": "take-it-down-deepfake-adults",
+        "reference": "Section 2(h)(3)(A)",
+        "summary": "Prohibits knowingly publishing digital forgeries (deepfakes) of adults without consent when not voluntarily exposed publicly, not matter of public concern, and intended to cause or causing harm",
+        "quote": "it shall be unlawful for any person, in interstate or foreign commerce, to use an interactive computer service to knowingly publish a digital forgery of an identifiable individual who is not a minor if— (i) the digital forgery was published without the consent of the identifiable individual; (ii) what is depicted was not voluntarily exposed by the identifiable individual in a public or commercial setting; (iii) what is depicted is not a matter of public concern; and (iv) publication of the digital forgery— (I) is intended to cause harm; or (II) causes harm, including psychological, financial, or reputational harm, to the identifiable individual.",
+        "contentTypes": [
+          "intimate"
         ],
-        evidenceRequirements: [
-          'Use the Content Removal Request Form.',
-          'Provide the URL(s) of the content and evidence of your identity.',
+        "contentContexts": [
+          "hacked",
+          "impersonation",
+          "relationship",
+          "unknown",
+          "other"
         ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Content is a digital forgery published without consent of the identifiable individual",
+          "Content was not voluntarily exposed by the individual in a public or commercial setting",
+          "Content is not a matter of public concern",
+          "Publication is intended to cause harm or causes psychological, financial, or reputational harm"
+        ]
       },
+      {
+        "id": "take-it-down-deepfake-minors",
+        "reference": "Section 2(h)(3)(B)",
+        "summary": "Prohibits knowingly publishing digital forgeries (deepfakes) of minors with intent to abuse, humiliate, harass, degrade, or arouse sexual desire",
+        "quote": "it shall be unlawful for any person, in interstate or foreign commerce, to use an interactive computer service to knowingly publish a digital forgery of an identifiable individual who is a minor with intent to— (i) abuse, humiliate, harass, or degrade the minor; or (ii) arouse or gratify the sexual desire of any person.",
+        "contentTypes": [
+          "intimate"
+        ],
+        "contentContexts": [
+          "hacked",
+          "impersonation",
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Content is a digital forgery of an identifiable individual who is a minor",
+          "Publication is intended to abuse, humiliate, harass, or degrade the minor",
+          "Publication is intended to arouse or gratify sexual desire"
+        ]
+      },
+      {
+        "id": "take-it-down-platform-removal",
+        "reference": "Section 3(a)(3)",
+        "summary": "Requires covered platforms to remove nonconsensual intimate visual depictions within 48 hours of receiving a valid removal request and make reasonable efforts to remove identical copies",
+        "quote": "Upon receiving a valid removal request from an identifiable individual (or an authorized person acting on behalf of such individual) using the process described in paragraph (1)(A)(ii), a covered platform shall, as soon as possible, but not later than 48 hours after receiving such request— (A) remove the intimate visual depiction; and (B) make reasonable efforts to identify and remove any known identical copies of such depiction.",
+        "contentTypes": [
+          "intimate"
+        ],
+        "contentContexts": [
+          "hacked",
+          "impersonation",
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": {
+          "response": null,
+          "removal": {
+            "value": 48,
+            "unit": "hours",
+            "description": "Platform must remove content as soon as possible, but not later than 48 hours after receiving valid removal request"
+          }
+        },
+        "evidenceRequirements": [
+          {
+            "description": "Physical or electronic signature of the identifiable individual or authorized person",
+            "example": "Digital signature or scanned signature",
+            "reason": "To verify identity and authorization for removal request"
+          },
+          {
+            "description": "Identification and information reasonably sufficient to locate the intimate visual depiction",
+            "example": "URL, screenshot, or detailed description of content location",
+            "reason": "To enable platform to locate and identify the specific content for removal"
+          },
+          {
+            "description": "Brief statement of good faith belief that content is nonconsensual",
+            "example": "Statement explaining why the content was published without consent",
+            "reason": "To establish that the content violates platform policies regarding consent"
+          },
+          {
+            "description": "Contact information sufficient to enable platform communication",
+            "example": "Email address, phone number, or mailing address",
+            "reason": "To allow platform to communicate regarding the removal request"
+          }
+        ],
+        "removalCriteria": [
+          "Content is an intimate visual depiction of the requesting individual",
+          "Content was published without the consent of the identifiable individual",
+          "Valid removal request submitted through established process"
+        ]
+      },
+      {
+        "id": "take-it-down-threats-authentic",
+        "reference": "Section 2(h)(6)(A)",
+        "summary": "Prohibits intentionally threatening to commit offenses involving authentic intimate visual depictions for purposes of intimidation, coercion, extortion, or creating mental distress",
+        "quote": "Any person who intentionally threatens to commit an offense under paragraph (2) for the purpose of intimidation, coercion, extortion, or to create mental distress shall be punished as provided in paragraph (4).",
+        "contentTypes": [
+          "intimate",
+          "other"
+        ],
+        "contentContexts": [
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Content constitutes an intentional threat to publish authentic intimate visual depictions",
+          "Threat is made for purposes of intimidation, coercion, extortion, or creating mental distress"
+        ]
+      },
+      {
+        "id": "take-it-down-threats-deepfake",
+        "reference": "Section 2(h)(6)(B)",
+        "summary": "Prohibits intentionally threatening to commit offenses involving digital forgeries (deepfakes) for purposes of intimidation, coercion, extortion, or creating mental distress",
+        "quote": "Any person who intentionally threatens to commit an offense under paragraph (3)(A) for the purpose of intimidation, coercion, extortion, or to create mental distress shall be fined under title 18, United States Code, imprisoned not more than 18 months, or both. Any person who intentionally threatens to commit an offense under paragraph (3)(B) for the purpose of intimidation, coercion, extortion, or to create mental distress shall be fined under title 18, United States Code, imprisoned not more than 30 months, or both.",
+        "contentTypes": [
+          "intimate",
+          "other"
+        ],
+        "contentContexts": [
+          "impersonation",
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Content constitutes an intentional threat to publish digital forgeries",
+          "Threat is made for purposes of intimidation, coercion, extortion, or creating mental distress"
+        ]
+      }
     ],
+    "appealProcess": null
   },
-];
-
-const generalPolicies = [
   {
-    reference: 'PH-TOS-CONTENT',
-    policy:
-      'All content uploaded must be owned by the verified uploader or they must have explicit, documented rights from the copyright holder. Re-uploading content from other creators is prohibited.',
-    documents: [legalDocuments[0]], // PH-TOS
-    removalCriteria: [
-      "Content violates Pornhub's Terms of Service.",
-      "Content infringes on another person's copyright (DMCA).",
+    "id": "pornhub-new-1758760059832-0",
+    "reference": "PH-NCII-POLICY",
+    "title": "Pornhub Non-Consensual Content Policy",
+    "summary": "Dedicated policy document specifically addressing non-consensual intimate imagery, including detection technologies, reporting processes, and enforcement measures.",
+    "url": "https://help.porn-hub.website/hc/en-us/articles/4419871787027-Non-Consensual-Content-Policy",
+    "accessTimestamp": "2025-09-25T00:27:39.832Z",
+    "policies": [
+      {
+        "id": "ph-ncii-consent-requirement",
+        "reference": "Non-Consensual Content Policy",
+        "summary": "Requires all uploaders to obtain and maintain valid consent and proper release documentation for all persons featured in uploaded content",
+        "quote": "We require all uploaders to affirm they have obtained and maintain valid consent and proper release documentation for all persons featured in all content uploaded to the platform.",
+        "contentTypes": [
+          "intimate",
+          "personal"
+        ],
+        "contentContexts": [
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Content uploaded without valid consent from all persons featured",
+          "Lack of proper release documentation for persons in content"
+        ]
+      },
+      {
+        "id": "ph-ncii-intimate-images",
+        "reference": "Non-Consensual Content Policy",
+        "summary": "Strictly prohibits the recording or distribution of intimate images without consent",
+        "quote": "The recording or distribution of intimate images (that is, photos and videos that are generally understood to depict explicit sexual activity or nudity or partial nudity) without someone's consent is a violation of that person's privacy and is a severe violation of our Terms of Service, and is strictly prohibited.",
+        "contentTypes": [
+          "intimate"
+        ],
+        "contentContexts": [
+          "hacked",
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Intimate images recorded without consent",
+          "Intimate images distributed without consent"
+        ]
+      },
+      {
+        "id": "ph-ncii-hidden-camera",
+        "reference": "Non-Consensual Content Policy - Guidelines",
+        "summary": "Prohibits videos or photos of any person taken without valid written consent, including hidden camera content",
+        "quote": "Videos or photos of any person, whether in a public or private setting, without that person's valid written consent (such as hidden/spy camera content, or up-skirt content);",
+        "contentTypes": [
+          "intimate",
+          "personal"
+        ],
+        "contentContexts": [
+          "hacked",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Content taken without valid written consent",
+          "Hidden or spy camera content",
+          "Voyeuristic content"
+        ]
+      },
+      {
+        "id": "ph-ncii-revenge-sharing",
+        "reference": "Non-Consensual Content Policy - Guidelines",
+        "summary": "Prohibits sharing explicit sexual images of someone without their valid written consent, including revenge sharing",
+        "quote": "Sharing explicit sexual images of someone else without their valid written consent (this would include, namely: non-consensual distribution of intimate images, also commonly referred to as \"revenge porn\");",
+        "contentTypes": [
+          "intimate"
+        ],
+        "contentContexts": [
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Sharing explicit sexual images without valid written consent",
+          "Non-consensual distribution of intimate images"
+        ]
+      },
+      {
+        "id": "ph-ncii-non-sexual-images",
+        "reference": "Non-Consensual Content Policy - Guidelines",
+        "summary": "Prohibits sharing non-sexually explicit images of someone without their valid written consent",
+        "quote": "Sharing non-sexually explicit images of someone else without their valid written consent;",
+        "contentTypes": [
+          "personal"
+        ],
+        "contentContexts": [
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Sharing non-sexually explicit images without valid written consent"
+        ]
+      },
+      {
+        "id": "ph-ncii-doxing",
+        "reference": "Non-Consensual Content Policy - Guidelines",
+        "summary": "Prohibits doxing, defined as exposing private and identifying information about individuals",
+        "quote": "\"Doxing\", defined as exposing private and identifying information about a particular individual, including phone number, e-mail, address, or full name.",
+        "contentTypes": [
+          "private"
+        ],
+        "contentContexts": [
+          "hacked",
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Exposing private identifying information",
+          "Publishing phone numbers, email addresses, or home addresses",
+          "Revealing full names without consent"
+        ]
+      },
+      {
+        "id": "ph-ncii-deepfakes",
+        "reference": "Non-Consensual Content Policy - Guidelines",
+        "summary": "Prohibits any deepfakes or AI-generated manipulations of a person's image to deceive viewers",
+        "quote": "Any \"deepfakes\" whatsoever (AI-generated, modified, or other manipulations of a person's image, whether in picture or video, to deceive or mislead the viewer into believing that person is acting or speaking in the way presented).",
+        "contentTypes": [
+          "intimate",
+          "personal"
+        ],
+        "contentContexts": [
+          "impersonation",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "AI-generated manipulations of person's image",
+          "Modified images or videos designed to deceive",
+          "Content that misleads viewers about a person's actions or speech"
+        ]
+      },
+      {
+        "id": "ph-ncii-non-consensual-acts",
+        "reference": "Non-Consensual Content Policy - Guidelines",
+        "summary": "Prohibits content featuring or promoting non-consensual acts, whether real or simulated",
+        "quote": "Content featuring or promoting non-consensual acts, real or simulated, is also prohibited.",
+        "contentTypes": [
+          "intimate"
+        ],
+        "contentContexts": [
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Content featuring non-consensual acts",
+          "Content promoting non-consensual acts",
+          "Simulated non-consensual content"
+        ]
+      },
+      {
+        "id": "ph-ncii-intoxicated-content",
+        "reference": "Non-Consensual Content Policy - Guidelines",
+        "summary": "Prohibits content depicting persons appearing drugged, incapacitated, or intoxicated involved in sexual acts",
+        "quote": "Persons appearing drugged, incapacitated, or intoxicated involved in sexual acts;",
+        "contentTypes": [
+          "intimate"
+        ],
+        "contentContexts": [
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Content showing persons appearing drugged in sexual situations",
+          "Content showing incapacitated persons in sexual acts",
+          "Content showing intoxicated persons in sexual situations"
+        ]
+      }
     ],
-    evidenceRequirements: [
-      'URL(s) of the infringing content.',
-      'For copyright claims, file a formal DMCA Takedown Notice through the process outlined on the site.',
-      'Evidence of original ownership of the content.',
-    ],
-  },
-];
-
-export const pornhubPolicy: PlatformPolicy = {
-  name: 'Pornhub',
-  legalDocuments,
-  contentTypes,
-  contentContexts,
-  generalPolicies,
-  timeframes: {
-    response:
-      'Varies. The platform aims to review reports from its dedicated removal form within 24-48 hours.',
-    removal:
-      'For NCII, removal is mandated within 48 hours of a valid request under the TAKE IT DOWN Act. For other confirmed violations, removal typically occurs promptly after review.',
-  },
-  appealProcess: [
-    'If content is removed or an account is terminated, a notification is typically sent via email.',
-    'Uploaders can appeal a decision by contacting support and providing the content URL and a reason for the appeal.',
-    'The appeal is reviewed by the Trust and Safety team.',
-    'The final decision is communicated back to the user via email.',
-  ],
+    "appealProcess": null
+  }
+],
 };

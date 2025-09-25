@@ -36,8 +36,7 @@ export function DisclaimerBanner() {
         <div className="text-sm">
           <p className="text-foreground font-medium mb-1">This tool is still in development</p>
           <p className="text-muted-foreground">
-            It's safe to use, but if you encounter anything confusing or that doesn't work as
-            expected, please{' '}
+            If you encounter anything confusing or that doesn't work as expected, please{' '}
             <Link
               href={process.env.TYPEFORM_FEEDBACK_URL || '#'}
               target="_blank"

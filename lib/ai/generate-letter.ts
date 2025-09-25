@@ -1,6 +1,7 @@
 import { GeneratedLetter, LetterRequest } from '@/types/letter';
 import { MAX_RETRIES, RETRY_DELAY, STATIC_NEXT_STEPS } from '../constants/ai';
-import { QualityCheckResponse } from '../prompts/quality-check';
+import { PlatformId } from '../constants/platforms';
+import { QualityCheckResponse } from '../prompts/letter-quality-check';
 import { serverInstance as rollbar } from '../rollbar';
 import { retryWithDelay } from '../utils';
 import { cleanupSanitizationMap, desanitizeLetter, sanitizeFormData } from './sanitization';
@@ -20,15 +21,21 @@ export async function generateLetter(formData: LetterRequest): Promise<Generated
       // Sanitize the form data before sending to AI
       const sanitizedData = sanitizeFormData(formData);
 
+      // Determine if this is a custom/other platform
+      const isOtherPlatform = sanitizedData.platformInfo.isCustom || 
+                             sanitizedData.platformInfo.platformId === PlatformId.OTHER;
       rollbar.info('Generating letter', {
         attempt: attempts,
-        platform: sanitizedData.platformInfo.name,
+        platform: sanitizedData.platformInfo.platformName || sanitizedData.platformInfo.customName,
+        isOtherPlatform,
         hasReportingDetails: !!sanitizedData.reportingDetails,
         hasFollowUp: !!sanitizedData.followUp,
       });
 
       const response: { subject: string; body: string } = await retryWithDelay(async () => {
-        const res = await fetch('/api/generate-letter', {
+        const endpoint = isOtherPlatform ? '/api/generate-letter-other-platform' : '/api/generate-letter';
+        
+        const res = await fetch(endpoint, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(sanitizedData),
@@ -71,12 +78,12 @@ export async function generateLetter(formData: LetterRequest): Promise<Generated
           body: qualityCheckResponse.improvedLetter.body,
         };
       }
-      const letter = improvedLetter || originalLetter
+      const letter = improvedLetter || originalLetter;
 
       // Desanitize and return the final attempt
       const desanitizedLetter = {
         subject: desanitizeLetter(letter.subject, sanitizedData.formId),
-        body: desanitizeLetter(letter.body, sanitizedData.formId),
+        body: normalizeNewlines(desanitizeLetter(letter.body, sanitizedData.formId)),
         nextSteps: STATIC_NEXT_STEPS,
       };
 
@@ -104,4 +111,16 @@ export async function generateLetter(formData: LetterRequest): Promise<Generated
 
   rollbar.error('Failed to generate letter after maximum attempts');
   throw new Error('Failed to generate a letter without issues after multiple attempts');
+}
+
+/**
+ * Normalizes newlines in letter content to prevent excessive empty lines
+ * Replaces sequences of 3+ newlines with exactly 2 newlines (single empty line between paragraphs)
+ */
+function normalizeNewlines(text: string): string {
+  if (!text) return text;
+  
+  // Replace sequences of 3 or more newlines with exactly 2 newlines
+  // This ensures only single empty lines between paragraphs
+  return text.replace(/\n{3,}/g, '\n\n');
 }

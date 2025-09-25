@@ -1,0 +1,147 @@
+name: Policy Validation Workflow
+
+on:
+  schedule:
+    # Run every Monday at 9:00 AM UTC (weekly)
+    - cron: '0 9 * * 1'
+  workflow_dispatch:
+    inputs:
+      platform:
+        description: 'Platform to validate (optional - validates all if not specified)'
+        required: false
+        type: choice
+        options:
+          - ''
+          - facebook
+          - instagram
+          - tiktok
+          - onlyfans
+          - pornhub
+      force_rewrite:
+        description: 'Force complete rewrite of policies (ignores existing policies)'
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  validate-policies:
+    name: Validate Platform Policies
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      repository-projects: write
+    strategy:
+      matrix:
+        platform: ${{ github.event.inputs.platform && fromJson(format('["{0}"]', github.event.inputs.platform)) || fromJson('["facebook", "instagram", "tiktok", "onlyfans", "pornhub"]') }}
+      fail-fast: false
+
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      ANTHROPIC_MODEL: ${{ secrets.ANTHROPIC_MODEL }}
+      ANTHROPIC_TEMPERATURE: ${{ secrets.ANTHROPIC_TEMPERATURE }}
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      GAFFA_API_KEY: ${{ secrets.GAFFA_API_KEY }}
+      NEXT_PUBLIC_ROLLBAR_CLIENT_TOKEN: ${{ secrets.NEXT_PUBLIC_ROLLBAR_CLIENT_TOKEN }}
+      ROLLBAR_SERVER_TOKEN: ${{ secrets.ROLLBAR_SERVER_TOKEN }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate environment variables
+        run: |
+          if [ -z "$ANTHROPIC_API_KEY" ]; then
+            echo "Error: ANTHROPIC_API_KEY is not set"
+            exit 1
+          fi
+          if [ ${#ANTHROPIC_API_KEY} -lt 10 ]; then
+            echo "Error: ANTHROPIC_API_KEY appears to be too short"
+            exit 1
+          fi
+          if [[ ! "$ANTHROPIC_API_KEY" =~ ^sk-ant- ]]; then
+            echo "Warning: ANTHROPIC_API_KEY does not appear to have the correct format"
+          fi
+
+          if [ -z "$SLACK_WEBHOOK_URL" ]; then
+            echo "Warning: SLACK_WEBHOOK_URL is not set - notifications may not work"
+          fi
+
+          if [ -z "$GITHUB_TOKEN" ]; then
+            echo "Warning: GITHUB_TOKEN is not set - PR creation may not work"
+          fi
+
+          echo "Environment validation completed successfully"
+
+      - name: Validate platform policies
+        id: validate_platform
+        run: |
+          FORCE_FLAG=""
+          if [ "${{ github.event.inputs.force_rewrite }}" = "true" ]; then
+            FORCE_FLAG="--force-rewrite"
+          fi
+          npx tsx scripts/policy-validation.ts ${{ matrix.platform }} $FORCE_FLAG
+
+      - name: Send completion notification
+        if: always()
+        run: |
+          PLATFORM="${{ steps.validate_platform.outputs.platform }}"
+          PLATFORM_NAME="${{ steps.validate_platform.outputs.platform_name }}"
+          VALIDATION_STATUS="${{ steps.validate_platform.outputs.status }}"
+          REASONING="${{ steps.validate_platform.outputs.reasoning }}"
+          PR_URL="${{ steps.validate_platform.outputs.pr_url }}"
+          PR_NUMBER="${{ steps.validate_platform.outputs.pr_number }}"
+          FORCE_REWRITE="${{ steps.validate_platform.outputs.force_rewrite }}"
+          JOB_STATUS="${{ job.status }}"
+          RUN_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+
+          # Format platform name with force rewrite indicator
+          PLATFORM_DISPLAY="$PLATFORM_NAME"
+          if [ "$FORCE_REWRITE" = "true" ]; then
+            PLATFORM_DISPLAY="$PLATFORM_NAME [FORCE-REWRITE]"
+          fi
+
+          # Determine message based on job status and validation results
+          if [ "$JOB_STATUS" = "success" ]; then
+            case "$VALIDATION_STATUS" in
+              *"completed_with_pr_created"*)
+                MESSAGE="✅ $PLATFORM_DISPLAY: Policy updates merged → <$PR_URL|PR #$PR_NUMBER created and ready for review>"
+                ;;
+              *"completed_with_pr_error"*)
+                MESSAGE="❌ $PLATFORM_DISPLAY: Policy validation failed → <$RUN_URL|Re-run workflow manually> (PR creation failed)"
+                ;;
+              *"completed_with_valid_changes"*)
+                MESSAGE="⚠️ $PLATFORM_DISPLAY: Policy updates ready but PR creation failed → <$RUN_URL|Re-run workflow manually>"
+                ;;
+              *"completed_with_invalid_changes"*)
+                MESSAGE="❌ $PLATFORM_DISPLAY: Policy validation failed → <$RUN_URL|Re-run workflow manually> (Quality check failed)"
+                ;;
+              *"completed_with_error"*)
+                MESSAGE="❌ $PLATFORM_DISPLAY: Policy validation failed → <$RUN_URL|Re-run workflow manually> (Flow failed)"
+                ;;
+              *"completed_no_changes"*)
+                MESSAGE="✅ $PLATFORM_DISPLAY: No policy updates needed → All policies current"
+                ;;
+              *)
+                MESSAGE="❌ $PLATFORM_DISPLAY: Policy validation failed → <$RUN_URL|Re-run workflow manually> (Unknown status: $VALIDATION_STATUS)"
+                ;;
+            esac
+          else
+            MESSAGE="❌ $PLATFORM_DISPLAY: Policy validation failed → <$RUN_URL|Re-run workflow manually> (Job failed)"
+          fi
+
+          echo "Sending Slack notification: $MESSAGE"
+
+          # Send Slack notification
+          curl -X POST -H 'Content-type: application/json' \
+            --data "{\"text\":\"$MESSAGE\"}" \
+            "$SLACK_WEBHOOK_URL"

@@ -1,5 +1,5 @@
 import { randomBytes } from 'crypto';
-import { IS_DEVELOPMENT, IS_PREVIEW } from '../constants/common';
+import { IS_DEVELOPMENT, IS_PREVIEW } from '../constants/env';
 import { rollbar } from '../rollbar';
 
 interface DevDataCollectionPayload {

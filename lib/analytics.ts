@@ -1,5 +1,5 @@
 import { GA_CATEGORIES, GA_EVENTS } from './constants/analytics';
-import { IS_PRODUCTION } from './constants/common';
+import { IS_PRODUCTION } from './constants/env';
 import { rollbar } from './rollbar';
 
 type EventParams = Record<string, string | number | boolean | null | undefined>;

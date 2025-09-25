@@ -3,7 +3,3 @@ export const ENVIRONMENT =
 export const IS_PRODUCTION = ENVIRONMENT === 'production';
 export const IS_DEVELOPMENT = ENVIRONMENT === 'development';
 export const IS_PREVIEW = ENVIRONMENT === 'preview';
-export const AI_MODEL = process.env.ANTHROPIC_AI_MODEL || 'claude-sonnet-4-20250514';
-export const AI_TEMPERATURE = process.env.ANTHROPIC_AI_TEMPERATURE
-  ? parseFloat(process.env.ANTHROPIC_AI_TEMPERATURE)
-  : 0.3;

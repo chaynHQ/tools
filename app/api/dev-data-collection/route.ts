@@ -1,4 +1,4 @@
-import { IS_DEVELOPMENT, IS_PREVIEW } from '@/lib/constants/common';
+import { IS_DEVELOPMENT, IS_PREVIEW } from '@/lib/constants/env';
 import { handleApiError, serverInstance as rollbar } from '@/lib/rollbar';
 import { sendToZapier } from '@/lib/zapier';
 import { NextResponse } from 'next/server';
