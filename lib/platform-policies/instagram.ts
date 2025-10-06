@@ -9,7 +9,7 @@ export const instagramPolicy: PlatformPolicies = {
     "title": "TAKE IT DOWN Act",
     "summary": "US federal law that criminalizes nonconsensual publication of intimate images and requires covered platforms to implement notice-and-removal processes. Signed into law on May 19, 2025 as Public Law No. 119-12.",
     "url": "https://www.congress.gov/bill/119th-congress/senate-bill/146/text",
-    "accessTimestamp": "2025-09-24T13:54:11.141Z",
+    "accessTimestamp": "2025-10-06T09:10:04.081Z",
     "policies": [
       {
         "id": "take-it-down-authentic-adults",
@@ -204,7 +204,7 @@ export const instagramPolicy: PlatformPolicies = {
     "title": "Meta Community Standards",
     "summary": "Unified community standards that apply to Facebook, Instagram, Messenger and Threads, covering content policies including non-consensual intimate imagery, harassment, and content removal.",
     "url": "https://transparency.meta.com/policies/community-standards/",
-    "accessTimestamp": "2025-09-24T13:54:11.141Z",
+    "accessTimestamp": "2025-10-06T09:10:04.081Z",
     "policies": [
       {
         "id": "meta-cs-adult-sexual-exploitation",
@@ -447,7 +447,7 @@ export const instagramPolicy: PlatformPolicies = {
     "title": "Instagram Terms of Use",
     "summary": "Instagram's terms of service outlining user obligations, content licensing, and platform rules. Updated effective January 1, 2025.",
     "url": "https://help.instagram.com/581066165581870/",
-    "accessTimestamp": "2025-09-24T13:54:11.141Z",
+    "accessTimestamp": "2025-10-06T09:10:04.081Z",
     "policies": [
       {
         "id": "ig-tos-private-confidential-info",
@@ -615,7 +615,7 @@ export const instagramPolicy: PlatformPolicies = {
     "title": "Instagram Copyright Policy",
     "summary": "Instagram's copyright infringement reporting and DMCA takedown procedures for protecting intellectual property rights.",
     "url": "https://help.instagram.com/126382350847838",
-    "accessTimestamp": "2025-09-24T13:54:11.141Z",
+    "accessTimestamp": "2025-10-06T09:10:04.081Z",
     "policies": [
       {
         "id": "ig-copyright-infringement",
@@ -694,9 +694,8 @@ export const instagramPolicy: PlatformPolicies = {
       "url": "https://www.instagram.com/help/ipreporting/report/copyright/",
       "summary": "Users can submit DMCA counter-notifications to dispute copyright takedown actions and retract intellectual property reports they have submitted",
       "steps": [
-        "Submit a DMCA counter-notification through the designated process",
-        "Provide required information for the counter-notification",
-        "Instagram will process the counter-notification according to DMCA procedures"
+        "Submit a DMCA counter-notification through Instagram's process",
+        "Retract an intellectual property report that you've submitted to Instagram or Threads"
       ]
     }
   },
@@ -706,7 +705,7 @@ export const instagramPolicy: PlatformPolicies = {
     "title": "Instagram Intellectual Property Policy",
     "summary": "Comprehensive policy on protecting intellectual property rights including copyright and trademark violations.",
     "url": "https://help.instagram.com/535503073130320/",
-    "accessTimestamp": "2025-09-24T13:54:11.141Z",
+    "accessTimestamp": "2025-10-06T09:10:04.081Z",
     "policies": [
       {
         "id": "ig-ip-copyright",
@@ -764,7 +763,7 @@ export const instagramPolicy: PlatformPolicies = {
     "title": "Instagram Non-Consensual Intimate Images Help",
     "summary": "Guidance for users on reporting and addressing non-consensual sharing of intimate images.",
     "url": "https://help.instagram.com/1769410010008691/",
-    "accessTimestamp": "2025-09-24T13:54:11.141Z",
+    "accessTimestamp": "2025-10-06T09:10:04.081Z",
     "policies": [
       {
         "id": "ig-ncii-community-standards",
@@ -859,7 +858,7 @@ export const instagramPolicy: PlatformPolicies = {
     "title": "Meta Privacy Policy",
     "summary": "Comprehensive privacy policy covering Facebook, Instagram, Messenger and other Meta products, detailing data collection, use, and sharing practices. Effective June 16, 2025.",
     "url": "https://www.facebook.com/privacy/policy",
-    "accessTimestamp": "2025-09-24T13:54:11.141Z",
+    "accessTimestamp": "2025-10-06T09:10:04.081Z",
     "policies": [
       {
         "id": "meta-privacy-safety-integrity",
@@ -946,7 +945,7 @@ export const instagramPolicy: PlatformPolicies = {
     "title": "Instagram Harassment and Bullying Reporting",
     "summary": "Dedicated reporting mechanism and policy for harassment and bullying content on Instagram.",
     "url": "https://help.instagram.com/547601325292351",
-    "accessTimestamp": "2025-09-24T13:54:11.141Z",
+    "accessTimestamp": "2025-10-06T09:10:04.081Z",
     "policies": [
       {
         "id": "ig-harassment-bullying-accounts",
@@ -1000,7 +999,7 @@ export const instagramPolicy: PlatformPolicies = {
     "title": "Meta Bullying and Harassment Policy",
     "summary": "Detailed policy on bullying and harassment across Meta platforms including specific protections for minors and private individuals.",
     "url": "https://transparency.meta.com/policies/community-standards/bullying-harassment/",
-    "accessTimestamp": "2025-09-24T13:54:11.141Z",
+    "accessTimestamp": "2025-10-06T09:10:04.081Z",
     "policies": [
       {
         "id": "meta-bullying-unwanted-contact",
@@ -1397,13 +1396,13 @@ export const instagramPolicy: PlatformPolicies = {
       }
     ],
     "appealProcess": {
-      "url": "https://www.facebook.com/help/263149623790594",
-      "summary": "Meta provides an appeals process where users can request another review if they disagree with enforcement decisions. Appeals are submitted through the Support Inbox with options to provide additional context.",
+      "url": null,
+      "summary": "Users can appeal content removal decisions through the Support Inbox and request another review if they disagree with the initial decision",
       "steps": [
-        "Submit initial report through universal reporting system",
-        "Receive notification of review decision via notifications and Support Inbox",
-        "If disagreeing with decision, request another review through appeal option",
-        "Provide additional information or context during appeal",
+        "Report content through the universal reporting option",
+        "Receive notification of review decision via notifications",
+        "Access detailed decision information in Support Inbox",
+        "Submit appeal request for another review if disagreeing with decision",
         "Receive final response after re-review in Support Inbox"
       ]
     }
@@ -1414,7 +1413,7 @@ export const instagramPolicy: PlatformPolicies = {
     "title": "Instagram Copyright Infringement Reporting",
     "summary": "Detailed procedures for reporting copyright infringement on Instagram, including DMCA takedown processes and counter-notification procedures.",
     "url": "https://help.instagram.com/454951664593304",
-    "accessTimestamp": "2025-09-24T13:54:11.141Z",
+    "accessTimestamp": "2025-10-06T09:10:04.081Z",
     "policies": [
       {
         "id": "ig-copyright-reporting",
@@ -1453,15 +1452,151 @@ export const instagramPolicy: PlatformPolicies = {
     ],
     "appealProcess": {
       "url": null,
-      "summary": "Instagram and Threads process DMCA counter-notifications and provide information about what happens after copyright reports are submitted",
+      "summary": "DMCA counter-notification process available for content removed due to copyright reports",
       "steps": [
-        "Submit copyright report with required information",
-        "Instagram/Threads processes the report",
-        "Content gets removed if report is valid",
-        "Information is sent to the person who posted the removed content",
-        "Counter-notification process available under DMCA"
+        "Submit a DMCA counter-notification to Instagram or Threads' designated agent",
+        "Platform processes the counter-notification according to DMCA procedures"
       ]
     }
+  },
+  {
+    "id": "instagram-new-1759741804081-0",
+    "reference": "META-NCII-SAFETY",
+    "title": "Meta Safety Center - Intimate Image Abuse and Sextortion",
+    "summary": "Comprehensive safety resource covering Meta's policies and tools for addressing non-consensual intimate imagery and sextortion across platforms including Instagram.",
+    "url": "https://about.meta.com/actions/safety/topics/bullying-harassment/ncii/",
+    "accessTimestamp": "2025-10-06T09:10:04.081Z",
+    "policies": [
+      {
+        "id": "meta-ncii-prohibition",
+        "reference": "Meta Policies",
+        "summary": "Prohibits sharing or threatening to share intimate images without consent",
+        "quote": "Sharing—or threatening to share—intimate images without consent is against Meta policies.",
+        "contentTypes": [
+          "intimate"
+        ],
+        "contentContexts": [
+          "relationship",
+          "hacked",
+          "impersonation",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Content involves intimate images shared without consent",
+          "Content involves threats to share intimate images without consent"
+        ]
+      },
+      {
+        "id": "meta-sextortion-prohibition",
+        "reference": "Meta Policies",
+        "summary": "Prohibits content or behavior that exploits people, including sextortion",
+        "quote": "We have strict rules against content or behavior that exploits people, including sharing or threatening to share someone's intimate images.",
+        "contentTypes": [
+          "intimate"
+        ],
+        "contentContexts": [
+          "relationship",
+          "hacked",
+          "impersonation",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Content or behavior exploits people",
+          "Content involves sharing intimate images without consent",
+          "Content involves threatening to share intimate images"
+        ]
+      },
+      {
+        "id": "meta-ncii-enforcement",
+        "reference": "Enforcement",
+        "summary": "Takes action when becoming aware of non-consensual intimate image content",
+        "quote": "When we become aware of this content, we work to take action.",
+        "contentTypes": [
+          "intimate"
+        ],
+        "contentContexts": [
+          "relationship",
+          "hacked",
+          "impersonation",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Content violates intimate image sharing policies"
+        ]
+      },
+      {
+        "id": "meta-adult-teen-messaging-restriction",
+        "reference": "Prevention Measures",
+        "summary": "Restricts adults over 18 from starting private chats with teens they're not connected to",
+        "quote": "We restrict adults over 18 from starting private chats with teens they're not connected to on Instagram and Messenger.",
+        "contentTypes": [
+          "intimate",
+          "personal",
+          "other"
+        ],
+        "contentContexts": [
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Adult over 18 attempting to message teen they're not connected to"
+        ]
+      },
+      {
+        "id": "meta-message-request-limitations",
+        "reference": "Prevention Measures",
+        "summary": "Limits message requests to text-only until recipient accepts the request",
+        "quote": "We limit the message requests people can send to someone who doesn't follow or isn't already connected to them to text-only messages. People can't send images, videos, or voice notes in message requests until the recipient accepts the request to chat.",
+        "contentTypes": [
+          "intimate",
+          "personal",
+          "other"
+        ],
+        "contentContexts": [
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Message request contains images, videos, or voice notes before acceptance",
+          "Sender is not connected to or followed by recipient"
+        ]
+      },
+      {
+        "id": "meta-teen-messaging-restrictions",
+        "reference": "Prevention Measures",
+        "summary": "Prevents teens under 16 from being messaged by people they don't follow or aren't connected to",
+        "quote": "This means teens can't be messaged or added to group chats by anyone they don't follow or aren't connected to on Instagram and Messenger.",
+        "contentTypes": [
+          "intimate",
+          "personal",
+          "other"
+        ],
+        "contentContexts": [
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Teen under 16 (or under 18 in certain countries) being contacted by unconnected user",
+          "Teen being added to group chat by unconnected user"
+        ]
+      }
+    ],
+    "appealProcess": null
   }
 ],
 };
