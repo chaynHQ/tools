@@ -9,7 +9,7 @@ export const onlyfansPolicy: PlatformPolicies = {
     "title": "Acceptable Use Policy",
     "summary": "Comprehensive policy covering prohibited content and behavior on OnlyFans.",
     "url": "https://onlyfans.com/aup",
-    "accessTimestamp": "2025-09-24T13:52:53.511Z",
+    "accessTimestamp": "2025-10-13T09:06:19.443Z",
     "policies": [
       {
         "id": "of-tou-content-removal",
@@ -197,7 +197,7 @@ export const onlyfansPolicy: PlatformPolicies = {
       "url": "https://onlyfans.com/transparency-center/appeals",
       "summary": "Users may dispute account termination or content deactivation decisions through the Appeals Policy",
       "steps": [
-        "Follow the Appeals Policy procedures for account termination or content deactivation disputes",
+        "Follow the Appeals Policy procedures",
         "Submit dispute within six months of notification to avoid waiving rights"
       ]
     }
@@ -208,7 +208,7 @@ export const onlyfansPolicy: PlatformPolicies = {
     "title": "Terms of Service",
     "summary": "Legal terms governing the use of OnlyFans, including content ownership and security responsibilities.",
     "url": "https://onlyfans.com/terms",
-    "accessTimestamp": "2025-09-24T13:52:53.511Z",
+    "accessTimestamp": "2025-10-13T09:06:19.443Z",
     "policies": [
       {
         "id": "of-tos-content-removal",
@@ -447,7 +447,7 @@ export const onlyfansPolicy: PlatformPolicies = {
     ],
     "appealProcess": {
       "url": "https://onlyfans.com/transparency-center/appeals",
-      "summary": "Users may dispute account termination or content deactivation decisions by following the Appeals Policy",
+      "summary": "Users may dispute account termination or content deactivation decisions through the Appeals Policy",
       "steps": [
         "Follow the Appeals Policy process for account termination or content deactivation decisions",
         "Submit dispute within six months of notification to avoid waiving the right to dispute"
@@ -460,7 +460,7 @@ export const onlyfansPolicy: PlatformPolicies = {
     "title": "Privacy Policy",
     "summary": "Privacy policy explaining how OnlyFans collects, uses, and protects user data.",
     "url": "https://onlyfans.com/privacy",
-    "accessTimestamp": "2025-09-24T13:52:53.511Z",
+    "accessTimestamp": "2025-10-13T09:06:19.443Z",
     "policies": [
       {
         "id": "of-pp-age-verification",
@@ -659,9 +659,9 @@ export const onlyfansPolicy: PlatformPolicies = {
     "id": "us-take-it-down-act",
     "reference": "S.146",
     "title": "TAKE IT DOWN Act",
-    "summary": "Federal law signed into law on May 19, 2025, criminalizing nonconsensual intimate imagery including deepfakes and requiring covered platforms to remove such content within 48 hours of verified requests. Platforms have until May 19, 2026 to implement required notice-and-removal processes.",
+    "summary": "Federal law enacted on May 19, 2025, criminalizing nonconsensual intimate imagery including AI-generated deepfakes and requiring covered platforms to remove such content within 48 hours of verified requests. The law establishes Federal Trade Commission oversight and enforcement authority, with platforms having until May 19, 2026 to implement required notice-and-removal processes.",
     "url": "https://www.congress.gov/bill/119th-congress/senate-bill/146/text",
-    "accessTimestamp": "2025-09-24T13:52:53.511Z",
+    "accessTimestamp": "2025-10-13T09:06:19.443Z",
     "policies": [
       {
         "id": "take-it-down-authentic-adults",
