@@ -55,15 +55,38 @@ export const pornhubReportingChannels: PlatformReportingChannels = {
       isDMCA: false,
       isDefault: true,
       officialPurpose:
-        'Contact for privacy-related inquiries and the Data Protection Officer (DPO).',
+        'Direct contact for the Data Protection Officer (DPO) for formal privacy inquiries.',
       justification:
-        'This is the direct channel to the team responsible for privacy compliance and data protection (e.g., GDPR). It is the most effective escalation path for reports involving the exposure of sensitive personal information (doxxing) or other severe privacy violations after the initial report has been filed via the form.',
+        'This is the correct, specialized channel for escalating severe privacy violations and data protection matters (e.g., under GDPR) directly to the DPO. It is the most effective escalation path for reports involving sensitive personal information (doxxing) after an initial report has been filed via the form.',
       contactDetail: {
-        address: 'privacy@pornhub.com',
+        address: 'dpo@pornhub.com',
       },
       applicableViolations: [
         {
           contentTypes: ['private'],
+          contentContexts: [
+            'hacked',
+            'impersonation',
+            'relationship',
+            'unknown',
+            'other',
+          ],
+        },
+      ],
+    },
+    {
+      channelType: 'Email',
+      isDMCA: false,
+      isDefault: false,
+      officialPurpose: 'General support and user rights inquiries.',
+      justification:
+        'This is a valid, but more general, support channel. It is best used for follow-up questions, exercising data rights (like rectification), or for situations where the specialized DPO and DMCA channels are not appropriate. Response times may be slower for content removal issues compared to the primary form.',
+      contactDetail: {
+        address: 'support@pornhub.com',
+      },
+      applicableViolations: [
+        {
+          contentTypes: ['intimate', 'personal', 'private', 'other'],
           contentContexts: [
             'hacked',
             'impersonation',
