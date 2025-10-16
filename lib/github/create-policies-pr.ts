@@ -1,7 +1,7 @@
 import { serverInstance as rollbar } from '@/lib/rollbar';
 import { Octokit } from '@octokit/rest';
 
-import { PlatformPolicies } from '@/types/policies';
+import { PlatformPolicies } from '@/types/platforms';
 
 export interface PullRequestData {
   title: string;

@@ -1,4 +1,4 @@
-import { PlatformPolicies } from '@/types/policies';
+import { PlatformPolicies } from '@/types/platforms';
 import { contentContexts, contentTypes } from '../constants/content';
 
 export interface PolicyValidationQualityCheckResult {
