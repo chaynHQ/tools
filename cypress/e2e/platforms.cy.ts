@@ -26,7 +26,7 @@ describe('Platform Tests', () => {
       escalatedProcessDetails: "I submitted a detailed report through Facebook's Help Center form",
       responseReceived: 'Facebook sent an automated response but took no further action',
       additionalStepsTaken: 'I followed up via their support email twice requesting an update',
-      expectedEmail: 'records@facebook.com',
+      expectedEmail: 'dpo@fb.com',
     },
     [PlatformId.INSTAGRAM]: {
       platformName: 'Instagram',
@@ -45,7 +45,7 @@ describe('Platform Tests', () => {
       escalatedProcessDetails: '',
       responseReceived: "Instagram reviewed my report but said it didn't violate their guidelines",
       additionalStepsTaken: 'I tried reporting individual posts and the account itself separately',
-      expectedEmail: 'records@instagram.com',
+      expectedEmail: 'dpo@fb.com',
     },
     [PlatformId.TIKTOK]: {
       platformName: 'TikTok',
@@ -104,7 +104,7 @@ describe('Platform Tests', () => {
         'I contacted their Trust & Safety team directly with additional documentation',
       responseReceived: 'Pornhub confirmed receipt of my request and said they were reviewing it',
       additionalStepsTaken: 'I provided additional verification documents when requested',
-      expectedEmail: 'content@pornhub.com',
+      expectedEmail: 'privacy@pornhub.com',
     },
     [PlatformId.OTHER]: {
       platformName: 'Reddit',

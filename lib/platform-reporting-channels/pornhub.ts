@@ -5,7 +5,7 @@ export const pornhubReportingChannels: PlatformReportingChannels = {
   channels: [
     {
       channelType: 'Form',
-            isDMCA: false,
+      isDMCA: false,
       isDefault: false,
       officialPurpose:
         'To report content you want removed for any reason, including non-consensual content, copyright, or privacy violations.',
@@ -29,7 +29,7 @@ export const pornhubReportingChannels: PlatformReportingChannels = {
     },
     {
       channelType: 'Email',
-            isDMCA: true,
+      isDMCA: true,
       isDefault: false,
       officialPurpose: 'Designated agent for copyright notices (DMCA).',
       justification:
@@ -52,7 +52,7 @@ export const pornhubReportingChannels: PlatformReportingChannels = {
     },
     {
       channelType: 'Email',
-            isDMCA: false,
+      isDMCA: false,
       isDefault: true,
       officialPurpose:
         'Contact for privacy-related inquiries and the Data Protection Officer (DPO).',
