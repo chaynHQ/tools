@@ -48,6 +48,27 @@ export interface PlatformPolicies {
   policyDocuments: PolicyDocument[];
 }
 
+export interface PlatformReportingChannels {
+  platform: string;
+  channels: PlatformReportingChannel[];
+}
+
+export interface PlatformReportingChannel {
+  channelType: 'Form' | 'Email';
+  isDMCA: Boolean; // Whether this channel is specifically for DMCA/copyright reports - these should not be used for now as have legal implications.
+  isDefault: Boolean; // Whether this is the default/recommended channel for general reports.
+  officialPurpose: string; // The stated purpose of this channel by the platform.
+  justification: string; // Why and when to use this channel.
+  contactDetail: {
+    url?: string; // For forms or web-based reporting.
+    address?: string; // For email or physical mail.
+  };
+  applicableViolations: {
+    contentTypes: ContentType[];
+    contentContexts: ContentContext[];
+  }[];
+}
+
 // Legacy types for backward compatibility during migration
 export interface PolicyValidationRequest {
   platforms?: string[];

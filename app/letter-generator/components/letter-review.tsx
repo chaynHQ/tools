@@ -17,10 +17,10 @@ import { useToast } from '@/hooks/use-toast';
 import { analytics } from '@/lib/analytics';
 import { GA_EVENTS } from '@/lib/constants/analytics';
 import { IS_DEVELOPMENT, IS_PREVIEW } from '@/lib/constants/env';
-import { PLATFORM_EMAILS, PlatformId } from '@/lib/constants/platforms';
+import { PlatformId } from '@/lib/constants/platforms';
 import { useFormContext } from '@/lib/context/FormContext';
 import { generateSessionId, sendDevDataToZapier } from '@/lib/dev/data-collection';
-import { getPlatformById } from '@/lib/platforms';
+import { getDefaultPlatformEmail, getPlatformById } from '@/lib/platforms';
 import { rollbar } from '@/lib/rollbar';
 import { GeneratedLetter } from '@/types/letter';
 import { motion } from 'framer-motion';
@@ -66,8 +66,7 @@ export function LetterReview({
   const { resetForm, formState } = useFormContext();
 
   const platform = getPlatformById(platformId);
-  const platformEmail = PLATFORM_EMAILS[platformId] || PLATFORM_EMAILS[PlatformId.OTHER];
-
+  const platformEmail = getDefaultPlatformEmail(platformId);
   // Get content location from form state
   const contentLocation =
     formState.initialQuestions.imageIdentification ||
