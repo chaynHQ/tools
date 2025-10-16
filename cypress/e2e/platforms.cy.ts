@@ -104,7 +104,7 @@ describe('Platform Tests', () => {
         'I contacted their Trust & Safety team directly with additional documentation',
       responseReceived: 'Pornhub confirmed receipt of my request and said they were reviewing it',
       additionalStepsTaken: 'I provided additional verification documents when requested',
-      expectedEmail: 'privacy@pornhub.com',
+      expectedEmail: 'dpo@pornhub.com',
     },
     [PlatformId.OTHER]: {
       platformName: 'Reddit',
