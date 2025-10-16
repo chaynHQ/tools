@@ -62,30 +62,58 @@ export function ProcessExplanation({ onComplete }: { onComplete: () => void }) {
   return (
     <div className="space-y-8">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {steps.map((step, index) => (
-          <motion.div
-            key={index}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.1 }}
-            className="bg-white rounded-xl p-6 relative overflow-hidden group hover:shadow-md transition-shadow"
-          >
-            <div className="absolute top-0 right-0 w-24 h-24 -mr-8 -mt-8 bg-accent-light/20 rounded-full transition-transform group-hover:scale-110" />
+        {steps.map((step, index) => {
+          const isFirst = index === 0;
+          const isClickable = isFirst;
 
-            <div className="relative space-y-4">
-              <div className="flex items-center gap-4">
-                <div className="w-10 h-10 rounded-lg bg-accent-light/50 flex items-center justify-center">
-                  {React.createElement(step.icon, { className: 'w-5 h-5 text-accent' })}
+          return (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.1 }}
+              className={`bg-white rounded-xl p-6 relative overflow-hidden group transition-all ${
+                isClickable
+                  ? 'cursor-pointer hover:shadow-lg hover:shadow-accent/10 '
+                  : 'cursor-default opacity-75'
+              }`}
+              onClick={isClickable ? handleContinue : undefined}
+            >
+              <div
+                className={`absolute top-0 right-0 w-24 h-24 -mr-8 -mt-8 rounded-full transition-transform ${
+                  isClickable
+                    ? 'bg-accent-light/20 group-hover:scale-110 group-hover:bg-accent-light/40'
+                    : 'bg-accent-light/20'
+                }`}
+              />
+
+              <div className="relative space-y-4">
+                <div className="flex items-center gap-4">
+                  <div
+                    className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                      isClickable
+                        ? 'bg-accent-light/60 group-hover:bg-accent-light/80'
+                        : 'bg-accent-light/30'
+                    }`}
+                  >
+                    {React.createElement(step.icon, {
+                      className: `w-5 h-5 ${isClickable ? 'text-accent' : 'text-accent/80'}`,
+                    })}
+                  </div>
+                  <h3
+                    className={`font-medium ${isClickable ? 'text-foreground' : 'text-muted-foreground'}`}
+                  >
+                    {step.title}
+                  </h3>
                 </div>
-                <h3 className="font-medium">{step.title}</h3>
-              </div>
 
-              <div className="space-y-2">
-                <p className="text-sm text-muted-foreground">{step.description}</p>
+                <div className="space-y-2">
+                  <p className="text-sm text-muted-foreground">{step.description}</p>
+                </div>
               </div>
-            </div>
-          </motion.div>
-        ))}
+            </motion.div>
+          );
+        })}
       </div>
 
       <Collapsible
