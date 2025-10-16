@@ -1,6 +1,6 @@
 import { PolicyAbstractionResult } from '@/lib/prompts/policy-validation-policy-abstraction';
 import { serverInstance as rollbar } from '@/lib/rollbar';
-import { PlatformPolicies, PolicyDocument } from '@/types/policies';
+import { PlatformPolicies, PolicyDocument } from '@/types/platforms';
 
 export interface DocumentProcessingResult {
   documentId: string;

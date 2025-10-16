@@ -1,5 +1,5 @@
 import { LetterRequest } from '@/types/letter';
-import { PlatformPolicies, PolicyDocument } from '@/types/policies';
+import { PlatformPolicies, PolicyDocument } from '@/types/platforms';
 
 // Define content types and contexts locally to avoid import issues
 const contentTypes = [

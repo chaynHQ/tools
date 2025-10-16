@@ -1,4 +1,4 @@
-import { Policy } from '@/types/policies';
+import { Policy } from '@/types/platforms';
 import { contentContexts, contentTypes } from '../constants/content';
 
 export interface PolicyAbstractionResult {
