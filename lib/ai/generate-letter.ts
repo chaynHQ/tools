@@ -3,7 +3,6 @@ import { MAX_RETRIES, RETRY_DELAY, STATIC_NEXT_STEPS } from '../constants/ai';
 import { PlatformId } from '../constants/platforms';
 import { QualityCheckResponse } from '../prompts/letter-quality-check';
 import { serverInstance as rollbar } from '../rollbar';
-import { retryWithDelay } from '../utils';
 import { cleanupSanitizationMap, desanitizeLetter, sanitizeFormData } from './sanitization';
 
 interface GeneratedLetterResponse {
@@ -32,43 +31,39 @@ export async function generateLetter(formData: LetterRequest): Promise<Generated
         hasFollowUp: !!sanitizedData.followUp,
       });
 
-      const response: { subject: string; body: string } = await retryWithDelay(async () => {
-        const endpoint = isOtherPlatform ? '/api/generate-letter-other-platform' : '/api/generate-letter';
-        
-        const res = await fetch(endpoint, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(sanitizedData),
-        });
-
-        if (!res.ok) {
-          const error = await res.json();
-          throw new Error(error.message || 'Failed to generate letter');
-        }
-
-        return res.json();
+      const endpoint = isOtherPlatform ? '/api/generate-letter-other-platform' : '/api/generate-letter';
+      
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(sanitizedData),
       });
+
+      if (!res.ok) {
+        const errorResponse = await res.json().catch(() => ({ error: 'Failed to generate letter' }));
+        throw new Error(errorResponse.error || `Failed to generate letter (${res.status})`);
+      }
+
+      const response: { subject: string; body: string } = await res.json();
 
       let improvedLetter;
       const originalLetter = response;
 
       // Perform quality check
-      const qualityCheckResponse: QualityCheckResponse = await retryWithDelay(async () => {
-        const res = await fetch('/api/quality-check-letter', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            letter: originalLetter,
-            formData: sanitizedData,
-          }),
-        });
-
-        if (!res.ok) {
-          throw new Error('Quality check request failed');
-        }
-
-        return res.json();
+      const qualityCheckRes = await fetch('/api/quality-check-letter', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          letter: originalLetter,
+          formData: sanitizedData,
+        }),
       });
+
+      if (!qualityCheckRes.ok) {
+        throw new Error('Quality check request failed');
+      }
+
+      const qualityCheckResponse: QualityCheckResponse = await qualityCheckRes.json();
 
       // If major issues found, retry generation unless on last attempt
       if (qualityCheckResponse.issues?.length > 0 && qualityCheckResponse.improvedLetter) {

@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { generateLetter } from '@/lib/ai/generate-letter';
 import { analytics } from '@/lib/analytics';
 import { GA_EVENTS } from '@/lib/constants/analytics';
-import { PLATFORM_NAMES, PlatformId } from '@/lib/constants/platforms';
+import { PlatformId } from '@/lib/constants/platforms';
 import { PlatformInfo, useFormContext } from '@/lib/context/FormContext';
 import { GeneratedLetter } from '@/types/letter';
 import { motion } from 'framer-motion';
@@ -20,6 +20,7 @@ import { ProcessExplanation } from './components/process-explanation';
 import { ProgressBar } from './components/progress-bar';
 import { RemovalProcess } from './components/removal-process';
 import { ReportingDetails } from './components/reporting-details';
+import { ErrorMessage } from './components/error-message';
 
 type Step =
   | 'process-explanation'
@@ -60,12 +61,12 @@ const stepDescriptions: Record<Step, string> = {
 export default function LetterGenerator() {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState<Step>('process-explanation');
-  const [isLoading, setIsLoading] = useState(false);
   const { formState, updateCompleteFormData } = useFormContext();
   const [hasGeneratedLetter, setHasGeneratedLetter] = useState(false);
   const [generatedLetter, setGeneratedLetter] = useState<GeneratedLetter | null>(null);
   const [redactedLetter, setRedactedLetter] = useState<GeneratedLetter | null>(null);
   const [isRegenerating, setIsRegenerating] = useState(false);
+  const [generationError, setGenerationError] = useState<string | null>(null);
 
   // Scroll to top of main content when step changes
   useEffect(() => {
@@ -80,7 +81,7 @@ export default function LetterGenerator() {
     if (!formState.completeFormData) return;
 
     try {
-      setIsLoading(true);
+      setGenerationError(null);
       const letters = await generateLetter(formState.completeFormData);
       setGeneratedLetter(letters.finalLetter);
       setRedactedLetter(letters.redactedLetter);
@@ -97,16 +98,24 @@ export default function LetterGenerator() {
       }
       setIsRegenerating(false);
     } catch (error) {
-      console.error('Error generating letter:', error);
+      const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred while generating your letter. Please try again.';
+      setGenerationError(errorMessage);
+      setIsRegenerating(false);
+      
       analytics.trackError(
         'letter_generation',
-        error instanceof Error ? error.message : 'Unknown error',
+        errorMessage,
         'LetterGenerator',
       );
-    } finally {
-      setIsLoading(false);
     }
   }, [formState.completeFormData, isRegenerating]);
+
+  const handleRetryGeneration = useCallback(() => {
+    setGenerationError(null);
+    setGeneratedLetter(null);
+    setRedactedLetter(null);
+    generateLetterContent();
+  }, [generateLetterContent]);
 
   const getStepOrder = (): Step[] => {
     // Skip removal process for custom platforms
@@ -291,19 +300,28 @@ export default function LetterGenerator() {
             )}
 
             {(currentStep === 'generation' || isRegenerating) && !generatedLetter && (
-              <div className="flex flex-col items-center justify-center py-8 sm:py-12">
-                <div className="bg-accent-light/50 rounded-xl p-6 max-w-xl text-center">
-                  <Loader2 className="w-8 h-8 mx-auto mb-4 animate-spin text-primary" />
-                  <h3 className="text-lg font-medium mb-2">
-                    {isRegenerating ? 'Regenerating your letter' : 'Creating your letter'}
-                  </h3>
-                  <p className="text-muted-foreground">
-                    We're using AI to craft a professionally-written takedown request based on your
-                    responses, ensuring it aligns with {platformName}'s content policies and removal
-                    processes. <strong>This can take up to a minute.</strong>
-                  </p>
-                </div>
-              </div>
+              <>
+                {generationError ? (
+                  <ErrorMessage 
+                    message={generationError}
+                    onRetry={handleRetryGeneration}
+                  />
+                ) : (
+                  <div className="flex flex-col items-center justify-center py-8 sm:py-12">
+                    <div className="bg-accent-light/50 rounded-xl p-6 max-w-xl text-center">
+                      <Loader2 className="w-8 h-8 mx-auto mb-4 animate-spin text-primary" />
+                      <h3 className="text-lg font-medium mb-2">
+                        {isRegenerating ? 'Regenerating your letter' : 'Creating your letter'}
+                      </h3>
+                      <p className="text-muted-foreground">
+                        We're using AI to craft a professionally-written takedown request based on your
+                        responses, ensuring it aligns with {platformName}'s content policies and removal
+                        processes. <strong>This can take up to a minute.</strong>
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </>
             )}
 
             {currentStep === 'review' &&
@@ -318,6 +336,7 @@ export default function LetterGenerator() {
                     setIsRegenerating(true);
                     setGeneratedLetter(null);
                     setRedactedLetter(null);
+                    setGenerationError(null);
                     await generateLetterContent();
                   }}
                   onComplete={() => {

@@ -38,6 +38,7 @@ Use web search to find ONLY official policy documents from ${platformName}'s mai
 - VERIFY the document is actually a policy document, not a help article or FAQ
 - EXTRACT exact quotes from the policies that are relevant to the user's situation
 - SUMMARISE the policy directly from the extracted quote. The policy \`summary\` must be a strong, clear, and active statement (e.g., "Prohibits...") that is a brief summary of the quote used in takedown letters. MUST be equivalent/representative of the quote whilst using trauma-informed and non-explicit language.
+- ONLY include the final JSON output with no additional commentary about your research process
 
 ## Priority 2: US Federal Laws 
 If applicable to this case, reference applicable laws applicable in the US:
@@ -64,7 +65,7 @@ ${letterPromptInstructions}
 # INPUTS
 ${formatInputsForAI(request)}
 
-RESPOND WITH VALID JSON ONLY:`;
+RESPOND WITH VALID JSON ONLY - all other outputs will be rejected:`;
 
   return prompt;
 }

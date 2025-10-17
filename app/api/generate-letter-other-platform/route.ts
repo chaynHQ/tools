@@ -17,8 +17,27 @@ export async function POST(request: Request) {
             name: 'web_search',
             max_uses: 10,
           },
+          // currently multiple tools cannot be used at the same time - web search should be prioritised
+          // {
+          //   name: 'json',
+          //   description: 'Respond with a JSON object',
+          //   input_schema: {
+          //     type: 'object',
+          //     properties: {
+          //       subject: {
+          //         type: 'string',
+          //       },
+          //       body: {
+          //         type: 'string',
+          //       },
+          //     },
+          //     required: ['body', 'subject'],
+          //     additionalProperties: false,
+          //   },
+          // },
         ],
       });
+
       return parseAIJson(response);
     };
 
@@ -35,6 +54,7 @@ export async function POST(request: Request) {
       error: error.message,
       stack: error.stack,
     });
+    
     const { error: errorMessage, status } = handleApiError(
       error,
       '/api/generate-letter-other-platform',
