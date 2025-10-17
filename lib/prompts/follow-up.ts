@@ -113,33 +113,37 @@ Ensure the JSON is perfectly valid and can be parsed by \`JSON.parse()\` in Java
 
 **Output Schema:**
 \`\`\`json
-[
-  {
-    "id": "a_unique_question_id",
-    "question": "The concise, trauma-informed follow-up question.",
-    "context": "A brief explanation of why this information supports the request by linking it to a policy need.",
-    "reason": "essential" | "verification" | "supporting"
-  }
-]
+{ 
+  "questions": [
+    {
+      "id": "a_unique_question_id",
+      "question": "The concise, trauma-informed follow-up question.",
+      "context": "A brief explanation of why this information supports the request by linking it to a policy need.",
+      "reason": "essential" | "verification" | "supporting"
+    }
+  ]
+}
 \`\`\`
 
 **Example Output:**
 
 \`\`\`json
-[
-  {
-    "id": "context_of_sharing_1",
-    "question": "Can you describe the context in which this content was shared online?",
-    "context": "This helps establish if the content was shared in a targeted way, which is relevant to harassment policies.",
-    "reason": "essential"
-  },
-  {
-    "id": "ownership_details_1",
-    "question": "Can you provide any non-identifying details about how you originally created or came to own this content?",
-    "context": "This information strengthens claims of ownership without requiring official documents.",
-    "reason": "verification"
-  }
-]
+{ 
+  "questions": [
+    {
+      "id": "context_of_sharing_1",
+      "question": "Can you describe the context in which this content was shared online?",
+      "context": "This helps establish if the content was shared in a targeted way, which is relevant to harassment policies.",
+      "reason": "essential"
+    },
+    {
+      "id": "ownership_details_1",
+      "question": "Can you provide any non-identifying details about how you originally created or came to own this content?",
+      "context": "This information strengthens claims of ownership without requiring official documents.",
+      "reason": "verification"
+    }
+  ]
+}
 \`\`\`
 
 # INPUTS

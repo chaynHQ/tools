@@ -2,7 +2,7 @@ import { DocumentValidationResult } from '@/lib/prompts/policy-validation-docume
 import { PolicyAbstractionResult } from '@/lib/prompts/policy-validation-policy-abstraction';
 import { serverInstance as rollbar } from '@/lib/rollbar';
 import { parseAIJson, retryWithDelay } from '@/lib/utils';
-import { PlatformPolicies, Policy } from '@/types/policies';
+import { PlatformPolicies, Policy } from '@/types/platforms';
 import {
   generatePolicyValidationQualityCheckPrompt,
   PolicyValidationQualityCheckResult,
@@ -268,16 +268,17 @@ export async function orchestratePolicyValidation(
       );
       const response = await callAnthropic(qualityCheckPrompt);
       const result = parseAIJson(response);
-      
+
       // Validate that we got a proper result structure
       if (!result || typeof result !== 'object') {
         throw new Error('Invalid response structure from AI service');
       }
-      
+
       return result;
     };
 
-    const qualityCheck: PolicyValidationQualityCheckResult = await retryWithDelay(qualityCheckWithRetry);
+    const qualityCheck: PolicyValidationQualityCheckResult =
+      await retryWithDelay(qualityCheckWithRetry);
 
     rollbar.info('Policy validation: Quality check completed', {
       platformId,

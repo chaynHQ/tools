@@ -4,7 +4,7 @@ import {
 } from '@/lib/prompts/policy-validation-policy-abstraction';
 import { serverInstance as rollbar } from '@/lib/rollbar';
 import { parseAIJson, retryWithDelay } from '@/lib/utils';
-import { Policy } from '@/types/policies';
+import { Policy } from '@/types/platforms';
 import { callAnthropic } from '../anthropic';
 
 export async function abstractPoliciesFromDocument(
@@ -24,12 +24,12 @@ export async function abstractPoliciesFromDocument(
     );
     const response = await callAnthropic(prompt);
     const result = parseAIJson(response);
-    
+
     // Validate that we got a proper result structure
     if (!result || typeof result !== 'object') {
       throw new Error('Invalid response structure from AI service');
     }
-    
+
     return result;
   };
 

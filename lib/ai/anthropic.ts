@@ -30,8 +30,16 @@ export async function callAnthropic(
       ],
       ...config,
     });
+    
+    if(config.tool_choice?.type === 'tool' && config.tool_choice.name === 'json') {
+      const toolCall = response.content.find(block => block.type === 'tool_use');
 
-    // console.log(response);
+      if (toolCall && toolCall.name === 'json') {
+        // Extract the 'input' object. This is the final structured JSON
+        return JSON.stringify(toolCall.input);
+      }
+    }  
+
     const responseText = response?.content?.filter((c) => c.type === 'text')[0]?.text;
 
     //@ts-ignore

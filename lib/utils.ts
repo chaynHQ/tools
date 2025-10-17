@@ -114,7 +114,7 @@ export function isValidUrl(url: string): boolean {
 }
 
 // Constants for retry functionality
-export const MAX_RETRIES = 2;
+export const MAX_RETRIES = 1;
 export const RETRY_DELAY = 1000; // 1 second delay between retries
 
 // Generic retry function with delay

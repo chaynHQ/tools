@@ -9,7 +9,28 @@ export async function POST(request: Request) {
     const body = await request.json();
 
     const generateLetter = async () => {
-      const response = await callAnthropic(generateLetterPrompt(body));
+      const response = await callAnthropic(generateLetterPrompt(body), {
+        tools: [
+          {
+            name: 'json',
+            description: 'Respond with a JSON object',
+            input_schema: {
+              type: 'object',
+              properties: {
+                subject: {
+                  type: 'string',
+                },
+                body: {
+                  type: 'string',
+                },
+              },
+              required: ['body', 'subject'],
+              additionalProperties: false,
+            },
+          },
+        ],
+        tool_choice: { type: 'tool', name: 'json' },
+      });
       return parseAIJson(response);
     };
 
