@@ -177,6 +177,7 @@ export function getDefaultPlatformEmail(platform: PlatformId): string {
       break;
     case PlatformId.PORNHUB:
       platformChannels = pornhubReportingChannels;
+      break;
     default:
       return "Please check the platform's help center for the appropriate contact email";
   }
