@@ -10,11 +10,53 @@ export async function POST(request: Request) {
     const body = await request.json();
 
     const generateQuestions = async () => {
-      const response = await callAnthropic(generateFollowUpPrompt(body));
+      const response = await callAnthropic(generateFollowUpPrompt(body), {
+        tools: [
+          {
+            name: 'json',
+            description: 'Respond with a JSON object',
+            input_schema: {
+              type: 'object',
+              properties: {
+                questions: {
+                  type: 'array',
+                  description: 'A list of questions to ask a user regarding their content submission.',
+                  items: {
+                    type: 'object',
+                    properties: {
+                      id: {
+                        type: 'string',
+                        description: 'A unique identifier for the question.',
+                      },
+                      question: {
+                        type: 'string',
+                        description: 'The exact question to be presented to the user.',
+                      },
+                      context: {
+                        type: 'string',
+                        description: 'Helpful context explaining why the question is being asked.',
+                      },
+                      reason: {
+                        type: 'string',
+                        description: 'A keyword explaining the purpose, e.g., "essential" or "verification".',
+                      },
+                    },
+                    required: ['id', 'question', 'context', 'reason'],
+                  },
+                },
+              },
+              required: ['questions'],
+              additionalProperties: false,
+            },
+          },
+        ],
+        tool_choice: { type: 'tool', name: 'json' },
+      });
       return parseAIJson(response);
     };
 
-    const questions = await retryWithDelay(generateQuestions);
+    const questionsResponse = await retryWithDelay(generateQuestions);
+    const questions = questionsResponse.questions || [];
 
     rollbar.info('FollowUpQuestions: Successfully generated follow-up questions', {
       questionCount: questions.length,
