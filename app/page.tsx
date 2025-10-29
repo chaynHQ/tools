@@ -1,5 +1,6 @@
 'use client';
 
+import { ResponseFeedback } from '@/components/feedback/response-feedback';
 import { analytics } from '@/lib/analytics';
 import { GA_EVENTS } from '@/lib/constants/analytics';
 import { useFormContext } from '@/lib/context/FormContext';
@@ -115,6 +116,8 @@ export default function Home() {
           </motion.div>
         ))}
       </div>
+
+      <ResponseFeedback className="mb-12" />
 
       <div className="mb-12">
         <h2 className="text-2xl mb-8 text-center">Example takedown letters</h2>
