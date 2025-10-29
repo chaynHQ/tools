@@ -222,7 +222,7 @@ export function ResponseFeedback({ className = '' }: ResponseFeedbackProps) {
             <MessageSquare className="h-6 w-6 text-accent-blue" />
           </div>
           <div className="flex-1">
-            <h2 className="text-xl font-medium text-foreground mb-2">
+            <h2 className="text-lg font-medium text-foreground mb-2">
               How did the platform respond to your request?
             </h2>
             <div className="flex flex-col sm:flex-row gap-4 sm:items-end ">
