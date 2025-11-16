@@ -68,7 +68,7 @@
     "react-hook-form": "^7.57.0",
     "react-speech-recognition": "^4.0.1",
     "regenerator-runtime": "^0.14.1",
-    "rollbar": "^2.26.4",
+    "rollbar": "^2.26.5",
     "tailwind-merge": "^3.3.0",
     "tailwindcss": "^4.1.8",
     "tailwindcss-animate": "^1.0.7",
