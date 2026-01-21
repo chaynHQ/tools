@@ -129,7 +129,6 @@ describe('Content Location Sanitization and Desanitization', () => {
 
   function verifyContentLocationInLetter(
     expectedLocation: string,
-    locationType: 'url' | 'description',
   ) {
     cy.get('h4')
       .contains('Message content')
@@ -156,12 +155,12 @@ describe('Content Location Sanitization and Desanitization', () => {
     selectReportingStatus(data.reportingStatus);
     fillInitialQuestions(data);
     waitForLetterGeneration();
-    verifyContentLocationInLetter(data.contentLocation, data.locationType);
+    verifyContentLocationInLetter(data.contentLocation);
     // Regenerate the letter
     regenerateLetter();
 
     // Verify content location is still present in regenerated letter
-    verifyContentLocationInLetter(data.contentLocation, data.locationType);
+    verifyContentLocationInLetter(data.contentLocation);
   });
 
   it('correctly sanitizes and restores description content location in generated letter', () => {
@@ -172,7 +171,7 @@ describe('Content Location Sanitization and Desanitization', () => {
     selectReportingStatus(data.reportingStatus);
     fillInitialQuestions(data);
     waitForLetterGeneration();
-    verifyContentLocationInLetter(data.contentLocation, data.locationType);
+    verifyContentLocationInLetter(data.contentLocation);
   });
 
   it('handles content location restoration for custom platforms', () => {
@@ -182,7 +181,7 @@ describe('Content Location Sanitization and Desanitization', () => {
     selectPlatform(data.platform);
     fillInitialQuestions(data);
     waitForLetterGeneration();
-    verifyContentLocationInLetter(data.contentLocation, data.locationType);
+    verifyContentLocationInLetter(data.contentLocation);
   });
 
   it('sanitizes and restores multiple sensitive data types (URL, ID, phone, email)', () => {
@@ -211,7 +210,7 @@ describe('Content Location Sanitization and Desanitization', () => {
     waitForLetterGeneration();
 
     // Verify the letter contains the original content location URL
-    verifyContentLocationInLetter(sensitiveData.contentLocation, sensitiveData.locationType);
+    verifyContentLocationInLetter(sensitiveData.contentLocation);
 
     // Verify that other sensitive data has been properly sanitized and restored
     cy.get('h4')

@@ -1,6 +1,6 @@
 import { CookieConsent } from '@/components/cookie-consent';
 import { IS_PRODUCTION } from '@/lib/constants/env';
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Merriweather, Open_Sans } from 'next/font/google';
 import Script from 'next/script';
 import 'regenerator-runtime/runtime'; // Ensure this import goes first otherwise you will get a runtime error
@@ -58,11 +58,16 @@ export const metadata: Metadata = {
     index: IS_PRODUCTION,
     follow: IS_PRODUCTION,
   },
-  themeColor: '#F0244D',
-  viewport: 'width=device-width, initial-scale=1, maximum-scale=1',
   verification: {
     google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION,
   },
+};
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  themeColor: '#F0244D',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

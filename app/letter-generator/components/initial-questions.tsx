@@ -180,8 +180,6 @@ export function InitialQuestions({ onComplete }: InitialQuestionsProps) {
     }
   };
 
-  const inputClasses =
-    'bg-white focus:ring-accent focus:border-accent w-full min-h-[80px] text-base px-4 py-3';
   const textareaClasses =
     'bg-white focus:ring-accent focus:border-accent w-full min-h-[120px] text-base';
 
