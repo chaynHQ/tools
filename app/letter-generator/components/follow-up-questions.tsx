@@ -5,6 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { useMicrophonePermission } from '@/hooks/use-microphone-permission';
+import { useSpeechRecognitionError } from '@/hooks/use-speech-recognition-error';
 import { generateFollowUpQuestions } from '@/lib/ai/follow-up';
 import { analytics } from '@/lib/analytics';
 import { GA_EVENTS } from '@/lib/constants/analytics';
@@ -63,6 +64,22 @@ export function FollowUpQuestions({
   const { transcript, listening, resetTranscript, browserSupportsSpeechRecognition } =
     useSpeechRecognition();
   const { permissionState, requestPermission } = useMicrophonePermission();
+
+  // Handle speech recognition errors (e.g., permission denied)
+  useSpeechRecognitionError({
+    browserSupported: browserSupportsSpeechRecognition,
+    onError: (errorType) => {
+      toast({
+        title: 'Microphone access denied',
+        description:
+          'Please allow microphone access in your browser settings to use voice input.',
+        variant: 'destructive',
+      });
+      setActiveField(null);
+      SpeechRecognition.stopListening();
+      resetTranscript();
+    },
+  });
 
   useEffect(() => {
     if (initializationRef.current || !initialData || isLoading) return;
