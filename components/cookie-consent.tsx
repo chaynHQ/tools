@@ -12,7 +12,9 @@ export function CookieConsent() {
     // Check if user has already made a choice
     const consent = localStorage.getItem('cookie-consent');
     if (!consent) {
-      setShowConsent(true);
+      // Use setTimeout to avoid synchronous setState in effect
+      const timer = setTimeout(() => setShowConsent(true), 0);
+      return () => clearTimeout(timer);
     }
   }, []);
 

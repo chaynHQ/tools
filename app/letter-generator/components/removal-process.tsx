@@ -106,7 +106,7 @@ export function RemovalProcess({ onComplete }: RemovalProcessProps) {
                   <div>
                     <h3 className="text-base font-medium">Standard reporting process</h3>
                     <p className="text-sm text-muted-foreground">
-                      The platform's built-in reporting system for content removal
+                      The platform&apos;s built-in reporting system for content removal
                     </p>
                   </div>
                   <ChevronDown
@@ -119,7 +119,7 @@ export function RemovalProcess({ onComplete }: RemovalProcessProps) {
                   {platform && renderProcessSteps(platform.flows.basic)}
                   {!platform && (
                     <p className="text-sm text-muted-foreground py-2">
-                      Standard reporting processes vary by platform. Check the platform's help
+                      Standard reporting processes vary by platform. Check the platform&apos;s help
                       centre or support pages for specific instructions.
                     </p>
                   )}
@@ -148,8 +148,8 @@ export function RemovalProcess({ onComplete }: RemovalProcessProps) {
                   {platform && renderProcessSteps(platform.flows.escalated)}
                   {!platform && (
                     <p className="text-sm text-muted-foreground py-2">
-                      Escalated reporting processes vary by platform. Look for options like "Report
-                      a privacy violation" or "Contact support" on the platform's help pages.
+                      Escalated reporting processes vary by platform. Look for options like &quot;Report
+                      a privacy violation&quot; or &quot;Contact support&quot; on the platform&apos;s help pages.
                     </p>
                   )}
                 </div>
@@ -171,25 +171,25 @@ export function RemovalProcess({ onComplete }: RemovalProcessProps) {
               <div className="flex items-center space-x-3">
                 <RadioGroupItem value="standard-completed" id="standard-completed" />
                 <Label htmlFor="standard-completed" className="text-base">
-                  I've tried the standard reporting process
+                  I&apos;ve tried the standard reporting process
                 </Label>
               </div>
               <div className="flex items-center space-x-3">
                 <RadioGroupItem value="escalated-completed" id="escalated-completed" />
                 <Label htmlFor="escalated-completed" className="text-base">
-                  I've tried the escalated reporting process
+                  I&apos;ve tried the escalated reporting process
                 </Label>
               </div>
               <div className="flex items-center space-x-3">
                 <RadioGroupItem value="both-completed" id="both-completed" />
                 <Label htmlFor="both-completed" className="text-base">
-                  I've tried both processes
+                  I&apos;ve tried both processes
                 </Label>
               </div>
               <div className="flex items-center space-x-3">
                 <RadioGroupItem value="none-completed" id="none-completed" />
                 <Label htmlFor="none-completed" className="text-base">
-                  I haven't tried either process yet
+                  I haven&apos;t tried either process yet
                 </Label>
               </div>
             </RadioGroup>

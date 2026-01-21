@@ -140,7 +140,7 @@ export function ProcessExplanation({ onComplete }: { onComplete: () => void }) {
         <CollapsibleContent>
           <div className="px-6 pb-6 space-y-4">
             <div className="space-y-2 text-sm text-muted-foreground">
-              <p>We use Anthropic's privacy-first AI to help create your letter. Your data is:</p>
+              <p>We use Anthropic&apos;s privacy-first AI to help create your letter. Your data is:</p>
               <ul className="list-disc pl-4 space-y-1">
                 <li>Anonymised where possible before being sent to AI prompts</li>
                 <li>Never used to train AI models </li>
@@ -178,7 +178,7 @@ export function ProcessExplanation({ onComplete }: { onComplete: () => void }) {
               rel="noopener noreferrer"
               className="underline underline-offset-2 font-medium hover:text-primary/90"
             >
-              Chayn's Global Support Directory
+              Chayn&apos;s Global Support Directory
             </a>{' '}
             to find services in your area.
           </p>
