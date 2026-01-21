@@ -25,7 +25,7 @@ export function Footer() {
             </p>
           </div>
           <div>
-            <h3 className="font-merriweather text-lg mb-4">About Chayn's Survivor AI</h3>
+            <h3 className="font-merriweather text-lg mb-4">About Chayn&apos;s Survivor AI</h3>
             <p className="text-muted-foreground max-w-md text-sm md:text-[15px]">
               Our Survivor AI was created by Chayn to empower those affected by image-based abuse. We provide 
               compassionate guidance through the takedown request process, using AI to help you create 

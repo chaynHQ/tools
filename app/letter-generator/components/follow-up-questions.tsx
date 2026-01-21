@@ -4,6 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
+import { useMicrophonePermission } from '@/hooks/use-microphone-permission';
+import { useSpeechRecognitionError } from '@/hooks/use-speech-recognition-error';
 import { generateFollowUpQuestions } from '@/lib/ai/follow-up';
 import { analytics } from '@/lib/analytics';
 import { GA_EVENTS } from '@/lib/constants/analytics';
@@ -61,6 +63,23 @@ export function FollowUpQuestions({
 
   const { transcript, listening, resetTranscript, browserSupportsSpeechRecognition } =
     useSpeechRecognition();
+  const { permissionState, requestPermission } = useMicrophonePermission();
+
+  // Handle speech recognition errors (e.g., permission denied)
+  useSpeechRecognitionError({
+    browserSupported: browserSupportsSpeechRecognition,
+    onError: () => {
+      toast({
+        title: 'Microphone access denied',
+        description:
+          'Please allow microphone access in your browser settings to use voice input.',
+        variant: 'destructive',
+      });
+      setActiveField(null);
+      SpeechRecognition.stopListening();
+      resetTranscript();
+    },
+  });
 
   useEffect(() => {
     if (initializationRef.current || !initialData || isLoading) return;
@@ -137,7 +156,7 @@ export function FollowUpQuestions({
     }
   }, [transcript, activeField, setValue]);
 
-  const handleVoiceInput = (field: string) => {
+  const handleVoiceInput = async (field: string) => {
     try {
       if (listening && activeField === field) {
         SpeechRecognition.stopListening();
@@ -150,6 +169,31 @@ export function FollowUpQuestions({
           component: 'FollowUpQuestions',
         });
       } else {
+        // Check if we need to request permission
+        if (permissionState === 'denied') {
+          toast({
+            title: 'Microphone access blocked',
+            description:
+              'Microphone access is blocked. Please enable it in your browser settings to use voice input.',
+            variant: 'destructive',
+          });
+          return;
+        }
+
+        // If permission is prompt, try to request it
+        if (permissionState === 'prompt') {
+          const granted = await requestPermission();
+          if (!granted) {
+            toast({
+              title: 'Microphone access denied',
+              description:
+                'Please allow microphone access in your browser settings to use voice input.',
+              variant: 'destructive',
+            });
+            return;
+          }
+        }
+
         setActiveField(field);
         resetTranscript();
         const browserLang = navigator.language;
@@ -158,10 +202,22 @@ export function FollowUpQuestions({
             browserLang.toLowerCase().startsWith(lang.toLowerCase().split('-')[0]),
           ) || 'en-US';
 
-        SpeechRecognition.startListening({
-          continuous: true,
-          language: supportedLang,
-        });
+        try {
+          await SpeechRecognition.startListening({
+            continuous: true,
+            language: supportedLang,
+          });
+        } catch (listenError) {
+          // Speech recognition failed to start (likely permission issue)
+          setActiveField(null);
+          toast({
+            title: 'Microphone access denied',
+            description:
+              'Could not start voice input. Please allow microphone access in your browser.',
+            variant: 'destructive',
+          });
+          throw listenError;
+        }
       }
     } catch (error) {
       rollbar.error('Error handling voice input', {
@@ -218,7 +274,7 @@ export function FollowUpQuestions({
           <Loader2 className="w-8 h-8 mx-auto mb-4 animate-spin text-primary" />
           <h3 className="text-lg font-medium mb-2">Analysing your responses</h3>
           <p className="text-muted-foreground">
-            We're using AI to analyse your responses and generate relevant supporting questions to
+            We&apos;re using AI to analyse your responses and generate relevant supporting questions to
             help strengthen your takedown request. <strong>This can take up to a minute</strong>
           </p>
         </div>
@@ -233,7 +289,7 @@ export function FollowUpQuestions({
           <AlertCircle className="w-8 h-8 mx-auto mb-4 text-primary" />
           <h3 className="text-lg font-medium mb-2">Unable to generate supporting questions</h3>
           <p className="text-muted-foreground mb-6">
-            We're having trouble connecting to our AI service. You can proceed with generating your
+            We&apos;re having trouble connecting to our AI service. You can proceed with generating your
             letter.
           </p>
           <Button

@@ -33,7 +33,7 @@ export default function Home() {
           >
             <h1 className="text-3xl sm:text-4xl md:text-4xl mb-5">Welcome to our Survivor AI</h1>
             <p className="text-lg mb-8 text-muted-foreground">
-              Discovering your content shared without consent can feel overwhelming. We're here to
+              Discovering your content shared without consent can feel overwhelming. We&apos;re here to
               guide you through creating an effective image takedown request letter, with clear,
               actionable steps at your own pace.
             </p>
@@ -149,7 +149,7 @@ export default function Home() {
 
                   <p>
                     This content was uploaded on 15 January 2024 without my knowledge or permission.
-                    I discovered it on 20 January 2024 and immediately used your platform's
+                    I discovered it on 20 January 2024 and immediately used your platform&apos;s
                     reporting tools to request its removal. I have not received a response to my
                     initial report.
                   </p>
@@ -157,7 +157,7 @@ export default function Home() {
                   <p>
                     I can verify that I am the person in the content, and it was taken from my
                     private, password-protected cloud storage account that was compromised. This
-                    sharing of intimate content without consent violates your platform's community
+                    sharing of intimate content without consent violates your platform&apos;s community
                     guidelines regarding non-consensual intimate imagery.
                   </p>
 
@@ -219,7 +219,7 @@ export default function Home() {
                     account remains active.
                   </p>
 
-                  <p>This impersonation violates your platform's policies regarding:</p>
+                  <p>This impersonation violates your platform&apos;s policies regarding:</p>
 
                   <ul className="list-disc pl-6 space-y-2">
                     <li>Account authenticity and integrity</li>

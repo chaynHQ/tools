@@ -208,7 +208,7 @@ export function PlatformSelection({ onComplete }: PlatformSelectionProps) {
                     <h4 className="font-medium">Reminder about messaging platforms</h4>
                     <p className="text-muted-foreground text-sm">
                       Remember that for messaging platforms such as WhatsApp, iMessage, Signal and
-                      Telegram, the platform does not have the power to remove content from people's
+                      Telegram, the platform does not have the power to remove content from people&apos;s
                       messaging threads or groups. If you have been sent the content, or are in the
                       group it was shared then you can report the individual sharing it from within
                       the app.
