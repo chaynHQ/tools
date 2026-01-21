@@ -183,7 +183,7 @@ describe('Platform Tests', () => {
     cy.contains('Continue').click();
   }
 
-  function waitForLetterGeneration(skipProcesses: boolean) {
+  function waitForLetterGeneration() {
     cy.contains('Analysing your responses', { timeout: 30000 });
     cy.contains('Continue', { timeout: 30000 }).click();
     cy.contains('Creating your letter', { timeout: 40000 });
@@ -213,7 +213,7 @@ describe('Platform Tests', () => {
     if (!skipProcesses) {
       fillReportingDetails(data);
     }
-    waitForLetterGeneration(skipProcesses);
+    waitForLetterGeneration();
     verifyLetterContent(data);
   }
 
