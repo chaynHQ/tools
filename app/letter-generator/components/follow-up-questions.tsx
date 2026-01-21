@@ -153,6 +153,17 @@ export function FollowUpQuestions({
         });
       } else {
         // Check if we need to request permission
+        if (permissionState === 'denied') {
+          toast({
+            title: 'Microphone access blocked',
+            description:
+              'Microphone access is blocked. Please enable it in your browser settings to use voice input.',
+            variant: 'destructive',
+          });
+          return;
+        }
+
+        // If permission is prompt, try to request it
         if (permissionState === 'prompt') {
           const granted = await requestPermission();
           if (!granted) {
@@ -164,14 +175,6 @@ export function FollowUpQuestions({
             });
             return;
           }
-        } else if (permissionState === 'denied') {
-          toast({
-            title: 'Microphone access blocked',
-            description:
-              'Microphone access is blocked. Please enable it in your browser settings to use voice input.',
-            variant: 'destructive',
-          });
-          return;
         }
 
         setActiveField(field);
@@ -182,10 +185,22 @@ export function FollowUpQuestions({
             browserLang.toLowerCase().startsWith(lang.toLowerCase().split('-')[0]),
           ) || 'en-US';
 
-        SpeechRecognition.startListening({
-          continuous: true,
-          language: supportedLang,
-        });
+        try {
+          await SpeechRecognition.startListening({
+            continuous: true,
+            language: supportedLang,
+          });
+        } catch (listenError) {
+          // Speech recognition failed to start (likely permission issue)
+          setActiveField(null);
+          toast({
+            title: 'Microphone access denied',
+            description:
+              'Could not start voice input. Please allow microphone access in your browser.',
+            variant: 'destructive',
+          });
+          throw listenError;
+        }
       }
     } catch (error) {
       rollbar.error('Error handling voice input', {
