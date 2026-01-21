@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from '@/hooks/use-toast';
+import { useMicrophonePermission } from '@/hooks/use-microphone-permission';
 import { analytics } from '@/lib/analytics';
 import { GA_EVENTS } from '@/lib/constants/analytics';
 import { useFormContext } from '@/lib/context/FormContext';
@@ -50,6 +51,7 @@ export function ReportingDetails({ onComplete }: ReportingDetailsProps) {
 
   const { transcript, listening, resetTranscript, browserSupportsSpeechRecognition } =
     useSpeechRecognition();
+  const { permissionState, requestPermission } = useMicrophonePermission();
 
   // Set form values from context when component mounts
   useEffect(() => {
@@ -64,7 +66,7 @@ export function ReportingDetails({ onComplete }: ReportingDetailsProps) {
     }
   }, [transcript, activeField, setValue]);
 
-  const handleVoiceInput = (field: keyof ReportingDetailsForm) => {
+  const handleVoiceInput = async (field: keyof ReportingDetailsForm) => {
     try {
       if (listening && activeField === field) {
         SpeechRecognition.stopListening();
@@ -78,6 +80,28 @@ export function ReportingDetails({ onComplete }: ReportingDetailsProps) {
           component: 'ReportingDetails',
         });
       } else {
+        // Check if we need to request permission
+        if (permissionState === 'prompt') {
+          const granted = await requestPermission();
+          if (!granted) {
+            toast({
+              title: 'Microphone access denied',
+              description:
+                'Please allow microphone access in your browser settings to use voice input.',
+              variant: 'destructive',
+            });
+            return;
+          }
+        } else if (permissionState === 'denied') {
+          toast({
+            title: 'Microphone access blocked',
+            description:
+              'Microphone access is blocked. Please enable it in your browser settings to use voice input.',
+            variant: 'destructive',
+          });
+          return;
+        }
+
         setActiveField(field);
         resetTranscript();
         // Try to detect user's browser language, fallback to English
