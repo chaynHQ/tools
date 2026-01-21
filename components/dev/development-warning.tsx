@@ -23,8 +23,10 @@ export function DevelopmentWarning() {
 
     // Check if user has already seen the warning
     const hasSeenWarning = localStorage.getItem('dev-warning-acknowledged');
+    // Use a timeout to avoid synchronous setState in effect
     if (!hasSeenWarning) {
-      setShowWarning(true);
+      const timer = setTimeout(() => setShowWarning(true), 0);
+      return () => clearTimeout(timer);
     }
   }, []);
 

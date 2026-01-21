@@ -11,7 +11,7 @@ import { useFormContext } from '@/lib/context/FormContext';
 import { rollbar } from '@/lib/rollbar';
 import { motion } from 'framer-motion';
 import { AlertCircle } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
 import { VoiceInput } from './voice-input';
@@ -44,7 +44,7 @@ interface ReportingDetailsProps {
 }
 
 export function ReportingDetails({ onComplete }: ReportingDetailsProps) {
-  const startTime = useState(() => Date.now())[0];
+  const startTime = useRef<number>(0);
   const [activeField, setActiveField] = useState<keyof ReportingDetailsForm | null>(null);
   const { register, handleSubmit, setValue, reset } = useForm<ReportingDetailsForm>();
   const { formState, setReportingDetails } = useFormContext();
@@ -52,6 +52,11 @@ export function ReportingDetails({ onComplete }: ReportingDetailsProps) {
   const { transcript, listening, resetTranscript, browserSupportsSpeechRecognition } =
     useSpeechRecognition();
   const { permissionState, requestPermission } = useMicrophonePermission();
+
+  // Initialize start time on mount
+  useEffect(() => {
+    startTime.current = Date.now();
+  }, []);
 
   // Set form values from context when component mounts
   useEffect(() => {
@@ -147,7 +152,8 @@ export function ReportingDetails({ onComplete }: ReportingDetailsProps) {
   const handleFormSubmit = (data: ReportingDetailsForm) => {
     try {
       analytics.trackEvent(GA_EVENTS.TDLG_REPORTING_DETAILS_CONTINUE_CLICKED);
-      const timeSpent = Math.floor((Date.now() - startTime) / 1000);
+      // eslint-disable-next-line react-hooks/purity
+      const timeSpent = Math.floor((Date.now() - startTime.current) / 1000);
       analytics.trackReportingQuestionsCompleted(timeSpent);
       setReportingDetails(data);
       onComplete();

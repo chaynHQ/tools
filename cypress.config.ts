@@ -7,14 +7,14 @@ dotenv.config(); // <-- This loads .env into process.env
 export default defineConfig({
   e2e: {
     baseUrl: process.env.NEXT_PUBLIC_BASE_URL,
-    setupNodeEvents(on, config) {
+    setupNodeEvents(on) {
       // Custom task to check if a file exists
       on('task', {
         fileExists(filePath: string) {
           try {
             const fullPath = path.resolve(filePath);
             return fs.existsSync(fullPath);
-          } catch (error) {
+          } catch {
             return false;
           }
         },

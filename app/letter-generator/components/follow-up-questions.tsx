@@ -242,7 +242,7 @@ export function FollowUpQuestions({
           <Loader2 className="w-8 h-8 mx-auto mb-4 animate-spin text-primary" />
           <h3 className="text-lg font-medium mb-2">Analysing your responses</h3>
           <p className="text-muted-foreground">
-            We're using AI to analyse your responses and generate relevant supporting questions to
+            We&apos;re using AI to analyse your responses and generate relevant supporting questions to
             help strengthen your takedown request. <strong>This can take up to a minute</strong>
           </p>
         </div>
@@ -257,7 +257,7 @@ export function FollowUpQuestions({
           <AlertCircle className="w-8 h-8 mx-auto mb-4 text-primary" />
           <h3 className="text-lg font-medium mb-2">Unable to generate supporting questions</h3>
           <p className="text-muted-foreground mb-6">
-            We're having trouble connecting to our AI service. You can proceed with generating your
+            We&apos;re having trouble connecting to our AI service. You can proceed with generating your
             letter.
           </p>
           <Button
