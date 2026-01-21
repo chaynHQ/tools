@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
+import { useMicrophonePermission } from '@/hooks/use-microphone-permission';
 import { generateFollowUpQuestions } from '@/lib/ai/follow-up';
 import { analytics } from '@/lib/analytics';
 import { GA_EVENTS } from '@/lib/constants/analytics';
@@ -61,6 +62,7 @@ export function FollowUpQuestions({
 
   const { transcript, listening, resetTranscript, browserSupportsSpeechRecognition } =
     useSpeechRecognition();
+  const { permissionState, requestPermission } = useMicrophonePermission();
 
   useEffect(() => {
     if (initializationRef.current || !initialData || isLoading) return;
@@ -137,7 +139,7 @@ export function FollowUpQuestions({
     }
   }, [transcript, activeField, setValue]);
 
-  const handleVoiceInput = (field: string) => {
+  const handleVoiceInput = async (field: string) => {
     try {
       if (listening && activeField === field) {
         SpeechRecognition.stopListening();
@@ -150,6 +152,28 @@ export function FollowUpQuestions({
           component: 'FollowUpQuestions',
         });
       } else {
+        // Check if we need to request permission
+        if (permissionState === 'prompt') {
+          const granted = await requestPermission();
+          if (!granted) {
+            toast({
+              title: 'Microphone access denied',
+              description:
+                'Please allow microphone access in your browser settings to use voice input.',
+              variant: 'destructive',
+            });
+            return;
+          }
+        } else if (permissionState === 'denied') {
+          toast({
+            title: 'Microphone access blocked',
+            description:
+              'Microphone access is blocked. Please enable it in your browser settings to use voice input.',
+            variant: 'destructive',
+          });
+          return;
+        }
+
         setActiveField(field);
         resetTranscript();
         const browserLang = navigator.language;
