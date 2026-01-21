@@ -23,7 +23,9 @@ export function useMicrophonePermission(): UseMicrophonePermissionReturn {
   useEffect(() => {
     // Check if the browser supports the Permissions API
     if (!navigator.permissions || !navigator.permissions.query) {
-      setPermissionState('unsupported');
+      // Permissions API not supported (e.g., Safari) - default to 'prompt'
+      // We'll handle permission errors when actually trying to use the microphone
+      setPermissionState('prompt');
       return;
     }
 
@@ -45,8 +47,8 @@ export function useMicrophonePermission(): UseMicrophonePermissionReturn {
         };
       })
       .catch(() => {
-        // If permission query fails, assume unsupported
-        setPermissionState('unsupported');
+        // If permission query fails, default to 'prompt'
+        setPermissionState('prompt');
       });
   }, []);
 

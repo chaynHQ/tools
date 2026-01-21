@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from '@/hooks/use-toast';
 import { useMicrophonePermission } from '@/hooks/use-microphone-permission';
+import { useSpeechRecognitionError } from '@/hooks/use-speech-recognition-error';
 import { analytics } from '@/lib/analytics';
 import { GA_EVENTS } from '@/lib/constants/analytics';
 import { contentContexts, contentTypes } from '@/lib/constants/content';
@@ -76,6 +77,22 @@ export function InitialQuestions({ onComplete }: InitialQuestionsProps) {
     useSpeechRecognition();
   const { permissionState, requestPermission } = useMicrophonePermission();
 
+  // Handle speech recognition errors (e.g., permission denied)
+  useSpeechRecognitionError({
+    browserSupported: browserSupportsSpeechRecognition,
+    onError: () => {
+      toast({
+        title: 'Microphone access denied',
+        description:
+          'Please allow microphone access in your browser settings to use voice input.',
+        variant: 'destructive',
+      });
+      setActiveField(null);
+      SpeechRecognition.stopListening();
+      resetTranscript();
+    },
+  });
+
   useEffect(() => {
     if (formState.initialQuestions && Object.keys(formState.initialQuestions).length > 0) {
       const savedData = formState.initialQuestions;
@@ -110,6 +127,17 @@ export function InitialQuestions({ onComplete }: InitialQuestionsProps) {
         });
       } else {
         // Check if we need to request permission
+        if (permissionState === 'denied') {
+          toast({
+            title: 'Microphone access blocked',
+            description:
+              'Microphone access is blocked. Please enable it in your browser settings to use voice input.',
+            variant: 'destructive',
+          });
+          return;
+        }
+
+        // If permission is prompt, try to request it
         if (permissionState === 'prompt') {
           const granted = await requestPermission();
           if (!granted) {
@@ -121,14 +149,6 @@ export function InitialQuestions({ onComplete }: InitialQuestionsProps) {
             });
             return;
           }
-        } else if (permissionState === 'denied') {
-          toast({
-            title: 'Microphone access blocked',
-            description:
-              'Microphone access is blocked. Please enable it in your browser settings to use voice input.',
-            variant: 'destructive',
-          });
-          return;
         }
 
         setActiveField(field);
@@ -139,10 +159,22 @@ export function InitialQuestions({ onComplete }: InitialQuestionsProps) {
             browserLang.toLowerCase().startsWith(lang.toLowerCase().split('-')[0]),
           ) || 'en-US';
 
-        SpeechRecognition.startListening({
-          continuous: true,
-          language: supportedLang,
-        });
+        try {
+          await SpeechRecognition.startListening({
+            continuous: true,
+            language: supportedLang,
+          });
+        } catch (listenError) {
+          // Speech recognition failed to start (likely permission issue)
+          setActiveField(null);
+          toast({
+            title: 'Microphone access denied',
+            description:
+              'Could not start voice input. Please allow microphone access in your browser.',
+            variant: 'destructive',
+          });
+          throw listenError;
+        }
       }
     } catch (error) {
       rollbar.error('Error handling voice input', {
