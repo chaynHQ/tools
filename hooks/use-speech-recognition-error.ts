@@ -17,12 +17,16 @@ export function useSpeechRecognitionError({
   browserSupported,
 }: UseSpeechRecognitionErrorParams) {
   useEffect(() => {
-    if (!browserSupported) return;
+    if (!browserSupported) {
+      return;
+    }
 
     // Access the native recognition instance
     const SpeechRecognitionAPI =
       (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    if (!SpeechRecognitionAPI) return;
+    if (!SpeechRecognitionAPI) {
+      return;
+    }
 
     // Get the recognition instance used by react-speech-recognition
     const recognition =

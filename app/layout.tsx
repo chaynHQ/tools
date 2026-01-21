@@ -1,4 +1,5 @@
 import { CookieConsent } from '@/components/cookie-consent';
+import { Toaster } from '@/components/ui/toaster';
 import { IS_PRODUCTION } from '@/lib/constants/env';
 import type { Metadata, Viewport } from 'next';
 import { Merriweather, Open_Sans } from 'next/font/google';
@@ -95,6 +96,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Providers>
           <ClientLayout>{children}</ClientLayout>
           <CookieConsent />
+          <Toaster />
         </Providers>
       </body>
     </html>

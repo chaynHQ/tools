@@ -80,7 +80,7 @@ export function InitialQuestions({ onComplete }: InitialQuestionsProps) {
   // Handle speech recognition errors (e.g., permission denied)
   useSpeechRecognitionError({
     browserSupported: browserSupportsSpeechRecognition,
-    onError: (errorType) => {
+    onError: () => {
       toast({
         title: 'Microphone access denied',
         description:

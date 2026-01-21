@@ -57,7 +57,7 @@ export function ReportingDetails({ onComplete }: ReportingDetailsProps) {
   // Handle speech recognition errors (e.g., permission denied)
   useSpeechRecognitionError({
     browserSupported: browserSupportsSpeechRecognition,
-    onError: (errorType) => {
+    onError: () => {
       toast({
         title: 'Microphone access denied',
         description:
