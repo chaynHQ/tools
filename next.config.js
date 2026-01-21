@@ -1,9 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
-  images: { 
+  images: {
     unoptimized: true,
     remotePatterns: [
       {
@@ -12,11 +9,8 @@ const nextConfig = {
       },
     ],
   },
-  webpack: (config, { dev, isServer }) => {
-    if (dev && !isServer) {
-      config.cache = false;
-    }
-    return config;
+  turbopack: {
+    root: __dirname,
   },
 };
 

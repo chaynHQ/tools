@@ -245,7 +245,7 @@ export function LetterReview({
         title: 'Session ID copied',
         description: 'The session ID has been copied to your clipboard.',
       });
-    } catch (err) {
+    } catch {
       toast({
         title: 'Unable to copy',
         description: 'Please select and copy the session ID manually.',
@@ -298,7 +298,7 @@ export function LetterReview({
               <p className="text-foreground font-medium">Before sending</p>
               <p className="text-sm">
                 Remember to add your full name at the end of the letter. For your privacy and
-                security, we don't collect personal details.
+                security, we don&apos;t collect personal details.
               </p>
             </div>
           </div>
@@ -433,7 +433,7 @@ export function LetterReview({
                   <div>
                     <h4 className="text-base mb-1">Not quite right?</h4>
                     <p className="text-sm text-muted-foreground">
-                      Sometimes our AI doesn't get it quite right. You can try regenerating a
+                      Sometimes our AI doesn&apos;t get it quite right. You can try regenerating a
                       different letter using the same information to see if you prefer it.
                     </p>
                     <Button
@@ -525,8 +525,8 @@ export function LetterReview({
           <AlertDialogHeader>
             <AlertDialogTitle>Finish and exit?</AlertDialogTitle>
             <AlertDialogDescription>
-              For your privacy and security, all information you've provided will be cleared when
-              you leave this page. Make sure you've copied your letter if you need it.
+              For your privacy and security, all information you&apos;ve provided will be cleared when
+              you leave this page. Make sure you&apos;ve copied your letter if you need it.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

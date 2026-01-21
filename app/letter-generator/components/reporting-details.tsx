@@ -4,13 +4,15 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from '@/hooks/use-toast';
+import { useMicrophonePermission } from '@/hooks/use-microphone-permission';
+import { useSpeechRecognitionError } from '@/hooks/use-speech-recognition-error';
 import { analytics } from '@/lib/analytics';
 import { GA_EVENTS } from '@/lib/constants/analytics';
 import { useFormContext } from '@/lib/context/FormContext';
 import { rollbar } from '@/lib/rollbar';
 import { motion } from 'framer-motion';
 import { AlertCircle } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
 import { VoiceInput } from './voice-input';
@@ -43,13 +45,35 @@ interface ReportingDetailsProps {
 }
 
 export function ReportingDetails({ onComplete }: ReportingDetailsProps) {
-  const startTime = useState(() => Date.now())[0];
+  const startTime = useRef<number>(0);
   const [activeField, setActiveField] = useState<keyof ReportingDetailsForm | null>(null);
   const { register, handleSubmit, setValue, reset } = useForm<ReportingDetailsForm>();
   const { formState, setReportingDetails } = useFormContext();
 
   const { transcript, listening, resetTranscript, browserSupportsSpeechRecognition } =
     useSpeechRecognition();
+  const { permissionState, requestPermission } = useMicrophonePermission();
+
+  // Handle speech recognition errors (e.g., permission denied)
+  useSpeechRecognitionError({
+    browserSupported: browserSupportsSpeechRecognition,
+    onError: () => {
+      toast({
+        title: 'Microphone access denied',
+        description:
+          'Please allow microphone access in your browser settings to use voice input.',
+        variant: 'destructive',
+      });
+      setActiveField(null);
+      SpeechRecognition.stopListening();
+      resetTranscript();
+    },
+  });
+
+  // Initialize start time on mount
+  useEffect(() => {
+    startTime.current = Date.now();
+  }, []);
 
   // Set form values from context when component mounts
   useEffect(() => {
@@ -64,7 +88,7 @@ export function ReportingDetails({ onComplete }: ReportingDetailsProps) {
     }
   }, [transcript, activeField, setValue]);
 
-  const handleVoiceInput = (field: keyof ReportingDetailsForm) => {
+  const handleVoiceInput = async (field: keyof ReportingDetailsForm) => {
     try {
       if (listening && activeField === field) {
         SpeechRecognition.stopListening();
@@ -78,6 +102,31 @@ export function ReportingDetails({ onComplete }: ReportingDetailsProps) {
           component: 'ReportingDetails',
         });
       } else {
+        // Check if we need to request permission
+        if (permissionState === 'denied') {
+          toast({
+            title: 'Microphone access blocked',
+            description:
+              'Microphone access is blocked. Please enable it in your browser settings to use voice input.',
+            variant: 'destructive',
+          });
+          return;
+        }
+
+        // If permission is prompt, try to request it
+        if (permissionState === 'prompt') {
+          const granted = await requestPermission();
+          if (!granted) {
+            toast({
+              title: 'Microphone access denied',
+              description:
+                'Please allow microphone access in your browser settings to use voice input.',
+              variant: 'destructive',
+            });
+            return;
+          }
+        }
+
         setActiveField(field);
         resetTranscript();
         // Try to detect user's browser language, fallback to English
@@ -87,10 +136,22 @@ export function ReportingDetails({ onComplete }: ReportingDetailsProps) {
             browserLang.toLowerCase().startsWith(lang.toLowerCase().split('-')[0]),
           ) || 'en-US';
 
-        SpeechRecognition.startListening({
-          continuous: true,
-          language: supportedLang,
-        });
+        try {
+          await SpeechRecognition.startListening({
+            continuous: true,
+            language: supportedLang,
+          });
+        } catch (listenError) {
+          // Speech recognition failed to start (likely permission issue)
+          setActiveField(null);
+          toast({
+            title: 'Microphone access denied',
+            description:
+              'Could not start voice input. Please allow microphone access in your browser.',
+            variant: 'destructive',
+          });
+          throw listenError;
+        }
       }
     } catch (error) {
       rollbar.error('Error handling voice input', {
@@ -123,7 +184,8 @@ export function ReportingDetails({ onComplete }: ReportingDetailsProps) {
   const handleFormSubmit = (data: ReportingDetailsForm) => {
     try {
       analytics.trackEvent(GA_EVENTS.TDLG_REPORTING_DETAILS_CONTINUE_CLICKED);
-      const timeSpent = Math.floor((Date.now() - startTime) / 1000);
+      // eslint-disable-next-line react-hooks/purity
+      const timeSpent = Math.floor((Date.now() - startTime.current) / 1000);
       analytics.trackReportingQuestionsCompleted(timeSpent);
       setReportingDetails(data);
       onComplete();
