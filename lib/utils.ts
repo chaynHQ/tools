@@ -34,7 +34,7 @@ export function parseAIJson(input: string) {
     // Try to parse as is first
     try {
       return JSON.parse(trimmedInput);
-    } catch (e) {}
+    } catch {}
 
     // Remove any non-JSON text before the first { and after the last }
     const jsonStart = trimmedInput.indexOf('{');
@@ -60,7 +60,7 @@ export function parseAIJson(input: string) {
     // Try to parse the cleaned JSON
     try {
       return JSON.parse(cleanedInput);
-    } catch (e) {
+    } catch {
       console.error('Failed to parse cleaned JSON:', cleanedInput);
       throw new Error('Failed to parse AI response - the response format was invalid');
     }
@@ -89,7 +89,7 @@ export function normalizeUrl(url: string): string {
     }
 
     return urlObj.toString();
-  } catch (error) {
+  } catch {
     // If URL parsing fails, return the original string
     // The form validation will catch invalid URLs
     return url;
@@ -108,7 +108,7 @@ export function isValidUrl(url: string): boolean {
       return false;
     }
     return true;
-  } catch (error) {
+  } catch {
     return false;
   }
 }

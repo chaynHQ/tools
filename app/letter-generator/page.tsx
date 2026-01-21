@@ -108,7 +108,7 @@ export default function LetterGenerator() {
         'LetterGenerator',
       );
     }
-  }, [formState.completeFormData, isRegenerating]);
+  }, [formState.completeFormData, formState.platformInfo, isRegenerating]);
 
   const handleRetryGeneration = useCallback(() => {
     setGenerationError(null);
@@ -215,7 +215,9 @@ export default function LetterGenerator() {
   // Handle letter generation when entering the generation step
   useEffect(() => {
     if (currentStep === 'generation' && !isRegenerating) {
-      generateLetterContent();
+      // Use setTimeout to avoid synchronous setState in effect
+      const timer = setTimeout(() => generateLetterContent(), 0);
+      return () => clearTimeout(timer);
     }
   }, [currentStep, generateLetterContent, isRegenerating]);
 
@@ -314,8 +316,8 @@ export default function LetterGenerator() {
                         {isRegenerating ? 'Regenerating your letter' : 'Creating your letter'}
                       </h3>
                       <p className="text-muted-foreground">
-                        We're using AI to craft a professionally-written takedown request based on your
-                        responses, ensuring it aligns with {platformName}'s content policies and removal
+                        We&apos;re using AI to craft a professionally-written takedown request based on your
+                        responses, ensuring it aligns with {platformName}&apos;s content policies and removal
                         processes. <strong>This can take up to a minute.</strong>
                       </p>
                     </div>
