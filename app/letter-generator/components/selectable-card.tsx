@@ -12,7 +12,6 @@ interface SelectableCardProps {
 }
 
 export function SelectableCard({
-  value,
   label,
   description,
   selected,

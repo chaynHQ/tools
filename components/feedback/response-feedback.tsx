@@ -227,8 +227,8 @@ export function ResponseFeedback({ className = '' }: ResponseFeedbackProps) {
             </h2>
             <div className="flex flex-col sm:flex-row gap-4 sm:items-end ">
               <p className="text-muted-foreground mb-4">
-                If you feel comfortable sharing, your experience helps us improve this tool for future survivors. 
-                If you didn't receive a satisfactory response, we may be able to provide additional guidance.
+                If you feel comfortable sharing, your experience helps us improve this tool for future survivors.
+                If you didn&apos;t receive a satisfactory response, we may be able to provide additional guidance.
               </p>
               
               {!isExpanded && (
@@ -342,7 +342,7 @@ export function ResponseFeedback({ className = '' }: ResponseFeedbackProps) {
                   Your email (optional)
                 </Label>
                 <p className="text-sm text-muted-foreground py-1">
-                  If you'd like us to follow up about your experience or if you need additional support with your request, we will reach out to you.
+                  If you&apos;d like us to follow up about your experience or if you need additional support with your request, we will reach out to you.
                 </p>
                 <Input
                   id="email"
