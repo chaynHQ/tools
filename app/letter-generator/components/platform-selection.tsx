@@ -153,12 +153,12 @@ export function PlatformSelection({ onComplete }: PlatformSelectionProps) {
               <div className="w-8 h-8 mb-2 relative">
                 <Image
                   src={platform.logo}
-                  alt={`${platform.name} logo`}
+                  alt=""
                   fill
                   className={`object-contain ${platform.id === 'pornhub' ? 'rounded-sm' : ''}`}
                 />
               </div>
-              <h3 className="text-sm font-medium">{platform.name}</h3>
+              <span className="text-sm font-medium">{platform.name}</span>
             </div>
           </RadioGroupPrimitive.Item>
         ))}
@@ -173,10 +173,10 @@ export function PlatformSelection({ onComplete }: PlatformSelectionProps) {
           <div className="flex flex-col items-center text-center">
             <div className="w-8 h-8 mb-2 flex items-center justify-center">
               <div className="w-6 h-6 rounded-full bg-muted flex items-center justify-center">
-                <span className="text-base">+</span>
+                <span aria-hidden="true" className="text-base">+</span>
               </div>
             </div>
-            <h3 className="text-sm font-medium">Other platform</h3>
+            <span className="text-sm font-medium">Other platform</span>
           </div>
         </RadioGroupPrimitive.Item>
       </RadioGroupPrimitive.Root>
