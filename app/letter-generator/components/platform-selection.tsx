@@ -138,11 +138,17 @@ export function PlatformSelection({ onComplete }: PlatformSelectionProps) {
           <RadioGroupPrimitive.Item
             key={platform.id}
             value={platform.id}
-            className={`cursor-pointer p-3 rounded-xl transition-transform
+            className={`relative cursor-pointer p-3 rounded-xl transition-transform
             hover:scale-[1.02] active:scale-[0.98]
             focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2
             ${selectedPlatform === platform.id ? 'bg-accent-light border border-accent' : 'bg-white'}`}
           >
+            <span
+              aria-hidden="true"
+              className="absolute top-2 right-2 flex h-4 w-4 items-center justify-center rounded-full border border-muted-foreground/50 bg-white"
+            >
+              <RadioGroupPrimitive.Indicator className="h-2 w-2 rounded-full bg-accent" />
+            </span>
             <div className="flex flex-col items-center text-center">
               <div className="w-8 h-8 mb-2 relative">
                 <Image
