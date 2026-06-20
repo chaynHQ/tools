@@ -51,6 +51,8 @@ export function VoiceInput({ isListening, onToggle, className }: VoiceInputProps
         type="button"
         variant="ghost"
         size="icon"
+        aria-label={isListening ? 'Stop voice input' : 'Start voice input'}
+        aria-pressed={isListening}
         className={cn(
           "relative h-10 w-10 rounded-full transition-all duration-200",
           isListening 
