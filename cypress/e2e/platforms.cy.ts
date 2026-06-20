@@ -132,7 +132,7 @@ describe('Platform Tests', () => {
     cy.visit('/');
     cy.dismissDevWarning();
     cy.contains('Start your request').click();
-    cy.get('h2').contains('Building your takedown letter');
+    cy.contains('Building your takedown letter');
     cy.contains('Start your request', { timeout: 10000 }).click();
   }
 
@@ -141,7 +141,7 @@ describe('Platform Tests', () => {
       cy.contains('Other platform').click();
       cy.get('#other-platform').type(platformName);
     } else {
-      cy.get('h3').contains(platformName).click();
+      cy.contains('[role="radio"]', platformName).click();
     }
     cy.contains('Continue').click();
   }

@@ -64,8 +64,7 @@ Cypress.Commands.add('verifyDevWarningContent', () => {
 
 Cypress.Commands.add('verifyContentLocationInLetter', (expectedLocation: string) => {
   // Verify the content location appears in the letter body
-  cy.get('h4')
-    .contains('Message content')
+  cy.contains('Message content')
     .parent()
     .within(() => {
       cy.get('div').should('contain', expectedLocation);
@@ -82,7 +81,7 @@ Cypress.Commands.add(
   (platform: string, contentLocation: string, locationType: 'url' | 'description') => {
     // Start the process
     cy.contains('Start your request').click();
-    cy.get('h2').contains('Building your takedown letter');
+    cy.contains('Building your takedown letter');
     cy.contains('Start your request').click();
 
     // Select platform
@@ -90,7 +89,7 @@ Cypress.Commands.add(
       cy.contains('Other platform').click();
       cy.get('#other-platform').type('TestPlatform');
     } else {
-      cy.get('h3').contains(platform).click();
+      cy.contains('[role="radio"]', platform).click();
     }
     cy.contains('Continue').click();
 

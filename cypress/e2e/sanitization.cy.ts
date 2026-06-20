@@ -76,7 +76,7 @@ describe('Content Location Sanitization and Desanitization', () => {
 
   function startFlow() {
     cy.contains('Start your request').click();
-    cy.get('h2').contains('Building your takedown letter', { timeout: 10000 });
+    cy.contains('Building your takedown letter', { timeout: 10000 });
     cy.contains('Start your request').click();
   }
 
@@ -85,7 +85,7 @@ describe('Content Location Sanitization and Desanitization', () => {
       cy.contains('Other platform').click();
       cy.get('#other-platform').type('Reddit');
     } else {
-      cy.get('h3').contains(platformName).click();
+      cy.contains('[role="radio"]', platformName).click();
     }
     cy.contains('Continue').click();
   }
@@ -124,14 +124,13 @@ describe('Content Location Sanitization and Desanitization', () => {
   function waitForLetterGeneration() {
     cy.contains('Continue', { timeout: 30000 }).click();
     cy.contains('Review and send', { timeout: 100000 }).should('be.visible');
-    cy.get('h4').contains('Message content', { timeout: 10000 }).should('be.visible');
+    cy.contains('Message content', { timeout: 10000 }).should('be.visible');
   }
 
   function verifyContentLocationInLetter(
     expectedLocation: string,
   ) {
-    cy.get('h4')
-      .contains('Message content')
+    cy.contains('Message content')
       .parent()
       .within(() => {
         cy.get('div').should('contain', expectedLocation);
@@ -213,8 +212,7 @@ describe('Content Location Sanitization and Desanitization', () => {
     verifyContentLocationInLetter(sensitiveData.contentLocation);
 
     // Verify that other sensitive data has been properly sanitized and restored
-    cy.get('h4')
-      .contains('Message content')
+    cy.contains('Message content')
       .parent()
       .within(() => {
         // Should contain the original sensitive data (properly desanitized)
