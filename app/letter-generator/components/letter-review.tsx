@@ -305,17 +305,17 @@ export function LetterReview({
 
           <div className="space-y-4">
             <div>
-              <h4 className="text-lg font-medium mb-2">Send email to</h4>
+              <h3 className="text-lg font-medium mb-2">Send email to</h3>
               <div className="p-4 bg-white rounded-lg">{platformEmail}</div>
             </div>
 
             <div>
-              <h4 className="text-lg font-medium mb-2">Subject line</h4>
+              <h3 className="text-lg font-medium mb-2">Subject line</h3>
               <div className="p-4 bg-white rounded-lg select-none">{displayLetter.subject}</div>
             </div>
 
             <div>
-              <h4 className="text-lg font-medium mb-2">Message content</h4>
+              <h3 className="text-lg font-medium mb-2">Message content</h3>
               <div className="p-4 bg-white rounded-lg whitespace-pre-wrap select-none">
                 {displayLetter.body}
               </div>
@@ -326,7 +326,7 @@ export function LetterReview({
             <div className="flex flex-col gap-4">
               <div className="flex items-center justify-between">
                 <div className="flex-1">
-                  <h4 className="text-base mb-1">Copy your letter</h4>
+                  <h3 className="text-base mb-1">Copy your letter</h3>
                   <p className="text-sm text-muted-foreground">
                     Copy and paste your letter into an email. Before sending, add your name at the
                     end of the letter and ensure the subject line is included.
@@ -359,7 +359,7 @@ export function LetterReview({
                   {!feedbackSubmitted ? (
                     <>
                       <div>
-                        <h4 className="text-base mb-1">Is this useful?</h4>
+                        <h3 className="text-base mb-1">Is this useful?</h3>
                         <p className="text-sm text-muted-foreground">
                           Did this tool produce a letter that you think could be useful for your
                           case?
@@ -409,7 +409,7 @@ export function LetterReview({
                     </>
                   ) : (
                     <div className="flex flex-col gap-2">
-                      <h4 className="text-base font-medium">Your feedback has been submitted</h4>
+                      <h3 className="text-base font-medium">Your feedback has been submitted</h3>
                       <p className="text-sm text-muted-foreground">
                         Thank you for your feedback. This tool is new and learning! By sharing your
                         experience, you help us make this tool more supportive for others in similar
@@ -431,7 +431,7 @@ export function LetterReview({
               <div className="p-6 bg-white rounded-lg">
                 <div className="flex flex-col gap-4">
                   <div>
-                    <h4 className="text-base mb-1">Not quite right?</h4>
+                    <h3 className="text-base mb-1">Not quite right?</h3>
                     <p className="text-sm text-muted-foreground">
                       Sometimes our AI doesn&apos;t get it quite right. You can try regenerating a
                       different letter using the same information to see if you prefer it.

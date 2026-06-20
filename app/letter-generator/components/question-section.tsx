@@ -14,7 +14,7 @@ export function QuestionSection({ title, children }: QuestionSectionProps) {
       animate={{ opacity: 1, y: 0 }}
       className="space-y-6"
     >
-      {title && <h2 className="text-xl font-medium mb-6">{title}</h2>}
+      {title && <h3 className="text-xl font-medium mb-6">{title}</h3>}
       {children && <div className="space-y-8">{children}</div>}
     </motion.div>
   );
