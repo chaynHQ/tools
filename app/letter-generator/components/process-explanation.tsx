@@ -100,11 +100,11 @@ export function ProcessExplanation({ onComplete }: { onComplete: () => void }) {
                       className: `w-5 h-5 ${isClickable ? 'text-accent' : 'text-accent/80'}`,
                     })}
                   </div>
-                  <h3
+                  <h2
                     className={`font-medium ${isClickable ? 'text-foreground' : 'text-muted-foreground'}`}
                   >
                     {step.title}
-                  </h3>
+                  </h2>
                 </div>
 
                 <div className="space-y-2">
@@ -126,7 +126,7 @@ export function ProcessExplanation({ onComplete }: { onComplete: () => void }) {
             <Lock className="w-5 h-5 text-accent" />
           </div>
           <div className="flex-1 text-left">
-            <h3 className="text-base font-medium">Your privacy and data protection</h3>
+            <h2 className="text-base font-medium">Your privacy and data protection</h2>
             <p className="text-sm text-muted-foreground">
               Learn how we protect your information and use AI responsibly
             </p>
