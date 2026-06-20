@@ -321,9 +321,9 @@ export default function LetterGenerator() {
                     onRetry={handleRetryGeneration}
                   />
                 ) : (
-                  <div className="flex flex-col items-center justify-center py-8 sm:py-12">
+                  <div role="status" className="flex flex-col items-center justify-center py-8 sm:py-12">
                     <div className="bg-accent-light/50 rounded-xl p-6 max-w-xl text-center">
-                      <Loader2 className="w-8 h-8 mx-auto mb-4 animate-spin text-primary" />
+                      <Loader2 className="w-8 h-8 mx-auto mb-4 animate-spin text-primary" aria-hidden="true" />
                       <h3 className="text-lg font-medium mb-2">
                         {isRegenerating ? 'Regenerating your letter' : 'Creating your letter'}
                       </h3>
