@@ -71,7 +71,7 @@ The presence of any of these issues constitutes a fundamental failure.
 
 1.  **Hallucination**: The letter includes **any** detail not explicitly provided in the \`Factual Context\`.
 2.  **Inclusion of Unnecessary Sensitive Data**: The letter contains personal details beyond what is required (e.g., specific medical conditions, third-party names) or fails to properly generalize the user's impact statement.
-3.  **Poor Strategic Choice / Policy Error**: The letter cites an irrelevant policy, misses a clearly more applicable and powerful policy available in the \`platformPolicyContext\`, or misrepresents a policy.
+3.  **Poor Strategic Choice / Policy Error**: The letter cites an irrelevant policy, misses a materially more applicable and powerful policy available in the \`platformPolicyContext\`, or misrepresents a policy.
 4.  **Banned Term Usage**: The letter contains any term from the **Banned Terms** list.
 5.  **Inappropriate Tone**: The language is unprofessional, aggressive, demanding, threatening, or fails to be trauma-informed and respectful.
 6.  **Missing Critical Information**: The letter fails to include the required \`Content Location: [Content Location]\` statement.

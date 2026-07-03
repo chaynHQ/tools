@@ -17,11 +17,14 @@ export async function callAnthropic(
 
   return await retryWithDelay(async () => {
     const response = await anthropic.messages.create({
-      model: process.env.ANTHROPIC_MODEL || 'claude-sonnet-4-20250514',
+      model: process.env.ANTHROPIC_MODEL || 'claude-sonnet-5',
       max_tokens: 10000,
-      temperature: process.env.ANTHROPIC_TEMPERATURE
-        ? parseFloat(process.env.ANTHROPIC_TEMPERATURE)
-        : 0.3,
+      // Claude Sonnet 5 runs adaptive thinking by default when `thinking` is
+      // omitted. We disable it explicitly to keep latency and cost predictable,
+      // and because forced `tool_choice` (used by the structured-JSON routes) is
+      // only reliable with thinking disabled. Callers can opt into reasoning by
+      // passing `thinking` (and optionally `output_config.effort`) in `config`.
+      thinking: { type: 'disabled' },
       messages: [
         {
           role: 'user',

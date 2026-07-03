@@ -53,7 +53,7 @@ Your main goal is to audit the quality of the "UPDATED / NEW POLICIES". You must
 If you are in "Revalidation" mode, you must first check if changes are purely cosmetic.
 - A **meaningful change** involves adding a new policy or substantively altering the \`summary\', \`quote\`, \`removalCriteria\`, or other key fields.
 - A **cosmetic change** is a non-functional update, such as minor rewording without changing the meaning, or changes only to \`id\`, \`reference\`, or \`accessTimestamp\`.
-- **If changes are purely cosmetic, you MUST return a \`validationStatus\` of \`no_update_needed\`.**
+- **If the changes versus the ORIGINAL are purely cosmetic, set \`validationStatus\` to \`no_update_needed\` — but still perform the full quality audit (Objective #1) and report any quality issues you find in the \`issues\` array.**
 
 # 3. DEFINITIONS FOR CONTENT CLASSIFICATION
 You MUST use these definitions as the ground truth when validating the \`contentTypes\` and \`contentContexts\` fields.
@@ -77,7 +77,7 @@ ${JSON.stringify(contentContexts, null, 2)}
 ${
   originalPolicies
     ? `## MODE: Revalidation
-Your task is to perform a comprehensive A/B comparison of the "ORIGINAL POLICIES" vs. the "UPDATED POLICIES". First, assess if the changes are meaningful (Objective #2). If they are, proceed with a full quality audit (Objective #1), checking for all issues listed below.
+Your task is to perform a comprehensive A/B comparison of the "ORIGINAL POLICIES" vs. the "UPDATED POLICIES". Always perform the full quality audit (Objective #1) on the UPDATED / NEW policies, checking for all issues listed below. Separately, assess whether the changes versus the ORIGINAL are meaningful or purely cosmetic (Objective #2) to decide the \`validationStatus\`.
 `
     : `## MODE: Initial Validation
 The "ORIGINAL POLICIES" set is empty. Your task is to perform a full quality and relevance audit on the "UPDATED / NEW POLICIES" (Objective #1). Your focus is on relevance, logical consistency, and adherence to all quality standards.
