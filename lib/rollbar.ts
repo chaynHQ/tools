@@ -11,6 +11,24 @@ const baseConfig = {
   captureIP: 'anonymize',
   scrubTelemetryInputs: true,
   enabled: !!clientToken,
+  // Never send data payloads to Rollbar. Drop all custom context, request
+  // bodies, person data, and telemetry before transmit — only the log message
+  // and stack trace are sent, so no letters, form data, or AI content can leak.
+  transform: (payload: unknown) => {
+    const data = (payload as { data?: Record<string, unknown> })?.data;
+    if (!data) return;
+    delete data.custom;
+    delete data.person;
+    delete data.request;
+    const body = data.body as Record<string, unknown> | undefined;
+    if (body) {
+      delete body.telemetry;
+      const message = body.message as Record<string, unknown> | undefined;
+      if (message) delete message.extra;
+      const trace = body.trace as Record<string, unknown> | undefined;
+      if (trace) delete trace.extra;
+    }
+  },
   payload: {
     environment: ENVIRONMENT,
     client: {

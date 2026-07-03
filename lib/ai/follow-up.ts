@@ -38,17 +38,26 @@ export async function generateFollowUpQuestions(formData: any): Promise<FollowUp
       // Clean up sanitization mappings
       cleanupSanitizationMap(sanitizedData.formId);
 
-      // Validate response structure
-      if (!Array.isArray(response)) {
-        rollbar.error('Invalid response format from AI service', { response });
+      // Accept either a bare array or a { questions: [...] } wrapper.
+      const questions = Array.isArray(response)
+        ? response
+        : Array.isArray(response?.questions)
+          ? response.questions
+          : null;
+
+      if (!questions) {
+        // Log only the shape, never the content.
+        rollbar.error('Invalid response format from AI service', {
+          responseType: Array.isArray(response) ? 'array' : typeof response,
+        });
         throw new Error('Invalid response format from AI service');
       }
 
       rollbar.info('Follow-up questions generated successfully', {
-        questionCount: response.length,
+        questionCount: questions.length,
       });
 
-      return response;
+      return questions;
     } catch (error) {
       if (attempts === MAX_RETRIES) {
         rollbar.error('Error generating follow-up questions', { error });
