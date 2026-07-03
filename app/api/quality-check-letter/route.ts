@@ -54,8 +54,10 @@ export async function POST(request: Request) {
       await sendToZapier(process.env.ZAPIER_QUALITY_WEBHOOK_URL, zapierPayload);
     }
 
+    // Do not log the result object — it contains the rewritten letter
+    // (`improvedLetter`) and issue text derived from the user's letter.
     rollbar.info('QualityCheckLetter: Successfully parsed quality check result', {
-      qualityCheckResult,
+      issuesCount: Array.isArray(qualityCheckResult?.issues) ? qualityCheckResult.issues.length : 0,
     });
 
     return NextResponse.json(qualityCheckResult);

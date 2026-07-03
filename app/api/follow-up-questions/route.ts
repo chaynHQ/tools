@@ -56,7 +56,13 @@ export async function POST(request: Request) {
     };
 
     const questionsResponse = await retryWithDelay(generateQuestions);
-    const questions = questionsResponse.questions || [];
+    // The model returns { questions: [...] }, but tolerate a bare array too so a
+    // slightly different response shape never breaks the flow.
+    const questions = Array.isArray(questionsResponse)
+      ? questionsResponse
+      : Array.isArray(questionsResponse?.questions)
+        ? questionsResponse.questions
+        : [];
 
     rollbar.info('FollowUpQuestions: Successfully generated follow-up questions', {
       questionCount: questions.length,
