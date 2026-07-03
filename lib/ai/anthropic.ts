@@ -18,7 +18,12 @@ export async function callAnthropic(
   return await retryWithDelay(async () => {
     const response = await anthropic.messages.create({
       model: process.env.ANTHROPIC_MODEL || 'claude-sonnet-5',
-      max_tokens: 10000,
+      // Sonnet 5's tokenizer produces ~30% more tokens than Sonnet 4.6 for the
+      // same text, so a limit tuned for the old model can now truncate output
+      // mid-JSON (→ `stop_reason: "max_tokens"` → parseAIJson fails). Thinking is
+      // disabled below, so nothing competes with output for this budget. Callers
+      // needing more headroom can override `max_tokens` via `config`.
+      max_tokens: 16000,
       // Claude Sonnet 5 runs adaptive thinking by default when `thinking` is
       // omitted. We disable it explicitly to keep latency and cost predictable,
       // and because forced `tool_choice` (used by the structured-JSON routes) is
@@ -43,7 +48,14 @@ export async function callAnthropic(
       }
     }  
 
-    const responseText = response?.content?.filter((c) => c.type === 'text')[0]?.text;
+    // When tools like `web_search` are used, Claude returns multiple content
+    // blocks in order: interim narration text, the tool-use/tool-result blocks,
+    // and finally a text block with the answer. Grabbing the FIRST text block
+    // (`[0]`) would return the preamble ("I'll search for..."), which contains
+    // no JSON and makes `parseAIJson` throw "No valid JSON object found". The
+    // final answer is always the LAST text block.
+    const textBlocks = response?.content?.filter((c) => c.type === 'text') ?? [];
+    const responseText = textBlocks[textBlocks.length - 1]?.text;
 
     //@ts-ignore
     if (!responseText) {

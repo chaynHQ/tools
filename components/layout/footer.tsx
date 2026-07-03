@@ -1,4 +1,4 @@
-import { Facebook, Github, Instagram, Linkedin, Twitter, Youtube } from 'lucide-react';
+import { Facebook, Github, Instagram, Linkedin, Twitter, Youtube } from './social-icons';
 import Image from 'next/image';
 import Link from 'next/link';
 
