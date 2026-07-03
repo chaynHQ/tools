@@ -1,9 +1,10 @@
 name: Policy Validation Workflow
 
 on:
-  schedule:
-    # Run every Monday at 9:00 AM UTC (weekly)
-    - cron: '0 9 * * 1'
+  # disabled for now and triggered manually from github actions 
+  # schedule:
+  #   # Run every Monday at 9:00 AM UTC (weekly)
+  #   - cron: '0 9 * * 1'
   workflow_dispatch:
     inputs:
       platform:
