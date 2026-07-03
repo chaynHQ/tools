@@ -13,9 +13,16 @@ export async function POST(request: Request) {
       const response = await callAnthropic(prompt, {
         tools: [
           {
-            type: 'web_search_20260209',
+            // Use the classic (non-agentic) web search tool. The newer
+            // `web_search_20260209` tool runs an agentic loop (multiple searches
+            // plus server-side code execution) that takes 30s–2min and is highly
+            // variable, which pushed end-to-end letter generation past the 100s
+            // client/test timeout (→ "Review and send" never appears). This
+            // version returns results in ~10–15s, which is all this route needs
+            // to find a platform's official policies and write the letter.
+            type: 'web_search_20250305',
             name: 'web_search',
-            max_uses: 10,
+            max_uses: 5,
           },
           // currently multiple tools cannot be used at the same time - web search should be prioritised
           // {

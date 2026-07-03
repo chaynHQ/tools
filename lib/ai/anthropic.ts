@@ -43,10 +43,29 @@ export async function callAnthropic(
       const toolCall = response.content.find(block => block.type === 'tool_use');
 
       if (toolCall && toolCall.name === 'json') {
-        // Extract the 'input' object. This is the final structured JSON
-        return JSON.stringify(toolCall.input);
+        // Extract the 'input' object. This is the final structured JSON.
+        let input: any = toolCall.input;
+
+        // Sonnet 5 sometimes echoes the tool-call envelope and nests the actual
+        // payload under a single wrapper key (e.g. `{ parameters: {...} }` or
+        // `{ params: {...} }`) instead of returning the schema's top-level
+        // properties directly. Unwrap it so callers see the intended object.
+        if (input && typeof input === 'object' && !Array.isArray(input)) {
+          const keys = Object.keys(input);
+          const WRAPPER_KEYS = ['parameters', 'params', 'input', 'arguments', 'json', 'result', 'response'];
+          if (
+            keys.length === 1 &&
+            WRAPPER_KEYS.includes(keys[0]) &&
+            input[keys[0]] &&
+            typeof input[keys[0]] === 'object'
+          ) {
+            input = input[keys[0]];
+          }
+        }
+
+        return JSON.stringify(input);
       }
-    }  
+    }
 
     // When tools like `web_search` are used, Claude returns multiple content
     // blocks in order: interim narration text, the tool-use/tool-result blocks,

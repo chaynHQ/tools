@@ -113,6 +113,18 @@ async function validatePlatformPolicies() {
       console.log(`::set-output name=platform_name::${PLATFORM_NAMES[platform]}`);
       console.log(`::set-output name=reasoning::${validationResult.reasoning}`);
       console.log(`::set-output name=force_rewrite::${forceRewrite}`);
+
+      // Surface the real orchestration error to the Action logs. Rollbar is the
+      // only other place this message goes, so if the Rollbar token is
+      // misconfigured the underlying failure is otherwise invisible. Fail the
+      // step so the error can't be silently swallowed with exit 0.
+      if (validationResult.status === 'completed_with_error') {
+        console.error(
+          `Policy validation failed for ${platform}: ${validationResult.data.error || 'Unknown error'}`,
+        );
+        console.error(`Reasoning: ${validationResult.reasoning}`);
+        process.exit(1);
+      }
     }
 
     rollbar.info('Policy validation: Completed validation', {
