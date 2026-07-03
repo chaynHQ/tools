@@ -20,7 +20,62 @@ export async function POST(request: Request) {
 
     const generateQualityCheck = async () => {
       const content = generateLetterQualityCheckPrompt(letter, formData);
-      const response = await callAnthropic(content);
+      // Force a structured tool response so the model can't wrap the JSON in
+      // narration or emit trailing commas (both of which Sonnet 5 does when left
+      // to free-form text, breaking parseAIJson). Mirrors the generate-letter
+      // and follow-up routes.
+      const response = await callAnthropic(content, {
+        tools: [
+          {
+            name: 'json',
+            description: 'Respond with the quality-check result as a JSON object',
+            input_schema: {
+              type: 'object',
+              properties: {
+                issues: {
+                  type: 'array',
+                  description: 'All issues found in the letter. Empty array if none.',
+                  items: {
+                    type: 'object',
+                    properties: {
+                      severity: { type: 'string', enum: ['CRITICAL', 'MINOR'] },
+                      code: {
+                        type: 'string',
+                        enum: [
+                          'HALLUCINATION',
+                          'SENSITIVE_DATA',
+                          'POLICY_ERROR',
+                          'BANNED_TERM',
+                          'INAPPROPRIATE_TONE',
+                          'MISSING_CRITICAL_INFO',
+                          'LANGUAGE',
+                          'STRUCTURE_DEVIATION',
+                          'INFO_HANDLING_ERROR',
+                          'SUBJECT_LINE_ERROR',
+                        ],
+                      },
+                      description: { type: 'string' },
+                    },
+                    required: ['severity', 'code', 'description'],
+                  },
+                },
+                improvedLetter: {
+                  type: 'object',
+                  description: 'The corrected letter. Identical to the original if no issues.',
+                  properties: {
+                    subject: { type: 'string' },
+                    body: { type: 'string' },
+                  },
+                  required: ['subject', 'body'],
+                },
+              },
+              required: ['issues', 'improvedLetter'],
+              additionalProperties: false,
+            },
+          },
+        ],
+        tool_choice: { type: 'tool', name: 'json' },
+      });
       return parseAIJson(response);
     };
 
