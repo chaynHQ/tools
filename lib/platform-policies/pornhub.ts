@@ -9,7 +9,7 @@ export const pornhubPolicy: PlatformPolicies = {
     "title": "Pornhub Terms of Service",
     "summary": "Legal terms governing the use of Pornhub, including content ownership, security responsibilities, and prohibited behavior.",
     "url": "https://www.pornhub.com/information/terms",
-    "accessTimestamp": "2026-07-04T13:40:02.354Z",
+    "accessTimestamp": "2026-07-04T14:08:36.858Z",
     "policies": [
       {
         "id": "ph-tos-ncii",
@@ -269,17 +269,98 @@ export const pornhubPolicy: PlatformPolicies = {
         "removalCriteria": [
           "Uploader fails to provide required evidence within five working days"
         ]
+      },
+      {
+        "id": "ph-tos-child-exploitation-trafficking",
+        "reference": "Monitoring and Enforcement; Termination",
+        "summary": "Prohibits content involving underage individuals or content produced through force, fraud, or coercion, and removes such content upon discovery",
+        "quote": "This Website takes a powerful stand against any form of child exploitation or human trafficking. If we discover that any Content involves underage individuals, or any form of force, fraud, or coercion, we will remove the Content and submit a report to the proper law enforcement authorities.",
+        "contentTypes": [
+          "intimate",
+          "personal",
+          "private",
+          "other"
+        ],
+        "contentContexts": [
+          "relationship",
+          "hacked",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Content involves underage individuals",
+          "Content was produced through force, fraud, or coercion"
+        ]
+      },
+      {
+        "id": "ph-tos-complaint-handling",
+        "reference": "Complaint Handling Procedure",
+        "summary": "Allows users to lodge a complaint regarding enforcement decisions or content reporting outcomes within a set timeframe",
+        "quote": "If we take any action concerning you, your account, or any Content that you attempted to or uploaded on the Website, as set out in the section \"Monitoring and Enforcement; Termination\", you may lodge a complaint against such decision. Similarly, you may lodge a complaint if you disagree with our decision following a notice you submitted for Content reporting or removal.",
+        "contentTypes": [
+          "intimate",
+          "personal",
+          "private",
+          "other"
+        ],
+        "contentContexts": [
+          "relationship",
+          "hacked",
+          "impersonation",
+          "unknown",
+          "other"
+        ],
+        "timeframes": {
+          "response": null,
+          "removal": null
+        },
+        "evidenceRequirements": [
+          {
+            "description": "Complaint submitted via email with account details and explanation of reasons for the complaint",
+            "example": "Email to dsa@pornhub.com from the account's registered email with supporting information",
+            "reason": "Required for the platform to investigate and review the complaint"
+          }
+        ],
+        "removalCriteria": []
+      },
+      {
+        "id": "ph-tos-trademark-reporting",
+        "reference": "Copyright and Other Intellectual Property",
+        "summary": "Provides a process for trademark owners to report content that infringes their trademark, with removal in clear cases of infringement",
+        "quote": "If you're sure you want to report Content on this Website that you believe infringes your trademark, you can do so by contacting us here. This Website is willing to perform a limited investigation of reasonable complaints and will remove Content in clear cases of infringement.",
+        "contentTypes": [
+          "personal",
+          "other"
+        ],
+        "contentContexts": [
+          "impersonation",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [
+          {
+            "description": "Report submitted by the trademark owner or their authorized representative",
+            "example": "Contact form submission detailing the trademark infringement",
+            "reason": "Required to verify the reporting party has standing to file a trademark complaint"
+          }
+        ],
+        "removalCriteria": [
+          "Content constitutes a clear case of trademark infringement"
+        ]
       }
     ],
     "appealProcess": {
       "url": "mailto:dsa@pornhub.com",
-      "summary": "Users may lodge a complaint against a content moderation decision, including decisions related to reports of non-consensual or infringing content, within six months of being notified of the decision.",
+      "summary": "Users may lodge a complaint against enforcement decisions (such as content removal, account restriction, or termination) or against a decision made regarding their content reporting or removal request, within six months of being notified. Complaints are reviewed in a timely, non-discriminatory, diligent, and objective manner, and prior decisions may be reversed if justified. EU-based users may also escalate unresolved disputes to a certified Dispute Settlement Body.",
       "steps": [
-        "Submit a complaint via email to dsa@pornhub.com from the email address associated with your account or from which the decision notice was received",
-        "Include as much information as possible to allow investigation of the complaint",
-        "Provide an explanation of the reasons the complaint is believed to be justified",
-        "The platform reviews complaints in a timely, non-discriminatory, diligent, and objective manner and may reverse its prior decision if warranted",
-        "If unresolved through the internal complaint-handling system, EU-based users may escalate to a certified Dispute Settlement Body within six months of the decision notification"
+        "Submit a complaint by emailing dsa@pornhub.com from the email address associated with the affected account or from which the decision notice was received",
+        "Include as much information as possible to allow investigation of the complaint, along with an explanation of why the complaint is believed to be justified",
+        "Submit the complaint within six (6) months of being notified of the decision",
+        "Await review of the complaint, which will be handled in a timely, non-discriminatory, diligent, and objective manner",
+        "If located in the European Union and unsatisfied with the outcome, select a certified Dispute Settlement Body to assist in resolving the dispute"
       ]
     }
   },
@@ -289,7 +370,7 @@ export const pornhubPolicy: PlatformPolicies = {
     "title": "Pornhub Privacy Policy",
     "summary": "Privacy policy explaining how Pornhub collects, uses, and protects user data.",
     "url": "https://www.pornhub.com/information/privacy",
-    "accessTimestamp": "2026-07-04T13:40:02.354Z",
+    "accessTimestamp": "2026-07-04T14:08:36.858Z",
     "policies": [
       {
         "id": "ph-pp-content-removal",
@@ -475,7 +556,7 @@ export const pornhubPolicy: PlatformPolicies = {
     "title": "TAKE IT DOWN Act",
     "summary": "US federal law prohibiting nonconsensual intimate visual depictions of individuals, both authentic and computer-generated, requiring platforms to implement notice-and-removal processes within 48 hours. Signed into law May 19, 2025.",
     "url": "https://www.congress.gov/bill/119th-congress/senate-bill/146/text",
-    "accessTimestamp": "2026-07-04T13:40:02.354Z",
+    "accessTimestamp": "2026-07-04T14:08:36.858Z",
     "policies": [
       {
         "id": "take-it-down-authentic-adults",
@@ -733,7 +814,7 @@ export const pornhubPolicy: PlatformPolicies = {
     "title": "Pornhub Non-Consensual Content Policy",
     "summary": "Dedicated policy document specifically addressing non-consensual intimate imagery, including detection technologies, reporting processes, and enforcement measures.",
     "url": "https://help.porn-hub.website/hc/en-us/articles/4419871787027-Non-Consensual-Content-Policy",
-    "accessTimestamp": "2026-07-04T13:40:02.354Z",
+    "accessTimestamp": "2026-07-04T14:08:36.858Z",
     "policies": [
       {
         "id": "ph-ncii-consent-requirement",
