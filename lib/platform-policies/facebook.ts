@@ -7,9 +7,9 @@ export const facebookPolicy: PlatformPolicies = {
     "id": "us-take-it-down-act",
     "reference": "S.146",
     "title": "TAKE IT DOWN Act",
-    "summary": "US federal law that criminalizes nonconsensual publication of intimate images and requires covered platforms to implement notice-and-removal processes. Signed into law May 19, 2025 as Public Law No. 119-12.",
+    "summary": "US federal law that criminalizes nonconsensual publication of intimate images (including AI-generated deepfakes) and requires covered platforms to implement notice-and-removal processes within one year of enactment. Signed into law May 19, 2025 as Public Law No. 119-12.",
     "url": "https://www.congress.gov/bill/119th-congress/senate-bill/146/text",
-    "accessTimestamp": "2026-07-04T12:05:38.073Z",
+    "accessTimestamp": "2026-07-04T14:10:15.029Z",
     "policies": [
       {
         "id": "takedown-act-ncii-authentic-adults",
@@ -304,9 +304,9 @@ export const facebookPolicy: PlatformPolicies = {
     "id": "facebook-new-1758659204835-0",
     "reference": "META-CS-2025",
     "title": "Meta Community Standards",
-    "summary": "Comprehensive community guidelines covering Facebook, Instagram, Messenger and Threads, including policies on adult nudity, sexual activity, and non-consensual intimate imagery. As of November 2024, Meta unified its Community Guidelines and Community Standards into one single set of rules ('Community Standards') applicable across Facebook, Instagram, Messenger and Threads.",
+    "summary": "Comprehensive community guidelines covering Facebook, Instagram, Messenger and Threads, including policies on adult nudity, sexual activity, and non-consensual intimate imagery. Meta unified its Community Guidelines and Community Standards into one single set of rules ('Community Standards') applicable across Facebook, Instagram, Messenger and Threads, effective November 12, 2024.",
     "url": "https://transparency.meta.com/policies/community-standards/",
-    "accessTimestamp": "2026-07-04T12:05:38.073Z",
+    "accessTimestamp": "2026-07-04T14:10:15.029Z",
     "policies": [
       {
         "id": "meta-cs-adult-sexual-exploitation",
@@ -545,9 +545,9 @@ export const facebookPolicy: PlatformPolicies = {
     "id": "facebook-new-1758659204835-1",
     "reference": "META-TOS-2025",
     "title": "Meta Terms of Service",
-    "summary": "Updated terms governing use of Facebook, Messenger and other Meta products, effective January 1, 2025.",
+    "summary": "Terms governing access and use of Facebook, Messenger, and other Meta products, covering user commitments, content removal, intellectual property licenses, and dispute processes.",
     "url": "https://www.facebook.com/terms/",
-    "accessTimestamp": "2026-07-04T12:05:38.073Z",
+    "accessTimestamp": "2026-07-04T14:10:15.029Z",
     "policies": [
       {
         "id": "meta-tos-content-violations",
@@ -649,6 +649,31 @@ export const facebookPolicy: PlatformPolicies = {
           "Content violates user's rights",
           "Content violates intellectual property rights",
           "Content violates platform terms and policies"
+        ]
+      },
+      {
+        "id": "meta-tos-content-removal-mitigation",
+        "reference": "Section 3.2",
+        "summary": "Provides authority to remove or restrict access to content, features, services, or information to avoid or mitigate misuse of services or adverse legal impacts",
+        "quote": "We also can remove or restrict access to content, features, services, or information if we determine that doing so is reasonably necessary to avoid or mitigate misuse of our services or adverse legal or regulatory impacts to Meta.",
+        "contentTypes": [
+          "intimate",
+          "personal",
+          "private",
+          "other"
+        ],
+        "contentContexts": [
+          "hacked",
+          "impersonation",
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Necessary to avoid or mitigate misuse of services",
+          "Necessary to avoid or mitigate adverse legal or regulatory impacts to Meta"
         ]
       },
       {
@@ -756,17 +781,43 @@ export const facebookPolicy: PlatformPolicies = {
           "Account was used without the owner's permission",
           "Account ownership cannot be confirmed"
         ]
+      },
+      {
+        "id": "meta-tos-safety-security-action",
+        "reference": "Section 1.5",
+        "summary": "Enables detection and action against harmful conduct, misuse, and violating content, including removal, restriction, account suspension, or law enforcement referral",
+        "quote": "We employ dedicated teams around the world, work with external service providers, partners and other relevant entities and develop advanced technical systems to detect potential misuse of our Products, harmful conduct towards others, and situations where we may be able to help support or protect our community, including to respond to user reports of potentially violating content. If we learn of content or conduct like this, we may take appropriate action based on our assessment that may include - notifying you, offering help, removing content, removing or restricting access to certain features, disabling an account, or contacting law enforcement.",
+        "contentTypes": [
+          "intimate",
+          "personal",
+          "private",
+          "other"
+        ],
+        "contentContexts": [
+          "hacked",
+          "impersonation",
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Detection of potential misuse of Products",
+          "Detection of harmful conduct towards others",
+          "User reports of potentially violating content"
+        ]
       }
     ],
     "appealProcess": {
       "url": "https://www.facebook.com/help/103873106370583?ref=tos",
-      "summary": "When Meta removes content or disables an account for violations, they will notify the user and explain options for requesting a review, except in certain limited circumstances involving legal liability, community harm, service integrity, technical limitations, or legal restrictions.",
+      "summary": "Meta notifies users of content removal or account action taken against their content or account, and provides an option to request another review, except in cases involving serious/repeated violations, legal liability, harm to the community, integrity/operational concerns, technical limitations, or legal prohibitions.",
       "steps": [
-        "Meta removes content or disables an account found to violate Community Standards or Terms of Service.",
-        "Meta notifies the affected user of the action taken, unless prohibited by law, risk of harm, or technical limitations.",
-        "Meta explains any available options to request another review of the decision.",
-        "In some cases, decisions may be subject to review by the independent Oversight Board.",
-        "Users can learn more about disabled accounts and contact Meta if they believe an account was disabled by mistake."
+        "Meta notifies the user when content is removed for violating the Community Standards.",
+        "Meta explains any options available to request another review of the decision.",
+        "Exceptions to review rights apply if the user seriously or repeatedly violated the Terms, if review would expose Meta or others to legal liability, harm the community, compromise service integrity, face technical limitations, or be legally prohibited.",
+        "For account-level actions, Meta similarly notifies the user and explains review options, subject to the same exceptions.",
+        "Users can learn more about restoring disabled accounts or contacting Meta if they believe an account was disabled in error via the linked help resource."
       ]
     }
   },
@@ -774,9 +825,9 @@ export const facebookPolicy: PlatformPolicies = {
     "id": "facebook-new-1758659204835-2",
     "reference": "META-NUDITY-2025",
     "title": "Adult Nudity and Sexual Activity Policy",
-    "summary": "Specific policy addressing restrictions on nudity and sexual content, with provisions for non-consensual intimate imagery.",
+    "summary": "Specific policy addressing restrictions on nudity and sexual content, including provisions for age-restricted content, photorealistic/digital imagery, and content limitations for viewers 18+.",
     "url": "https://transparency.meta.com/policies/community-standards/adult-nudity-sexual-activity/",
-    "accessTimestamp": "2026-07-04T12:05:38.073Z",
+    "accessTimestamp": "2026-07-04T14:10:15.029Z",
     "policies": [
       {
         "id": "meta-nudity-adult-nudity",
@@ -915,9 +966,9 @@ export const facebookPolicy: PlatformPolicies = {
     "id": "facebook-new-1758659204835-3",
     "reference": "META-HARASSMENT-2025",
     "title": "Bullying and Harassment Policy",
-    "summary": "Policy addressing bullying, harassment, and targeted attacks, including protections for private individuals and provisions for image-based abuse.",
+    "summary": "Policy addressing bullying, harassment, and targeted attacks, including protections for private individuals, minors, and provisions for image-based abuse and degrading content.",
     "url": "https://transparency.meta.com/policies/community-standards/bullying-harassment/",
-    "accessTimestamp": "2026-07-04T12:05:38.073Z",
+    "accessTimestamp": "2026-07-04T14:10:15.029Z",
     "policies": [
       {
         "id": "meta-harassment-unwanted-contact",
@@ -1294,7 +1345,7 @@ export const facebookPolicy: PlatformPolicies = {
     "title": "Copyright",
     "summary": "Comprehensive copyright policy including DMCA procedures, reporting mechanisms, and intellectual property protections across Meta platforms. Page is hosted in the Meta Help Center (title displays as 'Copyright | Meta Help Center').",
     "url": "https://www.meta.com/help/policies/2202628709913826/",
-    "accessTimestamp": "2026-07-04T12:05:38.073Z",
+    "accessTimestamp": "2026-07-04T14:10:15.029Z",
     "policies": [
       {
         "id": "meta-copyright-infringement",
@@ -1453,14 +1504,13 @@ export const facebookPolicy: PlatformPolicies = {
       }
     ],
     "appealProcess": {
-      "url": "https://www.meta.com/help/policies/meta-policies/Meta-US-Digital-Millennium-Copyright-Act/",
-      "summary": "Users whose content was removed due to a copyright report can appeal the decision or file a DMCA counter-notification, with instructions provided in the removal notification.",
+      "url": "https://www.meta.com/help/policies/2202628709913826/",
+      "summary": "Users whose content is removed due to a copyright infringement report can appeal the decision, and may also be able to file a DMCA counter-notification where applicable.",
       "steps": [
-        "Receive a notification from Meta when content is removed due to an intellectual property report, which may include the rights owner's name and report details",
-        "Review the removal notification for instructions on how to appeal",
-        "Submit an appeal or, if applicable, file a DMCA counter-notification following the provided instructions",
-        "Group admins are notified of removals within their group, but only the original poster can submit an appeal",
-        "Follow up directly with the rights owner to try to resolve the issue if you believe the content shouldn't have been removed"
+        "Receive a notification from Meta about the content removal, which may include the rights owner's name and details of the report",
+        "Follow the instructions provided in the notification to submit an appeal",
+        "If applicable, file a DMCA counter-notification using the instructions provided in the notification",
+        "Alternatively, follow up directly with the rights owner to try to resolve the issue"
       ]
     }
   },
@@ -1468,9 +1518,9 @@ export const facebookPolicy: PlatformPolicies = {
     "id": "facebook-new-1758731508292-0",
     "reference": "META-ADULT-SEXUAL-EXPLOITATION-2025",
     "title": "Adult Sexual Exploitation Policy",
-    "summary": "Specific policy addressing non-consensual intimate imagery, sextortion, and other forms of adult sexual exploitation including detailed provisions for NCII removal.",
+    "summary": "Specific policy addressing non-consensual intimate imagery, sextortion, and other forms of adult sexual exploitation, including detailed provisions for NCII removal, definitions of 'creepshots'/'upskirts', and consent indicators.",
     "url": "https://transparency.meta.com/policies/community-standards/adult-sexual-exploitation/",
-    "accessTimestamp": "2026-07-04T12:05:38.073Z",
+    "accessTimestamp": "2026-07-04T14:10:15.029Z",
     "policies": [
       {
         "id": "meta-ase-ncii-sharing",
@@ -1712,6 +1762,27 @@ export const facebookPolicy: PlatformPolicies = {
           "Content shared by third party",
           "Reported by an authorized representative or Trusted Partner"
         ]
+      },
+      {
+        "id": "meta-ase-account-disable-rape-threats",
+        "reference": "Adult Sexual Exploitation Policy",
+        "summary": "May disable the posting account in addition to removing content that threatens or advocates rape or other non-consensual sexual touching",
+        "quote": "In addition to our at-scale policy of removing content that threatens or advocates rape or other non-consensual sexual touching, we may also disable the posting account.",
+        "contentTypes": [
+          "intimate",
+          "personal",
+          "other"
+        ],
+        "contentContexts": [
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Content threatens or advocates rape",
+          "Content threatens or advocates other non-consensual sexual touching"
+        ]
       }
     ],
     "appealProcess": null
@@ -1720,9 +1791,9 @@ export const facebookPolicy: PlatformPolicies = {
     "id": "facebook-new-1758731508292-1",
     "reference": "META-IP-INFRINGEMENT-2025",
     "title": "Third-Party Intellectual Property Infringement Policy",
-    "summary": "Policy covering copyright and trademark infringement with specific procedures for reporting and removing infringing content across Meta platforms.",
+    "summary": "Policy covering copyright and trademark infringement with specific procedures for reporting and removing infringing content across Meta platforms, including the Intellectual Property Help Center and Brand Rights Protection.",
     "url": "https://transparency.meta.com/policies/community-standards/intellectual-property/",
-    "accessTimestamp": "2026-07-04T12:05:38.073Z",
+    "accessTimestamp": "2026-07-04T14:10:15.029Z",
     "policies": [
       {
         "id": "meta-ip-copyright-infringement",
@@ -1807,9 +1878,9 @@ export const facebookPolicy: PlatformPolicies = {
     "id": "facebook-new-1758760075272-0",
     "reference": "META-PRIVACY-2025",
     "title": "Meta Privacy Policy",
-    "summary": "Comprehensive privacy policy covering data collection, use, sharing, and user rights across Meta platforms, effective June 16, 2025.",
+    "summary": "Comprehensive privacy policy covering data collection, use, sharing, and user rights across Meta platforms. The policy has been updated and is now effective December 16, 2025 (superseding the June 16, 2025 version previously on record).",
     "url": "https://www.facebook.com/privacy/policy",
-    "accessTimestamp": "2026-07-04T12:05:38.073Z",
+    "accessTimestamp": "2026-07-04T14:10:15.029Z",
     "policies": [
       {
         "id": "meta-privacy-safety-security",
@@ -1972,7 +2043,7 @@ export const facebookPolicy: PlatformPolicies = {
     "title": "Copyrights and Trademarks",
     "summary": "Meta Transparency Center page detailing copyright and trademark enforcement standards applied to ad content and organic content across Facebook, Instagram, and other Meta platforms, complementing the DMCA-focused Copyright help center article.",
     "url": "https://transparency.meta.com/policies/ad-standards/intellectual-property-infringement/copyright-and-trademarks/",
-    "accessTimestamp": "2026-07-04T12:05:38.073Z",
+    "accessTimestamp": "2026-07-04T14:10:15.029Z",
     "policies": [
       {
         "id": "meta-copyright-trademark-ad-ip-infringement",
@@ -2020,6 +2091,169 @@ export const facebookPolicy: PlatformPolicies = {
         ]
       }
     ],
+    "appealProcess": null
+  },
+  {
+    "id": "facebook-new-1783174215029-0",
+    "reference": "META-COMMERCIAL-TOS",
+    "title": "Meta Commercial Terms of Service",
+    "summary": "Supplemental terms applying to business or commercial use of Meta Products, incorporating and extending the core Meta Terms of Service for commercial actors, including content licensing and IP-related warranties.",
+    "url": "https://www.facebook.com/legal/commercial_terms",
+    "accessTimestamp": "2026-07-04T14:10:15.029Z",
+    "policies": [],
+    "appealProcess": null
+  },
+  {
+    "id": "facebook-new-1783174215029-1",
+    "reference": "META-IP-ACROSS-PLATFORMS",
+    "title": "Intellectual Property Across Meta Platforms",
+    "summary": "Meta Help Center policy article explaining copyright and trademark protections, DMCA reporting/counter-notification procedures, and consequences for repeated IP violations across Facebook and Instagram.",
+    "url": "https://www.meta.com/help/policies/3234337743488413/",
+    "accessTimestamp": "2026-07-04T14:10:15.029Z",
+    "policies": [
+      {
+        "id": "meta-ip-general-prohibition",
+        "reference": "About Intellectual Property",
+        "summary": "Prohibits posting content that violates another person's intellectual property rights, including copyright and trademark.",
+        "quote": "Meta does not allow posting content that violates someone else's intellectual property rights, including copyright and trademark.",
+        "contentTypes": [
+          "intimate",
+          "personal",
+          "other"
+        ],
+        "contentContexts": [
+          "relationship",
+          "unknown",
+          "impersonation",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Content violates another person's intellectual property rights, including copyright or trademark."
+        ]
+      },
+      {
+        "id": "meta-copyright-reporting",
+        "reference": "Copyright",
+        "summary": "Allows individuals to report content that infringes their copyright, including original photos or videos, for removal.",
+        "quote": "If you believe content on Meta is infringing your copyright, you can report it to us through one of the following forms",
+        "contentTypes": [
+          "intimate",
+          "personal"
+        ],
+        "contentContexts": [
+          "relationship",
+          "unknown",
+          "impersonation",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [
+          {
+            "description": "Completion of the applicable platform-specific copyright report form.",
+            "example": "Facebook Copyright Report Form, Instagram Copyright Report Form, WhatsApp Intellectual Property Form, Quest Intellectual Property Form.",
+            "reason": "Required to formally submit a claim of copyright infringement to Meta."
+          }
+        ],
+        "removalCriteria": [
+          "Content is found to infringe the reporting individual's copyright."
+        ]
+      },
+      {
+        "id": "meta-trademark-reporting",
+        "reference": "Trademark",
+        "summary": "Allows individuals to report content that infringes their trademark rights for removal.",
+        "quote": "If you believe content on Meta is infringing your trademark rights, you can report it to us through one of the following forms",
+        "contentTypes": [
+          "other"
+        ],
+        "contentContexts": [
+          "impersonation",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [
+          {
+            "description": "Completion of the applicable platform-specific trademark report form.",
+            "example": "Facebook Trademark Report Form, Instagram Trademark Report Form, WhatsApp Intellectual Property Form, Quest Intellectual Property Form.",
+            "reason": "Required to formally submit a claim of trademark infringement to Meta."
+          }
+        ],
+        "removalCriteria": [
+          "Content is found to infringe the reporting individual's trademark rights."
+        ]
+      },
+      {
+        "id": "meta-repeat-infringer-policy",
+        "reference": "Repeat Intellectual Property Infringer Policy",
+        "summary": "Imposes additional restrictions, including account disabling or posting limitations, on individuals who repeatedly post content infringing others' intellectual property rights.",
+        "quote": "Repeatedly posting content that infringes someone else's intellectual property rights can result in additional restrictions. Your account or profile may be disabled, or you may face limitations on your ability to post content or access certain features and functionality.",
+        "contentTypes": [
+          "intimate",
+          "personal",
+          "other"
+        ],
+        "contentContexts": [
+          "relationship",
+          "unknown",
+          "impersonation",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Repeated posting of content that infringes another person's intellectual property rights."
+        ]
+      },
+      {
+        "id": "meta-dmca-designated-agent",
+        "reference": "Meta's Digital Millennium Copyright Act (DMCA) Designated Agent",
+        "summary": "Provides a designated channel for submitting formal copyright infringement (DMCA) reports to Meta.",
+        "quote": "The fastest and easiest way to send a DMCA report of copyright infringement to our designated agent for each Meta platform is to contact Meta through our designated reporting channels.",
+        "contentTypes": [
+          "intimate",
+          "personal"
+        ],
+        "contentContexts": [
+          "relationship",
+          "unknown",
+          "impersonation",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [
+          {
+            "description": "A formal DMCA report submitted through Meta's designated reporting channels or agent contact.",
+            "example": "Submission via the online reporting form or written communication to the Meta AI Designated Agent.",
+            "reason": "Required to comply with DMCA requirements for processing copyright takedown requests."
+          }
+        ],
+        "removalCriteria": [
+          "Valid DMCA report of copyright infringement submitted to the designated agent."
+        ]
+      }
+    ],
+    "appealProcess": {
+      "url": null,
+      "summary": "If content is removed due to an intellectual property report, the affected user is notified and may contact the rights owner directly or submit an appeal following instructions provided in the notification.",
+      "steps": [
+        "Receive a notification from Meta when content is removed due to an intellectual property report.",
+        "Review the notification, which may include the name and email address of the rights owner and details about the report.",
+        "Contact the rights owner directly to try to resolve the issue, if desired.",
+        "Alternatively, submit an appeal by following the instructions provided in the notification."
+      ]
+    }
+  },
+  {
+    "id": "facebook-new-1783174215029-2",
+    "reference": "META-US-PRIVACY-NOTICE",
+    "title": "Meta United States Regional Privacy Notice",
+    "summary": "Regional notice supplementing the Meta Privacy Policy, detailing U.S. state privacy law rights (e.g., CCPA) including rights to know, delete, and correct personal information, relevant to takedown/appeal data handling.",
+    "url": "https://www.facebook.com/privacy/policies/uso/",
+    "accessTimestamp": "2026-07-04T14:10:15.029Z",
+    "policies": [],
     "appealProcess": null
   }
 ],
