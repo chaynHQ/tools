@@ -49,17 +49,24 @@ export async function callAnthropic(
         // Sonnet 5 sometimes echoes the tool-call envelope and nests the actual
         // payload under a single wrapper key (e.g. `{ parameters: {...} }` or
         // `{ params: {...} }`) instead of returning the schema's top-level
-        // properties directly. Unwrap it so callers see the intended object.
+        // properties directly. The wrapped value may itself be an object OR a
+        // JSON-encoded string. Unwrap (and parse) it so callers see the intended
+        // object.
         if (input && typeof input === 'object' && !Array.isArray(input)) {
           const keys = Object.keys(input);
           const WRAPPER_KEYS = ['parameters', 'params', 'input', 'arguments', 'json', 'result', 'response'];
-          if (
-            keys.length === 1 &&
-            WRAPPER_KEYS.includes(keys[0]) &&
-            input[keys[0]] &&
-            typeof input[keys[0]] === 'object'
-          ) {
-            input = input[keys[0]];
+          if (keys.length === 1 && WRAPPER_KEYS.includes(keys[0])) {
+            let inner: any = input[keys[0]];
+            if (typeof inner === 'string') {
+              try {
+                inner = JSON.parse(inner);
+              } catch {
+                // leave `inner` as-is; downstream validation will catch it
+              }
+            }
+            if (inner && typeof inner === 'object') {
+              input = inner;
+            }
           }
         }
 

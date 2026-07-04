@@ -49,40 +49,31 @@ export async function generateLetter(formData: LetterRequest): Promise<Generated
       let improvedLetter;
       const originalLetter = response;
 
-      // Perform quality check. This is a best-effort refinement step: the
-      // `originalLetter` is already a complete, valid letter, so a transient
-      // failure here (e.g. a flaky upstream API error) must NOT discard it and
-      // fail the whole flow. On any quality-check error we simply keep the
-      // original letter.
-      try {
-        const qualityCheckRes = await fetch('/api/quality-check-letter', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            letter: originalLetter,
-            formData: sanitizedData,
-          }),
-        });
+      // Perform quality check. This is a required quality gate for the letter,
+      // so a failure here is surfaced (the request throws and is retried by the
+      // outer loop) rather than silently shipping an unchecked letter. The route
+      // itself retries transient/malformed responses before returning an error.
+      const qualityCheckRes = await fetch('/api/quality-check-letter', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          letter: originalLetter,
+          formData: sanitizedData,
+        }),
+      });
 
-        if (qualityCheckRes.ok) {
-          const qualityCheckResponse: QualityCheckResponse = await qualityCheckRes.json();
+      if (!qualityCheckRes.ok) {
+        throw new Error('Quality check request failed');
+      }
 
-          // If issues were found and an improved letter was returned, use it.
-          if (qualityCheckResponse.issues?.length > 0 && qualityCheckResponse.improvedLetter) {
-            improvedLetter = {
-              subject: qualityCheckResponse.improvedLetter.subject,
-              body: qualityCheckResponse.improvedLetter.body,
-            };
-          }
-        } else {
-          rollbar.warning('Quality check request failed; using original letter', {
-            status: qualityCheckRes.status,
-          });
-        }
-      } catch (qualityCheckError) {
-        rollbar.warning('Quality check errored; using original letter', {
-          error: qualityCheckError,
-        });
+      const qualityCheckResponse: QualityCheckResponse = await qualityCheckRes.json();
+
+      // If issues were found and an improved letter was returned, use it.
+      if (qualityCheckResponse.issues?.length > 0 && qualityCheckResponse.improvedLetter) {
+        improvedLetter = {
+          subject: qualityCheckResponse.improvedLetter.subject,
+          body: qualityCheckResponse.improvedLetter.body,
+        };
       }
       const letter = improvedLetter || originalLetter;
 

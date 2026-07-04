@@ -76,10 +76,32 @@ export async function POST(request: Request) {
         ],
         tool_choice: { type: 'tool', name: 'json' },
       });
-      return parseAIJson(response);
+
+      const parsed = parseAIJson(response);
+
+      // Sonnet 5's forced tool use is occasionally malformed even after the
+      // envelope-unwrap in callAnthropic: it may omit `issues`, or return only
+      // `improvedLetter`. `parseAIJson` still succeeds (the JSON is valid, just
+      // the wrong shape), so we must validate here and throw on a bad shape —
+      // that lets `retryWithDelay` re-run the check instead of returning a
+      // result that would crash the caller. A persistent bad shape surfaces as
+      // an error (a genuine problem worth investigating) rather than being
+      // silently swallowed.
+      if (
+        !parsed ||
+        !Array.isArray(parsed.issues) ||
+        typeof parsed.improvedLetter?.subject !== 'string' ||
+        typeof parsed.improvedLetter?.body !== 'string'
+      ) {
+        throw new Error('Quality check returned an unexpected response shape');
+      }
+
+      return parsed;
     };
 
-    const qualityCheckResult = await retryWithDelay(generateQualityCheck);
+    // Retry a few times: the check is a required gate, and the malformed-shape
+    // failure above is intermittent, so a couple of extra attempts absorb it.
+    const qualityCheckResult = await retryWithDelay(generateQualityCheck, 2);
 
     // Send critical issues to Zapier if webhook URL is configured
     // if (qualityCheckResult.severity === 'critical' && process.env.ZAPIER_QUALITY_WEBHOOK_URL) {
