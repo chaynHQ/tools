@@ -198,12 +198,15 @@ export async function orchestratePolicyValidation(
     // Step 4: Build new platform policies
     const documentResults = [];
 
-    // Add existing documents
-    for (let i = 0; i < documentValidation.validDocuments.length; i++) {
-      const doc = documentValidation.validDocuments[i];
-      const abstraction = policyAbstractions[i];
+    // Add existing documents. Abstractions exist only for documents whose scrape
+    // succeeded, so `policyAbstractions` is shorter than `validDocuments` when any
+    // scrape failed. Match by documentId, not position — indexing by the
+    // validDocuments position attributes another document's abstraction (or
+    // `undefined`, which crashes on `.success`) to the wrong document.
+    for (const doc of documentValidation.validDocuments) {
+      const abstraction = policyAbstractions.find((a) => a.documentId === doc.id);
 
-      if (abstraction.success) {
+      if (abstraction && abstraction.success) {
         documentResults.push({
           document: {
             id: doc.id,
@@ -217,11 +220,11 @@ export async function orchestratePolicyValidation(
       }
     }
 
-    // Add new documents
-    const newDocAbstractions = policyAbstractions.slice(documentValidation.validDocuments.length);
+    // Add new documents. Same documentId lookup — new docs are keyed `new-${i}`
+    // when added to documentsForAbstraction above.
     for (let i = 0; i < documentValidation.newDocuments.length; i++) {
       const doc = documentValidation.newDocuments[i];
-      const abstraction = newDocAbstractions[i];
+      const abstraction = policyAbstractions.find((a) => a.documentId === `new-${i}`);
 
       if (abstraction && abstraction.success) {
         documentResults.push({
