@@ -9,7 +9,7 @@ export const instagramPolicy: PlatformPolicies = {
     "title": "TAKE IT DOWN Act",
     "summary": "US federal law that criminalizes nonconsensual publication of intimate images (including AI-generated deepfakes) and requires covered platforms to implement notice-and-removal processes within one year of enactment. Signed into law on May 19, 2025 as Public Law No. 119-12.",
     "url": "https://www.congress.gov/bill/119th-congress/senate-bill/146/text",
-    "accessTimestamp": "2026-07-04T14:09:45.618Z",
+    "accessTimestamp": "2026-07-04T14:37:54.528Z",
     "policies": [
       {
         "id": "take-it-down-authentic-adults",
@@ -243,9 +243,9 @@ export const instagramPolicy: PlatformPolicies = {
     "id": "instagram-new-1758659236640-0",
     "reference": "META-CS",
     "title": "Meta Community Standards",
-    "summary": "Unified community standards that apply to Facebook, Instagram, Messenger and Threads, covering content policies including non-consensual intimate imagery, harassment, and content removal. As of November 12, 2024, this replaced separate Instagram Community Guidelines with one unified policy set.",
+    "summary": "Unified community standards that apply to Facebook, Instagram, Messenger and Threads, covering content policies including non-consensual intimate imagery, harassment, and content removal. As of November 12, 2024, this replaced separate Instagram Community Guidelines with one unified policy set. Applies to all types of content including AI-generated content.",
     "url": "https://transparency.meta.com/policies/community-standards/",
-    "accessTimestamp": "2026-07-04T14:09:45.618Z",
+    "accessTimestamp": "2026-07-04T14:37:54.528Z",
     "policies": [
       {
         "id": "meta-cs-adult-sexual-exploitation",
@@ -478,6 +478,26 @@ export const instagramPolicy: PlatformPolicies = {
           "Content threatens people",
           "Content has potential to intimidate, exclude or silence others"
         ]
+      },
+      {
+        "id": "meta-cs-authenticity-principle",
+        "reference": "AUTHENTICITY",
+        "summary": "Prohibits misrepresentation of identity or activity to ensure content authenticity",
+        "quote": "We want to make sure the content people see is authentic. We believe that authenticity creates a better environment for sharing, and that's why we don't want people using our services to misrepresent who they are or what they're doing.",
+        "contentTypes": [
+          "personal",
+          "other"
+        ],
+        "contentContexts": [
+          "impersonation",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Content misrepresents who a person is",
+          "Content misrepresents what a person is doing"
+        ]
       }
     ],
     "appealProcess": null
@@ -488,7 +508,7 @@ export const instagramPolicy: PlatformPolicies = {
     "title": "Instagram Intellectual Property Policy",
     "summary": "Comprehensive policy on protecting intellectual property rights including copyright and trademark violations, and reporting procedures.",
     "url": "https://help.instagram.com/535503073130320/",
-    "accessTimestamp": "2026-07-04T14:09:45.618Z",
+    "accessTimestamp": "2026-07-04T14:37:54.528Z",
     "policies": [
       {
         "id": "ig-ip-copyright",
@@ -546,7 +566,7 @@ export const instagramPolicy: PlatformPolicies = {
     "title": "Instagram Non-Consensual Intimate Images Help",
     "summary": "Guidance for users on reporting and addressing non-consensual sharing of intimate images, including how Instagram's Community Operations team reviews and removes reported images and uses photo-matching technology to prevent re-sharing.",
     "url": "https://help.instagram.com/1769410010008691/",
-    "accessTimestamp": "2026-07-04T14:09:45.618Z",
+    "accessTimestamp": "2026-07-04T14:37:54.528Z",
     "policies": [
       {
         "id": "ig-ncii-community-standards",
@@ -631,6 +651,36 @@ export const instagramPolicy: PlatformPolicies = {
           "Image has been previously removed for violating Community Standards",
           "Photo-matching technology identifies attempts to reshare the same image"
         ]
+      },
+      {
+        "id": "ig-ncii-non-account-holder-reporting",
+        "reference": "Reporting without an Account",
+        "summary": "Allows individuals without an Instagram account to report violating content with the help of a friend who has an account",
+        "quote": "If you don't have an Instagram account, you can report things with the help of a friend.",
+        "contentTypes": [
+          "intimate",
+          "personal",
+          "private",
+          "other"
+        ],
+        "contentContexts": [
+          "hacked",
+          "impersonation",
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [
+          {
+            "description": "Enlist a friend with an Instagram account to submit the report on your behalf",
+            "example": "A friend reports the violating post using their own Instagram account",
+            "reason": "Reporting tools require an active Instagram account to submit a report"
+          }
+        ],
+        "removalCriteria": [
+          "Content is reported via a friend's Instagram account on behalf of someone without an account"
+        ]
       }
     ],
     "appealProcess": null
@@ -639,9 +689,9 @@ export const instagramPolicy: PlatformPolicies = {
     "id": "instagram-new-1758665752160-0",
     "reference": "META-PRIVACY",
     "title": "Meta Privacy Policy",
-    "summary": "Comprehensive privacy policy covering Facebook, Instagram, Messenger and other Meta products, detailing data collection, use, and sharing practices. Effective December 16, 2025 (updated from previously listed June 16, 2025 effective date).",
+    "summary": "Comprehensive privacy policy covering Facebook, Instagram, Messenger and other Meta products, detailing data collection, use, and sharing practices. Effective December 16, 2025, this update expanded use of AI chat interactions for ad personalization while excluding sensitive topics like religion, health, and politics from targeting.",
     "url": "https://www.facebook.com/privacy/policy",
-    "accessTimestamp": "2026-07-04T14:09:45.618Z",
+    "accessTimestamp": "2026-07-04T14:37:54.528Z",
     "policies": [
       {
         "id": "meta-privacy-safety-integrity",
@@ -718,6 +768,56 @@ export const instagramPolicy: PlatformPolicies = {
         "removalCriteria": [
           "User requests deletion of their information or account"
         ]
+      },
+      {
+        "id": "meta-privacy-oversight-board-review",
+        "reference": "Why and how we process your information - Promoting safety, integrity and security",
+        "summary": "Provides for independent review of certain content violation decisions through the Oversight Board",
+        "quote": "Find and address violations of our terms or policies. In some cases, the decisions we make about violations are reviewed by the Oversight Board",
+        "contentTypes": [
+          "intimate",
+          "personal",
+          "private",
+          "other"
+        ],
+        "contentContexts": [
+          "hacked",
+          "impersonation",
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Content found to violate terms or policies",
+          "Decision subject to independent Oversight Board review in some cases"
+        ]
+      },
+      {
+        "id": "meta-privacy-law-enforcement-disclosure",
+        "reference": "Why and how we process your information - Processing information when required by law",
+        "summary": "Provides for disclosure of user information to regulators or law enforcement in response to valid legal requests",
+        "quote": "For processing information when the law requires it: Where we are under an obligation to disclose information such as, for example, if we receive a valid legal request for certain information such as a search warrant, we will access, preserve and/or share your information with regulators, law enforcement or others.",
+        "contentTypes": [
+          "intimate",
+          "personal",
+          "private",
+          "other"
+        ],
+        "contentContexts": [
+          "hacked",
+          "impersonation",
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Valid legal request received (e.g., search warrant)",
+          "Legal obligation to disclose information"
+        ]
       }
     ],
     "appealProcess": null
@@ -728,7 +828,7 @@ export const instagramPolicy: PlatformPolicies = {
     "title": "Instagram Harassment and Bullying Reporting",
     "summary": "Dedicated reporting mechanism and policy for harassment and bullying content on Instagram, including guidance on reporting abusive images, comments, and accounts established to bully or harass others.",
     "url": "https://help.instagram.com/547601325292351",
-    "accessTimestamp": "2026-07-04T14:09:45.618Z",
+    "accessTimestamp": "2026-07-04T14:37:54.528Z",
     "policies": [
       {
         "id": "ig-harassment-bullying-accounts",
@@ -782,7 +882,7 @@ export const instagramPolicy: PlatformPolicies = {
     "title": "Meta Bullying and Harassment Policy",
     "summary": "Detailed policy on bullying and harassment across Meta platforms including specific protections for minors and private individuals, and provisions on content meant to degrade or shame including claims about sexual activity.",
     "url": "https://transparency.meta.com/policies/community-standards/bullying-harassment/",
-    "accessTimestamp": "2026-07-04T14:09:45.618Z",
+    "accessTimestamp": "2026-07-04T14:37:54.528Z",
     "policies": [
       {
         "id": "meta-bullying-unwanted-contact",
@@ -1186,7 +1286,7 @@ export const instagramPolicy: PlatformPolicies = {
     "title": "Report Non-Consensual Intimate Images (NCII) on Meta Platforms",
     "summary": "Meta Help Center policy page detailing how to report Non-Consensual Intimate Images (NCII) across Meta platforms, including Instagram Direct, referencing StopNCII.org for adults and TakeItDown.NCMEC.org for minors, and specialized reporting forms for US residents.",
     "url": "https://www.meta.com/help/policies/1437976901029950/",
-    "accessTimestamp": "2026-07-04T14:09:45.618Z",
+    "accessTimestamp": "2026-07-04T14:37:54.528Z",
     "policies": [
       {
         "id": "meta-ncii-prohibition",
@@ -1405,6 +1505,230 @@ export const instagramPolicy: PlatformPolicies = {
         "evidenceRequirements": [],
         "removalCriteria": [
           "Content is found to violate Meta's Community Standards upon review"
+        ]
+      }
+    ],
+    "appealProcess": null
+  },
+  {
+    "id": "instagram-new-1783175874528-2",
+    "reference": "META-NCII-SAFETY",
+    "title": "Meta Safety Center - Intimate Image Abuse and Sextortion",
+    "summary": "Safety Center resource explaining Meta's approach to non-consensual intimate images and sextortion, including StopNCII.org integration, hash-matching technology, and prevention resources across Meta platforms.",
+    "url": "https://www.meta.com/safety/topics/bullying-harassment/ncii/",
+    "accessTimestamp": "2026-07-04T14:37:54.528Z",
+    "policies": [
+      {
+        "id": "meta-ncii-prohibition-sharing-threatening",
+        "reference": "META-NCII-SAFETY - Intro",
+        "summary": "Prohibits sharing or threatening to share intimate images without the depicted person's consent.",
+        "quote": "Sharing—or threatening to share—intimate images without consent is against Meta policies.",
+        "contentTypes": [
+          "intimate"
+        ],
+        "contentContexts": [
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Content shares intimate images without the depicted person's consent.",
+          "Content includes a threat to share intimate images without consent."
+        ]
+      },
+      {
+        "id": "meta-sextortion-prohibition",
+        "reference": "META-NCII-SAFETY - Meta's work to combat sextortion",
+        "summary": "Prohibits using threats to share someone's intimate images to coerce them into unwanted actions, such as sending money, additional images, or engaging in sexual contact.",
+        "quote": "If someone tries to use a personal intimate image as a threat to make you do something you don't want to do—like send money, additional images or have sexual contact—that is a crime known as sextortion.",
+        "contentTypes": [
+          "intimate"
+        ],
+        "contentContexts": [
+          "unknown",
+          "relationship",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Content or communication uses an intimate image as leverage to coerce the victim.",
+          "Behavior involves threats to share intimate images to extract money, more images, or sexual contact."
+        ]
+      },
+      {
+        "id": "meta-exploitation-content-behavior-rules",
+        "reference": "META-NCII-SAFETY - Our policies and enforcement",
+        "summary": "Prohibits content or behavior that exploits people, including sharing or threatening to share someone's intimate images, and takes action upon becoming aware of violations.",
+        "quote": "We have strict rules against content or behavior that exploits people, including sharing or threatening to share someone's intimate images. We encourage anyone who sees content they think breaks our rules to report it—and we have a dedicated reporting option to use if someone is sharing private images. When we become aware of this content, we work to take action.",
+        "contentTypes": [
+          "intimate",
+          "personal"
+        ],
+        "contentContexts": [
+          "relationship",
+          "unknown",
+          "hacked",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [
+          {
+            "description": "A report identifying the violating content.",
+            "example": "Use the dedicated reporting option for shared private images.",
+            "reason": "Enables Meta's teams to review and take action on the reported content."
+          }
+        ],
+        "removalCriteria": [
+          "Content or behavior exploits a person.",
+          "Content shares or threatens to share someone's intimate images."
+        ]
+      },
+      {
+        "id": "meta-specialized-teams-detection-removal",
+        "reference": "META-NCII-SAFETY - Our policies and enforcement",
+        "summary": "Identifies and removes accounts and content associated with sextortion patterns, including through automated detection and dedicated investigative teams, and reports offenders to law enforcement where appropriate.",
+        "quote": "We have specialized teams working on combating sextortion. We have identified patterns associated with this behavior, and built automated systems that detect and remove these accounts at scale. We also have dedicated teams that investigate and remove these criminals and report them to authorities, including law enforcement and the National Center for Missing and Exploited Children (NCMEC), when appropriate.",
+        "contentTypes": [
+          "intimate",
+          "personal"
+        ],
+        "contentContexts": [
+          "unknown",
+          "relationship",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Accounts or content match identified sextortion behavior patterns.",
+          "Automated systems detect accounts engaged in this abuse at scale."
+        ]
+      },
+      {
+        "id": "meta-message-request-restrictions",
+        "reference": "META-NCII-SAFETY - How we prevent unwanted contact",
+        "summary": "Restricts unconnected users from sending images, videos, or voice notes to people before a message request is accepted, limiting potential vectors for image-based abuse.",
+        "quote": "We limit the message requests people can send to someone who doesn't follow or isn't already connected to them to text-only messages. People can't send images, videos, or voice notes in message requests until the recipient accepts the request to chat.",
+        "contentTypes": [
+          "intimate",
+          "personal",
+          "other"
+        ],
+        "contentContexts": [
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Message request sent from a non-connected account contains images, videos, or voice notes before acceptance."
+        ]
+      },
+      {
+        "id": "meta-report-nonconsensual-images",
+        "reference": "META-NCII-SAFETY - How to report threats and intimate images shared without permission",
+        "summary": "Allows reporting of nude or sexual images/videos of oneself, or threats to share such content, so that Meta can prevent them from being shared or reshared, with review conducted continuously across many languages.",
+        "quote": "You can report nude or sexual photos or videos of yourself or threats to share these images or videos to our apps or technologies to prevent them from being reshared. Our teams review reports 24/7 in more than 70 languages and will take action on violating content and behavior.",
+        "contentTypes": [
+          "intimate"
+        ],
+        "contentContexts": [
+          "relationship",
+          "unknown",
+          "hacked",
+          "impersonation",
+          "other"
+        ],
+        "timeframes": {
+          "response": {
+            "value": null,
+            "unit": "hours",
+            "description": "Reports are reviewed 24/7, indicating continuous around-the-clock review, though no specific response time is guaranteed."
+          },
+          "removal": null
+        },
+        "evidenceRequirements": [
+          {
+            "description": "A report submitted via the platform-specific reporting tool identifying the intimate image or threat.",
+            "example": "Reporting through Instagram, Facebook, Threads, Messenger, or WhatsApp report flows.",
+            "reason": "Enables Meta's review teams to assess and act on violating content or behavior."
+          }
+        ],
+        "removalCriteria": [
+          "Content is a nude or sexual photo or video of the reporting individual shared without permission.",
+          "Content or communication constitutes a threat to share such images or videos."
+        ]
+      },
+      {
+        "id": "meta-stopncii-hash-matching-adults",
+        "reference": "META-NCII-SAFETY - StopNCII.org - Over 18",
+        "summary": "Enables adults to proactively prevent circulation of their intimate images by creating a secure digital fingerprint (hash) that participating platforms use to detect and prevent sharing of matching images.",
+        "quote": "The tool uses hash-generating technology that assigns a unique hash value (a numerical code) to an image, creating a secure digital fingerprint. Tech companies participating in StopNCII.org receive the hash and can use that hash to detect if someone has shared or is trying to share those images on their platforms.",
+        "contentTypes": [
+          "intimate"
+        ],
+        "contentContexts": [
+          "unknown",
+          "relationship",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [
+          {
+            "description": "Submission of the intimate image to generate a hash via StopNCII.org (image itself is not shared with platforms).",
+            "example": "Creating a case at StopNCII.org for an image taken when the individual was over 18.",
+            "reason": "Allows participating platforms to detect and block matching non-consensual intimate images without the original image being viewed or stored by the platform."
+          }
+        ],
+        "removalCriteria": [
+          "Image hash matches a hash submitted by the individual depicted as an adult in the image."
+        ]
+      },
+      {
+        "id": "meta-cross-industry-hash-sharing",
+        "reference": "META-NCII-SAFETY - Helping prevent images from spreading online",
+        "summary": "Shares hashes of non-consensual intimate images removed from Meta apps with other companies through StopNCII.org to help prevent re-sharing across other platforms.",
+        "quote": "soon we will begin to securely share hashes of non-consensual intimate images we've removed from Meta apps with other companies through StopNCII.org This will allow us to help prevent the re-sharing of these images across different online platforms, even if someone hasn't pre-emptively uploaded the hashed image themselves to StopNCII.org",
+        "contentTypes": [
+          "intimate"
+        ],
+        "contentContexts": [
+          "unknown",
+          "relationship",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Non-consensual intimate image has been removed from Meta apps and hashed for cross-platform sharing."
+        ]
+      },
+      {
+        "id": "meta-takeitdown-hash-matching-minors",
+        "reference": "META-NCII-SAFETY - Take It Down - Under 18",
+        "summary": "Enables individuals to prevent circulation of intimate images taken when they were under 18 by submitting a private hash value that participating companies use to block the content from being posted.",
+        "quote": "Similar to StopNCII.org, Take It Down assigns a unique hash value (a numerical code) to your image or video privately and without the image or video ever leaving your device or anyone viewing it. Once you submit the hash value to NCMEC, companies like ours can use those hashes to prevent the content from being posted on our apps in the future.",
+        "contentTypes": [
+          "intimate"
+        ],
+        "contentContexts": [
+          "unknown",
+          "relationship",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [
+          {
+            "description": "Submission of a hash value generated from the image or video to NCMEC via TakeItDown.NCMEC.org.",
+            "example": "A teen, parent, or adult submits a hash for an image taken when the depicted person was under 18.",
+            "reason": "Allows Meta and other participating companies to detect and prevent the image from being posted, without requiring the image itself to be shared or viewed."
+          }
+        ],
+        "removalCriteria": [
+          "Image or video hash matches a hash submitted by or on behalf of a person who was under 18 in the content."
         ]
       }
     ],
