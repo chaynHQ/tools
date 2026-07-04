@@ -9,11 +9,11 @@ export const pornhubPolicy: PlatformPolicies = {
     "title": "Pornhub Terms of Service",
     "summary": "Legal terms governing the use of Pornhub, including content ownership, security responsibilities, and prohibited behavior.",
     "url": "https://www.pornhub.com/information/terms",
-    "accessTimestamp": "2026-07-03T17:55:52.023Z",
+    "accessTimestamp": "2026-07-04T13:40:02.354Z",
     "policies": [
       {
         "id": "ph-tos-ncii",
-        "reference": "Non-Consensual Content Policy",
+        "reference": "Prohibited Uses and Reporting",
         "summary": "Prohibits non-consensual content including revenge porn, blackmail, and intimidation",
         "quote": "the Website does not permit any form of revenge porn, blackmail, or intimidation, and such violations may also be reported using the content removal link herein.",
         "contentTypes": [
@@ -107,7 +107,7 @@ export const pornhubPolicy: PlatformPolicies = {
       {
         "id": "ph-tos-copyright-infringement",
         "reference": "Copyright and Other Intellectual Property",
-        "summary": "Prohibits posting copyrighted materials without permission and provides DMCA takedown process",
+        "summary": "Prohibits posting copyrighted materials without permission and provides a takedown process for infringing content",
         "quote": "post any Content containing copyrighted materials, or materials protected by other intellectual property laws, that you do not own or for which you have not obtained all necessary written permissions and releases",
         "contentTypes": [
           "intimate",
@@ -123,8 +123,8 @@ export const pornhubPolicy: PlatformPolicies = {
         "timeframes": null,
         "evidenceRequirements": [
           {
-            "description": "DMCA notice following copyright policy requirements",
-            "example": "Formal copyright infringement notice as specified in DMCA policy",
+            "description": "Formal notice of copyright infringement following the Copyright Policy requirements",
+            "example": "Notice submitted per the platform's Copyright Policy",
             "reason": "Required to establish copyright ownership and infringement claim"
           }
         ],
@@ -206,9 +206,82 @@ export const pornhubPolicy: PlatformPolicies = {
           "Uploader lacks consent from individuals appearing in content",
           "Uploader lacks release from individuals appearing in content"
         ]
+      },
+      {
+        "id": "ph-tos-monitoring-enforcement",
+        "reference": "Monitoring and Enforcement; Termination",
+        "summary": "Grants the platform authority to take enforcement action, including content removal, account restriction, or termination, in response to content that violates the law, third party rights, or the terms of service, including non-consensual content such as revenge porn",
+        "quote": "Examples of misuse that may be sanctioned with a suspension or termination include, but are not limited to, the frequent uploading of Content that violates applicable law, third party rights, or these Terms of Service, or the uploading of Content that manifestly and severely violates applicable law, third party rights, or these Terms of Services, such as Child Sexual Abuse Material or revenge porn.",
+        "contentTypes": [
+          "intimate",
+          "personal",
+          "private",
+          "other"
+        ],
+        "contentContexts": [
+          "relationship",
+          "hacked",
+          "impersonation",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Content manifestly and severely violates applicable law, third party rights, or terms of service",
+          "Content constitutes revenge porn",
+          "Repeated uploading of violating content"
+        ]
+      },
+      {
+        "id": "ph-tos-third-party-rights-evidence",
+        "reference": "Additional Information Applicable to All Users",
+        "summary": "Allows the platform to require proof of ownership or rights when content is suspected of violating a third party's rights, including privacy rights",
+        "quote": "If we have a reason to suspect that your Content violates any third party right, including without limitation any copyright, trademark, or property right, we can require you to provide us with written evidence of your ownership of, or right to use, the material in question.",
+        "contentTypes": [
+          "intimate",
+          "personal",
+          "private",
+          "other"
+        ],
+        "contentContexts": [
+          "relationship",
+          "hacked",
+          "impersonation",
+          "unknown",
+          "other"
+        ],
+        "timeframes": {
+          "response": {
+            "value": 5,
+            "unit": "days",
+            "description": "Uploader must provide written evidence of ownership or right to use material within five working days of request"
+          },
+          "removal": null
+        },
+        "evidenceRequirements": [
+          {
+            "description": "Written evidence of ownership or right to use the material in question",
+            "example": "Documentation proving rights to upload the content",
+            "reason": "Required to verify uploader's legal right to post the content when a third-party rights violation is suspected"
+          }
+        ],
+        "removalCriteria": [
+          "Uploader fails to provide required evidence within five working days"
+        ]
       }
     ],
-    "appealProcess": null
+    "appealProcess": {
+      "url": "mailto:dsa@pornhub.com",
+      "summary": "Users may lodge a complaint against a content moderation decision, including decisions related to reports of non-consensual or infringing content, within six months of being notified of the decision.",
+      "steps": [
+        "Submit a complaint via email to dsa@pornhub.com from the email address associated with your account or from which the decision notice was received",
+        "Include as much information as possible to allow investigation of the complaint",
+        "Provide an explanation of the reasons the complaint is believed to be justified",
+        "The platform reviews complaints in a timely, non-discriminatory, diligent, and objective manner and may reverse its prior decision if warranted",
+        "If unresolved through the internal complaint-handling system, EU-based users may escalate to a certified Dispute Settlement Body within six months of the decision notification"
+      ]
+    }
   },
   {
     "id": "ph-privacy-policy",
@@ -216,11 +289,11 @@ export const pornhubPolicy: PlatformPolicies = {
     "title": "Pornhub Privacy Policy",
     "summary": "Privacy policy explaining how Pornhub collects, uses, and protects user data.",
     "url": "https://www.pornhub.com/information/privacy",
-    "accessTimestamp": "2026-07-03T17:55:52.023Z",
+    "accessTimestamp": "2026-07-04T13:40:02.354Z",
     "policies": [
       {
         "id": "ph-pp-content-removal",
-        "reference": "Section 6 - Disclosure of Your Personal Information",
+        "reference": "Section 7 - Disclosure of Your Personal Information",
         "summary": "Prohibits posting of personal information without consent and provides mechanisms for content removal",
         "quote": "We may disclose all categories of personal information we process to a buyer or other successor in the event of a merger, acquisition or sale or transfer of some or all our assets, whether as a going concern or as part of bankruptcy, liquidation, or similar proceeding. Such transactions may be in our legitimate interest, particularly our interest in making decisions that enable our business to develop.",
         "contentTypes": [
@@ -238,7 +311,7 @@ export const pornhubPolicy: PlatformPolicies = {
       },
       {
         "id": "ph-pp-user-contributions-public",
-        "reference": "Section 2 - The Data We Process About You",
+        "reference": "Section 3 - The Data We Process About You",
         "summary": "Warns users that content they post becomes publicly available and can be accessed by others",
         "quote": "Please use caution in providing user contributions. By providing user contributions you are making that content and information publicly available. User contributions can be read, collected, used, and disclosed by others, and we cannot control who accesses your user contributions or what other users may do with the information you voluntarily post or submit.",
         "contentTypes": [
@@ -257,7 +330,7 @@ export const pornhubPolicy: PlatformPolicies = {
       },
       {
         "id": "ph-pp-account-deletion",
-        "reference": "Section 8 - Your Choices About How We Collect, Use and Disclose Your Personal Information",
+        "reference": "Section 9 - Your Choices About How We Collect, Use and Disclose Your Personal Information",
         "summary": "Allows users to delete their accounts and associated content at any time",
         "quote": "You may also delete and deactivate your account with us at any time unless we are not allowed to do so by law or by a court order. If you do so, your profile will no longer be accessible by you. If you later choose to have an account with us, you will have to sign up for a new account as none of the information you previously provided or saved within your account will have been saved.",
         "contentTypes": [
@@ -286,7 +359,7 @@ export const pornhubPolicy: PlatformPolicies = {
       },
       {
         "id": "ph-pp-user-content-deletion",
-        "reference": "Section 8 - Your Choices About How We Collect, Use and Disclose Your Personal Information",
+        "reference": "Section 9 - Your Choices About How We Collect, Use and Disclose Your Personal Information",
         "summary": "Allows users to delete their uploaded content and audio/video information through account settings",
         "quote": "You may use your account settings to delete your user contributions and audio/video information.",
         "contentTypes": [
@@ -341,7 +414,7 @@ export const pornhubPolicy: PlatformPolicies = {
       },
       {
         "id": "ph-pp-biometric-consent-withdrawal",
-        "reference": "Section 11 - Biometric Information",
+        "reference": "Section 12 - Biometric Information",
         "summary": "Allows users to withdraw consent for biometric information processing at any time",
         "quote": "You will be asked to provide your consent to biometric information processing which you may withdraw at any time. Withdrawing your consent will not affect the lawfulness of any collection, use, processing, or disclosure that occurred prior to the withdrawal.",
         "contentTypes": [
@@ -364,18 +437,36 @@ export const pornhubPolicy: PlatformPolicies = {
         "removalCriteria": [
           "User withdraws consent for biometric processing"
         ]
+      },
+      {
+        "id": "ph-pp-account-deletion-erasure",
+        "reference": "Section 18 - Your Rights Related to Your Personal Information",
+        "summary": "Explains that deletion requests may require full account deletion, resulting in removal of all associated content and profile data",
+        "quote": "Note that some requests to delete certain personal information will require the deletion of your user account as the provision of user accounts are inextricably linked to the processing of certain personal information (e.g., your e-mail address). If you delete your account, your personal data and all account related information including, but not limited to, user profile data, sharing data and any data or content specifically associated with your account will no longer be accessible.",
+        "contentTypes": [
+          "intimate",
+          "personal",
+          "private",
+          "other"
+        ],
+        "contentContexts": [
+          "other",
+          "unknown"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [
+          {
+            "description": "Identity verification required prior to processing deletion request",
+            "example": "Confirmation of account access or additional identifying information",
+            "reason": "To ensure personal data is not disclosed or deleted in an unauthorized way"
+          }
+        ],
+        "removalCriteria": [
+          "Valid deletion request submitted",
+          "Identity verification completed"
+        ]
       }
     ],
-    "appealProcess": null
-  },
-  {
-    "id": "ph-trust-and-safety",
-    "reference": "PH-CONTENT-POLICY",
-    "title": "Pornhub Trust and Safety Policy",
-    "summary": "Comprehensive policy covering content moderation, verification requirements, and safety measures.",
-    "url": "https://www.pornhub.com/information/trust-and-safety",
-    "accessTimestamp": "2026-07-03T17:55:52.023Z",
-    "policies": [],
     "appealProcess": null
   },
   {
@@ -384,7 +475,7 @@ export const pornhubPolicy: PlatformPolicies = {
     "title": "TAKE IT DOWN Act",
     "summary": "US federal law prohibiting nonconsensual intimate visual depictions of individuals, both authentic and computer-generated, requiring platforms to implement notice-and-removal processes within 48 hours. Signed into law May 19, 2025.",
     "url": "https://www.congress.gov/bill/119th-congress/senate-bill/146/text",
-    "accessTimestamp": "2026-07-03T17:55:52.023Z",
+    "accessTimestamp": "2026-07-04T13:40:02.354Z",
     "policies": [
       {
         "id": "take-it-down-authentic-adults",
@@ -642,7 +733,7 @@ export const pornhubPolicy: PlatformPolicies = {
     "title": "Pornhub Non-Consensual Content Policy",
     "summary": "Dedicated policy document specifically addressing non-consensual intimate imagery, including detection technologies, reporting processes, and enforcement measures.",
     "url": "https://help.porn-hub.website/hc/en-us/articles/4419871787027-Non-Consensual-Content-Policy",
-    "accessTimestamp": "2026-07-03T17:55:52.023Z",
+    "accessTimestamp": "2026-07-04T13:40:02.354Z",
     "policies": [
       {
         "id": "ph-ncii-consent-requirement",
