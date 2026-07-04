@@ -51,8 +51,12 @@ export function sanitizeText(text: string): string {
       .replace(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g, () => {
         return generateUniquePlaceholder(PLACEHOLDER_TYPES.EMAIL);
       })
-      // Remove phone numbers (various formats)
-      .replace(/(?:\+?\d{1,3}[-. ]?)?\(?\d{3}\)?[-. ]?\d{3}[-. ]?\d{4}/g, () => {
+      // Remove phone numbers (various formats). The `(?<!\d)`/`(?!\d)` anchors
+      // stop this from matching a *slice* of a longer digit run — e.g. a 16-digit
+      // reference ID like 1122334455667788 would otherwise be partially eaten
+      // here (→ `[PHONE_x]788`) before the `\d{10,}` ID rule below could claim
+      // the whole number, corrupting the sanitize/desanitize round-trip.
+      .replace(/(?<!\d)(?:\+?\d{1,3}[-. ]?)?\(?\d{3}\)?[-. ]?\d{3}[-. ]?\d{4}(?!\d)/g, () => {
         return generateUniquePlaceholder(PLACEHOLDER_TYPES.PHONE);
       })
       // Remove case/reference numbers
@@ -197,7 +201,7 @@ function storePlaceholderMappings(
   // Define regex patterns for each type of sensitive data to find original values
   const patterns = [
     { type: 'EMAIL', regex: /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g },
-    { type: 'PHONE', regex: /(?:\+?\d{1,3}[-. ]?)?\(?\d{3}\)?[-. ]?\d{3}[-. ]?\d{4}/g },
+    { type: 'PHONE', regex: /(?<!\d)(?:\+?\d{1,3}[-. ]?)?\(?\d{3}\)?[-. ]?\d{3}[-. ]?\d{4}(?!\d)/g },
     { type: 'URL', regex: /https?:\/\/[^\s]+/g },
     { type: 'REFERENCE', regex: /\b(?:case|ref|reference|ticket)\s*#?\s*[\w-]+/gi },
     { type: 'DATE', regex: /\b\d{1,2}[-/]\d{1,2}[-/]\d{2,4}\b/g },
