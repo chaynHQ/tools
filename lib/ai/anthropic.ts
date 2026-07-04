@@ -3,8 +3,16 @@ import { MessageCreateParamsNonStreaming } from '@anthropic-ai/sdk/resources/mes
 import { serverInstance as rollbar } from '../rollbar';
 import { retryWithDelay } from '../utils';
 
-// Initialize Anthropic client
-const anthropic = new Anthropic();
+// Initialize Anthropic client with an explicit per-request timeout. Without
+// one, the SDK's default timeout is long and a stalled/rate-limited request can
+// hang the policy-validation step for the full job budget. The abstraction step
+// fires one call per document in parallel with no concurrency cap, so a burst
+// on a large platform (facebook/instagram/tiktok) can trigger 429s; bound each
+// call so it fails fast and surfaces a real error instead of hanging.
+const anthropic = new Anthropic({
+  timeout: 2 * 60 * 1000, // 2 minutes per request
+  maxRetries: 2,
+});
 
 export async function callAnthropic(
   prompt: string,
