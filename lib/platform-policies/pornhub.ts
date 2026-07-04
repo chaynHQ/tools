@@ -9,7 +9,7 @@ export const pornhubPolicy: PlatformPolicies = {
     "title": "Pornhub Terms of Service",
     "summary": "Legal terms governing the use of Pornhub, including content ownership, security responsibilities, and prohibited behavior.",
     "url": "https://www.pornhub.com/information/terms",
-    "accessTimestamp": "2026-07-04T14:08:36.858Z",
+    "accessTimestamp": "2026-07-04T14:37:06.259Z",
     "policies": [
       {
         "id": "ph-tos-ncii",
@@ -350,17 +350,38 @@ export const pornhubPolicy: PlatformPolicies = {
         "removalCriteria": [
           "Content constitutes a clear case of trademark infringement"
         ]
+      },
+      {
+        "id": "ph-tos-account-security-breach",
+        "reference": "Additional Information Applicable to All Users",
+        "summary": "Requires users to report unauthorized access to their account to help prevent misuse of hacked content",
+        "quote": "you must immediately inform us of any apparent breach of security, such as loss, theft or unauthorized disclosure or use of a screen name or password",
+        "contentTypes": [
+          "intimate",
+          "personal",
+          "private",
+          "other"
+        ],
+        "contentContexts": [
+          "hacked"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Account was accessed without authorization",
+          "Content was posted using compromised account credentials"
+        ]
       }
     ],
     "appealProcess": {
       "url": "mailto:dsa@pornhub.com",
-      "summary": "Users may lodge a complaint against enforcement decisions (such as content removal, account restriction, or termination) or against a decision made regarding their content reporting or removal request, within six months of being notified. Complaints are reviewed in a timely, non-discriminatory, diligent, and objective manner, and prior decisions may be reversed if justified. EU-based users may also escalate unresolved disputes to a certified Dispute Settlement Body.",
+      "summary": "Users may lodge a complaint against an enforcement decision or a decision made regarding a content report or removal request within six months of being notified of the decision. Complaints are reviewed in a timely, non-discriminatory, diligent, and objective manner, and decisions may be reversed if warranted. Users in the European Union additionally have the right to escalate unresolved complaints to a certified Dispute Settlement Body.",
       "steps": [
-        "Submit a complaint by emailing dsa@pornhub.com from the email address associated with the affected account or from which the decision notice was received",
-        "Include as much information as possible to allow investigation of the complaint, along with an explanation of why the complaint is believed to be justified",
-        "Submit the complaint within six (6) months of being notified of the decision",
-        "Await review of the complaint, which will be handled in a timely, non-discriminatory, diligent, and objective manner",
-        "If located in the European Union and unsatisfied with the outcome, select a certified Dispute Settlement Body to assist in resolving the dispute"
+        "Submit a complaint via email to dsa@pornhub.com from the email address associated with the account, or the email through which the decision was communicated",
+        "Include as much information as possible to allow the platform to investigate, along with an explanation of why the complaint is believed to be justified",
+        "Submit the complaint within six (6) months of being notified of the relevant decision",
+        "The platform will review the complaint in a timely, non-discriminatory, diligent, and objective manner and may reverse its prior decision if warranted",
+        "EU-based users who remain unsatisfied after the internal complaint process may escalate the dispute to a certified Dispute Settlement Body"
       ]
     }
   },
@@ -370,7 +391,7 @@ export const pornhubPolicy: PlatformPolicies = {
     "title": "Pornhub Privacy Policy",
     "summary": "Privacy policy explaining how Pornhub collects, uses, and protects user data.",
     "url": "https://www.pornhub.com/information/privacy",
-    "accessTimestamp": "2026-07-04T14:08:36.858Z",
+    "accessTimestamp": "2026-07-04T14:37:06.259Z",
     "policies": [
       {
         "id": "ph-pp-content-removal",
@@ -546,6 +567,150 @@ export const pornhubPolicy: PlatformPolicies = {
           "Valid deletion request submitted",
           "Identity verification completed"
         ]
+      },
+      {
+        "id": "ph-pp-content-reporting-moderation",
+        "reference": "Section 3 - The Data We Process About You",
+        "summary": "Establishes a content reporting and moderation system for handling user complaints about content",
+        "quote": "We process Contact Data and other information that you submit through online forms provided on Pornhub or information send to us via email, online support chats or such as information provided in the context of support requests or any other inquiries, the content reporting and moderation of content, and our internal complaint handling system.",
+        "contentTypes": [
+          "intimate",
+          "personal",
+          "private",
+          "other"
+        ],
+        "contentContexts": [
+          "other",
+          "unknown"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": []
+      },
+      {
+        "id": "ph-pp-hash-values-illegal-content",
+        "reference": "Section 5 - Purposes for Which We Process Your Personal Information",
+        "summary": "Uses hash matching technology to detect, prevent, and combat illegal content including sexual assault and exploitation material, and may share hashes with law enforcement",
+        "quote": "Hash Values: We may create hash values from any of the categories of data we process, such as infringing or illegal content to detect, prevent, and combat illegal activities including fraud, sexual assault, or exploitation. We reserve the right to share any hashes with law enforcement agencies.",
+        "contentTypes": [
+          "intimate",
+          "personal",
+          "private",
+          "other"
+        ],
+        "contentContexts": [
+          "other",
+          "unknown"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Content identified as infringing or illegal, including material related to sexual assault or exploitation"
+        ]
+      },
+      {
+        "id": "ph-pp-platform-safety",
+        "reference": "Section 5 - Purposes for Which We Process Your Personal Information",
+        "summary": "Commits to using collected information to protect users from harm and promote platform safety",
+        "quote": "Platform Safety: To promote safety and security on Pornhub. We use the information we collect to help protect Pornhub users from harm and provide safe, secure product.",
+        "contentTypes": [
+          "intimate",
+          "personal",
+          "private",
+          "other"
+        ],
+        "contentContexts": [
+          "other",
+          "unknown"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": []
+      },
+      {
+        "id": "ph-pp-compliance-content-reports",
+        "reference": "Section 5 - Purposes for Which We Process Your Personal Information",
+        "summary": "Establishes compliance obligations to respond to content reports and enforce content moderation processes",
+        "quote": "Compliance: We may process any of the categories of data mentioned herein to enforce this Privacy Notice, our Terms and Conditions and to comply with any legal obligations, namely but not limited to responding to your data subject requests, to verify the age of users having access to Pornhub, to respond to content reports, and to comply with applicable content moderation and complaint handling obligations as well as obligations to provide information to researchers under the EU Digital Services Act (DSA).",
+        "contentTypes": [
+          "intimate",
+          "personal",
+          "private",
+          "other"
+        ],
+        "contentContexts": [
+          "other",
+          "unknown"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Content reported for violation",
+          "Applicable content moderation obligations triggered"
+        ]
+      },
+      {
+        "id": "ph-pp-trust-safety-disclosure",
+        "reference": "Section 7 - Disclosure of Your Personal Information",
+        "summary": "Allows disclosure of information to enforce Terms & Conditions and prevent violations, including through the Trust and Safety initiative",
+        "quote": "enforce applicable Terms & Conditions, including prevention of potential violations thereof. This also includes our Trust and Safety initiative, in the scope of which we may disclose some information to several recipients.",
+        "contentTypes": [
+          "intimate",
+          "personal",
+          "private",
+          "other"
+        ],
+        "contentContexts": [
+          "other",
+          "unknown"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Reasonable belief that disclosure is needed to enforce Terms & Conditions or prevent violations"
+        ]
+      },
+      {
+        "id": "ph-pp-illegal-activity-detection",
+        "reference": "Section 7 - Disclosure of Your Personal Information",
+        "summary": "Allows disclosure of information to detect, prevent, or address illegal or suspected illegal activities",
+        "quote": "detect, prevent, or otherwise address illegal or suspected illegal activities, security, or technical issues.",
+        "contentTypes": [
+          "intimate",
+          "personal",
+          "private",
+          "other"
+        ],
+        "contentContexts": [
+          "other",
+          "unknown"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Reasonable belief that disclosure is needed to detect, prevent, or address illegal or suspected illegal activity"
+        ]
+      },
+      {
+        "id": "ph-pp-protect-rights-harm",
+        "reference": "Section 7 - Disclosure of Your Personal Information",
+        "summary": "Allows disclosure of information to protect against harm to the rights, property, or safety of the company, users, employees, or others",
+        "quote": "protect against harm to the rights, property or safety of our company, our users, our employees, or others; or",
+        "contentTypes": [
+          "intimate",
+          "personal",
+          "private",
+          "other"
+        ],
+        "contentContexts": [
+          "other",
+          "unknown"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Reasonable belief that disclosure is needed to protect against harm to rights, property, or safety"
+        ]
       }
     ],
     "appealProcess": null
@@ -556,7 +721,7 @@ export const pornhubPolicy: PlatformPolicies = {
     "title": "TAKE IT DOWN Act",
     "summary": "US federal law prohibiting nonconsensual intimate visual depictions of individuals, both authentic and computer-generated, requiring platforms to implement notice-and-removal processes within 48 hours. Signed into law May 19, 2025.",
     "url": "https://www.congress.gov/bill/119th-congress/senate-bill/146/text",
-    "accessTimestamp": "2026-07-04T14:08:36.858Z",
+    "accessTimestamp": "2026-07-04T14:37:06.259Z",
     "policies": [
       {
         "id": "take-it-down-authentic-adults",
@@ -814,7 +979,7 @@ export const pornhubPolicy: PlatformPolicies = {
     "title": "Pornhub Non-Consensual Content Policy",
     "summary": "Dedicated policy document specifically addressing non-consensual intimate imagery, including detection technologies, reporting processes, and enforcement measures.",
     "url": "https://help.porn-hub.website/hc/en-us/articles/4419871787027-Non-Consensual-Content-Policy",
-    "accessTimestamp": "2026-07-04T14:08:36.858Z",
+    "accessTimestamp": "2026-07-04T14:37:06.259Z",
     "policies": [
       {
         "id": "ph-ncii-consent-requirement",
