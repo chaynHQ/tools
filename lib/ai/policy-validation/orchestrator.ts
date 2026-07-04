@@ -66,27 +66,17 @@ export async function orchestratePolicyValidation(
       })),
     );
 
-    if (
-      documentValidation.status === 'valid' &&
-      documentValidation.newDocuments.length === 0 &&
-      documentValidation.removedDocuments.length === 0 &&
-      documentValidation.validDocuments.every((doc) => doc.status === 'valid')
-    ) {
-      return {
-        status: 'completed_no_changes',
-        platformId,
-        platformName,
-        data: {
-          documentValidation,
-          analysis: {
-            reasoning:
-              'Document validation found no changes needed. All documents are current and accessible.',
-          },
-        },
-        reasoning:
-          'Document validation found no changes needed. All documents are current and accessible.',
-      };
-    }
+    // We intentionally do NOT short-circuit to "no changes" based on the
+    // document-validation verdict. That verdict comes from an LLM + web_search
+    // call which is variable and, when the search underperforms, rubber-stamps
+    // every document as `valid` — silently skipping the real work and reporting
+    // "no changes" even when the policies have changed (the root cause of runs
+    // that appeared to hang on Step 1 and then returned "no changes needed").
+    // Change detection is done authoritatively in Step 5 by scraping each
+    // document and comparing its actual content (comparePlatformPolicies), so we
+    // always run the full pipeline. Step 1's role is limited to discovering
+    // new/removed documents; whether the known documents changed is decided by
+    // the real content comparison, not by the search verdict.
 
     // Step 2: Scrape updated/new documents
 
