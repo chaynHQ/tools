@@ -49,7 +49,10 @@ export async function generateLetter(formData: LetterRequest): Promise<Generated
       let improvedLetter;
       const originalLetter = response;
 
-      // Perform quality check
+      // Perform quality check. This is a required quality gate for the letter,
+      // so a failure here is surfaced (the request throws and is retried by the
+      // outer loop) rather than silently shipping an unchecked letter. The route
+      // itself retries transient/malformed responses before returning an error.
       const qualityCheckRes = await fetch('/api/quality-check-letter', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -65,9 +68,8 @@ export async function generateLetter(formData: LetterRequest): Promise<Generated
 
       const qualityCheckResponse: QualityCheckResponse = await qualityCheckRes.json();
 
-      // If major issues found, retry generation unless on last attempt
+      // If issues were found and an improved letter was returned, use it.
       if (qualityCheckResponse.issues?.length > 0 && qualityCheckResponse.improvedLetter) {
-        // If this is the second attempt and we have an improved letter, use it
         improvedLetter = {
           subject: qualityCheckResponse.improvedLetter.subject,
           body: qualityCheckResponse.improvedLetter.body,

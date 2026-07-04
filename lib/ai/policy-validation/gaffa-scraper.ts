@@ -8,6 +8,15 @@ export interface GaffaScrapingResult {
   url: string;
 }
 
+// Gaffa runs with `async: false`, so it holds the HTTP connection open while it
+// renders the page in a headless browser. Node's native fetch has no default
+// request timeout, so a page that never settles (JS-heavy / consent-walled
+// pages are common offenders) would hang the whole validation step
+// indefinitely. Bound both the browser-render request and the markdown fetch so
+// a stalled document fails fast and is reported as a failed scrape instead.
+const GAFFA_RENDER_TIMEOUT_MS = 90_000;
+const MARKDOWN_FETCH_TIMEOUT_MS = 30_000;
+
 export async function scrapeDocumentMarkdown(url: string): Promise<GaffaScrapingResult> {
   if (!process.env.GAFFA_API_KEY) {
     rollbar.error('Policy validation: GAFFA_API_KEY not configured for document scraping');
@@ -21,6 +30,7 @@ export async function scrapeDocumentMarkdown(url: string): Promise<GaffaScraping
   const scrapeWithRetry = async () => {
     const response = await fetch('https://api.gaffa.dev/v1/browser/requests', {
       method: 'POST',
+      signal: AbortSignal.timeout(GAFFA_RENDER_TIMEOUT_MS),
       headers: {
         'X-API-Key': process.env.GAFFA_API_KEY || '',
         'Content-Type': 'application/json',
@@ -79,7 +89,9 @@ export async function scrapeDocumentMarkdown(url: string): Promise<GaffaScraping
     // Fetch the actual markdown content from the URL
     try {
       const fetchMarkdownWithRetry = async () => {
-        const response = await fetch(markdownUrl);
+        const response = await fetch(markdownUrl, {
+          signal: AbortSignal.timeout(MARKDOWN_FETCH_TIMEOUT_MS),
+        });
         if (!response.ok) {
           throw new Error(`Failed to fetch markdown content: ${response.status} - ${response.statusText}`);
         }
