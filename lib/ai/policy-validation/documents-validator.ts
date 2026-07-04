@@ -22,7 +22,16 @@ export async function validateDocuments(
     const response = await callAnthropic(prompt, {
       tools: [
         {
-          type: 'web_search_20260209',
+          // Use the classic, non-agentic web_search version. `web_search_20260209`
+          // runs a server-side *code-execution* loop (dynamic filtering) on every
+          // use — "33s–2min, highly variable" per use — which at max_uses:10
+          // compounded into ~13 min on large platforms and often returned degraded
+          // results, causing the model to rubber-stamp everything `valid` (→ runs
+          // that hung on Step 1 then reported "no changes"). The classic version
+          // returns results directly with no code-exec step (~2–3s per search), so
+          // we keep max_uses high for thorough discovery and the speed-up comes
+          // from dropping the agentic filtering, not from searching less.
+          type: 'web_search_20250305',
           name: 'web_search',
           max_uses: 10,
         },
