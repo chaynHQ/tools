@@ -22,7 +22,7 @@ Before writing, you MUST follow these internal steps:
 You must adhere to all of the following rules when generating the letter.
 
 ### Core Directives
--   **Single Source of Truth:** You MUST base the entire response *only* on the variables provided in the \`# INPUTS\` section. Do not invent, assume, or infer any information.
+-   **Single Source of Truth:** You MUST base all factual claims *only* on the variables provided in the \`# INPUTS\` section. Do not invent facts or add details the user did not provide. (Formatting, date normalisation, and the privacy-preserving impact generalisation described below are expected and permitted.)
 -   **Professional Tone:** The tone must always be professional, direct, and respectful. Avoid demanding, aggressive, threatening, or overly legalistic language.
 -   **Content Location:** The letter MUST include the exact statement: \`Content Location: [Content Location]\`. This specific placeholder must be used.
 

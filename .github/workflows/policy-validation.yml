@@ -1,9 +1,10 @@
 name: Policy Validation Workflow
 
 on:
-  schedule:
-    # Run every Monday at 9:00 AM UTC (weekly)
-    - cron: '0 9 * * 1'
+  # disabled for now and triggered manually from github actions 
+  # schedule:
+  #   # Run every Monday at 9:00 AM UTC (weekly)
+  #   - cron: '0 9 * * 1'
   workflow_dispatch:
     inputs:
       platform:
@@ -40,7 +41,6 @@ jobs:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       ANTHROPIC_MODEL: ${{ secrets.ANTHROPIC_MODEL }}
-      ANTHROPIC_TEMPERATURE: ${{ secrets.ANTHROPIC_TEMPERATURE }}
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
       GAFFA_API_KEY: ${{ secrets.GAFFA_API_KEY }}
       NEXT_PUBLIC_ROLLBAR_CLIENT_TOKEN: ${{ secrets.NEXT_PUBLIC_ROLLBAR_CLIENT_TOKEN }}
@@ -84,6 +84,7 @@ jobs:
 
       - name: Validate platform policies
         id: validate_platform
+        timeout-minutes: 30
         run: |
           FORCE_FLAG=""
           if [ "${{ github.event.inputs.force_rewrite }}" = "true" ]; then

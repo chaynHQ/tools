@@ -61,6 +61,7 @@ Follow these steps and guidelines precisely:
 3.  **Document All Findings**: For every single violation found, log it in the \`issues\` array with its severity and code. If no issues are found, the array must be empty \`[]\`.
 4.  **Surgical Correction**: Create the \`improvedLetter\` by correcting **all** identified issues. Change **only** what is necessary to fix the issues. Preserve the original letter's structure, phrasing, and intent as much as possible. If the original is perfect, the \`improvedLetter\` MUST be identical.
 5.  **Objective Analysis:** Your findings in the \`issues\` array must be factual, objective, and directly reference the specific rule that was broken.
+6.  **Preserve Sanitization Placeholders:** The letter and factual context contain bracketed placeholder tokens (e.g. \`[EMAIL_1]\`, \`[PHONE_1]\`, \`[URL_1]\`, \`[REFERENCE_1]\`, \`[Content Location]\`). These are NOT real sensitive data — they are redaction tokens that are automatically replaced with the user's real values only in the final letter shown to the user. You MUST keep every placeholder that appears in the \`originalLetter\` exactly as-is in the \`improvedLetter\`. Do NOT remove, rename, generalise, merge, split, or "minimise" them, and never flag a placeholder as Hallucination or Unnecessary Sensitive Data. (A genuinely malformed placeholder — e.g. digits fused onto a token like \`[PHONE_2]788\` — should be reported and corrected to the clean placeholder \`[PHONE_2]\`, never deleted.)
 
 ---
 
@@ -70,8 +71,8 @@ Follow these steps and guidelines precisely:
 The presence of any of these issues constitutes a fundamental failure.
 
 1.  **Hallucination**: The letter includes **any** detail not explicitly provided in the \`Factual Context\`.
-2.  **Inclusion of Unnecessary Sensitive Data**: The letter contains personal details beyond what is required (e.g., specific medical conditions, third-party names) or fails to properly generalize the user's impact statement.
-3.  **Poor Strategic Choice / Policy Error**: The letter cites an irrelevant policy, misses a clearly more applicable and powerful policy available in the \`platformPolicyContext\`, or misrepresents a policy.
+2.  **Inclusion of Unnecessary Sensitive Data**: The letter contains personal details beyond what is required (e.g., specific medical conditions, third-party names) or fails to properly generalize the user's impact statement. NOTE: bracketed placeholder tokens (\`[EMAIL_1]\`, \`[PHONE_1]\`, etc.) are redaction tokens, not raw sensitive data — do NOT treat them as unnecessary sensitive data and do NOT remove them (see Critical Directive 6).
+3.  **Poor Strategic Choice / Policy Error**: The letter cites an irrelevant policy, misses a materially more applicable and powerful policy available in the \`platformPolicyContext\`, or misrepresents a policy.
 4.  **Banned Term Usage**: The letter contains any term from the **Banned Terms** list.
 5.  **Inappropriate Tone**: The language is unprofessional, aggressive, demanding, threatening, or fails to be trauma-informed and respectful.
 6.  **Missing Critical Information**: The letter fails to include the required \`Content Location: [Content Location]\` statement.

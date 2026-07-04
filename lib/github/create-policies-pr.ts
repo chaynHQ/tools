@@ -390,7 +390,7 @@ export function generatePolicyFileContent(
   const platformName = updatedPolicy.platform;
   const exportName = `${fileName.replace('.ts', '')}Policy`;
 
-  return `import { PlatformPolicies } from '../../types/policies';
+  return `import { PlatformPolicies } from '../../types/platforms';
 
 export const ${exportName}: PlatformPolicies = {
   platform: '${platformName}',

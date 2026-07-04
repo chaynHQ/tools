@@ -47,8 +47,12 @@ export async function orchestratePolicyValidation(
   platformName: string,
   currentPolicies: PlatformPolicies,
 ): Promise<PolicyValidationOrchestrationResult> {
+  // Progress goes to stdout (not just Rollbar) so the CI logs show which stage
+  // is running even when Rollbar delivery is unavailable.
+  const step = (msg: string) => console.log(`[policy-validation:${platformId}] ${msg}`);
   try {
     // Step 1: Validate current documents
+    step('Step 1: validating current documents');
 
     const documentValidation = await validateDocuments(
       platformId,
@@ -92,6 +96,7 @@ export async function orchestratePolicyValidation(
     ];
 
     // Use rate-limited scraping with controlled concurrency
+    step(`Step 2: scraping ${documentsToScrape.length} document(s)`);
     const scrapingResults = await scrapeMultipleDocumentsWithRateLimit(
       documentsToScrape,
       3, // Max 3 concurrent requests
@@ -162,6 +167,9 @@ export async function orchestratePolicyValidation(
     }
 
     // Process all documents in parallel
+    step(
+      `Step 3: abstracting policies from ${documentsForAbstraction.length} document(s) (${scrapingResults.filter((r) => r.success).length}/${scrapingResults.length} scrapes succeeded)`,
+    );
     const parallelAbstractionResults = await abstractPoliciesFromMultipleDocuments(
       documentsForAbstraction.map((doc) => ({
         url: doc.url,
@@ -229,6 +237,7 @@ export async function orchestratePolicyValidation(
       }
     }
 
+    step(`Step 4: building policies from ${documentResults.length} abstracted document(s)`);
     const updatedPolicies = buildPlatformPolicies(platformName, documentResults);
 
     // Step 5: Compare and quality check
@@ -277,8 +286,10 @@ export async function orchestratePolicyValidation(
       return result;
     };
 
+    step('Step 5: running quality check');
     const qualityCheck: PolicyValidationQualityCheckResult =
       await retryWithDelay(qualityCheckWithRetry);
+    step(`Step 5: quality check complete (${qualityCheck.validationStatus})`);
 
     rollbar.info('Policy validation: Quality check completed', {
       platformId,
