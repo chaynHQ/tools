@@ -84,6 +84,7 @@ jobs:
 
       - name: Validate platform policies
         id: validate_platform
+        timeout-minutes: 30
         run: |
           FORCE_FLAG=""
           if [ "${{ github.event.inputs.force_rewrite }}" = "true" ]; then
