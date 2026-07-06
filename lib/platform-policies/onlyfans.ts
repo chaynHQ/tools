@@ -7,9 +7,9 @@ export const onlyfansPolicy: PlatformPolicies = {
     "id": "of-acceptable-use-policy",
     "reference": "OF-AUP",
     "title": "Acceptable Use Policy",
-    "summary": "Comprehensive policy covering prohibited content and behavior on OnlyFans, including rules against non-consensual content, harassment, impersonation, hate speech, and other prohibited conduct on the platform.",
+    "summary": "Comprehensive policy covering prohibited content and behavior on OnlyFans, including rules against non-consensual content, harassment, impersonation, hate speech, illegal activity (including exploitation of minors, incest, bestiality, necrophilia, rape/sexual assault), and other prohibited conduct on the platform.",
     "url": "https://onlyfans.com/aup",
-    "accessTimestamp": "2026-07-03T18:03:19.836Z",
+    "accessTimestamp": "2026-07-04T14:36:33.324Z",
     "policies": [
       {
         "id": "of-tou-content-removal",
@@ -246,16 +246,81 @@ export const onlyfansPolicy: PlatformPolicies = {
         "removalCriteria": [
           "Account termination or content deactivation decision disputed within six months of notification"
         ]
+      },
+      {
+        "id": "of-tou-doxing-liability",
+        "reference": "Section 21.3",
+        "summary": "Acknowledges that unauthorised disclosure of a user's identity or personal information by other users or third parties without consent (doxing) can occur on the platform",
+        "quote": "are not liable to you for any disclosure of your identity, or any disclosure or publication of your personal information by other Users or third parties without your consent (also known as \"doxing\")",
+        "contentTypes": [
+          "private",
+          "personal",
+          "other"
+        ],
+        "contentContexts": [
+          "unknown",
+          "other",
+          "impersonation",
+          "relationship"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": []
+      },
+      {
+        "id": "of-tou-ai-generated-labeling",
+        "reference": "Section 19.2",
+        "summary": "Requires AI-generated content to be clearly and conspicuously labeled as such",
+        "quote": "AI Generated content must comply with our Terms of Service and must be clearly and conspicuously captioned as AI Generated Content with a signifier such as #ai, or #AIGenerated.",
+        "contentTypes": [
+          "intimate",
+          "personal",
+          "other"
+        ],
+        "contentContexts": [
+          "impersonation",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "AI Generated Content not clearly and conspicuously labeled as such"
+        ]
+      },
+      {
+        "id": "of-tou-content-moderation-tools",
+        "reference": "Section 12.3",
+        "summary": "Uses automated detection tools including AI and machine learning to identify and remove policy-violating content",
+        "quote": "When we review Content in accordance with our internal policies, we reserve the right to conduct these reviews with technology tools such as classifiers, and Artificial Intelligence and Machine Learning-enabled tools to detect and remove Content that violates our policies.",
+        "contentTypes": [
+          "intimate",
+          "personal",
+          "private",
+          "other"
+        ],
+        "contentContexts": [
+          "hacked",
+          "impersonation",
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Content that violates OnlyFans policies as detected by automated review tools"
+        ]
       }
     ],
     "appealProcess": {
       "url": "https://onlyfans.com/transparency-center/appeals",
-      "summary": "Users may dispute account termination or content deactivation decisions by following the Appeals Policy, or dispute Creator Earnings forfeiture by following the Complaints Policy, within six months of notification.",
+      "summary": "Users may dispute account termination or content deactivation decisions by following the Appeals Policy, or dispute a Creator Earnings forfeiture decision by following the Complaints Policy, within six months of notification.",
       "steps": [
-        "Receive notification of account suspension, deletion, or content removal decision along with a statement of reasons",
-        "Determine whether the dispute relates to Creator Earnings forfeiture (use Complaints Policy) or account termination/Content deactivation (use Appeals Policy)",
-        "Submit a dispute within six months of notification, after which the right to dispute is waived",
-        "In certain jurisdictions, users may bring a claim for breach of contract if content or platform access was removed or restricted in breach of the Terms of Service"
+        "Receive Notification of the account termination, content deactivation, or Creator Earnings forfeiture decision",
+        "Follow the Appeals Policy to dispute an account termination or Content deactivation decision",
+        "Follow the Complaints Policy to dispute a Creator Earnings forfeiture decision",
+        "Submit the dispute within six months of Notification, or the right to dispute is waived"
       ]
     }
   },
@@ -265,7 +330,7 @@ export const onlyfansPolicy: PlatformPolicies = {
     "title": "Terms of Service",
     "summary": "Legal terms governing the use of OnlyFans, including content ownership, licensing, account responsibilities, and security obligations for creators and fans.",
     "url": "https://onlyfans.com/terms",
-    "accessTimestamp": "2026-07-03T18:03:19.836Z",
+    "accessTimestamp": "2026-07-04T14:36:33.324Z",
     "policies": [
       {
         "id": "of-tos-content-removal",
@@ -568,17 +633,62 @@ export const onlyfansPolicy: PlatformPolicies = {
         "removalCriteria": [
           "Disclosure or publication of personal information without consent (doxing)"
         ]
+      },
+      {
+        "id": "of-tos-account-compromise-disclaimer",
+        "reference": "Section 13.8",
+        "summary": "Addresses lack of responsibility for lost, stolen, or compromised accounts and resulting unauthorised activity",
+        "quote": "Any lost, stolen, or compromised User accounts, passwords, email accounts, or any resulting unauthorised activities or resulting unauthorised payments or withdrawals of funds.",
+        "contentTypes": [
+          "intimate",
+          "personal",
+          "private",
+          "other"
+        ],
+        "contentContexts": [
+          "hacked",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Content or activity resulting from a lost, stolen, or compromised account"
+        ]
+      },
+      {
+        "id": "of-tos-content-circulation-breach-disclaimer",
+        "reference": "Section 13.9",
+        "summary": "Notes lack of responsibility for the circulation of content recorded in breach of the Terms of Service",
+        "quote": "The circulation of Content recorded in breach of the Terms of Service.",
+        "contentTypes": [
+          "intimate",
+          "personal",
+          "private",
+          "other"
+        ],
+        "contentContexts": [
+          "hacked",
+          "impersonation",
+          "relationship",
+          "unknown",
+          "other"
+        ],
+        "timeframes": null,
+        "evidenceRequirements": [],
+        "removalCriteria": [
+          "Content that was recorded in breach of the Terms of Service"
+        ]
       }
     ],
     "appealProcess": {
       "url": "https://onlyfans.com/transparency-center/appeals",
-      "summary": "Users may dispute account termination or Content deactivation decisions through the Appeals Policy, and dispute Creator Earnings forfeiture decisions through the Complaints Policy, within six months of notification.",
+      "summary": "Users may dispute account termination or content deactivation decisions through the Appeals Policy, or dispute Creator Earnings forfeiture through the Complaints Policy, within six months of notification.",
       "steps": [
-        "Receive Notification from OnlyFans of the decision and a statement of reasons",
-        "For Creator Earnings forfeiture disputes, follow the Complaints Policy",
-        "For account termination or Content deactivation disputes, follow the Appeals Policy",
-        "Submit the dispute within six months of Notification, after which the right to dispute is waived",
-        "In certain jurisdictions, users may bring a claim for breach of contract if Content or platform access was removed or restricted in breach of the Terms of Service"
+        "Receive notification of the action taken and a statement of reasons",
+        "Dispute a Creator Earnings forfeiture decision by following the Complaints Policy",
+        "Dispute an account termination or Content deactivation decision by following the Appeals Policy",
+        "Submit the dispute within six months of notification, or the right to dispute is waived"
       ]
     }
   },
@@ -588,7 +698,7 @@ export const onlyfansPolicy: PlatformPolicies = {
     "title": "Privacy Policy",
     "summary": "Privacy policy explaining how OnlyFans collects, uses, shares, and protects user personal data.",
     "url": "https://onlyfans.com/privacy",
-    "accessTimestamp": "2026-07-03T18:03:19.836Z",
+    "accessTimestamp": "2026-07-04T14:36:33.324Z",
     "policies": [
       {
         "id": "of-pp-age-verification",
@@ -857,25 +967,15 @@ export const onlyfansPolicy: PlatformPolicies = {
         ]
       }
     ],
-    "appealProcess": {
-      "url": "https://onlyfans.com/privacy",
-      "summary": "Users may exercise privacy-related rights, including appealing decisions made in connection with privacy rights requests, by contacting OnlyFans directly.",
-      "steps": [
-        "Contact OnlyFans using the contact details in the Assistance and Contact Information section (submit a ticket through your account or email privacy@onlyfans.com).",
-        "Provide sufficient information to allow OnlyFans to confirm your identity and understand, evaluate, and respond to your request.",
-        "If submitting on behalf of someone else, provide proof of authorisation (e.g., signed document or valid power of attorney).",
-        "If a privacy rights request is denied, U.S. State residents may appeal the decision using the same contact details.",
-        "If an appeal is denied, contact your local Attorney General (for U.S. State residents) or lodge a complaint with your data protection regulator (e.g., ICO in the UK, FDPIC in Switzerland)."
-      ]
-    }
+    "appealProcess": null
   },
   {
     "id": "us-take-it-down-act",
     "reference": "S.146",
     "title": "TAKE IT DOWN Act",
-    "summary": "Federal law signed into law on May 19, 2025, criminalizing nonconsensual intimate imagery including deepfakes and requiring covered platforms to remove such content within 48 hours of verified requests. Platforms have until May 19, 2026 to implement required notice-and-removal processes.",
+    "summary": "Federal law signed on May 19, 2025, criminalizing nonconsensual intimate imagery including deepfakes and requiring covered platforms to remove such content within 48 hours of verified requests. The May 19, 2026 deadline for platforms to implement notice-and-removal processes has now passed, and the FTC has begun active enforcement, including sending compliance reminder letters to major platforms.",
     "url": "https://www.congress.gov/bill/119th-congress/senate-bill/146/text",
-    "accessTimestamp": "2026-07-03T18:03:19.836Z",
+    "accessTimestamp": "2026-07-04T14:36:33.324Z",
     "policies": [
       {
         "id": "take-it-down-authentic-adults",

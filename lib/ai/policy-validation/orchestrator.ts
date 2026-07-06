@@ -66,27 +66,17 @@ export async function orchestratePolicyValidation(
       })),
     );
 
-    if (
-      documentValidation.status === 'valid' &&
-      documentValidation.newDocuments.length === 0 &&
-      documentValidation.removedDocuments.length === 0 &&
-      documentValidation.validDocuments.every((doc) => doc.status === 'valid')
-    ) {
-      return {
-        status: 'completed_no_changes',
-        platformId,
-        platformName,
-        data: {
-          documentValidation,
-          analysis: {
-            reasoning:
-              'Document validation found no changes needed. All documents are current and accessible.',
-          },
-        },
-        reasoning:
-          'Document validation found no changes needed. All documents are current and accessible.',
-      };
-    }
+    // We intentionally do NOT short-circuit to "no changes" based on the
+    // document-validation verdict. That verdict comes from an LLM + web_search
+    // call which is variable and, when the search underperforms, rubber-stamps
+    // every document as `valid` — silently skipping the real work and reporting
+    // "no changes" even when the policies have changed (the root cause of runs
+    // that appeared to hang on Step 1 and then returned "no changes needed").
+    // Change detection is done authoritatively in Step 5 by scraping each
+    // document and comparing its actual content (comparePlatformPolicies), so we
+    // always run the full pipeline. Step 1's role is limited to discovering
+    // new/removed documents; whether the known documents changed is decided by
+    // the real content comparison, not by the search verdict.
 
     // Step 2: Scrape updated/new documents
 
@@ -198,12 +188,15 @@ export async function orchestratePolicyValidation(
     // Step 4: Build new platform policies
     const documentResults = [];
 
-    // Add existing documents
-    for (let i = 0; i < documentValidation.validDocuments.length; i++) {
-      const doc = documentValidation.validDocuments[i];
-      const abstraction = policyAbstractions[i];
+    // Add existing documents. Abstractions exist only for documents whose scrape
+    // succeeded, so `policyAbstractions` is shorter than `validDocuments` when any
+    // scrape failed. Match by documentId, not position — indexing by the
+    // validDocuments position attributes another document's abstraction (or
+    // `undefined`, which crashes on `.success`) to the wrong document.
+    for (const doc of documentValidation.validDocuments) {
+      const abstraction = policyAbstractions.find((a) => a.documentId === doc.id);
 
-      if (abstraction.success) {
+      if (abstraction && abstraction.success) {
         documentResults.push({
           document: {
             id: doc.id,
@@ -217,11 +210,11 @@ export async function orchestratePolicyValidation(
       }
     }
 
-    // Add new documents
-    const newDocAbstractions = policyAbstractions.slice(documentValidation.validDocuments.length);
+    // Add new documents. Same documentId lookup — new docs are keyed `new-${i}`
+    // when added to documentsForAbstraction above.
     for (let i = 0; i < documentValidation.newDocuments.length; i++) {
       const doc = documentValidation.newDocuments[i];
-      const abstraction = newDocAbstractions[i];
+      const abstraction = policyAbstractions.find((a) => a.documentId === `new-${i}`);
 
       if (abstraction && abstraction.success) {
         documentResults.push({
