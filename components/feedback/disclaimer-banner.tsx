@@ -38,7 +38,7 @@ export function DisclaimerBanner() {
           <p className="text-muted-foreground">
             If you encounter anything confusing or that doesn&apos;t work as expected, please{' '}
             <Link
-              href={process.env.TYPEFORM_FEEDBACK_URL || '#'}
+              href={process.env.NEXT_PUBLIC_TYPEFORM_FEEDBACK_URL || '#'}
               target="_blank"
               onClick={handleFeedbackClick}
               className="text-muted-foreground underline underline-offset-2 font-medium"

@@ -415,7 +415,7 @@ export function LetterReview({
                         experience, you help us make this tool more supportive for others in similar
                         situations. If you would like to provide more detailed feedback, please{' '}
                         <Link
-                          href={process.env.TYPEFORM_FEEDBACK_URL || '#'}
+                          href={process.env.NEXT_PUBLIC_TYPEFORM_FEEDBACK_URL || '#'}
                           target="_blank"
                           onClick={() => analytics.trackFeedbackSubmission('typeform')}
                           className="underline underline-offset-2 font-medium hover:text-primary/90"
@@ -499,7 +499,7 @@ export function LetterReview({
             This tool is new and learning! By sharing your experience, you help us make this tool
             more supportive for others in similar situations.{' '}
             <Link
-              href={process.env.TYPEFORM_FEEDBACK_URL || '#'}
+              href={process.env.NEXT_PUBLIC_TYPEFORM_FEEDBACK_URL || '#'}
               target="_blank"
               onClick={() => analytics.trackFeedbackSubmission('typeform')}
               className="underline underline-offset-2 font-medium hover:text-primary/90"
