@@ -92,7 +92,7 @@ export function RemovalProcess({ onComplete }: RemovalProcessProps) {
   return (
     <div className="space-y-6">
       <div className="bg-white rounded-xl p-6">
-        <h2 className="text-xl font-medium mb-2">Available reporting processes</h2>
+        <h3 className="text-xl font-medium mb-2">Available reporting processes</h3>
         <p className="text-muted-foreground mb-4">
           Below are the standard and escalated reporting processes for content removal on{' '}
           {platformName}.
@@ -104,7 +104,7 @@ export function RemovalProcess({ onComplete }: RemovalProcessProps) {
               <CollapsibleTrigger className="w-full text-left px-4 py-3">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="text-base font-medium">Standard reporting process</h3>
+                    <h4 className="text-base font-medium">Standard reporting process</h4>
                     <p className="text-sm text-muted-foreground">
                       The platform&apos;s built-in reporting system for content removal
                     </p>
@@ -133,7 +133,7 @@ export function RemovalProcess({ onComplete }: RemovalProcessProps) {
               <CollapsibleTrigger className="w-full text-left px-4 py-3">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="text-base font-medium">Escalated reporting process</h3>
+                    <h4 className="text-base font-medium">Escalated reporting process</h4>
                     <p className="text-sm text-muted-foreground">
                       Additional support channels for sensitive content removal requests
                     </p>
@@ -160,12 +160,13 @@ export function RemovalProcess({ onComplete }: RemovalProcessProps) {
 
         <div className="mt-8 space-y-6">
           <div className="space-y-4">
-            <h4 className="text-lg font-medium">
+            <h3 id="reporting-status-label" className="text-lg font-medium">
               Have you previously tried any of these processes?
-            </h4>
+            </h3>
             <RadioGroup
               value={status || ''}
               onValueChange={(value) => handleStatusChange(value as ReportingStatus)}
+              aria-labelledby="reporting-status-label"
               className="space-y-3"
             >
               <div className="flex items-center space-x-3">

@@ -32,6 +32,8 @@ type Step =
   | 'generation'
   | 'review';
 
+const PAGE_TITLE = 'Building your takedown letter';
+
 const stepTitles: Record<Step, string> = {
   'process-explanation': 'Building your takedown letter',
   'platform-selection': 'Select the platform',
@@ -225,6 +227,11 @@ export default function LetterGenerator() {
     ? formState.platformInfo.customName
     : formState.platformInfo?.platformName || 'Unknown Platform';
 
+  // The page always has exactly one h1 = PAGE_TITLE. On the overview step the
+  // visible title already is PAGE_TITLE, so it serves as the h1; on every other
+  // step we add a visually-hidden h1 and drop the visible step title to an h2.
+  const titleIsPageTitle = stepTitles[currentStep] === PAGE_TITLE;
+
   return (
     <main className="flex-1">
       <div className="max-w-5xl mx-auto py-2">
@@ -258,8 +265,13 @@ export default function LetterGenerator() {
               </Button>
             )}
 
+            {!titleIsPageTitle && <h1 className="sr-only">{PAGE_TITLE}</h1>}
             <div className="flex flex-col items-start">
-              <h2 className="text-2xl sm:text-3xl mb-4">{stepTitles[currentStep]}</h2>
+              {titleIsPageTitle ? (
+                <h1 className="text-2xl sm:text-3xl mb-4">{stepTitles[currentStep]}</h1>
+              ) : (
+                <h2 className="text-2xl sm:text-3xl mb-4">{stepTitles[currentStep]}</h2>
+              )}
               <p className="text-muted-foreground">{stepDescriptions[currentStep]} </p>
             </div>
 
@@ -309,9 +321,9 @@ export default function LetterGenerator() {
                     onRetry={handleRetryGeneration}
                   />
                 ) : (
-                  <div className="flex flex-col items-center justify-center py-8 sm:py-12">
+                  <div role="status" className="flex flex-col items-center justify-center py-8 sm:py-12">
                     <div className="bg-accent-light/50 rounded-xl p-6 max-w-xl text-center">
-                      <Loader2 className="w-8 h-8 mx-auto mb-4 animate-spin text-primary" />
+                      <Loader2 className="w-8 h-8 mx-auto mb-4 animate-spin text-primary" aria-hidden="true" />
                       <h3 className="text-lg font-medium mb-2">
                         {isRegenerating ? 'Regenerating your letter' : 'Creating your letter'}
                       </h3>

@@ -8,9 +8,9 @@ interface ErrorMessageProps {
 
 export function ErrorMessage({ message, onRetry }: ErrorMessageProps) {
   return (
-    <div className="flex flex-col items-center justify-center py-8 sm:py-12">
+    <div role="alert" className="flex flex-col items-center justify-center py-8 sm:py-12">
       <div className="bg-destructive/10 rounded-xl p-6 max-w-xl text-center">
-        <AlertCircle className="w-8 h-8 mx-auto mb-4 text-destructive" />
+        <AlertCircle className="w-8 h-8 mx-auto mb-4 text-destructive" aria-hidden="true" />
         <h3 className="text-lg font-medium mb-2">Letter generation failed</h3>
         <p className="text-muted-foreground mb-6">{message || 'There was an issue generating your letter. Please try again.'}</p>
         <Button 

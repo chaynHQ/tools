@@ -1,38 +1,39 @@
 'use client';
 
 import { cn } from '@/lib/utils';
-import { motion } from 'framer-motion';
+import * as RadioGroupPrimitive from '@radix-ui/react-radio-group';
 
 interface SelectableCardProps {
   value: string;
   label: string;
   description?: string;
-  selected: boolean;
-  onClick: () => void;
 }
 
-export function SelectableCard({
-  label,
-  description,
-  selected,
-  onClick,
-}: SelectableCardProps) {
+export function SelectableCard({ value, label, description }: SelectableCardProps) {
   return (
-    <motion.div
-      whileHover={{ scale: 1.02 }}
-      whileTap={{ scale: 0.98 }}
-      onClick={onClick}
+    <RadioGroupPrimitive.Item
+      value={value}
       className={cn(
-        'relative cursor-pointer rounded-lg p-3.5 transition-all duration-200',
-        selected ? 'bg-accent-light border-accent shadow-md' : 'bg-white hover:bg-neutral/10',
+        'relative cursor-pointer rounded-lg p-3.5 text-left transition-all duration-200',
+        'border border-transparent bg-white hover:bg-neutral/10',
+        'focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2',
+        'data-[state=checked]:border-accent data-[state=checked]:bg-accent-light data-[state=checked]:shadow-md',
       )}
     >
-      <div className="space-y-1">
-        <h4 className="text-sm font-medium text-foreground">{label}</h4>
+      <span
+        aria-hidden="true"
+        className="absolute top-3 right-3 flex h-4 w-4 items-center justify-center rounded-full border border-muted-foreground/50 bg-white"
+      >
+        <RadioGroupPrimitive.Indicator className="h-2 w-2 rounded-full bg-accent" />
+      </span>
+      <span className="block space-y-1 pr-7">
+        <span className="block text-sm font-medium text-foreground">{label}</span>
         {description && (
-          <p className="text-sm text-muted-foreground/90 leading-relaxed">{description}</p>
+          <span className="block text-sm text-muted-foreground/90 leading-relaxed">
+            {description}
+          </span>
         )}
-      </div>
-    </motion.div>
+      </span>
+    </RadioGroupPrimitive.Item>
   );
 }

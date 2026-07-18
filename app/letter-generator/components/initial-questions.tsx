@@ -21,6 +21,7 @@ import 'regenerator-runtime/runtime';
 import { QuestionSection } from './question-section';
 import { SelectableCard } from './selectable-card';
 import { VoiceInput } from './voice-input';
+import * as RadioGroupPrimitive from '@radix-ui/react-radio-group';
 
 interface InitialQuestionsForm {
   contentLocationType: 'url' | 'description';
@@ -253,28 +254,31 @@ export function InitialQuestions({ onComplete }: InitialQuestionsProps) {
         >
           <div className="space-y-8">
             <div className="space-y-3">
-              <Label className="text-lg font-medium">What type of content was shared?*</Label>
-              <div className="grid grid-cols-2 gap-3 mt-4">
-                <Controller
-                  name="contentType"
-                  control={control}
-                  rules={{ required: true }}
-                  render={({ field }) => (
-                    <>
-                      {contentTypes.map((type) => (
-                        <SelectableCard
-                          key={type.value}
-                          value={type.value}
-                          label={type.label}
-                          description={type.description}
-                          selected={field.value === type.value}
-                          onClick={() => field.onChange(type.value)}
-                        />
-                      ))}
-                    </>
-                  )}
-                />
-              </div>
+              <p id="content-type-label" className="text-lg font-medium">
+                What type of content was shared?*
+              </p>
+              <Controller
+                name="contentType"
+                control={control}
+                rules={{ required: true }}
+                render={({ field }) => (
+                  <RadioGroupPrimitive.Root
+                    value={field.value || ''}
+                    onValueChange={field.onChange}
+                    aria-labelledby="content-type-label"
+                    className="grid grid-cols-2 gap-3 mt-4"
+                  >
+                    {contentTypes.map((type) => (
+                      <SelectableCard
+                        key={type.value}
+                        value={type.value}
+                        label={type.label}
+                        description={type.description}
+                      />
+                    ))}
+                  </RadioGroupPrimitive.Root>
+                )}
+              />
               {errors.contentType && (
                 <p className="text-sm text-destructive">
                   Knowing the type of content helps us identify which platform policies have been
@@ -284,28 +288,31 @@ export function InitialQuestions({ onComplete }: InitialQuestionsProps) {
             </div>
 
             <div className="space-y-3">
-              <Label className="text-lg font-medium">How was the content shared?*</Label>
-              <div className="grid grid-cols-2 gap-3 mt-4">
-                <Controller
-                  name="contentContext"
-                  control={control}
-                  rules={{ required: true }}
-                  render={({ field }) => (
-                    <>
-                      {contentContexts.map((context) => (
-                        <SelectableCard
-                          key={context.value}
-                          value={context.value}
-                          label={context.label}
-                          description={context.description}
-                          selected={field.value === context.value}
-                          onClick={() => field.onChange(context.value)}
-                        />
-                      ))}
-                    </>
-                  )}
-                />
-              </div>
+              <p id="content-context-label" className="text-lg font-medium">
+                How was the content shared?*
+              </p>
+              <Controller
+                name="contentContext"
+                control={control}
+                rules={{ required: true }}
+                render={({ field }) => (
+                  <RadioGroupPrimitive.Root
+                    value={field.value || ''}
+                    onValueChange={field.onChange}
+                    aria-labelledby="content-context-label"
+                    className="grid grid-cols-2 gap-3 mt-4"
+                  >
+                    {contentContexts.map((context) => (
+                      <SelectableCard
+                        key={context.value}
+                        value={context.value}
+                        label={context.label}
+                        description={context.description}
+                      />
+                    ))}
+                  </RadioGroupPrimitive.Root>
+                )}
+              />
               {errors.contentContext && (
                 <p className="text-sm text-destructive">
                   Understanding how the content was shared helps us address specific privacy
@@ -315,9 +322,11 @@ export function InitialQuestions({ onComplete }: InitialQuestionsProps) {
             </div>
 
             <div className="space-y-4">
-              <Label className="text-lg font-medium">Where can the content be found?*</Label>
+              <p id="content-location-label" className="text-lg font-medium">
+                Where can the content be found?*
+              </p>
               <div className="space-y-4 mt-4">
-                <div className="flex gap-4">
+                <div className="flex gap-4" role="radiogroup" aria-labelledby="content-location-label">
                   <label className="flex items-center">
                     <input
                       type="radio"
@@ -343,6 +352,7 @@ export function InitialQuestions({ onComplete }: InitialQuestionsProps) {
                     <Input
                       id="contentUrl"
                       type="text"
+                      aria-label="URL where the content can be found"
                       {...register('contentUrl', {
                         required: 'Please provide the URL where the content can be found',
                         validate: {
@@ -370,6 +380,7 @@ export function InitialQuestions({ onComplete }: InitialQuestionsProps) {
                       <div className="flex-1">
                         <Textarea
                           id="contentDescription"
+                          aria-label="Describe where the content can be found"
                           {...register('contentDescription', {
                             required: 'Please describe where the content can be found',
                           })}

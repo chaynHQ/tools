@@ -13,11 +13,11 @@ describe('Development Data Collection', () => {
 
     // Complete a full flow
     cy.contains('Start your request').click();
-    cy.get('h2').contains('Building your takedown letter');
+    cy.contains('Building your takedown letter');
     cy.contains('Start your request').click();
 
     // Platform selection
-    cy.get('h3').contains('Instagram').click();
+    cy.contains('[role="radio"]', 'Instagram').click();
     cy.contains('Continue').click();
 
     // Reporting status
@@ -69,7 +69,7 @@ describe('Development Data Collection', () => {
 
     // Complete minimal flow
     cy.contains('Start your request').click();
-    cy.get('h2').contains('Building your takedown letter');
+    cy.contains('Building your takedown letter');
     cy.contains('Start your request').click();
     cy.contains('Other platform').click();
     cy.get('#other-platform').type('TestPlatform');

@@ -14,6 +14,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { AlertTriangle, Loader2 } from 'lucide-react';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
+import * as RadioGroupPrimitive from '@radix-ui/react-radio-group';
 
 interface PlatformSelectionProps {
   onComplete: (platformInfo: PlatformInfo) => void;
@@ -127,51 +128,58 @@ export function PlatformSelection({ onComplete }: PlatformSelectionProps) {
 
   return (
     <div className="space-y-8">
-      <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+      <RadioGroupPrimitive.Root
+        value={selectedPlatform}
+        onValueChange={(value) => setSelectedPlatform(value as PlatformId | 'other')}
+        aria-label="Select the platform where the content is hosted"
+        className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4"
+      >
         {platforms.map((platform) => (
-          <motion.div
+          <RadioGroupPrimitive.Item
             key={platform.id}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            className={`
-              cursor-pointer p-3 rounded-xl transition-colors
-              ${selectedPlatform === platform.id ? 'bg-accent-light border border-accent' : 'bg-white'}
-            `}
-            onClick={() => setSelectedPlatform(platform.id)}
+            value={platform.id}
+            className={`relative cursor-pointer p-3 rounded-xl transition-transform
+            hover:scale-[1.02] active:scale-[0.98]
+            focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2
+            ${selectedPlatform === platform.id ? 'bg-accent-light border border-accent' : 'bg-white'}`}
           >
+            <span
+              aria-hidden="true"
+              className="absolute top-2 right-2 flex h-4 w-4 items-center justify-center rounded-full border border-muted-foreground/50 bg-white"
+            >
+              <RadioGroupPrimitive.Indicator className="h-2 w-2 rounded-full bg-accent" />
+            </span>
             <div className="flex flex-col items-center text-center">
               <div className="w-8 h-8 mb-2 relative">
                 <Image
                   src={platform.logo}
-                  alt={`${platform.name} logo`}
+                  alt=""
                   fill
                   className={`object-contain ${platform.id === 'pornhub' ? 'rounded-sm' : ''}`}
                 />
               </div>
-              <h3 className="text-sm font-medium">{platform.name}</h3>
+              <span className="text-sm font-medium">{platform.name}</span>
             </div>
-          </motion.div>
+          </RadioGroupPrimitive.Item>
         ))}
 
-        <motion.div
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-          className={`
-            cursor-pointer p-3 rounded-xl transition-colors
-            ${selectedPlatform === 'other' ? 'bg-accent-light border border-accent' : 'bg-white'}
-          `}
-          onClick={() => setSelectedPlatform('other')}
+        <RadioGroupPrimitive.Item
+          value="other"
+          className={`cursor-pointer p-3 rounded-xl transition-transform
+              hover:scale-[1.02] active:scale-[0.98]
+              focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2
+              ${selectedPlatform === 'other' ? 'bg-accent-light border border-accent' : 'bg-white'}`}
         >
           <div className="flex flex-col items-center text-center">
             <div className="w-8 h-8 mb-2 flex items-center justify-center">
               <div className="w-6 h-6 rounded-full bg-muted flex items-center justify-center">
-                <span className="text-base">+</span>
+                <span aria-hidden="true" className="text-base">+</span>
               </div>
             </div>
-            <h3 className="text-sm font-medium">Other platform</h3>
+            <span className="text-sm font-medium">Other platform</span>
           </div>
-        </motion.div>
-      </div>
+        </RadioGroupPrimitive.Item>
+      </RadioGroupPrimitive.Root>
 
       {selectedPlatform === 'other' && (
         <motion.div
@@ -208,10 +216,10 @@ export function PlatformSelection({ onComplete }: PlatformSelectionProps) {
                     <h4 className="font-medium">Reminder about messaging platforms</h4>
                     <p className="text-muted-foreground text-sm">
                       Remember that for messaging platforms such as WhatsApp, iMessage, Signal and
-                      Telegram, the platform does not have the power to remove content from people&apos;s
-                      messaging threads or groups. If you have been sent the content, or are in the
-                      group it was shared then you can report the individual sharing it from within
-                      the app.
+                      Telegram, the platform does not have the power to remove content from
+                      people&apos;s messaging threads or groups. If you have been sent the content,
+                      or are in the group it was shared then you can report the individual sharing
+                      it from within the app.
                     </p>
                     <p className="text-muted-foreground text-sm">
                       You can still go ahead and generate a letter to send to the platform if you

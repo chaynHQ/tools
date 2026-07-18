@@ -269,9 +269,9 @@ export function FollowUpQuestions({
 
   if (isLoading) {
     return (
-      <div className="flex flex-col items-center justify-center py-12">
+      <div role="status" className="flex flex-col items-center justify-center py-12">
         <div className="bg-accent-light/50 rounded-xl p-6 max-w-xl text-center">
-          <Loader2 className="w-8 h-8 mx-auto mb-4 animate-spin text-primary" />
+          <Loader2 className="w-8 h-8 mx-auto mb-4 animate-spin text-primary" aria-hidden="true" />
           <h3 className="text-lg font-medium mb-2">Analysing your responses</h3>
           <p className="text-muted-foreground">
             We&apos;re using AI to analyse your responses and generate relevant supporting questions to
@@ -284,9 +284,9 @@ export function FollowUpQuestions({
 
   if (error && followUpQuestions.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-12">
+      <div role="alert" className="flex flex-col items-center justify-center py-12">
         <div className="bg-accent-light/50 rounded-xl p-6 max-w-xl text-center">
-          <AlertCircle className="w-8 h-8 mx-auto mb-4 text-primary" />
+          <AlertCircle className="w-8 h-8 mx-auto mb-4 text-primary" aria-hidden="true" />
           <h3 className="text-lg font-medium mb-2">Unable to generate supporting questions</h3>
           <p className="text-muted-foreground mb-6">
             We&apos;re having trouble connecting to our AI service. You can proceed with generating your
@@ -305,7 +305,7 @@ export function FollowUpQuestions({
 
   if (!isLoading && followUpQuestions.length === 0 && !error && hasInitialized) {
     return (
-      <div className="flex flex-col items-center justify-center py-12">
+      <div role="status" className="flex flex-col items-center justify-center py-12">
         <div className="bg-accent-light/50 rounded-xl p-6 max-w-xl text-center">
           <h3 className="text-lg font-medium mb-2">No additional questions needed</h3>
           <p className="text-muted-foreground mb-6">

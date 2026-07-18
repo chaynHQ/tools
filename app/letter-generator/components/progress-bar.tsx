@@ -21,19 +21,29 @@ const stepNames = [
 export function ProgressBar({ currentStep, totalSteps }: ProgressBarProps) {
   const progress = (currentStep / totalSteps) * 100;
   const [hoveredStep, setHoveredStep] = useState<number | null>(null);
+  const visibleSteps = stepNames.slice(0, totalSteps);
+  const hasCurrent = currentStep >= 1 && currentStep <= visibleSteps.length;
 
   return (
     <div className="w-full max-w-[800px] m-auto my-4 mb-6">
-      <div className="relative flex items-center justify-between">
-        <div className="absolute left-0 right-0 h-1 bg-muted/50" />
+      {/* Announce the current step to screen readers as the user advances */}
+      <p className="sr-only" aria-live="polite">
+        {hasCurrent
+          ? `Step ${currentStep} of ${visibleSteps.length}: ${stepNames[currentStep - 1]}`
+          : ''}
+      </p>
+
+      <div role="list" aria-label="Progress" className="relative flex items-center justify-between">
+        <div aria-hidden="true" className="absolute left-0 right-0 h-1 bg-muted/50" />
         <motion.div
+          aria-hidden="true"
           className="absolute left-0 h-1 bg-accent origin-left"
           initial={{ width: 0 }}
           animate={{ width: `${progress}%` }}
           transition={{ duration: 0.5 }}
         />
 
-        {stepNames.slice(0, totalSteps).map((name, index) => {
+        {visibleSteps.map((name, index) => {
           const stepNumber = index;
           const isCurrent = stepNumber === currentStep - 1;
           const isPast = stepNumber < currentStep;
@@ -41,11 +51,17 @@ export function ProgressBar({ currentStep, totalSteps }: ProgressBarProps) {
           return (
             <div
               key={index}
+              role="listitem"
+              aria-current={isCurrent ? 'step' : undefined}
               className="relative z-10"
               onMouseEnter={() => setHoveredStep(stepNumber)}
               onMouseLeave={() => setHoveredStep(null)}
             >
+              <span className="sr-only">
+                {name} — {isCurrent ? 'current step' : isPast ? 'completed' : 'not started'}
+              </span>
               <motion.div
+                aria-hidden="true"
                 className={`
                   w-3 h-3 rounded-full transition-all duration-200
                   ${
@@ -63,6 +79,7 @@ export function ProgressBar({ currentStep, totalSteps }: ProgressBarProps) {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   className="absolute left-1/2 -translate-x-1/2 mt-2"
+                  aria-hidden="true"
                 >
                   <div
                     className={`
