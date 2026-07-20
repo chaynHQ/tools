@@ -17,7 +17,7 @@ jobs:
       preview_url: ${{ steps.waitForVercelDeployment.outputs.url }}
     steps:
       - name: Wait for Vercel preview deployment to be ready
-        uses: patrickedqvist/wait-for-vercel-preview@v1.3.2
+        uses: patrickedqvist/wait-for-vercel-preview@v1.3.3
         id: waitForVercelDeployment
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -40,16 +40,16 @@ jobs:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: '18'
           cache: 'npm'
 
       - name: Run cypress
-        uses: cypress-io/github-action@v6.7.16
+        uses: cypress-io/github-action@v7.4.1
         with:
           browser: chrome
           config-file: cypress.config.ts
