@@ -6,8 +6,9 @@ const { serverInstance: rollbar } = require('../lib/rollbar');
 
 async function validatePlatformPolicies() {
   try {
-    const platform = process.argv[2];
-    const forceRewrite = process.argv.includes('--force-rewrite');
+    const args = process.argv.slice(2);
+    const forceRewrite = args.includes('--force-rewrite');
+    const platform = args.find((arg) => !arg.startsWith('-'));
 
     if (!platform) {
       console.error('Error: Platform parameter is required');

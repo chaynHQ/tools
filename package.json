@@ -31,7 +31,7 @@
     "cypress": "cypress open",
     "cypress:headless": "cypress run --browser electron --config video=false",
     "policy-validation": "npx tsx scripts/policy-validation.ts",
-    "policy-validation:force-rewrite": "npx tsx scripts/policy-validation.ts"
+    "policy-validation:force-rewrite": "npx tsx scripts/policy-validation.ts --force-rewrite"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.110.0",

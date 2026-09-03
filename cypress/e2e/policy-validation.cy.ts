@@ -36,8 +36,8 @@ describe('Policy Validation Workflow', () => {
 
   it('should validate platform parameter handling', () => {
     cy.readFile('scripts/policy-validation.ts').then((content) => {
-      // Check that the script properly handles platform parameter
-      expect(content).to.include('process.argv[2]');
+      // Check that the script properly handles the platform parameter from the command line
+      expect(content).to.include('process.argv.slice(2)');
       expect(content).to.include('Platform parameter is required');
       expect(content).to.include('Invalid platform');
     });
